@@ -1,12 +1,15 @@
 import requests
 import json
 import time
+import re
 
 # V1 END POINT
 API_ENDPOINT = 'http://wax.eosn.io'
 
 # Mainnet V2 END POINT
-API_ENDPOINT2 = 'https://api.waxsweden.org'
+#API_ENDPOINT2 = 'https://api.waxsweden.org'
+API_ENDPOINT2 = 'https://wax.eosrio.io'
+
 
 # Testnet V2 END point
 API_ENDPOINT2_TESTNET = 'https://testnet.waxsweden.org'
@@ -107,8 +110,19 @@ def get_trxv2(payload,type):
     return response_json
     
 
-def hasNumbers(inputString):
-    return any(char.isdigit() for char in inputString)
+def portRegex(inputString):
+    # Checks whether a URL contains a port number
+    return bool(re.search(":([0-9]+)", inputString))
+
+# Splits host from port 
+def split_host_port(string):
+    if not string.rsplit(':', 1)[-1].isdigit():
+        return (string, None)
+    # Split string into a list, maxspit 1
+    string = string.rsplit(':', 1)
+    host = string[0]  # 1st index is always host
+    port = int(string[1])
+    return (host, port)
 
 
 # Performs a get info and looks for producer name, if found returns head_block num.
@@ -128,9 +142,8 @@ def get_testnetproducer_cpustats(producer):
         current_headblock = current_headblock - 1
         # Only go back 4000 Blocks
         amount = amount + 1
-        if amount == 4000:
+        if amount == 100:
             return None
     else:
         return currentblock['transactions'][0]['cpu_usage_us']
-
 

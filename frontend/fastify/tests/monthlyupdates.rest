@@ -1,0 +1,11 @@
+post http://localhost:3000/monthlyUpdate
+Content-Type: application/json
+
+{
+"owner_name": "sentnlagents",
+"tech_ops": "This is an update of less than 10000 characters", 
+"product": "This is an update of less than 10000 characters", 
+"bizdev": "This is an update of less than 10000 characters",
+"community": "This is an update of less than 10000 characters\n testtesttetstets",
+"date_update": "2020-08-26 20:00:36.450587"
+}

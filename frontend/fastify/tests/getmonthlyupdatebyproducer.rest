@@ -1,0 +1,6 @@
+post http://localhost:3000/monthlyUpdates/sentnlagents
+Content-Type: application/json
+
+{
+"month": "September"
+}

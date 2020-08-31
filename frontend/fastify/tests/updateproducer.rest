@@ -1,0 +1,6 @@
+put http://localhost:3000/activeproducer/valcapitalbp
+Content-Type: application/json
+
+{
+"active": false
+}

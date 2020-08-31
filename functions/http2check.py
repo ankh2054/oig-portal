@@ -23,10 +23,11 @@ def check_http2(domain_name,port):
         pp = conn.selected_alpn_protocol()
 
         if pp == "h2":
-            return True
+            return True, 'ok'
         else:
-            return False      
+            return False , 'HTTP2 not available'     
         conn.shutdown()
         conn.close()
     except Exception as e:
         print(e)
+        return False, str(e)

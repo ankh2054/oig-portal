@@ -1,0 +1,21 @@
+{
+  "name": "oig-api-server",
+  "version": "1.0.0",
+  "description": "OIG Portal Fastify Server",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "prod": "NODE_ENV=production node server.js"
+  },
+  "author": "Charles Holtzkampf",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "fastify": "^3.3.0",
+    "fastify-cors": "^4.1.0",
+    "pg": "^8.3.2"
+  }
+}
