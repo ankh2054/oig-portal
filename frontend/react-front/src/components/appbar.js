@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import Link from '@material-ui/core/Link';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -24,6 +25,9 @@ const useStyles = makeStyles((theme) => ({
   menuButton: {
     marginRight: theme.spacing(2),
   },
+  link: {
+    margin: theme.spacing(1, 1.5),
+  },
   title: {
     flexGrow: 1,
     padding: '0 30px'
@@ -46,26 +50,54 @@ const useStyles = makeStyles((theme) => ({
 
 
 export default function ButtonAppBar() {
-  const [guildname, setGuildname] = useState([]);
   const classes = useStyles();
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   
 
   return (
-    <div className={classes.root}>
-      <AppBar  className={classes.menuwax}>
-        <Toolbar>
-          <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
-            <MenuIcon />
-          </IconButton>
-          <Icon style={{ fontSize: 80 }} classes={{root: classes.iconRoot}}>
-            
-            <WAXsvg style={{ fontSize: 90 }} className={classes.logosvg} />
-          </Icon>
-          <Typography fontWeight="fontWeightBold" variant="h4" className={classes.title} color='default'>
-          WAX - OIG Portal
-          </Typography>
-        </Toolbar>
-      </AppBar>
-    </div>
+    <>
+    <AppBar  position="fixed" className={classes.menuwax}>
+    <Toolbar>
+      <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
+          <MenuIcon />
+      </IconButton>
+      <Link  href="/" className={classes.link}>
+      <Icon style={{ fontSize: 140 }} classes={{root: classes.iconRoot}}>
+        <WAXsvg style={{ fontSize: 140 }} className={classes.logosvg} />
+      </Icon>
+      </Link>
+      <Typography fontWeight="fontWeightBold" variant="h4" className={classes.title} color='default'>
+       OIG Portal
+      </Typography>
+        <nav>
+            <Link underline="none" variant="button" color="inherit" href="/" className={classes.link}>
+              Home
+            </Link>
+            <Link underline="none" variant="button" color="inherit" href="/latestresults" className={classes.link}>
+              Latest Results
+            </Link>
+            <Link underline="none" variant="button" color="inherit" href="/form" className={classes.link}>
+              Submit Update
+            </Link>
+            <Link variant="button" color="inherit" href="#" className={classes.link}>
+              Support
+            </Link>
+      </nav>
+    </Toolbar>
+  </AppBar>
+  {/* To prefent items from going missing */}
+    <Toolbar />
+    <Toolbar />
+    <Toolbar />
+  </>
   );
 }

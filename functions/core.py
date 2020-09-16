@@ -2,14 +2,14 @@ import requests
 import json
 import time
 import re
+import random
 
 # V1 END POINT
 API_ENDPOINT = 'http://wax.eosn.io'
 
 # Mainnet V2 END POINT
-#API_ENDPOINT2 = 'https://api.waxsweden.org'
-API_ENDPOINT2 = 'https://wax.eosrio.io'
-
+API_ENDPOINT2 = 'https://api.waxsweden.org'
+#API_ENDPOINT2 = 'https://wax.eosrio.io'
 
 # Testnet V2 END point
 API_ENDPOINT2_TESTNET = 'https://testnet.waxsweden.org'
@@ -31,8 +31,9 @@ GET_BLOCK = '/v1/chain/get_block'
 
 # CREATE URL CALLS
 URL_INFO = API_ENDPOINT + GET_INFO
-URL_INFO_TEST = API_ENDPOINT_TESTNET + GET_INFO
+URL_INFO_TEST = API_ENDPOINT2_TESTNET + GET_INFO
 BLOCK_INFO_TESTNET = API_ENDPOINT_TESTNET + GET_BLOCK
+BLOCK_INFO = API_ENDPOINT + GET_BLOCK
 TABLE_INFO_URL = API_ENDPOINT + GET_TABLE_ROWS 
 HEADER_STATE = API_ENDPOINT + GET_BLOCK_HEADER_STATE 
 ACCOUNT = API_ENDPOINT + GET_ACCOUNT
@@ -80,6 +81,28 @@ def producerSCHED():
         top21_producer_list.append(i['producer_name'])
     return top21_producer_list
 
+# Get all transaction numbers from latest block
+def randomTransaction():
+    # Generat random number 
+    r1 = random.randint(0, 420)
+    # Create Block header json payload
+    curheadblock = headblock("mainnet")
+    testblock = curheadblock-r1
+    BLOCK_INFOS = requests.post(url=BLOCK_INFO, json={"block_num_or_id": testblock})
+    BLOCK_INFO_JSON = json.loads(BLOCK_INFOS.text)
+    # Get all transactions 
+    transactions = BLOCK_INFO_JSON['transactions']
+    # Extract all transaction IDs
+    trxlist = []
+    for trx in transactions:
+        try:
+            trx = trx['trx']['id']
+        except:
+            # return emtpy string
+            trx = False
+        trxlist.append(trx)
+    return trxlist
+
 
 def get_http_version(url,version):
     if version == "v1":
@@ -88,6 +111,18 @@ def get_http_version(url,version):
         info = "/v2/health"
     response = requests.get(url+info, timeout=60, verify=False)
     return response.raw.version
+
+# Python to curl request
+def curl_request(url,method,headers,payloads):
+    # construct the curl command from request
+    command = "curl -v -H {headers} {data} -X {method} {uri}"
+    data = "" 
+    if payloads:
+        payload_list = ['"{0}":"{1}"'.format(k,v) for k,v in payloads.items()]
+        data = " -d '{" + ", ".join(payload_list) + "}'"
+    header_list = ['"{0}: {1}"'.format(k, v) for k, v in headers.items()]
+    header = " -H ".join(header_list)
+    return command.format(method=method, headers=header, data=data, uri=url)
 
 
 def get_actionsv2(payload,type):
@@ -124,7 +159,6 @@ def split_host_port(string):
     port = int(string[1])
     return (host, port)
 
-
 # Performs a get info and looks for producer name, if found returns head_block num.
 def get_testnetproducer_cpustats(producer):
     # Get current headblock from testnet
@@ -142,7 +176,7 @@ def get_testnetproducer_cpustats(producer):
         current_headblock = current_headblock - 1
         # Only go back 4000 Blocks
         amount = amount + 1
-        if amount == 100:
+        if amount == 400:
             return None
     else:
         return currentblock['transactions'][0]['cpu_usage_us']

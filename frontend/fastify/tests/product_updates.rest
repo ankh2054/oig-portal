@@ -1,0 +1,19 @@
+post http://localhost:3000/productUpdate
+Content-Type: application/json
+
+{
+"owner_name": "sentnlagents",
+"name": "Automated Snapshot Service", 
+"description": "A system for creating one's own snapshots periodically..", 
+"stage": "Released",
+"analytics_url": "http://www.sentnl.io/stuff.html",
+"spec_url": "http://www.sentnl.io/stuff.html",
+"code_repo": "http://www.github.com/sentnl/snapshot-service", 
+"score": "30",
+"points": "1",
+"date_updated": "2020-09-02 17:21:07.273081 +00:00"
+}
+
+
+
+

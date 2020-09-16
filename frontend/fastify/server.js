@@ -22,11 +22,21 @@ fastify.get('/', (request, reply)=>{
 // PG Routes//
 fastify.get('/producers', db.getProducers)
 fastify.get('/results', db.getResults)
+fastify.get('/products', db.getProducts)
+fastify.get('/bizdevs', db.getBizdevs)
+fastify.get('/community', db.getCommunity)
 fastify.get('/latestresults', db.getLatestResults)
 fastify.get('/results/:owner', db.getResultsbyOwner)
+// Activate or deactivate producer
 fastify.put('/activeproducer/:owner', db.IsProducerActive)
 // Guild add monthly updates
 fastify.post('/monthlyUpdate', db.mothlyUpdate)
+// Guild product updates/insert
+fastify.post('/productUpdate', db.productUpdate)
+// Guild Bizdev updates/insert
+fastify.post('/bizdevUpdate', db.bizdevUpdate)
+// Guild Community updates/insert
+fastify.post('/communityUpdate', db.communityUpdate)
 // Retrieve momthly updates based on month
 fastify.post('/monthlyUpdates/:owner', db.getUpdatesbyOwner)
 

@@ -1,0 +1,18 @@
+post http://localhost:3000/bizdevUpdate
+Content-Type: application/json
+
+{
+"owner_name": "nation.wax",
+"name": "Exchanges listing", 
+"description": "EOSFInex/Bitfinex, OKEX, Binance", 
+"stage": "Qualified Lead",
+"analytics_url": "",
+"spec_url": "",
+"score": "6.6667",
+"points": "1",
+"date_updated": "2020-09-02 17:21:07.273081 +00:00"
+}
+
+
+
+

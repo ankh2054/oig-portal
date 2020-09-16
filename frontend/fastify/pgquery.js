@@ -32,6 +32,37 @@ const getResults = (request, reply) => {
       reply.status(200).send(results.rows);
     })
   }
+
+// Get all products
+const getProducts = (request, reply) => {
+  client.query('SELECT * FROM oig.products ORDER BY date_updated DESC', (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(results.rows);
+  })
+}
+
+// Get all bizdev
+const getBizdevs = (request, reply) => {
+  client.query('SELECT * FROM oig.bizdev ORDER BY date_updated DESC', (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(results.rows);
+  })
+}
+
+// Get all community
+const getCommunity = (request, reply) => {
+  client.query('SELECT * FROM oig.community ORDER BY date_updated DESC', (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(results.rows);
+  })
+}
+
 //Get latest results
 const getLatestResults = (request, reply) => {
     client.query('SELECT DISTINCT ON (owner_name) * FROM oig.results ORDER BY owner_name, date_check DESC', (error, results) => {
@@ -54,6 +85,7 @@ const getResultsbyOwner = (request, reply) => {
       reply.status(200).send(results.rows);
     })
   }
+
 
 //Set producer active or not - send true or false in body 
 const IsProducerActive = (request, reply) => {
@@ -83,6 +115,51 @@ const mothlyUpdate = (request, reply) => {
     })
   }
 
+// Insert Product update
+const productUpdate = (request, reply) => {
+  const { owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, points, date_updated } = request.body
+
+  client.query(
+      'INSERT into oig.products (owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, points, date_updated) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT (owner_name,name) DO UPDATE SET description = EXCLUDED.description, stage = EXCLUDED.stage, analytics_url = EXCLUDED.analytics_url, spec_url = EXCLUDED.spec_url, code_repo = EXCLUDED.code_repo, score = EXCLUDED.score, points = EXCLUDED.points, date_updated= EXCLUDED.date_updated ', 
+      [owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, points, date_updated], 
+      (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(`Producer modified: ${owner_name}`);
+  })
+}
+
+// Insert Bizdev update
+const bizdevUpdate = (request, reply) => {
+  const { owner_name, name, description, stage, analytics_url, spec_url, score, points, date_updated } = request.body
+
+  client.query(
+      'INSERT into oig.bizdev (owner_name, name, description, stage, analytics_url, spec_url, score, points, date_updated) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT (owner_name,name) DO UPDATE SET description = EXCLUDED.description, stage = EXCLUDED.stage, analytics_url = EXCLUDED.analytics_url, spec_url = EXCLUDED.spec_url, score = EXCLUDED.score, points = EXCLUDED.points, date_updated= EXCLUDED.date_updated ', 
+      [owner_name, name, description, stage, analytics_url, spec_url, score, points, date_updated], 
+      (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(`Producer modified: ${owner_name}`);
+  })
+}
+
+// Insert Community update
+const communityUpdate = (request, reply) => {
+  const { owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated } = request.body
+
+  client.query(
+      'INSERT into oig.community (owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT (owner_name) DO UPDATE SET origcontentpoints = EXCLUDED.origcontentpoints, transcontentpoints = EXCLUDED.transcontentpoints, eventpoints = EXCLUDED.eventpoints, managementpoints = EXCLUDED.managementpoints, score = EXCLUDED.score, date_updated= EXCLUDED.date_updated ', 
+      [owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated], 
+      (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(`Producer modified: ${owner_name}`);
+  })
+}
+
 
 // Get results for Particular Producer based on Month
 const getUpdatesbyOwner = (request, reply) => {
@@ -97,4 +174,4 @@ const getUpdatesbyOwner = (request, reply) => {
     })
   }
 
-module.exports = { getProducers, getResults, getResultsbyOwner, getLatestResults, IsProducerActive, mothlyUpdate, getUpdatesbyOwner};
+module.exports = { getProducers, getResults, getResultsbyOwner, getLatestResults, IsProducerActive, mothlyUpdate, getUpdatesbyOwner, productUpdate, getProducts, bizdevUpdate, getBizdevs, communityUpdate, getCommunity};

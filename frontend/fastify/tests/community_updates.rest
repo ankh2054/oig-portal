@@ -1,0 +1,14 @@
+post http://localhost:3000/communityUpdate
+Content-Type: application/json
+
+{
+"owner_name": "amsterdamwax",
+"origcontentpoints": "0", 
+"transcontentpoints": "0", 
+"eventpoints": "0",
+"managementpoints": "2",
+"outstandingpoints": "0",
+"score": "18.75",
+"date_updated": "2020-09-03 09:21:07.273081 +00:00"
+}
+

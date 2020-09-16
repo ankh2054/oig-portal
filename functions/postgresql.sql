@@ -14,8 +14,9 @@ CREATE TABLE oig.producer (
 	url VARCHAR ( 50 ) NOT NULL,
 	jsonurl VARCHAR ( 50 ) NOT NULL,
     chainsurl VARCHAR ( 50 ) NOT NULL,
-    active BOOLEAN NO NULL,
-    logo_svg VARCHAR ( 100 ) /*Can be Null as sometimes people dont have a logo */
+    active BOOLEAN NOT NULL,
+    logo_svg VARCHAR ( 100 ), /*Can be Null as sometimes people dont have a logo */
+    top21 BOOLEAN NOT NULL
 );
 
 
@@ -41,6 +42,8 @@ CREATE TABLE oig.results (
     https_check_error VARCHAR ( 1000 ),
     http2_check BOOLEAN NOT NULL,
     http2_check_error VARCHAR ( 1000 ),
+    tls_check VARCHAR ( 10 ),
+    tls_check_error VARCHAR ( 1000 ),
     full_history BOOLEAN NOT NULL,
     full_history_error VARCHAR ( 1000 ),
     snapshots BOOLEAN NOT NULL,
@@ -54,7 +57,9 @@ CREATE TABLE oig.results (
     wax_json BOOLEAN NOT NULL,
     chains_json BOOLEAN NOT NULL,
     cpu_time DECIMAL NOT NULL,
-    date_check TIMESTAMP NOT NULL
+    cpu_avg DECIMAL NOT NULL,
+    date_check TIMESTAMPTZ NOT NULL,
+    score DECIMAL NOT NULL
 );
 /* Unique index to cover two culumns*/
 CREATE UNIQUE INDEX idx_results_type ON oig.results(owner_name, date_check);
@@ -63,8 +68,46 @@ CREATE UNIQUE INDEX idx_results_type ON oig.results(owner_name, date_check);
 
 CREATE TABLE oig.pointsystem (
 	points_type VARCHAR ( 50 ) PRIMARY KEY,
-	points SMALLINT NOT NULL,
+	points SMALLINT,
     multiplier DECIMAL NOT NULL
+);
+
+CREATE TABLE oig.products (
+	owner_name VARCHAR ( 12 ),
+	name VARCHAR ( 40 ) NOT NULL,
+	description VARCHAR ( 1000 ) NOT NULL,
+	development_stage VARCHAR ( 50 ) NOT NULL,
+    analytics_url VARCHAR ( 100 ),
+    spec_url VARCHAR ( 100 ),
+    code_repo VARCHAR ( 100 ),
+    points SMALLINT NOT NULL,
+    score DECIMAL NOT NULL,
+    date_updated TIMESTAMPTZ NOT NULL
+);
+CREATE UNIQUE INDEX idx_products_type ON oig.products(owner_name, name);
+
+CREATE TABLE oig.bizdev (
+	owner_name VARCHAR ( 12 ),
+	name VARCHAR ( 40 ) NOT NULL,
+	description VARCHAR ( 1000 ) NOT NULL,
+	deal_stage VARCHAR ( 50 ) NOT NULL,
+    analytics_url VARCHAR ( 100 ),
+    spec_url VARCHAR ( 100 ),
+    points SMALLINT NOT NULL,
+    score DECIMAL NOT NULL,
+    date_updated TIMESTAMPTZ NOT NULL
+);
+CREATE UNIQUE INDEX idx_bizdev_type ON oig.bizdev(owner_name, name);
+
+CREATE TABLE oig.community (
+	owner_name VARCHAR ( 12 ) PRIMARY KEY,
+	origcontentpoints SMALLINT NOT NULL,
+    transcontentpoints SMALLINT NOT NULL,
+    eventpoints SMALLINT NOT NULL,
+    managementpoints SMALLINT NOT NULL,
+    outstandingpoints SMALLINT NOT NULL,
+    score DECIMAL NOT NULL,
+    date_updated TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE oig.updates (
@@ -73,9 +116,9 @@ CREATE TABLE oig.updates (
     product VARCHAR ( 10000 ),
     bizdev VARCHAR ( 10000 ),
     community VARCHAR ( 10000 ),
-    date_update TIMESTAMP NOT NULL 
+    date_update TIMESTAMPTZ NOT NULL 
 );
-CREATE UNIQUE INDEX idx_updates_type ON oig.results(owner_name, date_update);
+CREATE UNIQUE INDEX idx_updatess_type ON oig.updates(owner_name, date_update);
 
 CREATE USER oiguser WITH ENCRYPTED PASSWORD 'nightshade900';
 GRANT ALL PRIVILEGES ON DATABASE oig TO oiguser ;

@@ -34,10 +34,11 @@ def producerInsert(records):
         cursor = connection.cursor()
         # Insert new entries into postgresql but if owner_name already exists perform update
         ## Updates only columns in excluded list
-        sql_insert_query = """ INSERT INTO oig.producer (owner_name, candidate, url, jsonurl, chainsurl,logo_svg) 
-                           VALUES (%s,%s,%s,%s,%s,%s)
+        sql_insert_query = """ INSERT INTO oig.producer (owner_name, candidate, url, jsonurl, chainsurl, logo_svg, top21) 
+                           VALUES (%s,%s,%s,%s,%s,%s,%s)
                            ON CONFLICT (owner_name) DO UPDATE SET candidate = EXCLUDED.candidate, url = EXCLUDED.url, 
-                           jsonurl = EXCLUDED.jsonurl, chainsurl = EXCLUDED.chainsurl, logo_svg = EXCLUDED.logo_svg;
+                           jsonurl = EXCLUDED.jsonurl, chainsurl = EXCLUDED.chainsurl, 
+                           logo_svg = EXCLUDED.logo_svg, top21 = EXCLUDED.top21;
                            """
         # executemany() to insert multiple rows rows
         result = cursor.executemany(sql_insert_query, records)
@@ -134,6 +135,26 @@ def getProducers():
             cursor.close()
             connection.close()
 
+def getPoints():
+    try:
+        # Create connection to DB
+        connection = db_connection()
+        # Open cursor to DB
+        cursor = connection.cursor()
+        postgreSQL_select_Query = "SELECT * FROM oig.pointsystem"
+        cursor.execute(postgreSQL_select_Query)
+        producer_records = cursor.fetchall()
+        return producer_records
+
+    except (Exception, psycopg2.Error) as error:
+        print("Error fetching data from PostgreSQL table", error)
+
+    finally:
+        # closing database connection
+        if (connection):
+            cursor.close()
+            connection.close()
+
 def getApi(producer):
     try:
         # Create connection to DB
@@ -202,6 +223,35 @@ def getP2P(producer):
             cursor.close()
             connection.close()
 
+# Get past 30 days worth of CPU stats for producer
+def getCPU(producer):
+    try:
+        # Create connection to DB
+        connection = db_connection()
+        # Open cursor to DB
+        cursor = connection.cursor()
+        pg_select = """ 
+        SELECT cpu_time FROM oig.results WHERE owner_name = %s AND date_check > current_date - interval '10' day;
+        """
+        # date_check > current_date - interval '10' day;
+        # date_check >= date_trunc('month', CURRENT_DATE);  
+     
+        cursor.execute(pg_select, (producer, ))
+        p2p_node_url = cursor.fetchall()
+        return p2p_node_url
+
+    except (Exception, psycopg2.Error) as error:
+        print("Error fetching data from PostgreSQL table", error)
+
+    finally:
+        # closing database connection
+        if (connection):
+            cursor.close()
+            connection.close()
+
+#v = getCPU('sentnlagents')
+#print(type(v))
+#print(v[0][0])
 
 def getApiHttps(producer):
     try:
@@ -260,12 +310,13 @@ def resultsInsert(records):
         cursor = connection.cursor()
         # Insert new entries into postgresql but if owner_name already exists perform update
         ## Updates only columns in excluded list
-        sql_insert_query = """ INSERT INTO oig.results (owner_name, cors_check, cors_check_error, http_check, http_check_error, https_check, https_check_error, http2_check, http2_check_error, full_history, full_history_error, snapshots, seed_node, seed_node_error, api_node, api_node_error, oracle_feed, oracle_feed_error, wax_json, chains_json, cpu_time, date_check) 
-                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        sql_insert_query = """ INSERT INTO oig.results (owner_name, cors_check, cors_check_error, http_check, http_check_error, https_check, https_check_error, tls_check, tls_check_error, http2_check, http2_check_error, full_history, full_history_error, snapshots, seed_node, seed_node_error, api_node, api_node_error, oracle_feed, oracle_feed_error, wax_json, chains_json, cpu_time, cpu_avg, date_check, score) 
+                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                            ON CONFLICT (owner_name,date_check) DO UPDATE SET 
                            cors_check= EXCLUDED.cors_check, cors_check_error= EXCLUDED.cors_check_error, 
                            http_check = EXCLUDED.http_check, http_check_error = EXCLUDED.http_check_error,
                            https_check = EXCLUDED.https_check, https_check_error = EXCLUDED.https_check_error,
+                           tls_check = EXCLUDED.tls_check, tls_check_error = EXCLUDED.tls_check_error,
                            http2_check = EXCLUDED.http2_check, http2_check_error = EXCLUDED.http2_check_error,
                            full_history= EXCLUDED.full_history, full_history_error= EXCLUDED.full_history_error,
                            snapshots = EXCLUDED.snapshots, 
@@ -273,8 +324,8 @@ def resultsInsert(records):
                            api_node = EXCLUDED.api_node, api_node_error = EXCLUDED.api_node_error,
                            oracle_feed= EXCLUDED.oracle_feed, oracle_feed_error= EXCLUDED.oracle_feed_error,
                            wax_json= EXCLUDED.wax_json, 
-                           chains_json= EXCLUDED.chains_json, cpu_time= EXCLUDED.cpu_time, 
-                           date_check= EXCLUDED.date_check;
+                           chains_json= EXCLUDED.chains_json, cpu_time= EXCLUDED.cpu_time, cpu_avg= EXCLUDED.cpu_avg,
+                           date_check= EXCLUDED.date_check, score= EXCLUDED.score;
                            """
         # executemany() to insert multiple rows rows
         result = cursor.executemany(sql_insert_query, records)

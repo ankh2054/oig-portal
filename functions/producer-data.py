@@ -3,13 +3,17 @@ import requests
 import simplejson
 import socket
 import json
+import time
 from requests.exceptions import HTTPError
 import db_connect
 import json_extract
 import urllib3
 import http2check
+import tls_downgrade
+import test
 from datetime import datetime
 import backendconfig as cfg
+import statistics
 
 
 class bcolors:
@@ -24,7 +28,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-# mDisable SSL warnings
+# Disable SSL warnings
 urllib3.disable_warnings()
 
 try:
@@ -33,62 +37,128 @@ except ImportError:
     from json.decoder import JSONDecodeError
 
 
-# Settings
+# Load Settings from config
 chain_id = cfg.chain["chainid"]
 
+# Headers for curl request creator for get requests
+headers = {'Content-Type': 'application/json'}
 
-# Prdocuer Table
-prod_table =  {
-    "code": "eosio",
-    "table": "producers",
-    "scope": "eosio", 
-    "json": "true", 
-    "limit": "100", 
-    "lower_bound": "0"
-}
 
-# Delpioracle Table
-delphi_table =  {
-    "code": "delphioracle",
-    "table": "stats",
-    "scope": "delphioracle", 
-    "json": "true", 
-    "limit": "50", 
-    "lower_bound": "0"
-}
+# Get producer table 
+def get_table_data(code,table,scope,limit):
+    table_dict = {
+        "code": code,
+        "table": table,
+        "scope": scope,
+        "json": "true",
+        "limit": limit,
+        "lower_bound": "0"
+    }
+    return table_dict
 
-# Get Delpioacle actions
-delphi_actions = {
-    'limit': '100',
-    'account': 'delphioracle',
-    'track': 'true',
-    'simple': 'true',
-    'noBinary': 'true',
-    'checkLib': 'false'
-}
+# Get actions data
+def get_actions_data(account,limit):
+    actions_dict = {
+        'limit': limit,
+        'account': account,
+        'track': 'true',
+        'simple': 'true',
+        'noBinary': 'true',
+        'checkLib': 'false'
+    }
+    return actions_dict
 
-# Get eosmechanic actions for mainnet CPU results
-eosmech_actions = {
-    'limit': '120',
-    'account': 'eosmechanics',
-    'track': 'true',
-    'simple': 'true',
-    'noBinary': 'true',
-    'checkLib': 'false'
-}
+def concatenate(**kwargs):
+    result = ""
+    # Iterating over the keys of the Python kwargs dictionary
+    for arg in kwargs:
+        result += arg
+    return result
 
-# Get eosmechanic actions for testnet CPU results
-eosmech_actions_testnet = {
-    'limit': '100',
-    'account': 'eosmechanics',
-    'track': 'true',
-    'simple': 'true',
-    'noBinary': 'true',
-    'checkLib': 'false'
-}
+def pointsResults(results,pointsystem):
+    #resultslist = [producer, corscheck[0], 
+    # corscheck[1], checkhttp[0], checkhttp[1], 
+    # httpscheck[0], httpscheck[1], tlscheck[0], 
+    # tlscheck[1], http2check[0], http2check[1], 
+    # fullnode[0], fullnode[1], snapshots, 
+    # seednode[0], seednode[1], checkapi[0], 
+    # checkapi[1], delphiresult[0], delphiresult[1], 
+    # waxjson, chainsjson, cpuresult, 
+    # cpuavg, dt]
+    #pointsystem =  db_connect.getPoints()
+    points = 0
+    for check in pointsystem:
+        if check[0] == 'cors_check':
+            if results[1] == True:
+                points = points+(check[1]*check[2])
+            else:
+                points = points+0
+        elif check[0] == 'http_check':
+            if results[3] == True:
+                points = points+(check[1]*check[2])
+            else:
+                points = points+0
+        elif check[0] == 'https_check':
+            if results[5] == True:
+                points = points+(check[1]*check[2])
+            else:
+                points = points+0
+        elif check[0] == 'http2_check':
+            if results[9] == True:
+                points = points+(check[1]*check[2])
+            else:
+                points = points+0
+        elif check[0] == 'full_history':
+            if results[11] == True:
+                fullhistory = True
+                points = points+(check[1]*check[2])
+            else:
+                points = points+0
+                fullhistory = False
+        elif check[0] == 'snapshots':
+            # Only award points if not already awarded for Full history
+            if results[13] == True and fullhistory != True:
+                points = points+(check[1]*check[2])
+            else:
+                points = points+0
+        elif check[0] == 'seed_node':
+            if results[14] == True:
+                points = points+(check[1]*check[2])
+            else:
+                points = points+0
+        elif check[0] == 'api_node':
+            if results[16] == True:
+                points = points+(check[1]*check[2])
+            else:
+                points = points+0
+        elif check[0] == 'oracle_feed':
+            if results[18] == True:
+                points = points+(check[1]*check[2])
+            else:
+                points = points+0
+        elif check[0] == 'wax_json':
+            if results[20] == True:
+                points = points+(check[1]*check[2])
+            else:
+                points = points+0
+        elif check[0] == 'chains_json':
+            if results[21] == True:
+                points = points+(check[1]*check[2])
+            else:
+                points = points+0
+        elif check[0] == 'cpu_time':
+            if results[23] <= 2:
+                points = points+(check[1]*check[2])
+            else:
+                points = points+0
+        # Award for having a website
+        elif check[0] == 'website':
+            points = points+(check[1]*check[2])  
+    return points
 
 
 def producerlist():
+    prod_table = get_table_data("eosio","producers","eosio","100")
     producers = core.getEOStable(prod_table)
     # Remove WAX guilds and guilds with no website
     prodremove = ['https://wax.io', '', 'https://bp.eosnewyork.io', 'https://bp.nebulaprotocol.com', 'https://wax.infinitybloc.io', 'https://blockmatrix.network', 'https://eosauthority.com', 'https://hyperblocks.pro/', 'https://strongblock.io/', 'https://waxux.com', 'https://skinminerswax.com', 'https://sheos.org','https://teloscentral.com','https://eossweden.eu','https://dmail.co']
@@ -107,11 +177,11 @@ def producerlist():
             producer_final.append(new)
     return producer_final
 
-
 ## Get list of producers and produce tuple
 def producer_chain_list():
     producers = producerlist()
     # Create empty list
+    top21producers = core.producerSCHED()
     producer_final = []
     # Create emtpy dictinary
     # proddict = {}
@@ -149,13 +219,11 @@ def producer_chain_list():
                 except JSONDecodeError:
                     print('JSON parsing error')
                 else:
-                    thistuple = (i['owner'], candidate_name, i['url'], i['url'] + '/'+waxjson, i['url'] + '/chains.json', logo_256)
-                    # new.update({'owner': i['owner'],'candidate_name': candidate_name, 'url': i['url'], 'jsonurl': i['url']+'/'+waxjson })
-                    # Append new dict to top21list
-                    # producer_final.append(new)
+                    # is producer currently in top21
+                    top21 = i['owner'] in top21producers
+                    thistuple = (i['owner'], candidate_name, i['url'], i['url'] + '/'+waxjson, i['url'] + '/chains.json', logo_256, top21)
                     producer_final.append(thistuple)
     return producer_final
-
 
 
 ## Get list of nodes from each wax.json and produce tuple of all nodes
@@ -218,25 +286,32 @@ def check_api(producer,checktype):
     else:
         info = "/v1/chain/get_info"
     try:
+        headers = {'Content-Type': 'application/json'} # only for curl request
+        curlreq = core.curl_request(api[0]+info,'GET',headers,False)
         response = requests.get(api[0]+info, timeout=5, verify=False)
+        responsetimes = response.elapsed.total_seconds()*1000
         # If the response was successful, no Exception will be raised
         response.raise_for_status()
     except HTTPError as http_err:
-        print(f'HTTP error occurred: {http_err}')  # Python 3.6
-        return False, str(http_err)
+        print(f'HTTP error occurred: {http_err}')
+        error = curlreq+' '+str(http_err)
+        return False, error
     except Exception as err:
-        print(f'Other error occurred: {err}')  # Python 3.6
-        return False, str(err)
+        print(f'Other error occurred: {err}')
+        error = curlreq+' '+str(err)
+        return False, error
     else:
         # Check if API contains WAX chain ID - verifies its alive
         if checktype == "apichk" or checktype == 'httpchk':
             jsonres = response.json()
             chainid = jsonres.get('chain_id')
             if chainid == chain_id:
+                print('Response time: ',responsetimes)
                 return True, 'ok'
             else:
-                return False, 'Wrong chain ID or HTTP not working'
-        # Check whether Access-Control-Allow-Origin = *
+                error = curlreq+'\nError: has the wrong chain ID or HTTP is not working'
+                return False, error
+        # Checks for Access-Control-Allow-Origin = *
         elif checktype == "corschk":
             headers = response.headers['Access-Control-Allow-Origin']
             if headers == "*":
@@ -245,43 +320,56 @@ def check_api(producer,checktype):
                 return False, str(headers)
 
 def check_full_node(producer):
-    # Set TRX
-    trx = cfg.chain["trx"]
-    trx2 = cfg.chain["trx2"]
+    transactions = core.randomTransaction()
+    # if transaction list is empty sleep for 1 second
+    while not transactions:
+        time.sleep(1)
+        transactions = core.randomTransaction()
+    trx = transactions[0]
+    try:
+        trx2 = transactions[1]
+    except:
+        trx2 = trx
     api = db_connect.getFull(producer)
     # If there is no Full node in DB return False
     if api == None:
         return False, 'No full node in JSON'
-    # If the URL contains Hyperion then change URL request string
     else:
         info = "/v1/history/get_transaction"
     try:
         headers = {'Content-Type': 'application/json'}
         payload = {'id': trx}
+        curlreq = core.curl_request(api[0]+info,'POST',headers,payload)
         response = requests.post(api[0]+info, headers=headers, json=payload)
         # If the response was successful, no Exception will be raised
         response.raise_for_status()
+    # If returns codes are 500 OR 404
     except HTTPError as http_err:
         print(f'HTTP error occurred: {http_err}')  # Python 3.6
         # also return http_err
         if response.status_code == 500:
             jsonres = response.json()
-            return False, str(jsonres.get('error').get('what'))
+            error = curlreq+'\nError: '+str(jsonres.get('error').get('what'))
+            return False, error
         elif response.status_code == 404:
-            return False, 'Not a full node'
+            error = curlreq+'\nError: Not a full node'
+            return False, error
         else:
-            return False, str(http_err)
+            error = curlreq+' '+str(http_err)
+            return False, error
     except Exception as err:
         print(f'Other error occurred: {err}')  # Python 3.6
          # also return err
-        return False, str(err)
+        error = curlreq+'\n'+str(err)
+        return False, error
+    # If we manage to connect 
     else:
         jsonres = response.json()
         try:
             # Try to get first TRX
             status = jsonres.get('trx').get('receipt').get('status')
         except:
-            # If try fails then look for error
+            # If first TRX fails  look for error and move try again
             status = jsonres.get('error').get('what')
             print("except",status)
             try:
@@ -293,14 +381,14 @@ def check_full_node(producer):
             except:
                 status = jsonres.get('error').get('what')
                 print("except",status)
-                return False, str(status)
+                error = curlreq+'\n'+str(status)
+                return False, error
         if status == 'executed':
             return True, 'ok'
         else:
             # also return status which is the error
-            return False, str(status)
-
-#print(check_full_node('eostribeprod'))
+            error = curlreq+' '+str(status)
+            return False, error
 
 def check_https(producer,checktype):
     api = db_connect.getApiHttps(producer)
@@ -311,15 +399,18 @@ def check_https(producer,checktype):
     else:
         info = "/v1/chain/get_info"
     try:
-        response = requests.get(api[0]+info, timeout=10, verify=False)
+        curlreq = core.curl_request(api[0]+info,'GET',headers,False)
+        response = requests.get(api[0]+info, timeout=10)
         # If the response was successful, no Exception will be raised
         response.raise_for_status()
     except HTTPError as http_err:
         print(f'HTTP error occurred: {http_err}')  # Python 3.6
-        return False, str(http_err)
+        error = curlreq+'\n'+str(http_err)
+        return False, error
     except Exception as err:
         print(f'Other error occurred: {err}')  # Python 3.6
-        return False,str(err)
+        error = curlreq+'\n'+str(err)
+        return False, error
     else:
         # Check if HTPS API contains WAX chain ID - verifies it's alive
         if checktype == "httpschk":
@@ -328,7 +419,8 @@ def check_https(producer,checktype):
             if chainid == chain_id:
                 return True, 'ok'
             else:
-                return False, 'Wrong chain ID or HTTPS not working'
+                error = curlreq+'\nError:Wrong chain ID or HTTPS not working'
+                return False, error
         elif checktype == "http2chk":
             httpsendpoint = api[0]
             # If the URL contains a port number, strip the port and assign to port
@@ -338,8 +430,18 @@ def check_https(producer,checktype):
             # If no port number assigned presume port 443, as HTTP2 works with TLS
             else:
                 port = "443"
-            return http2check.check_http2(httpsendpoint,port)
-            
+            return http2check.check_http2(httpsendpoint,port,checktype)
+        elif checktype == "tlschk":
+            httpsendpoint = api[0]
+            # If the URL contains a port number, strip the port and assign to port
+            if core.portRegex(httpsendpoint):
+                portsplit = httpsendpoint.rsplit(':', 1)
+                port = portsplit[1]
+            # If no port number assigned presume port 443, as HTTP2 works with TLS
+            else:
+                port = "443"
+            return tls_downgrade.check_tls(httpsendpoint,port)
+
 def check_P2P(producer):
    # Get P2P host and port
    p2p = db_connect.getP2P(producer)
@@ -353,12 +455,14 @@ def check_P2P(producer):
       s.shutdown(2)
       return True, 'ok'
    except:
-      return False, 'Server and or port not responding'
+      error = hostport[0]+':'+str(hostport[1])+'\nError: Server and or port not responding'
+      return False, error
 
 ## Get list of guilds posting to delphioracle and remove duplicates
 def delphioracle_actors():
     chain = "mainnet"
     #Get list of guilds posting to delphioracle looking at actions
+    delphi_actions = get_actions_data("delphioracle","100")
     actions = core.get_actionsv2(delphi_actions,chain)
     guilds = actions['simple_actions']
     # Create empty list
@@ -369,7 +473,6 @@ def delphioracle_actors():
     # Returns list of guilds with duplicates removed   
     return producer_final
   
-
 
 # Returns tuple list with producers in delphioracle True or False
 def delphiresults(producer):
@@ -384,6 +487,7 @@ def delphiresults(producer):
 def getcpustats():
     # Pull transactions from eosmechanics and save cpu time 
     chain = "mainnet"
+    eosmech_actions = get_actions_data("eosmechanics","120")
     actions = core.get_actionsv2(eosmech_actions,chain)
     trxs = actions['simple_actions']
     # Create empty list
@@ -411,7 +515,6 @@ def getcpustats():
         producer_final.append(new)
     return producer_final
 
-
 def cpuresults(producer,producercpu):
     # Get cpustats(key) value for the items in producercpu if the producer passed is in that list.
     cpu = [item['cpustats'] for item in producercpu if item["producer"] == producer]
@@ -429,11 +532,26 @@ def cpuresults(producer,producercpu):
         stat = round((sum(cpu) / len(cpu))/1000,2)
         return stat
 
+def cpuAverage(producer):
+    allcpu = db_connect.getCPU(producer)
+    #allcpu = allcpu[0]
+    cpu_final = []
+    for cpu in allcpu:
+        cpu_final.append(cpu[0])
+    avg_cpu = statistics.median(cpu_final) 
+    return avg_cpu
+
+   
+
+#cpuAverage('sentnlagents')
+
 def finalresults():
     # Get list of registered active producers
     producersdb = db_connect.getProducers()
     # Get CPU stats for top21 producers
     producercpu = getcpustats()
+    # Get points system
+    pointsystem =  db_connect.getPoints()
     # Create empty list
     finaltuple = []
     for producer in producersdb:
@@ -475,6 +593,8 @@ def finalresults():
         else:
             colorstart = bcolors.WARNING
         print("HTTPS is available on RPC API endpoint: ",colorstart,httpscheck[0],bcolors.ENDC)
+        tlscheck = check_https(producer,'tlschk')
+        print("TLS version available on HTTPS API: ",bcolors.OKYELLOW,tlscheck[0],bcolors.ENDC)
         http2check = check_https(producer,'http2chk')
         if http2check[0]  == True:
             colorstart = bcolors.OKGREEN
@@ -483,6 +603,8 @@ def finalresults():
         print("HTTP2 is enabled on RPC API endpoint: ",colorstart,http2check[0],bcolors.ENDC)
         cpuresult = cpuresults(producer,producercpu)
         print("CPU latency on EOS Mechanics below 2 ms on average:",bcolors.OKYELLOW, cpuresult,bcolors.ENDC,"ms")
+        cpuavg = cpuAverage(producer)
+        print("CPU latency average over 30days:",bcolors.OKYELLOW, cpuavg,bcolors.ENDC,"ms")
         fullnode = check_full_node(producer)
         if fullnode[0]  == True:
             colorstart = bcolors.OKGREEN
@@ -499,8 +621,13 @@ def finalresults():
         print("Running a seed node:",colorstart,seednode[0],bcolors.ENDC)
          # Get current UTC timestamp
         dt = datetime.utcnow()
-        #owner_name, cors_check, cors_check_error, http_check, http_check_error, http2_check, full_history, full_history_error, snapshots, seed_node, api_node, api_node_error, oracle_feed, wax_json, chains_json, cpu_time, date_check
-        resultstuple = (producer, corscheck[0], corscheck[1], checkhttp[0], checkhttp[1], httpscheck[0], httpscheck[1], http2check[0], http2check[1], fullnode[0], fullnode[1], snapshots, seednode[0], seednode[1], checkapi[0], checkapi[1], delphiresult[0], delphiresult[1], waxjson, chainsjson, cpuresult, dt)
+        resultslist = [producer, corscheck[0], corscheck[1], checkhttp[0], checkhttp[1], httpscheck[0], httpscheck[1], tlscheck[0], tlscheck[1], http2check[0], http2check[1], fullnode[0], fullnode[1], snapshots, seednode[0], seednode[1], checkapi[0], checkapi[1], delphiresult[0], delphiresult[1], waxjson, chainsjson, cpuresult, cpuavg, dt]
+        score = pointsResults(resultslist,pointsystem)
+        print("Final Tech points:",colorstart,score,bcolors.ENDC)
+        # Add final sore to list
+        resultslist.append(score)
+        # Turn list into tuple read for Postgres
+        resultstuple = tuple(resultslist)
         finaltuple.append(resultstuple)
     return finaltuple
 
