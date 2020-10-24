@@ -59,7 +59,8 @@ CREATE TABLE oig.results (
     cpu_time DECIMAL NOT NULL,
     cpu_avg DECIMAL NOT NULL,
     date_check TIMESTAMPTZ NOT NULL,
-    score DECIMAL NOT NULL
+    score DECIMAL NOT NULL,
+    snapshot_date TIMESTAMPTZ
 );
 /* Unique index to cover two culumns*/
 CREATE UNIQUE INDEX idx_results_type ON oig.results(owner_name, date_check);

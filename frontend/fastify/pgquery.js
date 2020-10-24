@@ -73,6 +73,21 @@ const getLatestResults = (request, reply) => {
     })
   }
 
+//Set a snapshot for latest results where results is less than 1 minutes based on date_check timestamp of latest results.
+//UPDATE oig.results SET snaphot_date = $2 WHERE owner_name = $1 AND date_check > NOW() - INTERVAL '15 minutes'
+//update oig.results set snapshot_date = '2020-09-11 17:18:04.825519' where owner_name = 'eos42freedom' and date_check > timestamp '2020-10-23 17:31:22' - INTERVAL '1 minute';
+//date_check > TIMESTAMP '2020-10-23T17:31:22.494Z' - INTERVAL '1 minute'
+const setSnapshotResults = (request, reply) => {
+  const { owner_name, snapshot_date, date_check  } = request.body
+  client.query(` UPDATE oig.results SET snapshot_date = $2 WHERE owner_name = $1 AND date_check > TIMESTAMPTZ $3 - INTERVAL '1 minute'`, [owner_name, snapshot_date, date_check], (error, results) => {
+    if (error) {
+      console.log('UPDATE oig.results SET snapshot_date =',snapshot_date,' WHERE owner_name = ',owner_name,' AND date_check > TIMESTAMP',date_check,' - INTERVAL "1 minute"')
+      throw error
+    }
+    reply.status(200).send(`Producer modified: ${owner_name}`);
+  })
+}
+
 
 // Get results for Particular Producer
 const getResultsbyOwner = (request, reply) => {
@@ -166,7 +181,7 @@ const getUpdatesbyOwner = (request, reply) => {
     const owner = request.params.owner
     const { month } = request.body
 
-    client.query("SELECT * FROM oig.updates WHERE owner_name = $1 AND date_update > now() - interval '1 week' ORDER BY date_update ASC", [owner], (error, results) => {
+    client.query("SELECT * FROM oig.updates WHERE owner_name = $1 AND date_update > now() - interval '1 week' ORDER BY date_update ASC", [month], (error, results) => {
       if (error) {
         throw error
       }
@@ -174,4 +189,4 @@ const getUpdatesbyOwner = (request, reply) => {
     })
   }
 
-module.exports = { getProducers, getResults, getResultsbyOwner, getLatestResults, IsProducerActive, mothlyUpdate, getUpdatesbyOwner, productUpdate, getProducts, bizdevUpdate, getBizdevs, communityUpdate, getCommunity};
+module.exports = { getProducers, getResults, getResultsbyOwner, getLatestResults, IsProducerActive, mothlyUpdate, getUpdatesbyOwner, productUpdate, getProducts, bizdevUpdate, getBizdevs, communityUpdate, getCommunity, setSnapshotResults};

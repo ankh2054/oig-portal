@@ -22,7 +22,7 @@ const App = ({ results ,products, bizdevs }) => {
   const classes = useStyles();
     return (
       <div>
-        <h1></h1>
+
         <ProdBizdev
           results={ products }
         />

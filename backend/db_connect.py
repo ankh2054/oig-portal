@@ -177,6 +177,7 @@ def getApi(producer):
         if (connection):
             cursor.close()
             connection.close()
+
 def getFull(producer):
     try:
         # Create connection to DB
@@ -199,6 +200,30 @@ def getFull(producer):
         if (connection):
             cursor.close()
             connection.close()
+
+def getFullnodes():
+    try:
+        # Create connection to DB
+        connection = db_connection()
+        # Open cursor to DB
+        cursor = connection.cursor()
+        pg_select = """ 
+        SELECT COALESCE(http_node_url,https_node_url) FROM oig.nodes WHERE node_type = 'full'
+        """
+     
+        cursor.execute(pg_select)
+        http_node_url = cursor.fetchall()
+        return http_node_url
+
+    except (Exception, psycopg2.Error) as error:
+        print("Error fetching data from PostgreSQL table", error)
+
+    finally:
+        # closing database connection
+        if (connection):
+            cursor.close()
+            connection.close()
+
 
 def getP2P(producer):
     try:
@@ -231,7 +256,7 @@ def getCPU(producer):
         # Open cursor to DB
         cursor = connection.cursor()
         pg_select = """ 
-        SELECT cpu_time FROM oig.results WHERE owner_name = %s AND date_check > current_date - interval '10' day;
+        SELECT cpu_time FROM oig.results WHERE owner_name = %s AND date_check > current_date - interval '30' day;
         """
         # date_check > current_date - interval '10' day;
         # date_check >= date_trunc('month', CURRENT_DATE);  
@@ -249,9 +274,9 @@ def getCPU(producer):
             cursor.close()
             connection.close()
 
-#v = getCPU('sentnlagents')
-#print(type(v))
-#print(v[0][0])
+v = getCPU('sentnlagents')
+print(type(v))
+print(v[0][0])
 
 def getApiHttps(producer):
     try:

@@ -1,5 +1,6 @@
 const { port } = require('./config');
 
+
 const fastify = require('fastify')({
     ignoreTrailingSlash: true
 })
@@ -20,25 +21,27 @@ fastify.get('/', (request, reply)=>{
 });
 
 // PG Routes//
-fastify.get('/producers', db.getProducers)
-fastify.get('/results', db.getResults)
-fastify.get('/products', db.getProducts)
-fastify.get('/bizdevs', db.getBizdevs)
-fastify.get('/community', db.getCommunity)
-fastify.get('/latestresults', db.getLatestResults)
-fastify.get('/results/:owner', db.getResultsbyOwner)
+fastify.get('/api/producers', db.getProducers)
+fastify.get('/api/results', db.getResults)
+fastify.get('/api/products', db.getProducts)
+fastify.get('/api/bizdevs', db.getBizdevs)
+fastify.get('/api/community', db.getCommunity)
+fastify.get('/api/latestresults', db.getLatestResults)
+fastify.get('/api/results/:owner', db.getResultsbyOwner)
+// Create snapshot 
+fastify.post('/api/snapshot', db.setSnapshotResults)
 // Activate or deactivate producer
-fastify.put('/activeproducer/:owner', db.IsProducerActive)
+fastify.put('/api/activeproducer/:owner', db.IsProducerActive)
 // Guild add monthly updates
-fastify.post('/monthlyUpdate', db.mothlyUpdate)
+fastify.post('/api/monthlyUpdate', db.mothlyUpdate)
 // Guild product updates/insert
-fastify.post('/productUpdate', db.productUpdate)
+fastify.post('/api/productUpdate', db.productUpdate)
 // Guild Bizdev updates/insert
-fastify.post('/bizdevUpdate', db.bizdevUpdate)
+fastify.post('/api/bizdevUpdate', db.bizdevUpdate)
 // Guild Community updates/insert
-fastify.post('/communityUpdate', db.communityUpdate)
+fastify.post('/api/communityUpdate', db.communityUpdate)
 // Retrieve momthly updates based on month
-fastify.post('/monthlyUpdates/:owner', db.getUpdatesbyOwner)
+fastify.post('/api/monthlyUpdates/:owner', db.getUpdatesbyOwner)
 
 
 // Starts the Fastify Server //

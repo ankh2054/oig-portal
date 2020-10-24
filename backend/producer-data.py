@@ -147,7 +147,7 @@ def pointsResults(results,pointsystem):
             else:
                 points = points+0
         elif check[0] == 'cpu_time':
-            if results[23] <= 2:
+            if results[23] <= 0.5:
                 points = points+(check[1]*check[2])
             else:
                 points = points+0
@@ -461,10 +461,11 @@ def check_P2P(producer):
 
 ## Get list of guilds posting to delphioracle and remove duplicates
 def delphioracle_actors():
+    print(bcolors.OKYELLOW,f"{'='*100}\nGetting Delpi Oracle Data ",bcolors.ENDC)
     chain = "mainnet"
     #Get list of guilds posting to delphioracle looking at actions
     delphi_actions = get_actions_data("delphioracle","100")
-    actions = core.get_actionsv2(delphi_actions,chain)
+    actions = core.get_stuff(delphi_actions,chain,'action')
     guilds = actions['simple_actions']
     # Create empty list
     producer_final = []
@@ -475,9 +476,10 @@ def delphioracle_actors():
     return producer_final
   
 
+
 # Returns tuple list with producers in delphioracle True or False
-def delphiresults(producer):
-     producersoracle = delphioracle_actors()
+def delphiresults(producer,oracledata):
+     producersoracle = oracledata
      if producer in producersoracle:
         return True, 'ok'
      else:
@@ -486,10 +488,12 @@ def delphiresults(producer):
 
 
 def getcpustats():
+    print(bcolors.OKYELLOW,f"{'='*100}\nGetting CPU Results ",bcolors.ENDC)
     # Pull transactions from eosmechanics and save cpu time 
     chain = "mainnet"
     eosmech_actions = get_actions_data("eosmechanics","120")
-    actions = core.get_actionsv2(eosmech_actions,chain)
+    query = ['simple_actions']
+    actions = core.get_stuff(eosmech_actions,chain,'actions')
     trxs = actions['simple_actions']
     # Create empty list
     producer_final = []
@@ -504,8 +508,8 @@ def getcpustats():
         new = proddict.copy()
         # Construct dict from TRX variable and assign to ID key
         payload = dict(id=trx)
-        # Pass TRX ID and get all TRX information
-        fulltrx = core.get_trxv2(payload,chain)
+        # Pass TRX ID and get all TRX information]
+        fulltrx = core.get_stuff(payload,chain,'trx')
         # Extract producer from TRX
         producer = fulltrx['actions'][0]['producer']
         # Extract cpu stats
@@ -516,6 +520,7 @@ def getcpustats():
         producer_final.append(new)
     return producer_final
 
+
 def cpuresults(producer,producercpu):
     # Get cpustats(key) value for the items in producercpu if the producer passed is in that list.
     cpu = [item['cpustats'] for item in producercpu if item["producer"] == producer]
@@ -525,7 +530,7 @@ def cpuresults(producer,producercpu):
         # We only go back as far as 4000 blocks, if not found then return False.
         cpu = core.get_testnetproducer_cpustats(producer)
         if cpu == None:
-            return int(2.0)
+            return int(1.0)
         else: 
             stat = round(cpu/1000,2)
             return stat
@@ -544,8 +549,6 @@ def cpuAverage(producer):
 
    
 
-#cpuAverage('sentnlagents')
-
 def finalresults():
     # Get list of registered active producers
     producersdb = db_connect.getProducers()
@@ -553,12 +556,14 @@ def finalresults():
     producercpu = getcpustats()
     # Get points system
     pointsystem =  db_connect.getPoints()
+    # Get list of delphioracles and store for use
+    producersoracle = delphioracle_actors()
     # Create empty list
     finaltuple = []
     for producer in producersdb:
         producer = producer[0]
         print(bcolors.OKBLUE,f"{'='*100}\nResults for ",producer,bcolors.ENDC)
-        delphiresult = delphiresults(producer)
+        delphiresult = delphiresults(producer,producersoracle)
         if delphiresult[0] == True:
             colorstart = bcolors.OKGREEN
         else:

@@ -9,7 +9,7 @@ import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import { green, red } from '@material-ui/core/colors';
-import ShareIcon from '@material-ui/icons/Share';
+import HttpsIcon from '@material-ui/icons/Https';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Grid from '@material-ui/core/Grid';
 import FavoriteIcon from '@material-ui/icons/Favorite';
@@ -84,6 +84,37 @@ const App = ({ results, producers, products, bizdevs, community }) => {
 
   }
 
+  const textResult = (result) => {
+    if (result === 'TLSv1.3' || result === 'TLSv1.2' ) {
+      return (
+        <Tooltip title={"TLS "+result.slice(4,7)} aria-label={result.slice(4,7)} placement="top">
+          <IconButton>
+            <HttpsIcon style={{ color: green[500] }} />
+          </IconButton>
+        </Tooltip>
+   
+
+      );
+    }if (result == null) {
+      return (
+      <Tooltip title={"TLS "+result.slice(4,7)} aria-label={result.slice(4,7)} placement="top">
+        <IconButton>
+          <HttpsIcon style={{ color: green[500] }} />
+        </IconButton>
+      </Tooltip>
+
+      );
+    } else {
+      return (
+      <Tooltip title={"TLS "+result.slice(4,7)} aria-label={result.slice(4,7)} placement="top">
+        <IconButton>
+          <HttpsIcon style={{ color: red[500] }} />
+        </IconButton>
+      </Tooltip>
+      );
+    }
+}
+
   // Return Top21 boolean
   const top21 = (owner) => {
     var ownername = producers.find(producer => producer.owner_name === owner )
@@ -147,7 +178,7 @@ const App = ({ results, producers, products, bizdevs, community }) => {
       <CardActions disableSpacing>
             {top21(result.owner_name)}
         <IconButton aria-label="share">
-          <ShareIcon />
+            {textResult(result.tls_check)}
         </IconButton>
         <IconButton className={classes.left} >
             {totalscore(result.score,statescore(result.owner_name,products),statescore(result.owner_name,bizdevs),statescore(result.owner_name,community))}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import { BrowserRouter as Router, Route, Switch, useParams, useHistory } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, useParams } from 'react-router-dom';
 import './App.css';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -11,6 +11,7 @@ import ProducerDetails from './components/producer-detail'
 import Testform from './components/monthly-updates'
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import { api_base } from './config'
 
 //import 'fontsource-roboto';
 import ButtonAppBar from './components/appbar'
@@ -57,17 +58,17 @@ const App = () => {
         setLatestResults(response.data)
       }
     // Get the promise
-    const promise = axios.get('http://localhost:3000/results')
+    const promise = axios.get(api_base+'/api/results')
     promise.then(eventHandler)
-    const promise2 = axios.get('http://localhost:3000/producers')
+    const promise2 = axios.get(api_base+'/api/producers')
     promise2.then(producerHandler)
-    const promise3 = axios.get('http://localhost:3000/products')
+    const promise3 = axios.get(api_base+'/api/products')
     promise3.then(productsHandler)
-    const promise4 = axios.get('http://localhost:3000/bizdevs')
+    const promise4 = axios.get(api_base+'/api/bizdevs')
     promise4.then(bizdevsHandler)
-    const promise5 = axios.get('http://localhost:3000/community')
+    const promise5 = axios.get(api_base+'/api/community')
     promise5.then(communityHandler)
-    const promise6 = axios.get('http://localhost:3000/latestresults')
+    const promise6 = axios.get(api_base+'/api/latestresults')
     promise6.then(latestResultsHandler)
   }, [])
   const BPwithownername = () =>{

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React  from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Link from '@material-ui/core/Link';
 import AppBar from '@material-ui/core/AppBar';
@@ -9,7 +9,6 @@ import MenuIcon from '@material-ui/icons/Menu';
 
 //import BOMsvg from '../assets/img/bomlogo'
 //<BOMsvg style={{ fontSize: 50 }} className={classes.bomsvg} />
-
 
 import WAXsvg from '../assets/img/logo-wax'
 
@@ -51,18 +50,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ButtonAppBar() {
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
   
-
   return (
     <>
     <AppBar  position="fixed" className={classes.menuwax}>

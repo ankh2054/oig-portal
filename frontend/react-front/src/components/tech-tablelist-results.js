@@ -86,7 +86,7 @@ export default function ResultTables({ results }) {
   }
 
   const textResult = (result) => {
-    if (result == 'TLSv1.3' || result == 'TLSv1.2' ) {
+    if (result === 'TLSv1.3' || result === 'TLSv1.2' ) {
       return (
           <Avatar className={classes.green}>{result.slice(4,7)}</Avatar>
 

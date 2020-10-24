@@ -1,0 +1,8 @@
+post http://localhost:3000/api/snapshot
+Content-Type: application/json
+
+{
+"owner_name": "eos42freedom",
+"snapshot_date": "2020-10-22 17:21:07.273081Z",
+"date_check": "2020-10-23T17:31:22.494Z"
+}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import Grid from '@material-ui/core/Grid';
 import axios from 'axios'
 import TextField from '@material-ui/core/TextField';
@@ -12,6 +12,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import { api_base } from '../config'
 
 
 
@@ -23,6 +24,12 @@ const useStyles = makeStyles((theme) => ({
     left: {
       marginLeft: 'auto',
     },
+    form:{
+      margin: '20px',
+    },
+    submit:{
+      marginBottom: '20px',
+    }
   }));
 
 
@@ -41,9 +48,9 @@ const App = ({ producers }) => {
   //Get current timestamp for form use 
   var d1 = new Date();
   const classes = useStyles();
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit } = useForm();
   const apisubmit = (formdata, e) => {
-    axios.post('http://localhost:3000/monthlyUpdate', formdata)
+    axios.post(api_base+'/api/monthlyUpdate', formdata)
     .then(console.log(formdata.owner_name))
     .then(setProducer(formdata.owner_name))
     .catch(error => {
@@ -54,7 +61,7 @@ const App = ({ producers }) => {
 }
 
   return (
-    <Grid container justify="center" spacing={3}>
+    <Grid container justify="center" >
     <Grid item xs={6}>
     <Paper  elevation={3}>
       <h1>Submit Monthly Update</h1>
@@ -130,6 +137,7 @@ const App = ({ producers }) => {
             name="community"
             autoFocus
           />
+           <Grid item xs={4}  justify="center" >
           <Button
             type="submit"
             fullWidth
@@ -141,6 +149,7 @@ const App = ({ producers }) => {
           >
             Submit
           </Button>
+          </Grid>
           <input name="date_update" type="hidden" defaultValue={d1.toUTCString()} ref={register({ required: true })} />
         </form>
     </Paper>
