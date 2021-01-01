@@ -76,7 +76,7 @@ def concatenate(**kwargs):
     return result
 
 def pointsResults(results,pointsystem):
-    #resultslist = [producer, corscheck[0], 
+    # resultslist = [producer, corscheck[0], 
     # corscheck[1], checkhttp[0], checkhttp[1], 
     # httpscheck[0], httpscheck[1], tlscheck[0], 
     # tlscheck[1], http2check[0], http2check[1], 
@@ -85,7 +85,7 @@ def pointsResults(results,pointsystem):
     # checkapi[1], delphiresult[0], delphiresult[1], 
     # waxjson, chainsjson, cpuresult, 
     # cpuavg, dt]
-    #pointsystem =  db_connect.getPoints()
+    # pointsystem =  db_connect.getPoints()
     points = 0
     for check in pointsystem:
         if check[0] == 'cors_check':
@@ -161,7 +161,7 @@ def producerlist():
     prod_table = get_table_data("eosio","producers","eosio","100")
     producers = core.getEOStable(prod_table)
     # Remove WAX guilds and guilds with no website
-    prodremove = ['https://wax.io', '', 'https://bp.eosnewyork.io', 'https://bp.nebulaprotocol.com', 'https://wax.infinitybloc.io', 'https://blockmatrix.network', 'https://eosauthority.com', 'https://hyperblocks.pro/', 'https://strongblock.io/', 'https://waxux.com', 'https://skinminerswax.com', 'https://sheos.org','https://teloscentral.com','https://eossweden.eu','https://dmail.co']
+    prodremove = ['https://wax.io', '', 'https://bp.eosnewyork.io', 'https://bp.nebulaprotocol.com', 'https://wax.infinitybloc.io', 'https://blockmatrix.network', 'https://eosauthority.com', 'https://hyperblocks.pro/', 'https://strongblock.io/', 'https://waxux.com', 'https://skinminerswax.com', 'https://sheos.org','https://teloscentral.com','https://eossweden.eu','https://dmail.co', 'https://3dkrender.com/']
     # Create empty list
     producer_final = []
     # Create emtpy dictinary
@@ -226,7 +226,33 @@ def producer_chain_list():
     return producer_final
 
 
+# Iterate over all different types of nodes v1 and v2
+def node_types(type, node, owner_name):
+    # Set node type
+    node_type = type
+    # If fields in JSON are empty strings pass NULL to DB
+    if node.get('ssl_endpoint') == "":
+        ssl_endpoint = None
+    else:
+        ssl_endpoint = node.get('ssl_endpoint')
+    if node.get('api_endpoint') == "":
+        api_endpoint = None
+    else:
+        api_endpoint = node.get('api_endpoint')
+    if node.get('p2p_endpoint') == "":
+        p2p_endpoint = None
+    else:
+        p2p_endpoint = node.get('p2p_endpoint')
+    if node.get('features') == "":
+        features = None
+    else:
+        features = node.get('features')
+    thistuple = (owner_name, node_type, api_endpoint, ssl_endpoint, p2p_endpoint, features )
+    return thistuple
+
+
 ## Get list of nodes from each wax.json and produce tuple of all nodes
+## Look for features 
 def node_list():
     # Get all rows from producer table
     producers = db_connect.getProducers()
@@ -256,32 +282,31 @@ def node_list():
                 #POLAR.WAX states a full node but only has a p2p_endpoint listed
                 if node.get('node_type') == 'full' and node.get('api_endpoint') == None and node.get('ssl_endpoint') == None and node.get('p2p_endpoint') != None:
                     continue
+                # Get all node types
                 node_type = node.get('node_type')
-                # If fields in JSON are empty strings pass NULL to DB
-                if node.get('ssl_endpoint') == "":
-                    ssl_endpoint = None
-                else:
-                    ssl_endpoint = node.get('ssl_endpoint')
-                if node.get('api_endpoint') == "":
-                    api_endpoint = None
-                else:
-                    api_endpoint = node.get('api_endpoint')
-                if node.get('p2p_endpoint') == "":
-                    api_endpoint = None
-                else:
-                    p2p_endpoint = node.get('p2p_endpoint')
-                thistuple = (owner_name, node_type, api_endpoint, ssl_endpoint, p2p_endpoint )
-                node_list.append(thistuple)
+                if "query" in node_type:
+                    thistuple = node_types("query", node, owner_name)
+                    node_list.append(thistuple)
+                # Get seed nodes
+                if "seed" in node_type:
+                    thistuple = node_types("seed", node, owner_name)
+                    node_list.append(thistuple)
+                if "full" in node_type:
+                    thistuple = node_types("full", node, owner_name)
+                    node_list.append(thistuple)
+                if "history" in node_type:
+                    thistuple = node_types("history", node, owner_name)
+                    node_list.append(thistuple)
     return node_list
-        
 
 def check_api(producer,checktype):
     if checktype == "httpchk":
-        api = db_connect.getApiHttp(producer)
+        api = db_connect.getNodes(producer,'http')
     else:
-        api = db_connect.getApi(producer)
+        api = db_connect.getNodes(producer,'api')
     # If there is no API or Full node in DB return False
-    if None in api:
+    #if None in api:
+    if api == None:
         return False, 'No API node available in JSON'
     else:
         info = "/v1/chain/get_info"
@@ -320,7 +345,9 @@ def check_api(producer,checktype):
             else:
                 return False, str(headers)
 
-def check_full_node(producer):
+# History nodes type checks
+# Pass in history-v1, hyperion-v2 
+def check_full_node(producer,type):
     transactions = core.randomTransaction()
     # if transaction list is empty sleep for 1 second
     while not transactions:
@@ -331,11 +358,13 @@ def check_full_node(producer):
         trx2 = transactions[1]
     except:
         trx2 = trx
-    api = db_connect.getFull(producer)
-    # If there is no Full node in DB return False
+    # Query nodes in DB
+    api = db_connect.getQueryNodes(producer,type)
+    # If there is no v1_history or hyperion node in DB return False
     if api == None:
-        return False, 'No full node in JSON'
+        return False, 'No ' + type + ' in JSON'
     else:
+        
         info = "/v1/history/get_transaction"
     try:
         headers = {'Content-Type': 'application/json'}
@@ -392,9 +421,9 @@ def check_full_node(producer):
             return False, error
 
 def check_https(producer,checktype):
-    api = db_connect.getApiHttps(producer)
+    api = db_connect.getNodes(producer,'http')
     # If there is no API or Full HTTPS node in DB return False
-    if None in api:
+    if api == None:
         return False, 'No API node available in JSON'
      # If the URL contains Hyperion then change URL request string
     else:
@@ -445,7 +474,7 @@ def check_https(producer,checktype):
 
 def check_P2P(producer):
    # Get P2P host and port
-   p2p = db_connect.getP2P(producer)
+   p2p = db_connect.getNodes(producer,'p2p')
    if p2p == None:
        return False, 'No seed node configured in JSON'
    # Slit host and port
@@ -611,12 +640,20 @@ def finalresults():
         print("CPU latency on EOS Mechanics below 2 ms on average:",bcolors.OKYELLOW, cpuresult,bcolors.ENDC,"ms")
         cpuavg = cpuAverage(producer)
         print("CPU latency average over 30days:",bcolors.OKYELLOW, cpuavg,bcolors.ENDC,"ms")
-        fullnode = check_full_node(producer)
+        # v1 History check
+        fullnode = check_full_node(producer,'history-v1')
         if fullnode[0]  == True:
             colorstart = bcolors.OKGREEN
         else:
             colorstart = bcolors.WARNING
-        print("Running a full node:",colorstart,fullnode[0],bcolors.ENDC)
+        print("Running a v1 History node:",colorstart,fullnode[0],bcolors.ENDC)
+        # v2 Hyperion check
+        hyperion = check_full_node(producer,'hyperion-v2')
+        if hyperion[0]  == True:
+            colorstart = bcolors.OKGREEN
+        else:
+            colorstart = bcolors.WARNING
+        print("Running a v2 Hyperion node:",colorstart,hyperion[0],bcolors.ENDC)
         # Set snapshots to False until we find a way
         snapshots = False
         seednode = check_P2P(producer)
@@ -627,7 +664,7 @@ def finalresults():
         print("Running a seed node:",colorstart,seednode[0],bcolors.ENDC)
          # Get current UTC timestamp
         dt = datetime.utcnow()
-        resultslist = [producer, corscheck[0], corscheck[1], checkhttp[0], checkhttp[1], httpscheck[0], httpscheck[1], tlscheck[0], tlscheck[1], http2check[0], http2check[1], fullnode[0], fullnode[1], snapshots, seednode[0], seednode[1], checkapi[0], checkapi[1], delphiresult[0], delphiresult[1], waxjson, chainsjson, cpuresult, cpuavg, dt]
+        resultslist = [producer, corscheck[0], corscheck[1], checkhttp[0], checkhttp[1], httpscheck[0], httpscheck[1], tlscheck[0], tlscheck[1], http2check[0], http2check[1], fullnode[0], fullnode[1], hyperion[0], hyperion[1], snapshots, seednode[0], seednode[1], checkapi[0], checkapi[1], delphiresult[0], delphiresult[1], waxjson, chainsjson, cpuresult, cpuavg, dt]
         score = pointsResults(resultslist,pointsystem)
         print("Final Tech points:",colorstart,score,bcolors.ENDC)
         # Add final sore to list
@@ -646,6 +683,7 @@ def main():
     db_connect.producerInsert(producers)
     # Add nodes to DB
     nodes = node_list()
+    print(nodes)
     db_connect.nodesInsert(nodes)
     # Get all results and save to DB
     results = finalresults()
@@ -653,3 +691,5 @@ def main():
 
 if __name__ == "__main__":
    main()
+
+

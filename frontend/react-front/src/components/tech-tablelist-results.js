@@ -120,7 +120,8 @@ export default function ResultTables({ results }) {
             <StyledTableCell align="right">https_check</StyledTableCell>
             <StyledTableCell align="right">tls_ver</StyledTableCell>
             <StyledTableCell align="right">http2_check</StyledTableCell>
-            <StyledTableCell align="right">full_history</StyledTableCell>
+            <StyledTableCell align="right">history_v1</StyledTableCell>
+            <StyledTableCell align="right">hyperion_v2</StyledTableCell>
             <StyledTableCell align="right">cors_check</StyledTableCell>
             <StyledTableCell align="right">oracle_feed</StyledTableCell>
             <StyledTableCell align="right">snapshots</StyledTableCell>
@@ -157,6 +158,9 @@ export default function ResultTables({ results }) {
               </HtmlTooltip>
               <HtmlTooltip title={result.full_history_error} aria-label="full_history_error" placement="top">
                 <StyledTableCell align="right">{iconResult(result.full_history)}</StyledTableCell>
+              </HtmlTooltip>
+              <HtmlTooltip title={result.full_history_error} aria-label="hyperion_v2_error" placement="top">
+                <StyledTableCell align="right">{iconResult(result.hyperion_v2)}</StyledTableCell>
               </HtmlTooltip>
               <HtmlTooltip title={result.cors_check_error} aria-label="cors_check_error" placement="top">
                 <StyledTableCell align="right">{iconResult(result.cors_check)}</StyledTableCell>

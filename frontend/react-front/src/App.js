@@ -6,6 +6,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import MonthlyResults from './components/results'
+import SnapshotResults from './components/snapshot-results'
 import ProducerCards from './components/producerscards'
 import ProducerDetails from './components/producer-detail'
 import Testform from './components/monthly-updates'
@@ -36,6 +37,7 @@ const App = () => {
   const [bizdevs, setBizdevs] = useState([])
   const [community, setCommunity] = useState([])
   const [latestresults, setLatestResults] = useState([])
+  const [snapshotlatestresults, setSnapshotLatestResults] = useState([])
 
   useEffect(() => {
 
@@ -57,6 +59,9 @@ const App = () => {
     const latestResultsHandler = response => {
         setLatestResults(response.data)
       }
+    const snapshotResultsHandler = response => {
+      setSnapshotLatestResults(response.data)
+      }
     // Get the promise
     const promise = axios.get(api_base+'/api/results')
     promise.then(eventHandler)
@@ -70,6 +75,8 @@ const App = () => {
     promise5.then(communityHandler)
     const promise6 = axios.get(api_base+'/api/latestresults')
     promise6.then(latestResultsHandler)
+    const promise7 = axios.get(api_base+'/api/snapshotlatestresults')
+    promise7.then(snapshotResultsHandler)
   }, [])
   const BPwithownername = () =>{
     let params = useParams();
@@ -84,7 +91,6 @@ const App = () => {
       </>
     );
   }
-
   return (
     <main>
       <Switch>
@@ -100,6 +106,14 @@ const App = () => {
                 results={ latestresults } 
                 
                 /> } exact />
+                <Route exact path="/snapshot" component={() =><SnapshotResults 
+                results={ latestresults } 
+                producers={ producers }
+                products={ products }
+                bizdevs={ bizdevs } 
+                community={ community }
+                snapresults={ snapshotlatestresults }
+                /> } />
                 <Route exact path="/" component={() => 
                 <ProducerCards  results={ latestresults }
                 producers={ producers }

@@ -25,7 +25,8 @@ CREATE TABLE oig.nodes (
 	node_type VARCHAR ( 20 ) NOT NULL,
 	http_node_url VARCHAR ( 50 ) ,
     https_node_url VARCHAR ( 50 ) ,
-    p2p_url VARCHAR ( 50 ) 
+    p2p_url VARCHAR ( 50 ) ,
+    features TEXT []
 );
 
 /* Unique index to cover two culumns*/
@@ -46,6 +47,8 @@ CREATE TABLE oig.results (
     tls_check_error VARCHAR ( 1000 ),
     full_history BOOLEAN NOT NULL,
     full_history_error VARCHAR ( 1000 ),
+    v2_history BOOLEAN NOT NULL,
+    v2_history_error VARCHAR ( 1000 ),
     snapshots BOOLEAN NOT NULL,
     snapshots_error VARCHAR ( 1000 ),
     seed_node BOOLEAN NOT NULL,

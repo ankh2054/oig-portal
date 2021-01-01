@@ -74,6 +74,9 @@ export default function ButtonAppBar() {
             <Link underline="none" variant="button" color="inherit" href="/latestresults" className={classes.link}>
               Latest Results
             </Link>
+            <Link underline="none" variant="button" color="inherit" href="/snapshot" className={classes.link}>
+              Create Snapshots
+            </Link>
             <Link underline="none" variant="button" color="inherit" href="/form" className={classes.link}>
               Submit Update
             </Link>

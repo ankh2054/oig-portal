@@ -28,6 +28,7 @@ fastify.get('/api/bizdevs', db.getBizdevs)
 fastify.get('/api/community', db.getCommunity)
 fastify.get('/api/latestresults', db.getLatestResults)
 fastify.get('/api/results/:owner', db.getResultsbyOwner)
+fastify.get('/api/snapshotlatestresults', db.getLatestSnapshotResults)
 // Create snapshot 
 fastify.post('/api/snapshot', db.setSnapshotResults)
 // Activate or deactivate producer

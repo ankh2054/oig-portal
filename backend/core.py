@@ -57,8 +57,9 @@ def getrandomNode(nodelist):
 # Gives you a list of available APIs on a node
 
 # Mainnet V2,V1 END POINT
-nodelist = getFullnodes()
-API_ENDPOINT2 = getrandomNode(nodelist)
+#nodelist = getFullnodes()
+#API_ENDPOINT2 = getrandomNode(nodelist)
+API_ENDPOINT2 = 'https://wax.eosrio.io'
 
 # Testnet V2 END point
 API_ENDPOINT2_TESTNET = 'https://testnet.waxsweden.org'
