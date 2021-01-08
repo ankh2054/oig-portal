@@ -1,4 +1,4 @@
-post http://localhost:3000/communityUpdate
+post http://localhost:3000/api/communityUpdate
 Content-Type: application/json
 
 {
