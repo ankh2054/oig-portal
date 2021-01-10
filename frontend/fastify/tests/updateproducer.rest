@@ -1,4 +1,4 @@
-put http://localhost:3000/activeproducer/valcapitalbp
+put http://localhost:3000/api/activeproducer/valcapitalbp
 Content-Type: application/json
 
 {

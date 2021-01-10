@@ -140,7 +140,7 @@ def getPoints():
         connection = db_connection()
         # Open cursor to DB
         cursor = connection.cursor()
-        postgreSQL_select_Query = "SELECT * FROM oig.pointsystem"
+        postgreSQL_select_Query = "SELECT * FROM oig.pointsystem WHERE points IS NOT NULL"
         cursor.execute(postgreSQL_select_Query)
         points = cursor.fetchall()
         return points
@@ -202,6 +202,10 @@ def getNodes(producer,type):
             pg_select = """ 
             SELECT p2p_url FROM oig.nodes WHERE owner_name = %s AND p2p_url is not null AND (node_type = 'full' OR node_type = 'seed' OR node_type = 'query')
             """
+        elif type == 'all_apis':
+            pg_select = """ 
+            SELECT http_node_url,https_node_url FROM oig.nodes WHERE owner_name = %s AND (node_type = 'api' OR node_type = 'full' OR node_type = 'query')
+            """
         cursor.execute(pg_select, (producer,))
         node_url = cursor.fetchone()
         return node_url
@@ -215,6 +219,28 @@ def getNodes(producer,type):
             cursor.close()
             connection.close()
 
+def getFullnodes():
+    try:
+        # Create connection to DB
+        connection = db_connection()
+        # Open cursor to DB
+        cursor = connection.cursor()
+        pg_select = """ 
+        SELECT COALESCE(http_node_url,https_node_url) FROM oig.nodes WHERE features @> ARRAY['hyperion-v2']::text[];
+        """
+     
+        cursor.execute(pg_select)
+        http_node_url = cursor.fetchall()
+        return http_node_url
+
+    except (Exception, psycopg2.Error) as error:
+        print("Error fetching data from PostgreSQL table", error)
+
+    finally:
+        # closing database connection
+        if (connection):
+            cursor.close()
+            connection.close()
 
 # Get past 30 days worth of CPU stats for producer
 def getCPU(producer):
@@ -258,13 +284,16 @@ def resultsInsert(records):
         cursor = connection.cursor()
         # Insert new entries into postgresql but if owner_name already exists perform update
         ## Updates only columns in excluded list
-        sql_insert_query = """ INSERT INTO oig.results (owner_name, cors_check, cors_check_error, http_check, http_check_error, https_check, https_check_error, tls_check, tls_check_error, http2_check, http2_check_error, full_history, full_history_error, hyperion_v2, hyperion_v2_error, snapshots, seed_node, seed_node_error, api_node, api_node_error, oracle_feed, oracle_feed_error, wax_json, chains_json, cpu_time, cpu_avg, date_check, score) 
-                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        sql_insert_query = """ INSERT INTO oig.results (owner_name, cors_check, cors_check_error, http_check, http_check_error, https_check, https_check_error, tls_check, tls_check_error, producer_api_check, producer_api_error, net_api_check, net_api_error, dbsize_api_check,  dbsize_api_error, http2_check, http2_check_error, full_history, full_history_error, hyperion_v2, hyperion_v2_error, snapshots, seed_node, seed_node_error, api_node, api_node_error, oracle_feed, oracle_feed_error, wax_json, chains_json, cpu_time, cpu_avg, date_check, score) 
+                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                            ON CONFLICT (owner_name,date_check) DO UPDATE SET 
                            cors_check= EXCLUDED.cors_check, cors_check_error= EXCLUDED.cors_check_error, 
                            http_check = EXCLUDED.http_check, http_check_error = EXCLUDED.http_check_error,
                            https_check = EXCLUDED.https_check, https_check_error = EXCLUDED.https_check_error,
                            tls_check = EXCLUDED.tls_check, tls_check_error = EXCLUDED.tls_check_error,
+                           producer_api_check = EXCLUDED.producer_api_check, producer_api_error = EXCLUDED.producer_api_error,
+                           net_api_check = EXCLUDED.net_api_check, net_api_error = EXCLUDED.net_api_error,
+                           dbsize_api_check = EXCLUDED.dbsize_api_check, dbsize_api_error = EXCLUDED.dbsize_api_error,
                            http2_check = EXCLUDED.http2_check, http2_check_error = EXCLUDED.http2_check_error,
                            full_history= EXCLUDED.full_history, full_history_error= EXCLUDED.full_history_error,
                            hyperion_v2= EXCLUDED.hyperion_v2, hyperion_v2_error= EXCLUDED.hyperion_v2_error,

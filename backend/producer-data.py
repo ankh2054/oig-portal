@@ -1,4 +1,5 @@
 import core
+import eosio
 import requests
 import simplejson
 import socket
@@ -6,10 +7,8 @@ import json
 import time
 from requests.exceptions import HTTPError
 import db_connect
-import json_extract
 import urllib3
-import http2check
-import tls_downgrade
+
 import test
 from datetime import datetime
 import backendconfig as cfg
@@ -31,6 +30,7 @@ class bcolors:
 # Disable SSL warnings
 urllib3.disable_warnings()
 
+# Better JSON errors
 try:
     from simplejson.errors import JSONDecodeError
 except ImportError:
@@ -75,91 +75,35 @@ def concatenate(**kwargs):
         result += arg
     return result
 
-def pointsResults(results,pointsystem):
-    # resultslist = [producer, corscheck[0], 
-    # corscheck[1], checkhttp[0], checkhttp[1], 
-    # httpscheck[0], httpscheck[1], tlscheck[0], 
-    # tlscheck[1], http2check[0], http2check[1], 
-    # fullnode[0], fullnode[1], snapshots, 
-    # seednode[0], seednode[1], checkapi[0], 
-    # checkapi[1], delphiresult[0], delphiresult[1], 
-    # waxjson, chainsjson, cpuresult, 
-    # cpuavg, dt]
-    # pointsystem =  db_connect.getPoints()
-    points = 0
-    for check in pointsystem:
-        if check[0] == 'cors_check':
-            if results[1] == True:
-                points = points+(check[1]*check[2])
-            else:
-                points = points+0
-        elif check[0] == 'http_check':
-            if results[3] == True:
-                points = points+(check[1]*check[2])
-            else:
-                points = points+0
-        elif check[0] == 'https_check':
-            if results[5] == True:
-                points = points+(check[1]*check[2])
-            else:
-                points = points+0
-        elif check[0] == 'http2_check':
-            if results[9] == True:
-                points = points+(check[1]*check[2])
-            else:
-                points = points+0
-        elif check[0] == 'full_history':
-            if results[11] == True:
-                fullhistory = True
-                points = points+(check[1]*check[2])
-            else:
-                points = points+0
-                fullhistory = False
-        elif check[0] == 'snapshots':
-            # Only award points if not already awarded for Full history
-            if results[13] == True and fullhistory != True:
-                points = points+(check[1]*check[2])
-            else:
-                points = points+0
-        elif check[0] == 'seed_node':
-            if results[14] == True:
-                points = points+(check[1]*check[2])
-            else:
-                points = points+0
-        elif check[0] == 'api_node':
-            if results[16] == True:
-                points = points+(check[1]*check[2])
-            else:
-                points = points+0
-        elif check[0] == 'oracle_feed':
-            if results[18] == True:
-                points = points+(check[1]*check[2])
-            else:
-                points = points+0
-        elif check[0] == 'wax_json':
-            if results[20] == True:
-                points = points+(check[1]*check[2])
-            else:
-                points = points+0
-        elif check[0] == 'chains_json':
-            if results[21] == True:
-                points = points+(check[1]*check[2])
-            else:
-                points = points+0
-        elif check[0] == 'cpu_time':
-            if results[23] <= 0.5:
-                points = points+(check[1]*check[2])
-            else:
-                points = points+0
-        # Award for having a website
-        elif check[0] == 'website':
-            points = points+(check[1]*check[2])  
-    return points
 
+# Results are a key value dict with each check as its called in DB, 
+# with the results of that check as the value
+def pointsResults(results,pointsystem):
+    points = 0
+    # for each check in points system - Names of checks
+    for check in pointsystem:
+        # Look in results dict and find check key and get value
+        checkResult = results.get(check[0])
+        # CPU exception
+        if check == 'cpu_time':
+            if checkResult <= 0.5:
+                points = points+(check[1]*check[2])
+            else:
+                points = points+0
+        # Website exception 
+        elif check == 'website':
+            points = points+(check[1]*check[2])
+        # For all other scores if result is True
+        else:
+            if checkResult == True:
+                points = points+(check[1]*check[2])
+            else:
+                points = points+0
+    return points
 
 def producerlist():
     prod_table = get_table_data("eosio","producers","eosio","100")
-    producers = core.getEOStable(prod_table)
+    producers = eosio.getEOStable(prod_table)
     # Remove WAX guilds and guilds with no website
     prodremove = ['https://wax.io', '', 'https://bp.eosnewyork.io', 'https://bp.nebulaprotocol.com', 'https://wax.infinitybloc.io', 'https://blockmatrix.network', 'https://eosauthority.com', 'https://hyperblocks.pro/', 'https://strongblock.io/', 'https://waxux.com', 'https://skinminerswax.com', 'https://sheos.org','https://teloscentral.com','https://eossweden.eu','https://dmail.co', 'https://3dkrender.com/']
     # Create empty list
@@ -181,7 +125,7 @@ def producerlist():
 def producer_chain_list():
     producers = producerlist()
     # Create empty list
-    top21producers = core.producerSCHED()
+    top21producers = eosio.producerSCHED()
     producer_final = []
     # Create emtpy dictinary
     # proddict = {}
@@ -226,28 +170,24 @@ def producer_chain_list():
     return producer_final
 
 
-# Iterate over all different types of nodes v1 and v2
+# Iterate over all different types of possible URLs and features
 def node_types(type, node, owner_name):
     # Set node type
     node_type = type
-    # If fields in JSON are empty strings pass NULL to DB
-    if node.get('ssl_endpoint') == "":
-        ssl_endpoint = None
-    else:
-        ssl_endpoint = node.get('ssl_endpoint')
-    if node.get('api_endpoint') == "":
-        api_endpoint = None
-    else:
-        api_endpoint = node.get('api_endpoint')
-    if node.get('p2p_endpoint') == "":
-        p2p_endpoint = None
-    else:
-        p2p_endpoint = node.get('p2p_endpoint')
-    if node.get('features') == "":
-        features = None
-    else:
-        features = node.get('features')
-    thistuple = (owner_name, node_type, api_endpoint, ssl_endpoint, p2p_endpoint, features )
+    # List of all possible types
+    nodetypes = ['ssl_endpoint','api_endpoint','p2p_endpoint','features']
+    # List to to pass back to tuple, contains owner_name and node_type
+    finallist = [owner_name, node_type]
+    for nodes in nodetypes:
+        # If fields in JSON are empty strings pass NULL to DB
+        if node.get(nodes) == "":
+            nodeurl = None
+        # Else pass in URL or featurelist
+        else:         
+            nodeurl = node.get(nodes)
+        finallist.append(nodeurl)
+    # Turn list into tuple 
+    thistuple = tuple(finallist)
     return thistuple
 
 
@@ -285,6 +225,7 @@ def node_list():
                 # Get all node types
                 node_type = node.get('node_type')
                 if "query" in node_type:
+                    # Iterate over all types of possible URLs and features for each type of node
                     thistuple = node_types("query", node, owner_name)
                     node_list.append(thistuple)
                 # Get seed nodes
@@ -348,11 +289,11 @@ def check_api(producer,checktype):
 # History nodes type checks
 # Pass in history-v1, hyperion-v2 
 def check_full_node(producer,type):
-    transactions = core.randomTransaction()
+    transactions = eosio.randomTransaction()
     # if transaction list is empty sleep for 1 second
     while not transactions:
         time.sleep(1)
-        transactions = core.randomTransaction()
+        transactions = eosio.randomTransaction()
     trx = transactions[0]
     try:
         trx2 = transactions[1]
@@ -379,7 +320,10 @@ def check_full_node(producer,type):
         # also return http_err
         if response.status_code == 500:
             jsonres = response.json()
-            error = curlreq+'\nError: '+str(jsonres.get('error').get('what'))
+            try:
+                error = curlreq+'\nError: '+str(jsonres.get('error').get('what'))
+            except:
+                error = "something else weird has happened"
             return False, error
         elif response.status_code == 404:
             error = curlreq+'\nError: Not a full node'
@@ -460,7 +404,7 @@ def check_https(producer,checktype):
             # If no port number assigned presume port 443, as HTTP2 works with TLS
             else:
                 port = "443"
-            return http2check.check_http2(httpsendpoint,port,checktype)
+            return core.check_http2(httpsendpoint,port,checktype)
         elif checktype == "tlschk":
             httpsendpoint = api[0]
             # If the URL contains a port number, strip the port and assign to port
@@ -470,7 +414,54 @@ def check_https(producer,checktype):
             # If no port number assigned presume port 443, as HTTP2 works with TLS
             else:
                 port = "443"
-            return tls_downgrade.check_tls(httpsendpoint,port)
+            return core.check_tls(httpsendpoint,port)
+
+def api_security(producer, sectype):
+    # Check through all nodes
+    apis = db_connect.getNodes(producer,'all_apis')
+    # If there is no API or Full node in DB return True, as no security to test
+    if apis == None:
+        return True, 'No APIs to test for', sectype
+    else:
+        if sectype == 'producer_api':
+            info = "/v1/producer/paused"
+        elif sectype == 'net_api':
+            info = "/v1/net/connections"
+        elif sectype == 'db_size_api':
+            info = "/v1/db_size/get"
+    # Empty list for API results
+    apilist = []
+    # Loop over APIs and check security for particular api
+    for api in apis:
+        try:
+            headers = {'Content-Type': 'application/json'} # only for curl request
+            curlreq = core.curl_request(api+info,'POST',headers,False)
+            response = requests.get(api+info, timeout=5, verify=False)
+            # If the response was successful, no Exception will be raised
+            response.raise_for_status()
+        except HTTPError as http_err:
+            #print(f'HTTP error occurred: {http_err}')
+            message = True
+        except Exception as err:
+            #print(f'Other error occurred: {err}')
+            message = True
+        # If no error is returned and valid json is returned then API is running
+        else:
+            message = False
+        # API results + api itself
+        apiresult = api,message
+        # Append API + result to apilist
+        apilist.append(apiresult)
+    for api in apilist:
+        if api[1] != True:
+            error = str(sectype) + " is enabled on " + api[0] + " this feature should be disabled: " + str(curlreq)
+            return False, error
+        else:
+           True # Dont return here otherswise loop stops
+    # If not False has been found return True
+    return True, 'ok'
+
+
 
 def check_P2P(producer):
    # Get P2P host and port
@@ -494,7 +485,7 @@ def delphioracle_actors():
     chain = "mainnet"
     #Get list of guilds posting to delphioracle looking at actions
     delphi_actions = get_actions_data("delphioracle","100")
-    actions = core.get_stuff(delphi_actions,chain,'action')
+    actions = eosio.get_stuff(delphi_actions,chain,'action')
     guilds = actions['simple_actions']
     # Create empty list
     producer_final = []
@@ -522,7 +513,7 @@ def getcpustats():
     chain = "mainnet"
     eosmech_actions = get_actions_data("eosmechanics","120")
     query = ['simple_actions']
-    actions = core.get_stuff(eosmech_actions,chain,'actions')
+    actions = eosio.get_stuff(eosmech_actions,chain,'actions')
     trxs = actions['simple_actions']
     # Create empty list
     producer_final = []
@@ -538,7 +529,7 @@ def getcpustats():
         # Construct dict from TRX variable and assign to ID key
         payload = dict(id=trx)
         # Pass TRX ID and get all TRX information]
-        fulltrx = core.get_stuff(payload,chain,'trx')
+        fulltrx = eosio.get_stuff(payload,chain,'trx')
         # Extract producer from TRX
         producer = fulltrx['actions'][0]['producer']
         # Extract cpu stats
@@ -555,14 +546,18 @@ def cpuresults(producer,producercpu):
     cpu = [item['cpustats'] for item in producercpu if item["producer"] == producer]
     # If producer is not in that list  means producer is not in top21, so we need testnet data.
     if not cpu:
+        return int(1.0)
+        # Removed testnet data for now and only return 1
+        '''
         # Iterate backwards from current)_headblock until you find a block produced by producer and that contains transactions
         # We only go back as far as 4000 blocks, if not found then return False.
-        cpu = core.get_testnetproducer_cpustats(producer)
+        cpu = eosio.get_testnetproducer_cpustats(producer)
         if cpu == None:
             return int(1.0)
         else: 
             stat = round(cpu/1000,2)
             return stat
+        '''
     else:
         stat = round((sum(cpu) / len(cpu))/1000,2)
         return stat
@@ -577,6 +572,8 @@ def cpuAverage(producer):
     return avg_cpu
 
    
+def resultsGet(producer,check,pointsystem):
+    return 0
 
 def finalresults():
     # Get list of registered active producers
@@ -589,83 +586,164 @@ def finalresults():
     producersoracle = delphioracle_actors()
     # Create empty list
     finaltuple = []
+    # Add the description in DB when then create a function for the below
+    # Add the k,v dict with check and function
     for producer in producersdb:
         producer = producer[0]
         print(bcolors.OKBLUE,f"{'='*100}\nResults for ",producer,bcolors.ENDC)
-        delphiresult = delphiresults(producer,producersoracle)
-        if delphiresult[0] == True:
+        oracle_feed = delphiresults(producer,producersoracle)
+        if oracle_feed[0] == True:
             colorstart = bcolors.OKGREEN
         else:
             colorstart = bcolors.WARNING
-        print("Publishing feed data via an oracle service:",colorstart,delphiresult[0],bcolors.ENDC)
-        checkapi = check_api(producer,'apichk')
-        if checkapi[0] == True:
+        print("Publishing feed data via an oracle service:",colorstart,oracle_feed[0],bcolors.ENDC)
+        api_node = check_api(producer,'apichk')
+        if api_node[0] == True:
             colorstart = bcolors.OKGREEN
         else:
             colorstart = bcolors.WARNING
-        print("API node endpoint is publicly available: ",colorstart,checkapi[0],bcolors.ENDC)
-        checkhttp = check_api(producer,'httpchk')
-        if checkhttp[0] == True:
+        print("API node endpoint is publicly available: ",colorstart,api_node[0],bcolors.ENDC)
+        http_check = check_api(producer,'httpchk')
+        if http_check[0] == True:
             colorstart = bcolors.OKGREEN
         else:
             colorstart = bcolors.WARNING
-        print("HTTP is available on RPC API endpoint.: ",colorstart,checkhttp[0],bcolors.ENDC)
+        print("HTTP is available on RPC API endpoint.: ",colorstart,http_check[0],bcolors.ENDC)
         website = True
         print("Public website available:",bcolors.OKGREEN,website,bcolors.ENDC)
-        chainsjson = True
-        print("chains.json metadata available at regproducer url: ",bcolors.OKGREEN,chainsjson,bcolors.ENDC)
-        waxjson = True
-        print("wax.json metadata available at regproducer url: " ,bcolors.OKGREEN,waxjson,bcolors.ENDC)
-        corscheck = check_api(producer,'corschk')
-        if corscheck[0]  == True:
+        chains_json = True
+        print("chains.json metadata available at regproducer url: ",bcolors.OKGREEN,chains_json,bcolors.ENDC)
+        wax_json = True
+        print("wax.json metadata available at regproducer url: " ,bcolors.OKGREEN,wax_json,bcolors.ENDC)
+        cors_check = check_api(producer,'corschk')
+        if cors_check[0]  == True:
             colorstart = bcolors.OKGREEN
         else:
             colorstart = bcolors.WARNING
-        print("CORS is configured on RPC API: ",colorstart,corscheck[0],bcolors.ENDC)
-        httpscheck = check_https(producer,'httpschk')
-        if httpscheck[0]  == True:
+        print("CORS is configured on RPC API: ",colorstart,cors_check[0],bcolors.ENDC)
+        https_check = check_https(producer,'httpschk')
+        if https_check[0]  == True:
             colorstart = bcolors.OKGREEN
         else:
             colorstart = bcolors.WARNING
-        print("HTTPS is available on RPC API endpoint: ",colorstart,httpscheck[0],bcolors.ENDC)
+        print("HTTPS is available on RPC API endpoint: ",colorstart,https_check[0],bcolors.ENDC)
         tlscheck = check_https(producer,'tlschk')
         print("TLS version available on HTTPS API: ",bcolors.OKYELLOW,tlscheck[0],bcolors.ENDC)
-        http2check = check_https(producer,'http2chk')
-        if http2check[0]  == True:
+        http2_check = check_https(producer,'http2chk')
+        if http2_check[0]  == True:
             colorstart = bcolors.OKGREEN
         else:
             colorstart = bcolors.WARNING
-        print("HTTP2 is enabled on RPC API endpoint: ",colorstart,http2check[0],bcolors.ENDC)
-        cpuresult = cpuresults(producer,producercpu)
-        print("CPU latency on EOS Mechanics below 2 ms on average:",bcolors.OKYELLOW, cpuresult,bcolors.ENDC,"ms")
+        print("HTTP2 is enabled on RPC API endpoint: ",colorstart,http2_check[0],bcolors.ENDC)
+        # Produce API check
+        producer_apicheck = api_security(producer,'producer_api')
+        if producer_apicheck[0]  == True:
+            colorstart = bcolors.OKGREEN
+        else:
+            colorstart = bcolors.WARNING
+        print("Producer API is disabled on visible nodes: ",colorstart,producer_apicheck[0],bcolors.ENDC)
+
+        # Net API check
+        net_apicheck = api_security(producer,'net_api')
+        if net_apicheck[0]  == True:
+            colorstart = bcolors.OKGREEN
+        else:
+            colorstart = bcolors.WARNING
+        print("net_api API is disabled on visible nodes: ",colorstart,net_apicheck[0],bcolors.ENDC)
+
+        # DB size API check
+        dbsize_apicheck = api_security(producer,'db_size_api')
+        if dbsize_apicheck[0]  == True:
+            colorstart = bcolors.OKGREEN
+        else:
+            colorstart = bcolors.WARNING
+        print("db_size API is disabled on visible nodes: ",colorstart,dbsize_apicheck[0],bcolors.ENDC)
+
+        #CPU checks
+        cpu_time = cpuresults(producer,producercpu)
+        print("CPU latency on EOS Mechanics below 2 ms on average:",bcolors.OKYELLOW, cpu_time,bcolors.ENDC,"ms")
         cpuavg = cpuAverage(producer)
         print("CPU latency average over 30days:",bcolors.OKYELLOW, cpuavg,bcolors.ENDC,"ms")
         # v1 History check
-        fullnode = check_full_node(producer,'history-v1')
-        if fullnode[0]  == True:
+        full_history = check_full_node(producer,'history-v1')
+        if full_history[0]  == True:
             colorstart = bcolors.OKGREEN
         else:
             colorstart = bcolors.WARNING
-        print("Running a v1 History node:",colorstart,fullnode[0],bcolors.ENDC)
+        print("Running a v1 History node:",colorstart,full_history[0],bcolors.ENDC)
         # v2 Hyperion check
-        hyperion = check_full_node(producer,'hyperion-v2')
-        if hyperion[0]  == True:
+        hyperion_v2 = check_full_node(producer,'hyperion-v2')
+        if hyperion_v2[0]  == True:
             colorstart = bcolors.OKGREEN
         else:
             colorstart = bcolors.WARNING
-        print("Running a v2 Hyperion node:",colorstart,hyperion[0],bcolors.ENDC)
+        print("Running a v2 Hyperion node:",colorstart,hyperion_v2[0],bcolors.ENDC)
         # Set snapshots to False until we find a way
         snapshots = False
-        seednode = check_P2P(producer)
-        if seednode[0]  == True:
+        seed_node = check_P2P(producer)
+        if seed_node[0]  == True:
             colorstart = bcolors.OKGREEN
         else:
             colorstart = bcolors.WARNING
-        print("Running a seed node:",colorstart,seednode[0],bcolors.ENDC)
+        print("Running a seed node:",colorstart,seed_node[0],bcolors.ENDC)
          # Get current UTC timestamp
         dt = datetime.utcnow()
-        resultslist = [producer, corscheck[0], corscheck[1], checkhttp[0], checkhttp[1], httpscheck[0], httpscheck[1], tlscheck[0], tlscheck[1], http2check[0], http2check[1], fullnode[0], fullnode[1], hyperion[0], hyperion[1], snapshots, seednode[0], seednode[1], checkapi[0], checkapi[1], delphiresult[0], delphiresult[1], waxjson, chainsjson, cpuresult, cpuavg, dt]
-        score = pointsResults(resultslist,pointsystem)
+        # Create a function for this
+        pointslist = { 
+            'cors_check': cors_check[0],
+            'http_check': http_check[0],
+            'https_check': https_check[0],
+            'tlscheck': tlscheck[0],
+            'producer_apicheck': producer_apicheck[0],
+            'net_apicheck': net_apicheck[0],
+            'dbsize_apicheck': dbsize_apicheck[0],
+            'http2_check': http2_check[0],
+            'full_history': full_history[0],
+            'hyperion_v2': hyperion_v2[0],
+            'snapshots': snapshots,
+            'seed_node': seed_node[0],
+            'api_node': api_node[0],
+            'oracle_feed': oracle_feed[0],
+            'wax_json': wax_json,
+            'chains_json': chains_json,
+            'cpu_time': cpu_time,
+        }
+        resultslist = [
+            producer, 
+            cors_check[0], 
+            cors_check[1], 
+            http_check[0], 
+            http_check[1], 
+            https_check[0], 
+            https_check[1], 
+            tlscheck[0], 
+            tlscheck[1], 
+            producer_apicheck[0], 
+            producer_apicheck[1],
+            net_apicheck[0],
+            net_apicheck[1],
+            dbsize_apicheck[0],
+            dbsize_apicheck[1],
+            http2_check[0],
+            http2_check[1], 
+            full_history[0], 
+            full_history[1],
+            hyperion_v2[0],
+            hyperion_v2[1], 
+            snapshots, 
+            seed_node[0], 
+            seed_node[1], 
+            api_node[0], 
+            api_node[1], 
+            oracle_feed[0], 
+            oracle_feed[1], 
+            wax_json, 
+            chains_json, 
+            cpu_time, 
+            cpuavg, 
+            dt
+        ]
+        score = pointsResults(pointslist,pointsystem)
         print("Final Tech points:",colorstart,score,bcolors.ENDC)
         # Add final sore to list
         resultslist.append(score)
@@ -677,13 +755,14 @@ def finalresults():
 
 
 def main():
-    # Get list of producers 
+    # Get list of producers
+    print(bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",bcolors.ENDC)
     producers = producer_chain_list()
     # Add producers to DB
     db_connect.producerInsert(producers)
     # Add nodes to DB
+    print(bcolors.OKYELLOW,f"{'='*100}\nGetting list of nodes from JSON files ",bcolors.ENDC)
     nodes = node_list()
-    print(nodes)
     db_connect.nodesInsert(nodes)
     # Get all results and save to DB
     results = finalresults()

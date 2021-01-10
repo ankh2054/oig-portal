@@ -128,7 +128,8 @@ const getResultsbyOwner = (request, reply) => {
   }
 
 
-//Set producer active or not - send true or false in body 
+// Set producer active or not - send true or false in body
+// OIG admin page 
 const IsProducerActive = (request, reply) => {
     const owner = request.params.owner
     const { active } = request.body
@@ -142,6 +143,7 @@ const IsProducerActive = (request, reply) => {
   }
 
 // Insert monthly update
+// ???????
 const mothlyUpdate = (request, reply) => {
     const { owner_name, tech_ops, product, bizdev, community, date_update } = request.body
 
@@ -157,6 +159,7 @@ const mothlyUpdate = (request, reply) => {
   }
 
 // Insert Product update
+// OIG admin page
 const productUpdate = (request, reply) => {
   const { owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, points, date_updated } = request.body
 
@@ -172,6 +175,7 @@ const productUpdate = (request, reply) => {
 }
 
 // Insert Bizdev update
+// OIG admin page
 const bizdevUpdate = (request, reply) => {
   const { owner_name, name, description, stage, analytics_url, spec_url, score, points, date_updated } = request.body
 
@@ -187,6 +191,7 @@ const bizdevUpdate = (request, reply) => {
 }
 
 // Insert Community update
+// OIG admin page
 const communityUpdate = (request, reply) => {
   const { owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated } = request.body
 
