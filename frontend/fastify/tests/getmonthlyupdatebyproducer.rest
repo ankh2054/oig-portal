@@ -1,4 +1,4 @@
-post http://localhost:3000/monthlyUpdates/sentnlagents
+post http://localhost:3000/api/monthlyUpdates/sentnlagents
 Content-Type: application/json
 
 {

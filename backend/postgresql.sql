@@ -1,5 +1,4 @@
 
-/* 
 /* Remember to connect to DB before creating schema 
 Schema is created inside a DB. If on console make sure you create DB first and conect to DB.
 CREATE DATABASE oig;
@@ -73,7 +72,6 @@ CREATE TABLE oig.results (
 );
 /* Unique index to cover two culumns*/
 CREATE UNIQUE INDEX idx_results_type ON oig.results(owner_name, date_check);
-/* 
 /* CREATE ROLE oig WITH LOGIN PASSWORD 'nightshade900'; */
 
 CREATE TABLE oig.pointsystem (

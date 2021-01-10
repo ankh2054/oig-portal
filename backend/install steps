@@ -1,0 +1,54 @@
+[Big Sur - ensure later packages can be installed]
+sudo chown -R $(whoami):admin /usr/local/* \
+&& sudo chmod -R g+rwx /usr/local/*
+
+[Install Postgres.app if on Mac]
+https://postgresapp.com/downloads.html
+
+[Add Postgres to PATH]
+Bash:
+echo 'export PATH=$PATH:/Applications/Postgres.app/Contents/Versions/latest/bin' >> ~/.bash_profile \
+&& source ~/.bash_profile
+
+ZSH:
+echo 'export PATH=$PATH:/Applications/Postgres.app/Contents/Versions/latest/bin' >> ~/.zshrc \
+&& source ~/.zshrc
+
+[Install packages via Brew]
+&& brew install openssl \
+&& brew install python3
+
+Open Postgres.app and click Initialize.
+
+[Create OIG database & set up]
+echo 'CREATE DATABASE oig;' | psql \
+&& psql -d oig -h localhost -p 5432 -f postgresql.sql
+
+[If you mess it up - drop the table]
+echo 'drop database oig' | psql
+
+[Check it works]
+psql postgres
+postgres=# \c oig
+postgres=# \d oig.producer
+postgres=# \d oig.results
+postgres=# \q
+
+[Upgrade Python if need be]
+[sudo] pip3 install --upgrade pip
+
+[Install requirements]
+pip3 install -r requirements.txt
+
+[If psycopg2 fails]
+env LDFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib" \
+pip3 --no-cache install psycopg2-binary
+
+[If preprocessing fails]
+pip3 --no-cache install preprocessing
+
+Stuck here!
+python3 producer-data.py
+
+[Shut down]
+Click 'Stop' in Postgres.app
