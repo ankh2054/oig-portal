@@ -40,3 +40,6 @@ MANIFEST
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+
+# Node modules
+frontend/fastify/node_modules/*
