@@ -43,6 +43,3 @@ pip-delete-this-directory.txt
 
 # Notes
 *notes.txt
-
-# Node modules
-*/node_modules/*
