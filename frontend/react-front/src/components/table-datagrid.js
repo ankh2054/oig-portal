@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import MaterialTable from "material-table"; 
 
 export default function App({ tabledata, tabletitle }) { 
-  console.log(tabledata, tabletitle)
+  console.log(tabledata, tabletitle) // Function is called twice
   const [data, setData] = useState(tabledata);
   //Set object from first object in array 
   const columnObj = !!data[0] ? data[0] : {};

@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { makeStyles } from '@material-ui/core/styles';
+// Ununused var // import { makeStyles } from '@material-ui/core/styles';
 import TechresultTables from './tech-tablelist-results'
 import ProdBizdev from './product-bizdev-results'
 import Button from '@material-ui/core/Button';
 
-const useStyles = makeStyles((theme) => ({
+// Ununused var // 
+/* const useStyles = makeStyles((theme) => ({
   root: {
     
   },
@@ -16,10 +17,10 @@ const useStyles = makeStyles((theme) => ({
   left: {
     marginLeft: 'auto',
   },
-}));
+})); */
 
 const App = ({ results ,products, bizdevs }) => {
-  const classes = useStyles();
+  // Ununused var // const classes = useStyles();
     return (
       <div>
 
@@ -29,7 +30,7 @@ const App = ({ results ,products, bizdevs }) => {
         <ProdBizdev
           results={ bizdevs }
         />
-        <h1></h1>
+        {/* // Ununused // <h1></h1> */}
         <TechresultTables
               results={ results }
               description="Wax Mainnet"

@@ -27,3 +27,11 @@ cd frontend/fastify \
 cd frontend/react-front \
 && npm start
 ```
+
+### Known errors
+````
+<IconButton>
+    <HttpsIcon ... />
+</IconButton>
+````
+This causes a `validateDOMNesting` error: button inside a button.

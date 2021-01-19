@@ -64,7 +64,7 @@ export default function ButtonAppBar() {
         <WAXsvg style={{ fontSize: 140 }} className={classes.logosvg} />
       </Icon>
       </Link>
-      <Typography fontWeight="fontWeightBold" variant="h4" className={classes.title} color='default'>
+      <Typography fontWeight="fontWeightBold" variant="h4" className={classes.title} color='inherit'>
        OIG Portal
       </Typography>
         <nav>
