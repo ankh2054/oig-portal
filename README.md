@@ -22,7 +22,7 @@ cd frontend/fastify \
 && npm run dev
 
 ### Start React
-\[Seperate Tab\]:
+\[Seperate Tab - needs fastify running to get data\]:
 ```
 cd frontend/react-front \
 && npm start
