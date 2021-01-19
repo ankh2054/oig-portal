@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import moment from 'moment'
+import datec from '../functions/date' // Using datec to be consistent for snapshot date check
 import { api_base } from '../config'
 import axios from 'axios'
 import Button from '@material-ui/core/Button';
@@ -15,6 +16,7 @@ const App = ({ results, producers, products, bizdevs, community, snapresults }) 
    }
    // Get the promise
    function updateResults() {
+        // Idempotency needed here. Will endlessly call
         const promise = axios.get(api_base+'/api/snapshotlatestresults')
         promise.then(eventHandler)
     }
@@ -36,6 +38,11 @@ const App = ({ results, producers, products, bizdevs, community, snapresults }) 
   return (
     <div>
       <h1>OIG Monthly Admin</h1>
+      {/* We can select the date from the first entry of snapresults (usually aikon) 
+          because all snapshots are done at the same time. If we ever 
+          change fastify /api/snapshotlatestresults to include a universal
+          last checked date, then it would be good to change this code. */}
+      {!!snapresults && !!snapresults[0] && !!snapresults[0].date_check ? <h3>Snapshot data last fetched at: {datec(snapresults[0].date_check)}</h3> : null}
         <Button
             type="submit"
             variant="contained"
