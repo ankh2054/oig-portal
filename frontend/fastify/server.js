@@ -2,7 +2,8 @@ const { port } = require('./config');
 
 
 const fastify = require('fastify')({
-    ignoreTrailingSlash: true
+    ignoreTrailingSlash: true,
+    logger: true // Used to check how much requests come through from the React frontend
 })
 
 // CORS setup
