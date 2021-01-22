@@ -90,6 +90,13 @@ const App = ({ results, producers, products, bizdevs, community }) => {
 
   }
 
+  /** Filters products by owner */
+  function filterProducts(products, owner) {
+    const filteredProducts = products.filter((presult) => presult.owner_name === owner);
+    // Any manipulations of initially loaded product data can be done here
+    return filteredProducts
+  }
+
   return (
     <Grid container spacing={4}>
     {results.map((result) => (
@@ -141,7 +148,7 @@ const App = ({ results, producers, products, bizdevs, community }) => {
       <Collapse in={expandedId === result.owner_name ? true : false} timeout="auto" unmountOnExit>
         <CardContent>
             <TableDataGrid 
-            tabledata={products.filter((presult) => presult.owner_name === result.owner_name)}
+            tabledata={filterProducts(products, result.owner_name)}
             tabletitle="Products"
              />
         </CardContent>

@@ -12,7 +12,7 @@ export default function App({ tabledata, tabletitle }) {
         "title":key,
         "field":key
     }
-  });  
+  });
    return ( 
       <div className="App"> 
         <div style={{ maxWidth: "100%" }}>
@@ -21,13 +21,13 @@ export default function App({ tabledata, tabletitle }) {
           editable={{
             onRowUpdate: (newData, oldData) =>
               new Promise((resolve, reject) => {
-                setTimeout(() => {
-                  const dataUpdate = [...data];
-                  const index = oldData.tableData.id;
-                  dataUpdate[index] = newData;
-                  setData([...dataUpdate]);
-                  resolve();
-                }, 1000)
+                const dataUpdate = [...data];
+                const index = oldData.tableData.id;
+                dataUpdate[index] = newData;
+                console.log("data to update");
+                console.log(dataUpdate[index])
+                setData([...dataUpdate]);
+                resolve();
               })
             }}
             data={data}
