@@ -10,7 +10,9 @@ export default function App({ tabledata, tabletitle }) {
   var columnsSetup = Object.keys(columnObj).map(function(key) {
     return {
         "title":key,
-        "field":key
+        "field":key,
+        // Hide owner_name
+        "hidden": key === "owner_name"
     }
   });
    return ( 
