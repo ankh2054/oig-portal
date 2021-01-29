@@ -15,6 +15,7 @@ CREATE TABLE oig.producer (
     chainsurl VARCHAR ( 50 ) NOT NULL,
     active BOOLEAN NOT NULL,
     logo_svg VARCHAR ( 100 ), /*Can be Null as sometimes people dont have a logo */
+    country_code VARCHAR ( 100 ), /*Can be Null as sometimes people dont have a country specified */
     top21 BOOLEAN NOT NULL
 );
 

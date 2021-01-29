@@ -34,11 +34,11 @@ def producerInsert(records):
         cursor = connection.cursor()
         # Insert new entries into postgresql but if owner_name already exists perform update
         ## Updates only columns in excluded list
-        sql_insert_query = """ INSERT INTO oig.producer (owner_name, candidate, url, jsonurl, chainsurl, logo_svg, top21) 
-                           VALUES (%s,%s,%s,%s,%s,%s,%s)
+        sql_insert_query = """ INSERT INTO oig.producer (owner_name, candidate, url, jsonurl, chainsurl, logo_svg, top21, country_code) 
+                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
                            ON CONFLICT (owner_name) DO UPDATE SET candidate = EXCLUDED.candidate, url = EXCLUDED.url, 
                            jsonurl = EXCLUDED.jsonurl, chainsurl = EXCLUDED.chainsurl, 
-                           logo_svg = EXCLUDED.logo_svg, top21 = EXCLUDED.top21;
+                           logo_svg = EXCLUDED.logo_svg, top21 = EXCLUDED.top21, country_code = EXCLUDED.country_code;
                            """
         # executemany() to insert multiple rows rows
         result = cursor.executemany(sql_insert_query, records)
