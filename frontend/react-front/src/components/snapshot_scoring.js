@@ -47,6 +47,13 @@ const App = ({ results, producers, products, bizdevs, community }) => {
   const classes = useStyles();
   const [expandedId, setExpandedId] = useState(false);
 
+  /** Filters items (products, bizdev, community) by owner */
+  function filterByOwner(items, owner) {
+    const filteredItems = items.filter((presult) => presult.owner_name === owner);
+    // Any manipulations of initially loaded product data can be done here
+    return filteredItems
+  }
+
   // Return Guild Logo
   function logo(owner) {
     let ownername = producers.find((producer) => producer.owner_name === owner)
@@ -88,13 +95,6 @@ const App = ({ results, producers, products, bizdevs, community }) => {
         );
       }
 
-  }
-
-  /** Filters products by owner */
-  function filterProducts(products, owner) {
-    const filteredProducts = products.filter((presult) => presult.owner_name === owner);
-    // Any manipulations of initially loaded product data can be done here
-    return filteredProducts
   }
 
   return (
@@ -148,8 +148,20 @@ const App = ({ results, producers, products, bizdevs, community }) => {
       <Collapse in={expandedId === result.owner_name ? true : false} timeout="auto" unmountOnExit>
         <CardContent>
             <TableDataGrid 
-            tabledata={filterProducts(products, result.owner_name)}
+            tabledata={filterByOwner(products, result.owner_name)}
             tabletitle="Products"
+             />
+        </CardContent>
+        <CardContent>
+            <TableDataGrid 
+            tabledata={filterByOwner(bizdevs, result.owner_name)}
+            tabletitle="Bizdev"
+             />
+        </CardContent>
+        <CardContent>
+            <TableDataGrid 
+            tabledata={filterByOwner(community, result.owner_name)}
+            tabletitle="Community"
              />
         </CardContent>
       </Collapse>

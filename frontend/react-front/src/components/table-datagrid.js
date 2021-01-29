@@ -21,11 +21,82 @@ export default function Table({ tabledata, tabletitle }) {
         points,
         date_updated,
       } = newRow;
-      axios.post(api_base+'/api/productUpdate', { owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, points, date_updated }).then(() => {
-        console.log(`Product '${name}' by ${owner_name} updated! Reload to confirm.`)
-      })
+      axios
+        .post(api_base + "/api/productUpdate", {
+          owner_name,
+          name,
+          description,
+          stage,
+          analytics_url,
+          spec_url,
+          code_repo,
+          score,
+          points,
+          date_updated,
+        })
+        .then(() => {
+          console.log(
+            `Product '${name}' by ${owner_name} updated! Reload to confirm.`
+          );
+        });
+    } else if (tabletitle === "Bizdev") {
+      const {
+        owner_name,
+        name,
+        description,
+        stage,
+        analytics_url,
+        spec_url,
+        score,
+        points,
+        date_updated,
+      } = newRow;
+      axios
+        .post(api_base + "/api/bizdevUpdate", {
+          owner_name,
+          name,
+          description,
+          stage,
+          analytics_url,
+          spec_url,
+          score,
+          points,
+          date_updated,
+        })
+        .then(() => {
+          console.log(
+            `Bizdev '${name}' by ${owner_name} updated! Reload to confirm.`
+          );
+        });
+    } else if (tabletitle === "Community") {
+      const {
+        owner_name,
+        origcontentpoints,
+        transcontentpoints,
+        eventpoints,
+        managementpoints,
+        outstandingpoints,
+        score,
+        date_updated,
+      } = newRow;
+      axios
+        .post(api_base + "/api/communityUpdate", {
+          owner_name,
+          origcontentpoints,
+          transcontentpoints,
+          eventpoints,
+          managementpoints,
+          outstandingpoints,
+          score,
+          date_updated,
+        })
+        .then(() => {
+          console.log(
+            `Community points for ${owner_name} updated! Reload to confirm.`
+          );
+        });
     } else {
-      console.log(`Unknown table type "${tabletitle}"...`)
+      console.log(`Unknown table type "${tabletitle}"...`);
     }
   };
 
@@ -48,7 +119,7 @@ export default function Table({ tabledata, tabletitle }) {
         editable: key !== "name" ? "always" : "never",
       };
     });
-    console.log("Table columns generated.")
+    console.log("Table columns generated.");
     return columnsSetup;
   };
 
@@ -64,14 +135,14 @@ export default function Table({ tabledata, tabletitle }) {
                   const tableCopy = [...tableState];
                   const index = oldRow.tableData.id;
                   tableCopy[index] = newRow;
-                  setTableState(tableCopy)
-                  console.log("Table state updated!")
+                  setTableState(tableCopy);
+                  console.log("Table state updated!");
                   resolve(newRow);
                 } catch (err) {
                   // This doesn't do anything and it's uncatched, but should be here so...
                   reject(err);
                 }
-              }).then(newRow => {
+              }).then((newRow) => {
                 // Update database after state updated. Arguably this should be done the other way around.
                 updateDb(newRow);
               });
