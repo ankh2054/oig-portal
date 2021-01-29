@@ -17,7 +17,7 @@ const App = ({ results, producers, products, bizdevs, community, snapresults }) 
    }
    // Get the promise
    function updateResults() {
-        // Idempotency needed here. Will endlessly call
+        // Calls many times because snapshot results are individually loaded
         const promise = axios.get(api_base+'/api/snapshotlatestresults')
         promise.then(eventHandler)
     }
