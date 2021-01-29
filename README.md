@@ -21,12 +21,17 @@ cd frontend/fastify \
 cd frontend/fastify \
 && npm run dev
 
-### Start React
+### Start React (after Fastify)
 \[Seperate Tab - needs fastify running to get data\]:
 ```
 cd frontend/react-front \
 && npm start
 ```
+
+### Run producer-data
+Start PostGreSQL
+
+python3 backend/producer-data.py
 
 ### Known errors
 ````
@@ -35,3 +40,12 @@ cd frontend/react-front \
 </IconButton>
 ````
 This causes a `validateDOMNesting` error: button inside a button.
+
+Error: Objects are not valid as a React child (found: object with keys {id}). If you meant to render a collection of children, use an array instead.
+
+Editing the name of a product causes a new entry for that product rather than replacing it (in snapshot editor). Fixed via disabling the name update field.
+
+Opening the product table for a BP in snapshot editor results in:
+````
+Warning: findDOMNode is deprecated in StrictMode. findDOMNode was passed an instance of Transition which is inside StrictMode. 
+```
