@@ -49,23 +49,3 @@ Opening the product table for a BP in snapshot editor results in:
 ````
 Warning: findDOMNode is deprecated in StrictMode. findDOMNode was passed an instance of Transition which is inside StrictMode. 
 ```
-
-Referencing:
-    in WithStyles(ForwardRef(Collapse)) (at snapshot_scoring.js:148)
-    in WithStyles(ForwardRef(Card)) (at snapshot_scoring.js:104)
-    in WithStyles(ForwardRef(Grid)) (at snapshot_scoring.js:103)
-    in WithStyles(ForwardRef(Grid)) (at snapshot_scoring.js:101)
-    in App (at snapshot-results.js:107)
-    in div (at snapshot-results.js:69)
-    in App (at App.js:109)
-    in Route (at App.js:109)
-    in BrowserRouter (at App.js:104)
-    in WithStyles(ForwardRef(Paper)) (at App.js:103)
-    in WithStyles(ForwardRef(Grid)) (at App.js:102)
-    in WithStyles(ForwardRef(Grid)) (at App.js:101)
-     in WithStyles(ForwardRef(Container)) (at App.js:99)
-    in Switch (at App.js:96)
-    in main (at App.js:95)
-    in Route (at src/index.js:12)
-    in BrowserRouter (at src/index.js:11)
-    in StrictMode (at src/index.js:10)
