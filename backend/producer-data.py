@@ -566,6 +566,11 @@ def cpuAverage(producer):
 def resultsGet(producer,check,pointsystem):
     return 0
 
+# Looks at snapshot date as specified by OIG and if today is that day, create snapshot
+# Also look at last snapshot date, if within 24 hours of last snapshot taken dont snapshot. That prevents if from taking multiple snapshots
+def takeSnapshot():
+    pass
+
 
 ## Final Results print output function to display results to console for each check
 def printOuput(results,description):

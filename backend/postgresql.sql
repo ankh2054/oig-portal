@@ -69,7 +69,8 @@ CREATE TABLE oig.results (
     cpu_avg DECIMAL NOT NULL,
     date_check TIMESTAMPTZ NOT NULL,
     score DECIMAL NOT NULL,
-    snapshot_date TIMESTAMPTZ
+    snapshot_date TIMESTAMPTZ,
+    comments VARCHAR ( 1000 )
 );
 /* Unique index to cover two culumns*/
 CREATE UNIQUE INDEX idx_results_type ON oig.results(owner_name, date_check);
@@ -91,7 +92,8 @@ CREATE TABLE oig.products (
     code_repo VARCHAR ( 100 ),
     points SMALLINT NOT NULL,
     score DECIMAL NOT NULL,
-    date_updated TIMESTAMPTZ NOT NULL
+    date_updated TIMESTAMPTZ NOT NULL,
+    comments VARCHAR ( 1000 )
 );
 CREATE UNIQUE INDEX idx_products_type ON oig.products(owner_name, name);
 
@@ -104,7 +106,8 @@ CREATE TABLE oig.bizdev (
     spec_url VARCHAR ( 100 ),
     points SMALLINT NOT NULL,
     score DECIMAL NOT NULL,
-    date_updated TIMESTAMPTZ NOT NULL
+    date_updated TIMESTAMPTZ NOT NULL,
+    comments VARCHAR ( 1000 )
 );
 CREATE UNIQUE INDEX idx_bizdev_type ON oig.bizdev(owner_name, name);
 
@@ -116,7 +119,12 @@ CREATE TABLE oig.community (
     managementpoints SMALLINT NOT NULL,
     outstandingpoints SMALLINT NOT NULL,
     score DECIMAL NOT NULL,
-    date_updated TIMESTAMPTZ NOT NULL
+    date_updated TIMESTAMPTZ NOT NULL,
+    comments VARCHAR ( 1000 )
+);
+
+CREATE TABLE oig.snapshotsettings (
+    snapshot_date TIMESTAMPTZ 
 );
 
 CREATE TABLE oig.updates (

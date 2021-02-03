@@ -74,6 +74,16 @@ const getLatestResults = (request, reply) => {
     })
   }
 
+//Get latest tech results from snapshots
+const getSnapshotResults = (request, reply) => {
+  client.query('SELECT DISTINCT ON (owner_name) * FROM oig.results ORDER BY owner_name, snapshot_date DESC', (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(results.rows);
+  })
+}
+
 //Get latest Snapshot results
 const getLatestSnapshotResults = (request, reply) => {
   client.query('SELECT DISTINCT ON (owner_name) * FROM oig.results WHERE snapshot_date IS NOT  NULL ORDER BY owner_name, snapshot_date DESC', (error, results) => {
@@ -220,4 +230,4 @@ const getUpdatesbyOwner = (request, reply) => {
     })
   }
 
-module.exports = { getProducers, getResults, getResultsbyOwner, getLatestResults, IsProducerActive, mothlyUpdate, getUpdatesbyOwner, productUpdate, getProducts, bizdevUpdate, getBizdevs, communityUpdate, getCommunity, setSnapshotResults, getLatestSnapshotResults};
+module.exports = { getProducers, getResults, getResultsbyOwner, getLatestResults, IsProducerActive, mothlyUpdate, getUpdatesbyOwner, productUpdate, getProducts, bizdevUpdate, getBizdevs, communityUpdate, getCommunity, setSnapshotResults, getLatestSnapshotResults, getSnapshotResults};
