@@ -5,6 +5,8 @@ import simplejson
 import socket
 import json
 import time
+import datetime
+from datetime import timedelta
 from requests.exceptions import HTTPError
 import db_connect
 import urllib3
@@ -92,7 +94,7 @@ def producerlist():
     prod_table = get_table_data("eosio","producers","eosio","100")
     producers = eosio.getEOStable(prod_table)
     # Remove WAX guilds and guilds with no website
-    prodremove = ['https://wax.io', '', 'https://bp.eosnewyork.io', 'https://bp.nebulaprotocol.com', 'https://wax.infinitybloc.io', 'https://blockmatrix.network', 'https://eosauthority.com', 'https://hyperblocks.pro/', 'https://strongblock.io/', 'https://waxux.com', 'https://skinminerswax.com', 'https://sheos.org','https://teloscentral.com','https://eossweden.eu','https://dmail.co', 'https://3dkrender.com/']
+    prodremove = ['https://wax.io', '', 'https://bp.eosnewyork.io', 'https://bp.nebulaprotocol.com', 'https://wax.infinitybloc.io', 'https://blockmatrix.network', 'https://eosauthority.com', 'https://hyperblocks.pro/', 'https://strongblock.io/', 'https://waxux.com', 'https://skinminerswax.com', 'https://sheos.org','https://teloscentral.com','https://eossweden.eu','https://dmail.co', 'https://maltablock.org', 'https://wax.csx.io', 'https://xpoblocks.com']
     # Create empty list
     producer_final = []
     # Create emtpy dictinary
@@ -160,7 +162,6 @@ def producer_chain_list():
                     producer_final.append(thistuple)
     return producer_final
 
-print(producer_chain_list())
 # Iterate over all different types of possible URLs and features
 def node_types(type, node, owner_name):
     # Set node type
@@ -568,10 +569,48 @@ def resultsGet(producer,check,pointsystem):
 
 # Looks at snapshot date as specified by OIG and if today is that day, create snapshot
 # Also look at last snapshot date, if within 24 hours of last snapshot taken dont snapshot. That prevents if from taking multiple snapshots
-def takeSnapshot():
-    pass
+def takeSnapshot(now):
+    producers = db_connect.getProducers()
+    # get snapshot timestamp as set by OIG
+    snapshot_oig = db_connect.getSnapshotdate()
+    # get date of last snapshot taken timestamp
+    latest_snapshot_date = db_connect.getSnapshottakendate()
+    # Access first element in tuple
+    snapshot_oig_date = snapshot_oig[0][0]
+    latest_snapshot_date = latest_snapshot_date[1][0]
+    # Set now date
+    now = now
+    # Convert todays date to string to remove offset aware datetime issues 
+    today = now.strftime("%m/%d/%Y")
+    # Convert DB date to string to remove offset aware datetime issues
+    snapshot_oig = snapshot_oig_date.strftime("%m/%d/%Y")
+    latest_snapshot_date = latest_snapshot_date.strftime("%m/%d/%Y")
+    # Convert them both back to datetime objects for comparison
+    snapshot_oig = datetime.strptime(snapshot_oig, "%m/%d/%Y")
+    latest_snapshot_date  = datetime.strptime(latest_snapshot_date , "%m/%d/%Y")
+    today_date_object = datetime.strptime(today, "%m/%d/%Y")
+    # If today is date of snapshot date set by OIG, then take snapshot
+    if today_date_object == snapshot_oig:
+        # But first check whether snapshot was already taken today
+        if latest_snapshot_date == snapshot_oig:
+            print("Snapshot was already taken today")
+        else:
+            print("snapshot will be taken today")
+            # Set snapshot_date for all producers in DB.
+            for producer in producers:
+                producer = producer[0]
+                db_connect.createSnapshot(snapshot_oig_date, producer, now)
 
+    else:
+        print("Not a snapshot day today")
+    print("Last snapshot taken: ", latest_snapshot_date)
+    print("OIG DB format date: ", snapshot_oig_date)
+    print("OIG date: ", snapshot_oig)
+    print("Today: ", today_date_object)
+    print("Now: ", now)
+    
 
+'2021-02-05 12:29:48.930000+00:00', 'sentnlagents', '2021-02-05 19:52:45.608381'
 ## Final Results print output function to display results to console for each check
 def printOuput(results,description):
     result = results[0]
@@ -735,6 +774,8 @@ def finalresults():
 
 
 def main():
+    # Get Todays date minus 1 minutes - see db_connect.createSnapshot for reasoning
+    now = datetime.now() - timedelta(minutes=1)
     # Get list of producers
     print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",core.bcolors.ENDC)
     producers = producer_chain_list()
@@ -747,6 +788,8 @@ def main():
     # Get all results and save to DB
     results = finalresults()
     db_connect.resultsInsert(results)
+    # Take snapshot
+    takeSnapshot(now)
 
 if __name__ == "__main__":
    main()
