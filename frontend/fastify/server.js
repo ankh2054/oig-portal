@@ -28,6 +28,8 @@ fastify.get('/api/products', db.getProducts)
 fastify.get('/api/bizdevs', db.getBizdevs)
 fastify.get('/api/community', db.getCommunity)
 fastify.get('/api/latestresults', db.getLatestResults)
+// Get latest tech results based on snapshot date
+fastify.get('/api/snapshottechresults', db.getSnapshotResults)
 fastify.get('/api/results/:owner', db.getResultsbyOwner)
 fastify.get('/api/snapshotlatestresults', db.getLatestSnapshotResults)
 // Create snapshot 

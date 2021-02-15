@@ -4,17 +4,7 @@ import time
 import re
 import random
 import db_connect
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKYELLOW = '\033[93m'
-    OKGREEN = '\033[92m'
-    OKBLUE = '\033[94m'
-    WARNING = '\033[91m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+import core
 
 
 # API calls Class
@@ -30,7 +20,7 @@ class Api_Calls:
         self.version = version
         self.call = call
         
-    # Return the URL by default
+    # Class function - Return the URL by default
     def __str__(self):
         return f'{self.url}{self.call}'
 ## Example
@@ -42,7 +32,7 @@ class Api_Calls:
 bad_node_list = [ 'http://wax.eu.eosamsterdam.net','https://api.wax.greeneosio.com' ]
 # Obtain a reliable list of working hyperion nodes for V1 and V2 checks
 def getFullnodes():
-    print(bcolors.OKYELLOW,f"{'='*100}\nObtaining a reliable list of working Hyperion nodes ",bcolors.ENDC)
+    print(core.bcolors.OKYELLOW,f"{'='*100}\nObtaining a reliable list of working Hyperion nodes ",core.bcolors.ENDC)
     nodes = db_connect.getFullnodes()
     if not nodes:
         # If no nodes in DB, return single node
@@ -76,9 +66,9 @@ def getFullnodes():
 
 # Get random node from list
 def getrandomNode(nodelist):
-    print(bcolors.OKYELLOW,f"{'='*100}\nChoosing random Hyperion node ",bcolors.ENDC)
+    print(core.bcolors.OKYELLOW,f"{'='*100}\nChoosing random Hyperion node ",core.bcolors.ENDC)
     random_node = random.choice(nodelist)
-    print(bcolors.OKYELLOW,"Random chosen node: ",random_node,bcolors.ENDC)
+    print(core.bcolors.OKYELLOW,"Random chosen node: ",random_node,core.bcolors.ENDC)
     return random_node.get('Node')
 
 # https://testnet.waxsweden.org/v1/node/get_supported_apis

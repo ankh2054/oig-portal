@@ -5,26 +5,15 @@ import simplejson
 import socket
 import json
 import time
+import datetime
+from datetime import timedelta
 from requests.exceptions import HTTPError
 import db_connect
 import urllib3
-
 import test
 from datetime import datetime
 import backendconfig as cfg
 import statistics
-
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKYELLOW = '\033[93m'
-    OKGREEN = '\033[92m'
-    OKBLUE = '\033[94m'
-    WARNING = '\033[91m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
 
 # Disable SSL warnings
@@ -105,7 +94,7 @@ def producerlist():
     prod_table = get_table_data("eosio","producers","eosio","100")
     producers = eosio.getEOStable(prod_table)
     # Remove WAX guilds and guilds with no website
-    prodremove = ['https://wax.io', '', 'https://bp.eosnewyork.io', 'https://bp.nebulaprotocol.com', 'https://wax.infinitybloc.io', 'https://blockmatrix.network', 'https://eosauthority.com', 'https://hyperblocks.pro/', 'https://strongblock.io/', 'https://waxux.com', 'https://skinminerswax.com', 'https://sheos.org','https://teloscentral.com','https://eossweden.eu','https://dmail.co', 'https://3dkrender.com/']
+    prodremove = ['https://wax.io', '', 'https://bp.eosnewyork.io', 'https://bp.nebulaprotocol.com', 'https://wax.infinitybloc.io', 'https://blockmatrix.network', 'https://eosauthority.com', 'https://hyperblocks.pro/', 'https://strongblock.io/', 'https://waxux.com', 'https://skinminerswax.com', 'https://sheos.org','https://teloscentral.com','https://eossweden.eu','https://dmail.co', 'https://maltablock.org', 'https://wax.csx.io', 'https://xpoblocks.com']
     # Create empty list
     producer_final = []
     # Create emtpy dictinary
@@ -157,6 +146,10 @@ def producer_chain_list():
                     # Extract org candidate name
                     candidate_name = json_response['org']['candidate_name']
                     try:
+                        country_code = json_response['org']['location']['country']
+                    except:
+                        country_code = None
+                    try:
                         logo_256 = json_response['org']['branding']['logo_256']
                     except: 
                         logo_256 = None
@@ -165,10 +158,9 @@ def producer_chain_list():
                 else:
                     # is producer currently in top21
                     top21 = i['owner'] in top21producers
-                    thistuple = (i['owner'], candidate_name, i['url'], i['url'] + '/'+waxjson, i['url'] + '/chains.json', logo_256, top21)
+                    thistuple = (i['owner'], candidate_name, i['url'], i['url'] + '/'+waxjson, i['url'] + '/chains.json', logo_256, top21, country_code)
                     producer_final.append(thistuple)
     return producer_final
-
 
 # Iterate over all different types of possible URLs and features
 def node_types(type, node, owner_name):
@@ -481,7 +473,7 @@ def check_P2P(producer):
 
 ## Get list of guilds posting to delphioracle and remove duplicates
 def delphioracle_actors():
-    print(bcolors.OKYELLOW,f"{'='*100}\nGetting Delpi Oracle Data ",bcolors.ENDC)
+    print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting Delpi Oracle Data ",core.bcolors.ENDC)
     chain = "mainnet"
     #Get list of guilds posting to delphioracle looking at actions
     delphi_actions = get_actions_data("delphioracle","100")
@@ -508,7 +500,7 @@ def delphiresults(producer,oracledata):
 
 
 def getcpustats():
-    print(bcolors.OKYELLOW,f"{'='*100}\nGetting CPU Results ",bcolors.ENDC)
+    print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting CPU Results ",core.bcolors.ENDC)
     # Pull transactions from eosmechanics and save cpu time 
     chain = "mainnet"
     eosmech_actions = get_actions_data("eosmechanics","120")
@@ -575,6 +567,60 @@ def cpuAverage(producer):
 def resultsGet(producer,check,pointsystem):
     return 0
 
+# Looks at snapshot date as specified by OIG and if today is that day, create snapshot
+# Also look at last snapshot date, if within 24 hours of last snapshot taken dont snapshot. That prevents if from taking multiple snapshots
+def takeSnapshot(now):
+    producers = db_connect.getProducers()
+    # get snapshot timestamp as set by OIG
+    snapshot_oig = db_connect.getSnapshotdate()
+    # get date of last snapshot taken timestamp
+    latest_snapshot_date = db_connect.getSnapshottakendate()
+    # Access first element in tuple
+    snapshot_oig_date = snapshot_oig[0][0]
+    latest_snapshot_date = latest_snapshot_date[1][0]
+    # Set now date
+    now = now
+    # Convert todays date to string to remove offset aware datetime issues 
+    today = now.strftime("%m/%d/%Y")
+    # Convert DB date to string to remove offset aware datetime issues
+    snapshot_oig = snapshot_oig_date.strftime("%m/%d/%Y")
+    latest_snapshot_date = latest_snapshot_date.strftime("%m/%d/%Y")
+    # Convert them both back to datetime objects for comparison
+    snapshot_oig = datetime.strptime(snapshot_oig, "%m/%d/%Y")
+    latest_snapshot_date  = datetime.strptime(latest_snapshot_date , "%m/%d/%Y")
+    today_date_object = datetime.strptime(today, "%m/%d/%Y")
+    # If today is date of snapshot date set by OIG, then take snapshot
+    if today_date_object == snapshot_oig:
+        # But first check whether snapshot was already taken today
+        if latest_snapshot_date == snapshot_oig:
+            print("Snapshot was already taken today")
+        else:
+            print("snapshot will be taken today")
+            # Set snapshot_date for all producers in DB.
+            for producer in producers:
+                producer = producer[0]
+                db_connect.createSnapshot(snapshot_oig_date, producer, now)
+
+    else:
+        print("Not a snapshot day today")
+    print("Last snapshot taken: ", latest_snapshot_date)
+    print("OIG DB format date: ", snapshot_oig_date)
+    print("OIG date: ", snapshot_oig)
+    print("Today: ", today_date_object)
+    print("Now: ", now)
+    
+
+'2021-02-05 12:29:48.930000+00:00', 'sentnlagents', '2021-02-05 19:52:45.608381'
+## Final Results print output function to display results to console for each check
+def printOuput(results,description):
+    result = results[0]
+    if result == True:
+        colorstart = core.bcolors.OKGREEN
+    else:
+        colorstart = core.bcolors.WARNING
+    return  print(description,colorstart,result,core.bcolors.ENDC)
+    
+
 def finalresults():
     # Get list of registered active producers
     producersdb = db_connect.getProducers()
@@ -590,102 +636,75 @@ def finalresults():
     # Add the k,v dict with check and function
     for producer in producersdb:
         producer = producer[0]
-        print(bcolors.OKBLUE,f"{'='*100}\nResults for ",producer,bcolors.ENDC)
+        print(core.bcolors.OKBLUE,f"{'='*100}\nResults for ",producer,core.bcolors.ENDC)
+
         oracle_feed = delphiresults(producer,producersoracle)
-        if oracle_feed[0] == True:
-            colorstart = bcolors.OKGREEN
-        else:
-            colorstart = bcolors.WARNING
-        print("Publishing feed data via an oracle service:",colorstart,oracle_feed[0],bcolors.ENDC)
+        printOuput(oracle_feed,"Publishing feed data via an oracle service: ")
+
         api_node = check_api(producer,'apichk')
-        if api_node[0] == True:
-            colorstart = bcolors.OKGREEN
-        else:
-            colorstart = bcolors.WARNING
-        print("API node endpoint is publicly available: ",colorstart,api_node[0],bcolors.ENDC)
+        printOuput(api_node,"API node endpoint is publicly available: ")
+       
         http_check = check_api(producer,'httpchk')
-        if http_check[0] == True:
-            colorstart = bcolors.OKGREEN
-        else:
-            colorstart = bcolors.WARNING
-        print("HTTP is available on RPC API endpoint.: ",colorstart,http_check[0],bcolors.ENDC)
-        website = True
-        print("Public website available:",bcolors.OKGREEN,website,bcolors.ENDC)
-        chains_json = True
-        print("chains.json metadata available at regproducer url: ",bcolors.OKGREEN,chains_json,bcolors.ENDC)
-        wax_json = True
-        print("wax.json metadata available at regproducer url: " ,bcolors.OKGREEN,wax_json,bcolors.ENDC)
+        printOuput(http_check,"HTTP is available on RPC API endpoint: ")
+
+        # Website, chains and wax.json checks
+        website = [True, 'oops']
+        printOuput( website,"Public website available: ")
+
+        chains_json = [True, 'oops']
+        printOuput(chains_json,"chains.json metadata available at regproducer url: ")
+
+        wax_json = [True, 'oops']
+        printOuput(wax_json,"wax.json metadata available at regproducer url: ")
+
+        # CORS check
         cors_check = check_api(producer,'corschk')
-        if cors_check[0]  == True:
-            colorstart = bcolors.OKGREEN
-        else:
-            colorstart = bcolors.WARNING
-        print("CORS is configured on RPC API: ",colorstart,cors_check[0],bcolors.ENDC)
+        printOuput(cors_check,"CORS is configured on RPC API: ")
+
+        # HTTPS check
         https_check = check_https(producer,'httpschk')
-        if https_check[0]  == True:
-            colorstart = bcolors.OKGREEN
-        else:
-            colorstart = bcolors.WARNING
-        print("HTTPS is available on RPC API endpoint: ",colorstart,https_check[0],bcolors.ENDC)
+        printOuput(https_check,"HTTPS is available on RPC API endpoint: ")
+   
+        # TLS check
         tlscheck = check_https(producer,'tlschk')
-        print("TLS version available on HTTPS API: ",bcolors.OKYELLOW,tlscheck[0],bcolors.ENDC)
+        printOuput(tlscheck,"TLS version available on HTTPS API: ")
+
+        # HTTP2 check
         http2_check = check_https(producer,'http2chk')
-        if http2_check[0]  == True:
-            colorstart = bcolors.OKGREEN
-        else:
-            colorstart = bcolors.WARNING
-        print("HTTP2 is enabled on RPC API endpoint: ",colorstart,http2_check[0],bcolors.ENDC)
-        # Produce API check
+        printOuput(http2_check,"HTTP2 is enabled on RPC API endpoint: ")
+        
+        # Producer API check
         producer_apicheck = api_security(producer,'producer_api')
-        if producer_apicheck[0]  == True:
-            colorstart = bcolors.OKGREEN
-        else:
-            colorstart = bcolors.WARNING
-        print("Producer API is disabled on visible nodes: ",colorstart,producer_apicheck[0],bcolors.ENDC)
+        printOuput(producer_apicheck,"Producer API is disabled on visible nodes: ")
 
         # Net API check
         net_apicheck = api_security(producer,'net_api')
-        if net_apicheck[0]  == True:
-            colorstart = bcolors.OKGREEN
-        else:
-            colorstart = bcolors.WARNING
-        print("net_api API is disabled on visible nodes: ",colorstart,net_apicheck[0],bcolors.ENDC)
+        printOuput(net_apicheck,"net_api API is disabled on visible nodes: ")
 
         # DB size API check
         dbsize_apicheck = api_security(producer,'db_size_api')
-        if dbsize_apicheck[0]  == True:
-            colorstart = bcolors.OKGREEN
-        else:
-            colorstart = bcolors.WARNING
-        print("db_size API is disabled on visible nodes: ",colorstart,dbsize_apicheck[0],bcolors.ENDC)
-
+        printOuput(dbsize_apicheck,"db_size API is disabled on visible nodes:")
+        
         #CPU checks
         cpu_time = cpuresults(producer,producercpu)
-        print("CPU latency on EOS Mechanics below 2 ms on average:",bcolors.OKYELLOW, cpu_time,bcolors.ENDC,"ms")
+        print("CPU latency on EOS Mechanics below 2 ms on average:",core.bcolors.OKYELLOW, cpu_time,core.bcolors.ENDC,"ms")
         cpuavg = cpuAverage(producer)
-        print("CPU latency average over 30days:",bcolors.OKYELLOW, cpuavg,bcolors.ENDC,"ms")
+        print("CPU latency average over 30days:",core.bcolors.OKYELLOW, cpuavg,core.bcolors.ENDC,"ms")
+        
         # v1 History check
         full_history = check_full_node(producer,'history-v1')
-        if full_history[0]  == True:
-            colorstart = bcolors.OKGREEN
-        else:
-            colorstart = bcolors.WARNING
-        print("Running a v1 History node:",colorstart,full_history[0],bcolors.ENDC)
+        printOuput(full_history,"Running a v1 History node: ")
+
         # v2 Hyperion check
         hyperion_v2 = check_full_node(producer,'hyperion-v2')
-        if hyperion_v2[0]  == True:
-            colorstart = bcolors.OKGREEN
-        else:
-            colorstart = bcolors.WARNING
-        print("Running a v2 Hyperion node:",colorstart,hyperion_v2[0],bcolors.ENDC)
+        printOuput(full_history,"Running a v2 Hyperion node: ")
+
         # Set snapshots to False until we find a way
-        snapshots = False
+        snapshots = [False,'oops']
+
         seed_node = check_P2P(producer)
-        if seed_node[0]  == True:
-            colorstart = bcolors.OKGREEN
-        else:
-            colorstart = bcolors.WARNING
-        print("Running a seed node:",colorstart,seed_node[0],bcolors.ENDC)
+        printOuput(seed_node,"Running a seed node: ")
+
          # Get current UTC timestamp
         dt = datetime.utcnow()
         # Create a function for this
@@ -700,12 +719,12 @@ def finalresults():
             'http2_check': http2_check[0],
             'full_history': full_history[0],
             'hyperion_v2': hyperion_v2[0],
-            'snapshots': snapshots,
+            'snapshots': snapshots[0],
             'seed_node': seed_node[0],
             'api_node': api_node[0],
             'oracle_feed': oracle_feed[0],
-            'wax_json': wax_json,
-            'chains_json': chains_json,
+            'wax_json': wax_json[0],
+            'chains_json': chains_json[0],
             'cpu_time': cpu_time,
         }
         resultslist = [
@@ -730,21 +749,21 @@ def finalresults():
             full_history[1],
             hyperion_v2[0],
             hyperion_v2[1], 
-            snapshots, 
+            snapshots[0], 
             seed_node[0], 
             seed_node[1], 
             api_node[0], 
             api_node[1], 
             oracle_feed[0], 
             oracle_feed[1], 
-            wax_json, 
-            chains_json, 
+            wax_json[0], 
+            chains_json[0], 
             cpu_time, 
             cpuavg, 
             dt
         ]
         score = pointsResults(pointslist,pointsystem)
-        print("Final Tech points:",colorstart,score,bcolors.ENDC)
+        print("Final Tech points:",core.bcolors.OKGREEN,score,core.bcolors.ENDC)
         # Add final sore to list
         resultslist.append(score)
         # Turn list into tuple read for Postgres
@@ -755,18 +774,22 @@ def finalresults():
 
 
 def main():
+    # Get Todays date minus 1 minutes - see db_connect.createSnapshot for reasoning
+    now = datetime.now() - timedelta(minutes=1)
     # Get list of producers
-    print(bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",bcolors.ENDC)
+    print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",core.bcolors.ENDC)
     producers = producer_chain_list()
     # Add producers to DB
     db_connect.producerInsert(producers)
     # Add nodes to DB
-    print(bcolors.OKYELLOW,f"{'='*100}\nGetting list of nodes from JSON files ",bcolors.ENDC)
+    print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of nodes from JSON files ",core.bcolors.ENDC)
     nodes = node_list()
     db_connect.nodesInsert(nodes)
     # Get all results and save to DB
     results = finalresults()
     db_connect.resultsInsert(results)
+    # Take snapshot
+    takeSnapshot(now)
 
 if __name__ == "__main__":
    main()
