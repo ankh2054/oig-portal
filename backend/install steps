@@ -26,7 +26,9 @@ Open Postgres.app and click Initialize.
 [Windows - make psql accessible by PowerShell]
 $Env:Path += ";C:\Program Files\PostgreSQL\13\bin"
 
-You may also need to replace METHOD in C:\Program Files\PostgreSQL\13\data\pg_hba.conf to ´trust´
+You may also need to replace METHOD in C:\Program Files\PostgreSQL\13\data\pg_hba.conf to ´trust´, in order to run these commands without a password.
+
+[An import may be needed here! Not all the code is set up to work with a blank database]
 
 [Create OIG database & set up]
 echo 'CREATE DATABASE oig;' | psql postgres \
@@ -34,11 +36,15 @@ echo 'CREATE DATABASE oig;' | psql postgres \
 
 [Create OIG database & set up - Windows]
 echo 'CREATE DATABASE oig;' | psql -U postgres
-psql -U postgres -d oig -h localhost -p 5432 -f import.sql
+psql -U postgres -d oig -h localhost -p 5432 -f postgresql.sql
 
 [If you mess it up - drop the table]
 echo 'drop database oig' | psql postgres \
 && echo 'drop role oiguser' | psql postgres
+
+[If you mess it up - drop the table - Windows]
+echo 'drop database oig' | psql -U postgres
+echo 'drop role oiguser' | psql -U postgres
 
 [Check it works]
 psql postgres
@@ -80,7 +86,7 @@ py producer-data.py
 Whatever fails to install: pip3 install XYZ
 
 What I needed to install:
-pip3 install requests psycopg2 preprocessing
+pip3 install requests psycopg2 preprocessing simplejson pyopenssl
 
 [Shut down]
 Click 'Stop' in Postgres.app
