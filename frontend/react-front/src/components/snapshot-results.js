@@ -1,26 +1,34 @@
 import React, { useState } from 'react'
 import moment from 'moment'
-import { api_base } from '../config'
-import axios from 'axios'
-import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@material-ui/core';
+/*import { api_base } from '../config'
+import axios from 'axios'*/
+import { Button } from '@material-ui/core';
 import SnapshotScoring from './snapshot_scoring'
 
 
 const App = ({ results, producers, products, bizdevs, community, snapresults }) => {
   // Set the latest reults to match current results, before snapshot is taken.
+  // eslint-disable-next-line
   const [latestResults, setlatestResults] = useState(snapresults);
+  // eslint-disable-next-line
   const [snapped, setSnapped] = useState(false)
+  const [viewType, setViewType] = useState('individual')
+
+  const lastfetched = !!snapresults && !!snapresults[0] && !!snapresults[0].snapshot_date ? moment(snapresults[0].snapshot_date).fromNow() : 'never';
+
+  /* 
   const [popupOpen, setPopupOpen] = React.useState(false);
 
-   const eventHandler = response => {
-        setlatestResults(response.data)
-   }
-   // Get the promise
-   function updateResults() {
-        // Calls many times because snapshot results are individually loaded
-        const promise = axios.get(api_base+'/api/snapshotlatestresults')
-        promise.then(eventHandler)
-    }
+  const eventHandler = response => {
+    setlatestResults(response.data)
+  }
+
+  // Get the promise
+  function updateResults() {
+    // Calls many times because snapshot results are individually loaded
+    const promise = axios.get(api_base + '/api/snapshotlatestresults')
+    promise.then(eventHandler)
+  }
 
 
   //Get current timestamp
@@ -36,10 +44,8 @@ const App = ({ results, producers, products, bizdevs, community, snapresults }) 
         console.error('There was an error!', error);
       });
     });
-  } 
-
-  const lastfetched = !!snapresults && !!snapresults[0] && !!snapresults[0].snapshot_date ? moment(snapresults[0].snapshot_date).fromNow() : 'never';
-
+  }
+  
   const createSnapshot = () => {
     if (snapped === false) {
       setSnapped(true)
@@ -63,11 +69,32 @@ const App = ({ results, producers, products, bizdevs, community, snapresults }) 
     setPopupOpen(false);
     setSnapped(true)
     snapshotResults(results)
+  }*/
+
+  const changeView = () => {
+    if (viewType === 'individual') {
+      setViewType('integrated')
+    } else {
+      setViewType('individual')
+    }
+  }
+
+  const getScoresView = () => {
+    if (viewType === 'individual') {
+        return <SnapshotScoring
+        results={latestResults}
+        producers={producers}
+        products={products}
+        bizdevs={bizdevs}
+        community={community}
+      />
+    }
+    return null
   }
 
   return (
     <div>
-      <h1>OIG Monthly Admin</h1>
+      <h1>Scores</h1>
       {/* We can select the date from the first entry of snapresults (usually aikon) 
           because all snapshots are done at the same time. If we ever 
           change fastify /api/snapshotlatestresults to include a universal
@@ -75,6 +102,16 @@ const App = ({ results, producers, products, bizdevs, community, snapresults }) 
       {/* This will flash 'never' while loading. We could also hide it from displaying */}
       <h3>Snapshot data last fetched: {lastfetched}</h3>
       <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        disabled={snapped}
+        onClick={changeView}
+        style={{ marginBottom: '20px' }}
+      >
+        {viewType === 'individual' ? "Integrated" : "Individual"} View
+      </Button>
+      {/*<Button
         type="submit"
         variant="contained"
         color="primary"
@@ -103,15 +140,9 @@ const App = ({ results, producers, products, bizdevs, community, snapresults }) 
             Continue
           </Button>
         </DialogActions>
-      </Dialog>
-      <SnapshotScoring 
-        results={ latestResults }
-        producers={ producers }
-        products={ products }
-        bizdevs={ bizdevs }
-        community={ community }
-      />
-      </div>
+      </Dialog>*/}
+      {getScoresView()}
+    </div>
   )
 
 }
