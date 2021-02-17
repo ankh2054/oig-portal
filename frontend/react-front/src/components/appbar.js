@@ -75,13 +75,13 @@ export default function ButtonAppBar() {
               Latest Results
             </Link>
             <Link underline="none" variant="button" color="inherit" href="/snapshot" className={classes.link}>
-              Create Snapshots
+              Scores
             </Link>
             <Link underline="none" variant="button" color="inherit" href="/form" className={classes.link}>
               Submit Update
             </Link>
             <Link variant="button" color="inherit" href="#" className={classes.link}>
-              Support
+              Admin
             </Link>
       </nav>
     </Toolbar>
