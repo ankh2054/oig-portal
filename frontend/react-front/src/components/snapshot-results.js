@@ -151,7 +151,9 @@ const App = ({ results, producers, products, bizdevs, community, snapresults }) 
           </Button>
         </DialogActions>
       </Dialog>*/}
-      {getScoresView()}
+      <div style={{ display: 'block', width: '100%'}}>
+        {getScoresView()}
+      </div>
     </div>
   )
 

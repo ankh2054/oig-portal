@@ -13,6 +13,8 @@ import Grid from '@material-ui/core/Grid';
 import CodeIcon from '@material-ui/icons/Code';
 import Tooltip from '@material-ui/core/Tooltip';
 import { makeStyles } from '@material-ui/core/styles';
+import Link from '@material-ui/core/Link';
+
 
 const useStyles = makeStyles((theme) => ({
   media: {
@@ -44,11 +46,13 @@ const App = ({ data }) => {
   return (
     <Grid container spacing={4}>
       {results.map((result, index) => (
-        <Grid item key={index} xs={12} sm={6} md={3}>
+        <Grid item key={index} xs={12} sm={6} md={4}>
           <Card variant="outlined">
             <CardHeader
               avatar={
-                <Avatar alt={result.owner_name} src={logo(result.owner_name)} />
+                <Link href={`/guilds/${result.owner_name}`}>
+                  <Avatar alt={result.owner_name} src={logo(result.owner_name)} />
+                </Link>
               }
               /*action={
                 <IconButton aria-label="settings">
