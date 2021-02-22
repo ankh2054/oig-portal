@@ -44,6 +44,8 @@ fastify.post('/api/productUpdate', db.productUpdate)
 fastify.post('/api/bizdevUpdate', db.bizdevUpdate)
 // Guild Community updates/insert
 fastify.post('/api/communityUpdate', db.communityUpdate)
+// Comment on guild latest (snapshot) tech result
+fastify.post('/api/snapshotResultCommentUpdate', db.snapshotResultCommentUpdate)
 // Retrieve momthly updates based on month
 fastify.post('/api/monthlyUpdates/:owner', db.getUpdatesbyOwner)
 
