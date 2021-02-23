@@ -32,6 +32,9 @@ fastify.get('/api/latestresults', db.getLatestResults)
 fastify.get('/api/snapshottechresults', db.getSnapshotResults)
 fastify.get('/api/results/:owner', db.getResultsbyOwner)
 fastify.get('/api/snapshotlatestresults', db.getLatestSnapshotResults)
+// Admin panel related items: snapshot settings (including snapshot date), and point system
+fastify.get('/api/snapshotsettings', db.getSnapshotSettings)
+fastify.get('/api/pointsystem', db.getPointSystem)
 // Create snapshot 
 fastify.post('/api/snapshot', db.setSnapshotResults)
 // Activate or deactivate producer

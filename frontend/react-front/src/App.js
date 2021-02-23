@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
     color: theme.palette.text.secondary,
   },
-}));
+}))
 
 
 const App = () => {
@@ -71,57 +71,69 @@ const App = () => {
       setPointSystem(response.data)
     });
   }, [])
-  const BPwithownername = () =>{
+
+  const BPwithownername = () => {
     let params = useParams();
 
-    return(
+    return (
       <>
-      <ProducerDetails
-      results={results.filter((result) => result.owner_name === params.ownername)}
-      products={products.filter((result) => result.owner_name === params.ownername)}
-      bizdevs={bizdevs.filter((result) => result.owner_name === params.ownername)}
-      />
+        <ProducerDetails
+          results={results.filter((result) => result.owner_name === params.ownername)}
+          products={products.filter((result) => result.owner_name === params.ownername)}
+          bizdevs={bizdevs.filter((result) => result.owner_name === params.ownername)}
+        />
       </>
     );
   }
+  
+  const AdminPanel = ({snapshotSettings, pointSystem}) => {
+    //let params = useParams();
+    return <div>
+      <h1>hello world</h1>
+      <p>{JSON.stringify(snapshotSettings)}</p>
+      <p>{JSON.stringify(pointSystem)}</p>
+    </div>
+  }
+
   return (
     <main>
       <Switch>
-      <>
-      <CssBaseline />
-      <Container component="main" maxWidth="xl">
-      <ButtonAppBar />
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Paper className={classes.paper}>
-            <Router>
-                <Route path="/latestresults" component={() =><MonthlyResults 
-                results={ latestresults } 
-                
-                /> } exact />
-                <Route exact path="/snapshot" component={() =><SnapshotResults 
-                results={ latestresults } 
-                producers={ producers }
-                products={ products }
-                bizdevs={ bizdevs } 
-                community={ community }
-                snapresults={ snapshotlatestresults }
-                /> } />
-                <Route exact path="/" component={() => 
-                <ProducerCards  results={ latestresults }
-                producers={ producers }
-                products={ products }
-                bizdevs={ bizdevs } 
-                community={ community }
-                />} />
-                <Route exact path='/guilds/:ownername' component={BPwithownername} />
-                <Route exact path='/form' component={() => <Testform producers={ producers } /> } />
-            </Router>
-          </Paper>
-        </Grid>
-      </Grid>
-      </Container>
-      </>
+        <>
+          <CssBaseline />
+          <Container component="main" maxWidth="xl">
+            <ButtonAppBar />
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <Paper className={classes.paper}>
+                  <Router>
+                    <Route path="/latestresults" component={() => <MonthlyResults
+                      results={latestresults}
+
+                    />} exact />
+                    <Route exact path="/snapshot" component={() => <SnapshotResults
+                      results={latestresults}
+                      producers={producers}
+                      products={products}
+                      bizdevs={bizdevs}
+                      community={community}
+                      snapresults={snapshotlatestresults}
+                    />} />
+                    <Route exact path="/" component={() =>
+                      <ProducerCards results={latestresults}
+                        producers={producers}
+                        products={products}
+                        bizdevs={bizdevs}
+                        community={community}
+                      />} />
+                    <Route exact path='/guilds/:ownername' component={BPwithownername} />
+                    <Route exact path='/form' component={() => <Testform producers={producers} />} />
+                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} pointSystem={pointSystem} />} />
+                  </Router>
+                </Paper>
+              </Grid>
+            </Grid>
+          </Container>
+        </>
       </Switch>
     </main>
 
