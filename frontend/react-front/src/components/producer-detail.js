@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 // Ununused var // import { makeStyles } from '@material-ui/core/styles';
 import TechresultTables from './tech-tablelist-results'
-import ProdBizdev from './product-bizdev-results'
 import Button from '@material-ui/core/Button';
 
 // Ununused var // 
@@ -23,14 +22,6 @@ const App = ({ results ,products, bizdevs }) => {
   // Ununused var // const classes = useStyles();
     return (
       <div>
-
-        <ProdBizdev
-          results={ products }
-        />
-        <ProdBizdev
-          results={ bizdevs }
-        />
-        {/* // Ununused // <h1></h1> */}
         <TechresultTables
               results={ results }
               description="Wax Mainnet"

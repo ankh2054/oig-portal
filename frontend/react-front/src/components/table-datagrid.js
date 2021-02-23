@@ -20,6 +20,7 @@ export default function Table({ tabledata, tabletitle }) {
         score,
         points,
         date_updated,
+        comments
       } = newRow;
       axios
         .post(api_base + "/api/productUpdate", {
@@ -33,13 +34,14 @@ export default function Table({ tabledata, tabletitle }) {
           score,
           points,
           date_updated,
+          comments
         })
         .then(() => {
           console.log(
             `Product '${name}' by ${owner_name} updated! Reload to confirm.`
           );
         });
-    } else if (tabletitle === "Bizdev") {
+    } else if (tabletitle === "Bizdevs") {
       const {
         owner_name,
         name,
@@ -50,6 +52,7 @@ export default function Table({ tabledata, tabletitle }) {
         score,
         points,
         date_updated,
+        comments
       } = newRow;
       axios
         .post(api_base + "/api/bizdevUpdate", {
@@ -62,6 +65,7 @@ export default function Table({ tabledata, tabletitle }) {
           score,
           points,
           date_updated,
+          comments
         })
         .then(() => {
           console.log(
@@ -78,6 +82,7 @@ export default function Table({ tabledata, tabletitle }) {
         outstandingpoints,
         score,
         date_updated,
+        comments
       } = newRow;
       axios
         .post(api_base + "/api/communityUpdate", {
@@ -89,10 +94,24 @@ export default function Table({ tabledata, tabletitle }) {
           outstandingpoints,
           score,
           date_updated,
+          comments
         })
         .then(() => {
           console.log(
             `Community points for ${owner_name} updated! Reload to confirm.`
+          );
+        });
+    } else if (tabletitle === "Tech Snapshot") {
+      const {
+        owner_name, date_check, comments
+      } = newRow;
+      axios
+        .post(api_base + "/api/snapshotResultCommentUpdate", {
+          owner_name, date_check, comments
+        })
+        .then(() => {
+          console.log(
+            `Comments on snapshot tech result for ${owner_name} updated! Reload to confirm.`
           );
         });
     } else {
@@ -103,6 +122,16 @@ export default function Table({ tabledata, tabletitle }) {
   /* console.log(tabledata, tabletitle) 
   Function is called twice on normal load, and up to 4 times on a product update. Possible optimisation? 
   */
+
+  const isEditable = (key, columnObj) => {
+    if (!!columnObj['date_check']) {
+      // If there is a date_check field, this is a tech result, and all fields bar comments should be uneditable
+      return (key === "comments" ? "always" : "never")
+    } else {
+      // Otherwise for community, product, bizdev, all should be editable except score and name.
+      return (key !== "name" && key !== "score" ? "always" : "never")
+    }
+  }
 
   /* This function is called when table state is updated. Ideally it should not be, as columns aren't supposed to change. */
   const generateColumns = () => {
@@ -115,8 +144,12 @@ export default function Table({ tabledata, tabletitle }) {
         field: key,
         // Hide owner_name
         hidden: key === "owner_name",
-        // Make product name uneditable
-        editable: key !== "name" ? "always" : "never",
+        // Make certain fields uneditable
+        editable: (isEditable(key, columnObj)),
+        // Highlight comments
+        cellStyle: key === "comments" ? {
+          backgroundColor: '#ffff44'
+        } : undefined,
       };
     });
     console.log("Table columns generated.");
