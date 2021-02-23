@@ -38,45 +38,38 @@ const App = () => {
   const [community, setCommunity] = useState([])
   const [latestresults, setLatestResults] = useState([])
   const [snapshotlatestresults, setSnapshotLatestResults] = useState([])
+  const [snapshotSettings, setSnapshotSettings] = useState([])
+  const [pointSystem, setPointSystem] = useState([])
 
   useEffect(() => {
-
-     const eventHandler = response => {
+    // Load data and set hooks. A future implementation could use axios.all
+    axios.get(api_base + '/api/results').then((response) => {
       setResults(response.data)
-    }
-    const producerHandler = response => {
-        setProducers(response.data)
-      }
-    const productsHandler = response => {
-        setProducts(response.data)
-      }
-    const bizdevsHandler = response => {
-        setBizdevs(response.data)
-      }
-    const communityHandler = response => {
-        setCommunity(response.data)
-      }
-    const latestResultsHandler = response => {
-        setLatestResults(response.data)
-      }
-    const snapshotResultsHandler = response => {
+    });
+    axios.get(api_base + '/api/producers').then((response) => {
+      setProducers(response.data)
+    });
+    axios.get(api_base + '/api/products').then((response) => {
+      setProducts(response.data)
+    });
+    axios.get(api_base + '/api/bizdevs').then((response) => {
+      setBizdevs(response.data)
+    });
+    axios.get(api_base + '/api/community').then((response) => {
+      setCommunity(response.data)
+    });
+    axios.get(api_base + '/api/latestresults').then((response) => {
+      setLatestResults(response.data)
+    });
+    axios.get(api_base + '/api/snapshotlatestresults').then((response) => {
       setSnapshotLatestResults(response.data)
-      }
-    // Get the promise
-    const promise = axios.get(api_base+'/api/results')
-    promise.then(eventHandler)
-    const promise2 = axios.get(api_base+'/api/producers')
-    promise2.then(producerHandler)
-    const promise3 = axios.get(api_base+'/api/products')
-    promise3.then(productsHandler)
-    const promise4 = axios.get(api_base+'/api/bizdevs')
-    promise4.then(bizdevsHandler)
-    const promise5 = axios.get(api_base+'/api/community')
-    promise5.then(communityHandler)
-    const promise6 = axios.get(api_base+'/api/latestresults')
-    promise6.then(latestResultsHandler)
-    const promise7 = axios.get(api_base+'/api/snapshotlatestresults')
-    promise7.then(snapshotResultsHandler)
+    });
+    axios.get(api_base + '/api/snapshotsettings').then((response) => {
+      setSnapshotSettings(response.data)
+    });
+    axios.get(api_base + '/api/pointsystem').then((response) => {
+      setPointSystem(response.data)
+    });
   }, [])
   const BPwithownername = () =>{
     let params = useParams();
