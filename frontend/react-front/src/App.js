@@ -117,6 +117,7 @@ const App = () => {
                       bizdevs={bizdevs}
                       community={community}
                       snapresults={snapshotlatestresults}
+                      pointSystem={pointSystem}
                     />} />
                     <Route exact path="/" component={() =>
                       <ProducerCards results={latestresults}

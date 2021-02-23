@@ -6,7 +6,7 @@ import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogAc
 import SnapshotScoring from './snapshot_scoring'
 
 
-const App = ({ results, producers, products, bizdevs, community, snapresults }) => {
+const App = ({ results, producers, products, bizdevs, community, snapresults, pointSystem }) => {
   // Set the latest reults to match current results, before snapshot is taken.
   const [latestResults, setlatestResults] = useState(snapresults);
   const [snapped, setSnapped] = useState(false)
@@ -110,6 +110,7 @@ const App = ({ results, producers, products, bizdevs, community, snapresults }) 
         products={ products }
         bizdevs={ bizdevs }
         community={ community }
+        pointSystem={ pointSystem }
       />
       </div>
   )
