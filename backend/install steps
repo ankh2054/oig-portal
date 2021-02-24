@@ -56,9 +56,16 @@ postgres=# \q
 [Upgrade Python if need be]
 [sudo] pip3 install --upgrade pip
 
+[Windows - make virtualenv accessible by PowerShell]
+$Env:Path += ";C:\python39\lib\site-packages"
+
 [Create virtualenv]
 virtualenv venv \
 && source venv/bin/activate
+
+Windows:
+py -m virtualenv venv
+.\venv\Scripts\activate
 
 *You should now see (venv) prepend your prompt.
 
@@ -72,7 +79,7 @@ pip3 --no-cache install psycopg2-binary
 [If preprocessing fails]
 pip3 --no-cache install preprocessing
 
-Stuck here!
+Proceed...
 python3 producer-data.py
 py producer-data.py
 

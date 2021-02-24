@@ -36,7 +36,7 @@ def getFullnodes():
     nodes = db_connect.getFullnodes()
     if not nodes:
         # If no nodes in DB, return single node
-        nodelist = ['https://wax.eosrio.io']
+        nodelist = [{'Node': 'https://wax.eosrio.io'}]
     #Else get all healthy hyperion nodes
     else:
         api_url = str(Api_Calls('v2health', 'health'))

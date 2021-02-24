@@ -25,7 +25,13 @@ cd frontend/fastify \
 \[Seperate Tab - needs fastify running to get data\]:
 ```
 cd frontend/react-front \
-&& npm start
+&& npm run start
+```
+### Start React (after Fastify) [Powershell]
+\[Seperate Tab - needs fastify running to get data\]:
+```
+cd frontend/react-front
+npm run start-win
 ```
 ### Start React (after Fastify) [Powershell]
 \[Seperate Tab - needs fastify running to get data\]:
