@@ -33,12 +33,6 @@ cd frontend/react-front \
 cd frontend/react-front
 npm run start-win
 ```
-### Start React (after Fastify) [Powershell]
-\[Seperate Tab - needs fastify running to get data\]:
-```
-cd frontend/react-front
-npm start-win
-```
 ### Run producer-data
 Start PostGreSQL
 

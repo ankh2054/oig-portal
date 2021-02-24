@@ -18,11 +18,11 @@ import datec from '../functions/date'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import clsx from 'clsx'
 import Collapse from '@material-ui/core/Collapse'
-import TableDataGrid  from './table-datagrid'
+import TableDataGrid from './table-datagrid'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    
+
   },
   media: {
     height: 0,
@@ -47,11 +47,24 @@ const App = ({ results, producers, products, bizdevs, community, pointSystem }) 
   const classes = useStyles();
   const [expandedId, setExpandedId] = useState(false);
 
+  const reArrangeItem = (item) => {
+    // JSON.stringify trick needed to properly exclude name for community & tech updates
+    return JSON.parse(JSON.stringify({
+      name: item.name ? item.name : undefined,
+      comments: item.comments,
+      ...item
+    }))
+  }
+
   /** Filters items (products, bizdev, community) by owner */
   function filterByOwner(items, owner) {
     const filteredItems = items.filter((presult) => presult.owner_name === owner);
     // Any manipulations of initially loaded product data can be done here
     /* Calculate scores via JS here */
+    if (filteredItems.length >= 1) {
+      // Place comments second to front for product & bizdev, front for community
+      return filteredItems.map((item) => reArrangeItem(item))
+    }
     return filteredItems
   }
 
@@ -63,113 +76,124 @@ const App = ({ results, producers, products, bizdevs, community, pointSystem }) 
     let logosvg_url = ownername ? ownername.logo_svg : ""
     return logosvg_url
   }
-  
+
   // Returns score from state 
   function statescore(owner, state) {
-      // Get array from state where owner = owner_name
-      let statearray = state.filter((product) => product.owner_name === owner)
-      let count = 0
-      // Loop over each array getting and adding the scores together
-      for (const scoring of statearray ) {
-        count += parseFloat(scoring.score)
-      }
-      return count
+    // Get array from state where owner = owner_name
+    let statearray = state.filter((product) => product.owner_name === owner)
+    let count = 0
+    // Loop over each array getting and adding the scores together
+    for (const scoring of statearray) {
+      count += parseFloat(scoring.score)
+    }
+    return count
   }
 
- // Counts all scores together
-  function totalscore(tech,product,bizdev,community){
-      // Set passing score
-      let pass = 150
-      let sum = parseInt(tech)+product+bizdev+community
-      if (sum >= pass ) {
-        return (
-            <Tooltip title="pass" aria-label="pass" placement="top">
-                <Avatar className={classes.green}>{parseInt(sum)}</Avatar>
-            </Tooltip>
-        );
-      } else {
-        return (
-            <Tooltip title="fail" aria-label="fail" placement="top">
-                <Avatar className={classes.red}>{parseInt(sum)}</Avatar>
-            </Tooltip>
-            
-        );
-      }
+  // Counts all scores together
+  function totalscore(tech, product, bizdev, community) {
+    // Set passing score
+    let pass = 150
+    let sum = parseInt(tech) + product + bizdev + community
+    if (sum >= pass) {
+      return (
+        <Tooltip title="pass" aria-label="pass" placement="top">
+          <Avatar className={classes.green}>{parseInt(sum)}</Avatar>
+        </Tooltip>
+      );
+    } else {
+      return (
+        <Tooltip title="fail" aria-label="fail" placement="top">
+          <Avatar className={classes.red}>{parseInt(sum)}</Avatar>
+        </Tooltip>
+
+      );
+    }
 
   }
 
   return (
     <Grid container spacing={4}>
-    {results.map((result) => (
-    <Grid item key={result.owner_name} xs={12} sm={12} md={12}>
-    <Card className={classes.root} variant="outlined">
-    <Link  to={`/guilds/${result.owner_name}`}>
-      <CardHeader 
-        avatar={
-          <Avatar alt={result.owner_name} src={logo( result.owner_name )} className={classes.large} />
-        }
-        action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
-        }
-        title={ result.owner_name }
-        subheader={ datec(result.date_check) }
-      />
-    </Link>
-      <CardContent>
-        <Typography variant="body2" color="textSecondary" component="p">
-            <b>Tech: </b>{parseInt(result.score)}
-        </Typography>
-        <Typography variant="body2" color="textSecondary" component="p">
-            <b>Products: </b>{statescore(result.owner_name,products)}
-        </Typography>
-        <Typography variant="body2" color="textSecondary" component="p">
-            <b>Bizdev: </b>{statescore(result.owner_name,bizdevs)}
-        </Typography>
-        <Typography variant="body2" color="textSecondary" component="p">
-            <b>Community: </b>{statescore(result.owner_name,community)}
-        </Typography>
-      </CardContent>
-      <CardActions disableSpacing>
-        <IconButton className={classes.left} >
-            {totalscore(result.score,statescore(result.owner_name,products),statescore(result.owner_name,bizdevs),statescore(result.owner_name,community))}
-        </IconButton>
-        <IconButton
-          className={clsx(classes.expand, {
-            [classes.expandOpen]: expandedId,
-          })}
-          onClick={() => setExpandedId(expandedId !== result.owner_name ? result.owner_name: "" )}
-          aria-expanded={expandedId === result.owner_name ? true : false}
-          aria-label="show more"
-        >
-          <ExpandMoreIcon />
-        </IconButton>
-      </CardActions>
-      <Collapse in={expandedId === result.owner_name ? true : false} timeout="auto" unmountOnExit>
-        <CardContent>
-            <TableDataGrid 
-            tabledata={filterByOwner(products, result.owner_name)}
-            tabletitle="Products"
-             />
-        </CardContent>
-        <CardContent>
-            <TableDataGrid 
-            tabledata={filterByOwner(bizdevs, result.owner_name)}
-            tabletitle="Bizdev"
-             />
-        </CardContent>
-        <CardContent>
-            <TableDataGrid 
-            tabledata={filterByOwner(community, result.owner_name)}
-            tabletitle="Community"
-             />
-        </CardContent>
-      </Collapse>
-    </Card>
+      {results.map((result) => {
+        const filteredProducts = filterByOwner(products, result.owner_name);
+        const filteredBizdevs = filterByOwner(bizdevs, result.owner_name);
+        const filteredCommunity = filterByOwner(community, result.owner_name)
+        return (
+          <Grid item key={result.owner_name} xs={12} sm={12} md={12}>
+            <Card className={classes.root} variant="outlined">
+              <Link to={`/guilds/${result.owner_name}`}>
+                <CardHeader
+                  avatar={
+                    <Avatar alt={result.owner_name} src={logo(result.owner_name)} className={classes.large} />
+                  }
+                  action={
+                    <IconButton aria-label="settings">
+                      <MoreVertIcon />
+                    </IconButton>
+                  }
+                  title={result.owner_name}
+                  subheader={datec(result.date_check)}
+                />
+              </Link>
+              <CardContent>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  <b>Tech: </b>{parseInt(result.score)}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  <b>Products: </b>{statescore(result.owner_name, products)}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  <b>Bizdev: </b>{statescore(result.owner_name, bizdevs)}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  <b>Community: </b>{statescore(result.owner_name, community)}
+                </Typography>
+              </CardContent>
+              <CardActions disableSpacing>
+                <IconButton className={classes.left} >
+                  {totalscore(result.score, statescore(result.owner_name, products), statescore(result.owner_name, bizdevs), statescore(result.owner_name, community))}
+                </IconButton>
+                <IconButton
+                  className={clsx(classes.expand, {
+                    [classes.expandOpen]: expandedId,
+                  })}
+                  onClick={() => setExpandedId(expandedId !== result.owner_name ? result.owner_name : "")}
+                  aria-expanded={expandedId === result.owner_name ? true : false}
+                  aria-label="show more"
+                >
+                  <ExpandMoreIcon />
+                </IconButton>
+              </CardActions>
+              <Collapse in={expandedId === result.owner_name ? true : false} timeout="auto" unmountOnExit>
+                {!!filteredProducts.length >= 1 ? <CardContent>
+                  <TableDataGrid
+                    tabledata={filteredProducts}
+                    tabletitle="Products"
+                  />
+                </CardContent> : null}
+                {!!filteredBizdevs.length >= 1 ? <CardContent>
+                  <TableDataGrid
+                    tabledata={filteredBizdevs}
+                    tabletitle="Bizdevs"
+                  />
+                </CardContent> : null}
+                {!!filteredCommunity.length >= 1 ? <CardContent>
+                  <TableDataGrid
+                    tabledata={filteredCommunity}
+                    tabletitle="Community"
+                  />
+                </CardContent> : null}
+                <CardContent>
+                  <TableDataGrid
+                    tabledata={[reArrangeItem(result)]}
+                    tabletitle="Tech Snapshot"
+                  />
+                </CardContent>
+              </Collapse>
+            </Card>
+          </Grid>
+        )
+      })}
     </Grid>
-   ))}
-   </Grid>
   );
 }
 

@@ -29,7 +29,7 @@ const AdminPanel = ({ snapshotSettings, pointSystem }) => {
                 format="dd/MM/yyyy @ hh:mm aa"
                 margin="normal"
                 id="set-snapshot-date"
-                label="Set snapshot date (GMT)"
+                label="Set snapshot date" // This is timezone adjusted...
                 value={snapshotDate}
                 onChange={handleDateChange}
                 KeyboardButtonProps={{
