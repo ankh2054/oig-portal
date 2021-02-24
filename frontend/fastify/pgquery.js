@@ -4,35 +4,35 @@ const { pguser, pgport, pgpassword, pgdb, pghost } = require('./config');
 const { Client } = require('pg');
 const moment = require('moment');
 
-const client = new Client ({
-    user: pguser,
-    password: pgpassword,
-    host: pghost,
-    database: pgdb,
-    port: pgport
+const client = new Client({
+  user: pguser,
+  password: pgpassword,
+  host: pghost,
+  database: pgdb,
+  port: pgport
 })
 
 client.connect()
 
 // Get all producers
 const getProducers = (request, reply) => {
-    client.query('SELECT * FROM oig.producer WHERE active ORDER BY owner_name ASC', (error, results) => {
-      if (error) {
-        throw error
-      }
-      reply.status(200).send(results.rows);
-    })
-  }
+  client.query('SELECT * FROM oig.producer WHERE active ORDER BY owner_name ASC', (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(results.rows);
+  })
+}
 
 // Get all results
 const getResults = (request, reply) => {
-    client.query('SELECT * FROM oig.results ORDER BY date_check DESC', (error, results) => {
-      if (error) {
-        throw error
-      }
-      reply.status(200).send(results.rows);
-    })
-  }
+  client.query('SELECT * FROM oig.results ORDER BY date_check DESC', (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(results.rows);
+  })
+}
 
 // Get all products
 const getProducts = (request, reply) => {
@@ -66,13 +66,13 @@ const getCommunity = (request, reply) => {
 
 //Get latest results
 const getLatestResults = (request, reply) => {
-    client.query('SELECT DISTINCT ON (owner_name) * FROM oig.results ORDER BY owner_name, date_check DESC', (error, results) => {
-      if (error) {
-        throw error
-      }
-      reply.status(200).send(results.rows);
-    })
-  }
+  client.query('SELECT DISTINCT ON (owner_name) * FROM oig.results ORDER BY owner_name, date_check DESC', (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(results.rows);
+  })
+}
 
 //Get latest tech results from snapshots
 const getSnapshotResults = (request, reply) => {
@@ -94,6 +94,25 @@ const getLatestSnapshotResults = (request, reply) => {
   })
 }
 
+// Get snapshot settings (just date for now)
+const getSnapshotSettings = (request, reply) => {
+  client.query('SELECT * FROM oig.snapshotsettings', (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(results.rows);
+  })
+}
+
+const getPointSystem = (request, reply) => {
+  client.query('SELECT * FROM oig.pointsystem', (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(results.rows);
+  })
+}
+
 //Set a snapshot for latest results where results is less than 1 minutes based on date_check timestamp of latest results.
 //UPDATE oig.results SET snaphot_date = $2 WHERE owner_name = $1 AND date_check > NOW() - INTERVAL '15 minutes'
 //update oig.results set snapshot_date = '2020-09-11 17:18:04.825519' where owner_name = 'eos42freedom' and date_check > timestamp '2020-10-23 17:31:22' - INTERVAL '1 minute';
@@ -103,8 +122,8 @@ const setSnapshotResults = (request, reply) => {
   var snapshotdate = moment.utc(snapshot_date)
   var datecheck = moment.utc(date_check).subtract(1, "minutes");
   client.query(
-   'UPDATE oig.results SET snapshot_date = $2 WHERE owner_name = $1 AND date_check > $3',
-    [owner_name, snapshotdate , datecheck],
+    'UPDATE oig.results SET snapshot_date = $2 WHERE owner_name = $1 AND date_check > $3',
+    [owner_name, snapshotdate, datecheck],
     (error, results) => {
       if (error) {
         console.log(
@@ -127,46 +146,46 @@ const setSnapshotResults = (request, reply) => {
 
 // Get results for Particular Producer
 const getResultsbyOwner = (request, reply) => {
-    const owner = request.params.owner
+  const owner = request.params.owner
 
-    client.query('SELECT * FROM oig.results WHERE owner_name = $1 ORDER BY date_check ASC', [owner], (error, results) => {
-      if (error) {
-        throw error
-      }
-      reply.status(200).send(results.rows);
-    })
-  }
+  client.query('SELECT * FROM oig.results WHERE owner_name = $1 ORDER BY date_check ASC', [owner], (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(results.rows);
+  })
+}
 
 
 // Set producer active or not - send true or false in body
 // OIG admin page 
 const IsProducerActive = (request, reply) => {
-    const owner = request.params.owner
-    const { active } = request.body
+  const owner = request.params.owner
+  const { active } = request.body
 
-    client.query('UPDATE oig.producer SET active = $1 WHERE owner_name = $2', [active,owner], (error, results) => {
-      if (error) {
-        throw error
-      }
-      reply.status(200).send(`Producer modified: ${owner}`);
-    })
-  }
+  client.query('UPDATE oig.producer SET active = $1 WHERE owner_name = $2', [active, owner], (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(`Producer modified: ${owner}`);
+  })
+}
 
 // Insert monthly update
 // ???????
 const mothlyUpdate = (request, reply) => {
-    const { owner_name, tech_ops, product, bizdev, community, date_update } = request.body
+  const { owner_name, tech_ops, product, bizdev, community, date_update } = request.body
 
-    client.query(
-        'INSERT into oig.updates (owner_name,tech_ops,product,bizdev,community,date_update) VALUES ($1,$2,$3,$4,$5,$6)', 
-        [owner_name, tech_ops, product, bizdev, community, date_update], 
-        (error, results) => {
+  client.query(
+    'INSERT into oig.updates (owner_name,tech_ops,product,bizdev,community,date_update) VALUES ($1,$2,$3,$4,$5,$6)',
+    [owner_name, tech_ops, product, bizdev, community, date_update],
+    (error, results) => {
       if (error) {
         throw error
       }
       reply.status(200).send(`Producer modified: ${owner_name}`);
     })
-  }
+}
 
 // Add comments to tech result
 // OIG admin page
@@ -223,18 +242,23 @@ const communityUpdate = (request, reply) => {
   })
 }
 
+// Update snapshot date
+const updateSnapshotDate = (request, reply) => {
+  const { newDate } = request.body
+  reply.status(200).send(`Implement later: update date to ${newDate}`);
+}
 
 // Get results for Particular Producer based on Month
 const getUpdatesbyOwner = (request, reply) => {
-    const owner = request.params.owner
-    const { month } = request.body
+  const owner = request.params.owner
+  const { month } = request.body
 
-    client.query("SELECT * FROM oig.updates WHERE owner_name = $1 AND date_update > now() - interval '1 week' ORDER BY date_update ASC", [month], (error, results) => {
-      if (error) {
-        throw error
-      }
-      reply.status(200).send(results.rows);
-    })
-  }
+  client.query("SELECT * FROM oig.updates WHERE owner_name = $1 AND date_update > now() - interval '1 week' ORDER BY date_update ASC", [month], (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(results.rows);
+  })
+}
 
-module.exports = { getProducers, getResults, getResultsbyOwner, getLatestResults, IsProducerActive, mothlyUpdate, getUpdatesbyOwner, snapshotResultCommentUpdate, productUpdate, getProducts, bizdevUpdate, getBizdevs, communityUpdate, getCommunity, setSnapshotResults, getLatestSnapshotResults, getSnapshotResults};
+module.exports = { IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate };

@@ -80,7 +80,7 @@ export default function ButtonAppBar() {
             <Link underline="none" variant="button" color="inherit" href="/form" className={classes.link}>
               Submit Update
             </Link>
-            <Link variant="button" color="inherit" href="#" className={classes.link}>
+            <Link variant="button" color="inherit" href="/admin" className={classes.link}>
               Admin
             </Link>
       </nav>

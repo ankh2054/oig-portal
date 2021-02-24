@@ -789,7 +789,7 @@ def main():
     results = finalresults()
     db_connect.resultsInsert(results)
     # Take snapshot
-    takeSnapshot(now)
+    # takeSnapshot(now)
 
 if __name__ == "__main__":
    main()

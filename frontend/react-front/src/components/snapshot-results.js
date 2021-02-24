@@ -7,7 +7,7 @@ import SnapshotScoring from './snapshot_scoring'
 import IntegratedScores from './integrated-snapshot-scores'
 
 
-const App = ({ results, producers, products, bizdevs, community, snapresults }) => {
+const App = ({ results, producers, products, bizdevs, community, snapresults, pointSystem }) => {
   // Set the latest reults to match current results, before snapshot is taken.
   // eslint-disable-next-line
   const [latestResults, setlatestResults] = useState(snapresults);
@@ -88,6 +88,7 @@ const App = ({ results, producers, products, bizdevs, community, snapresults }) 
         products={products}
         bizdevs={bizdevs}
         community={community}
+        pointSystem={ pointSystem }
       />
     }
     if (viewType === 'integrated') {

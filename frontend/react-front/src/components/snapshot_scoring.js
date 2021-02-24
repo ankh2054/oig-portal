@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-const App = ({ results, producers, products, bizdevs, community }) => {
+const App = ({ results, producers, products, bizdevs, community, pointSystem }) => {
   const classes = useStyles();
   const [expandedId, setExpandedId] = useState(false);
 
@@ -60,6 +60,7 @@ const App = ({ results, producers, products, bizdevs, community }) => {
   function filterByOwner(items, owner) {
     const filteredItems = items.filter((presult) => presult.owner_name === owner);
     // Any manipulations of initially loaded product data can be done here
+    /* Calculate scores via JS here */
     if (filteredItems.length >= 1) {
       // Place comments second to front for product & bizdev, front for community
       return filteredItems.map((item) => reArrangeItem(item))
