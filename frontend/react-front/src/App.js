@@ -10,6 +10,7 @@ import SnapshotResults from './components/snapshot-results'
 import ProducerCards from './components/producerscards'
 import ProducerDetails from './components/producer-detail'
 import Testform from './components/monthly-updates'
+import AdminPanel from './components/admin'
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { api_base } from './config'
@@ -84,15 +85,6 @@ const App = () => {
         />
       </>
     );
-  }
-  
-  const AdminPanel = ({snapshotSettings, pointSystem}) => {
-    //let params = useParams();
-    return <div>
-      <h1>hello world</h1>
-      <p>{JSON.stringify(snapshotSettings)}</p>
-      <p>{JSON.stringify(pointSystem)}</p>
-    </div>
   }
 
   return (

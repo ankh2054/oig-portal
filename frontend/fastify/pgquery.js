@@ -235,6 +235,11 @@ const communityUpdate = (request, reply) => {
     })
 }
 
+const updateSnapshotDate = (request, reply) => {
+  const { newDate } = request.body
+  reply.status(200).send(`Implement later: update date to ${newDate}`);
+}
+
 
 // Get results for Particular Producer based on Month
 const getUpdatesbyOwner = (request, reply) => {
@@ -249,4 +254,4 @@ const getUpdatesbyOwner = (request, reply) => {
   })
 }
 
-module.exports = { IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults };
+module.exports = { IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate };

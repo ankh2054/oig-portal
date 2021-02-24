@@ -49,6 +49,8 @@ fastify.post('/api/bizdevUpdate', db.bizdevUpdate)
 fastify.post('/api/communityUpdate', db.communityUpdate)
 // Retrieve momthly updates based on month
 fastify.post('/api/monthlyUpdates/:owner', db.getUpdatesbyOwner)
+// Update snapshot date
+fastify.post('/api/updateSnapshotDate', db.updateSnapshotDate)
 
 
 // Starts the Fastify Server //
