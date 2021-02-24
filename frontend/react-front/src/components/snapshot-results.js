@@ -3,7 +3,7 @@ import moment from 'moment'
 /*import { api_base } from '../config'
 import axios from 'axios'*/
 import { Button } from '@material-ui/core';
-import SnapshotScoring from './snapshot_scoring'
+import SnapshotScoring from './snapshot-scoring'
 import IntegratedScores from './integrated-snapshot-scores'
 
 
