@@ -200,14 +200,14 @@ const productUpdate = (request, reply) => {
   const { owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, points, date_updated, comments } = request.body
 
   client.query(
-      'INSERT into oig.products (owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, points, date_updated, comments) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) ON CONFLICT (owner_name,name) DO UPDATE SET description = EXCLUDED.description, stage = EXCLUDED.stage, analytics_url = EXCLUDED.analytics_url, spec_url = EXCLUDED.spec_url, code_repo = EXCLUDED.code_repo, score = EXCLUDED.score, points = EXCLUDED.points, date_updated= EXCLUDED.date_updated, comments= EXCLUDED.comments ', 
-      [owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, points, date_updated, comments], 
-      (error, results) => {
-    if (error) {
-      throw error
-    }
-    reply.status(200).send(`Producer modified: ${owner_name}`);
-  })
+    'INSERT into oig.products (owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, points, date_updated, comments) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) ON CONFLICT (owner_name,name) DO UPDATE SET description = EXCLUDED.description, stage = EXCLUDED.stage, analytics_url = EXCLUDED.analytics_url, spec_url = EXCLUDED.spec_url, code_repo = EXCLUDED.code_repo, score = EXCLUDED.score, points = EXCLUDED.points, date_updated= EXCLUDED.date_updated, comments= EXCLUDED.comments ',
+    [owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, points, date_updated, comments],
+    (error, results) => {
+      if (error) {
+        throw error
+      }
+      reply.status(200).send(`Producer modified: ${owner_name}`);
+    })
 }
 
 // Insert Bizdev update
@@ -216,14 +216,14 @@ const bizdevUpdate = (request, reply) => {
   const { owner_name, name, description, stage, analytics_url, spec_url, score, points, date_updated, comments } = request.body
 
   client.query(
-      'INSERT into oig.bizdev (owner_name, name, description, stage, analytics_url, spec_url, score, points, date_updated, comments) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT (owner_name,name) DO UPDATE SET description = EXCLUDED.description, stage = EXCLUDED.stage, analytics_url = EXCLUDED.analytics_url, spec_url = EXCLUDED.spec_url, score = EXCLUDED.score, points = EXCLUDED.points, date_updated= EXCLUDED.date_updated, comments= EXCLUDED.comments ', 
-      [owner_name, name, description, stage, analytics_url, spec_url, score, points, date_updated, comments], 
-      (error, results) => {
-    if (error) {
-      throw error
-    }
-    reply.status(200).send(`Producer modified: ${owner_name}`);
-  })
+    'INSERT into oig.bizdev (owner_name, name, description, stage, analytics_url, spec_url, score, points, date_updated, comments) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT (owner_name,name) DO UPDATE SET description = EXCLUDED.description, stage = EXCLUDED.stage, analytics_url = EXCLUDED.analytics_url, spec_url = EXCLUDED.spec_url, score = EXCLUDED.score, points = EXCLUDED.points, date_updated= EXCLUDED.date_updated, comments= EXCLUDED.comments ',
+    [owner_name, name, description, stage, analytics_url, spec_url, score, points, date_updated, comments],
+    (error, results) => {
+      if (error) {
+        throw error
+      }
+      reply.status(200).send(`Producer modified: ${owner_name}`);
+    })
 }
 
 // Insert Community update
@@ -232,14 +232,14 @@ const communityUpdate = (request, reply) => {
   const { owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated, comments } = request.body
 
   client.query(
-      'INSERT into oig.community (owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated, comments) VALUES ($1,$2,$3,$4,$5,$6,$7,$8, $9) ON CONFLICT (owner_name) DO UPDATE SET origcontentpoints = EXCLUDED.origcontentpoints, transcontentpoints = EXCLUDED.transcontentpoints, eventpoints = EXCLUDED.eventpoints, managementpoints = EXCLUDED.managementpoints, score = EXCLUDED.score, date_updated= EXCLUDED.date_updated, comments= EXCLUDED.comments ', 
-      [owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated, comments], 
-      (error, results) => {
-    if (error) {
-      throw error
-    }
-    reply.status(200).send(`Producer modified: ${owner_name}`);
-  })
+    'INSERT into oig.community (owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated, comments) VALUES ($1,$2,$3,$4,$5,$6,$7,$8, $9) ON CONFLICT (owner_name) DO UPDATE SET origcontentpoints = EXCLUDED.origcontentpoints, transcontentpoints = EXCLUDED.transcontentpoints, eventpoints = EXCLUDED.eventpoints, managementpoints = EXCLUDED.managementpoints, score = EXCLUDED.score, date_updated= EXCLUDED.date_updated, comments= EXCLUDED.comments ',
+    [owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated, comments],
+    (error, results) => {
+      if (error) {
+        throw error
+      }
+      reply.status(200).send(`Producer modified: ${owner_name}`);
+    })
 }
 
 // Update snapshot date

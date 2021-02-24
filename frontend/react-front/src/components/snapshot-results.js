@@ -82,13 +82,13 @@ const App = ({ results, producers, products, bizdevs, community, snapresults, po
 
   const getScoresView = () => {
     if (viewType === 'individual') {
-        return <SnapshotScoring
+      return <SnapshotScoring
         results={latestResults}
         producers={producers}
         products={products}
         bizdevs={bizdevs}
         community={community}
-        pointSystem={ pointSystem }
+        pointSystem={pointSystem}
       />
     }
     if (viewType === 'integrated') {
@@ -152,7 +152,7 @@ const App = ({ results, producers, products, bizdevs, community, snapresults, po
           </Button>
         </DialogActions>
       </Dialog>*/}
-      <div style={{ display: 'block', width: '100%'}}>
+      <div style={{ display: 'block', width: '100%' }}>
         {getScoresView()}
       </div>
     </div>

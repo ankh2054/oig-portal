@@ -78,12 +78,12 @@ const App = () => {
 
     return (
       <>
-      <ProducerDetails
-      producer={producers.filter((result) => result.owner_name === params.ownername)[0]}
-      results={results.filter((result) => result.owner_name === params.ownername)}
-      products={products.filter((result) => result.owner_name === params.ownername)}
-      bizdevs={bizdevs.filter((result) => result.owner_name === params.ownername)}
-      />
+        <ProducerDetails
+          producer={producers.filter((result) => result.owner_name === params.ownername)[0]}
+          results={results.filter((result) => result.owner_name === params.ownername)}
+          products={products.filter((result) => result.owner_name === params.ownername)}
+          bizdevs={bizdevs.filter((result) => result.owner_name === params.ownername)}
+        />
       </>
     );
   }
