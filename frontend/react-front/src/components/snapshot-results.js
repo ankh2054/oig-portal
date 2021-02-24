@@ -4,7 +4,7 @@ import moment from 'moment'
 import axios from 'axios'*/
 import { Button } from '@material-ui/core';
 import SnapshotScoring from './snapshot-scoring'
-import IntegratedScores from './integrated-snapshot-scores'
+// import IntegratedScores from './integrated-snapshot-scores'
 
 
 const App = ({ results, producers, products, bizdevs, community, snapresults, pointSystem }) => {
@@ -91,7 +91,7 @@ const App = ({ results, producers, products, bizdevs, community, snapresults, po
         pointSystem={pointSystem}
       />
     }
-    if (viewType === 'integrated') {
+    /*if (viewType === 'integrated') {
       return <IntegratedScores
         results={latestResults}
         producers={producers}
@@ -99,7 +99,7 @@ const App = ({ results, producers, products, bizdevs, community, snapresults, po
         bizdevs={bizdevs}
         community={community}
       />
-    }
+    }*/
     return null
   }
 
