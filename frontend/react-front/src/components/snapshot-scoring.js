@@ -41,26 +41,23 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const reArrangeTableHeaders = (item) => {
+  // JSON.stringify trick needed to properly exclude name for community & tech updates
+  return JSON.parse(JSON.stringify({
+    name: item.name ? item.name : undefined,
+    comments: item.comments,
+    ...item
+  }))
+}
 
-
-const App = ({ results, producers, products, bizdevs, community, pointSystem }) => {
+const SnapshotScoring = ({ results, producers, products, bizdevs, community }) => {
   const classes = useStyles();
   const [expandedId, setExpandedId] = useState(false);
-
-  // Sorry for the verbose name, but seemed descriptive
-  const reArrangeTableHeaders = (item) => {
-    // JSON.stringify trick needed to properly exclude name for community & tech updates
-    return JSON.parse(JSON.stringify({
-      name: item.name ? item.name : undefined,
-      comments: item.comments,
-      ...item
-    }))
-  }
 
   /** Filters items (products, bizdev, community) by owner */
   function filterByOwner(items, owner) {
     const filteredItems = items.filter((presult) => presult.owner_name === owner);
-    // Any manipulations of initially loaded product data can be done here
+    // Any manipulations of initially loaded data can be done here
     if (filteredItems.length >= 1) {
       // Place comments second to front for product & bizdev, front for community
       return filteredItems.map((item) => reArrangeTableHeaders(item))
@@ -198,4 +195,4 @@ const App = ({ results, producers, products, bizdevs, community, pointSystem }) 
   );
 }
 
-export default App
+export {SnapshotScoring, reArrangeTableHeaders}

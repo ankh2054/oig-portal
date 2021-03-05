@@ -157,8 +157,8 @@ export default function Table({ tabledata, tabletitle }) {
   };
 
   return (
-    <div className="Table">
-      <div style={{ maxWidth: "100%" }}>
+    <div className="Table" style={{ maxWidth: "100%", width: "100%", marginBottom: "50px" }}>
+      <div style={{ maxWidth: "100%", width: "100%" }}>
         <MaterialTable
           columns={generateColumns()}
           editable={{

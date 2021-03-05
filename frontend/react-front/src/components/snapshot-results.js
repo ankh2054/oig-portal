@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import moment from 'moment'
 import { Button } from '@material-ui/core';
-import SnapshotScoring from './snapshot-scoring'
+import {SnapshotScoring} from './snapshot-scoring'
 import IntegratedScores from './integrated-snapshot-scores'
 
 
 const App = ({ results, producers, products, bizdevs, community, snapresults, pointSystem }) => {
-  const [viewType, setViewType] = useState('individual')
+  const [viewType, setViewType] = useState('integrated')
 
   const lastfetched = !!snapresults && !!snapresults[0] && !!snapresults[0].snapshot_date ? moment(snapresults[0].snapshot_date).fromNow() : 'never';
 
@@ -18,7 +18,7 @@ const App = ({ results, producers, products, bizdevs, community, snapresults, po
     }
   }
 
-  const addScoreToItemsView = () => {
+  const loadView = () => {
     if (viewType === 'individual') {
       return <SnapshotScoring
         results={snapresults}
@@ -60,7 +60,7 @@ const App = ({ results, producers, products, bizdevs, community, snapresults, po
         {viewType === 'individual' ? "Integrated" : "Individual"} View
       </Button>
       <div style={{ display: 'block', width: '100%' }}>
-        {addScoreToItemsView()}
+        {loadView()}
       </div>
     </div>
   )
