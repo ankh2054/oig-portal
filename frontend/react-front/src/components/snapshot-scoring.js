@@ -48,52 +48,22 @@ const App = ({ results, producers, products, bizdevs, community, pointSystem }) 
   const [expandedId, setExpandedId] = useState(false);
 
   // Sorry for the verbose name, but seemed descriptive
-  const calculatePointsAndReArrangeTableHeaders = (item, pointIdentifier) => {
-    let score = undefined;
-
-    if (pointIdentifier && pointSystem[pointIdentifier]) {
-      const multiplier = pointSystem[pointIdentifier][1];
-      if (item.points) {
-        // This is a product or bizdev update (or achievement, when integrated)
-        score = item.points * multiplier;
-      } else if (pointIdentifier === 'community') {
-        // A little complex to follow, but it:
-        // Step 1: finds every table header that contains "points"
-        // Step 2: finds all their values
-        // Step 3: tallies them all up together
-        const totalPoints = Object.keys(item).filter(columns => columns.indexOf('points') !== -1).map(key => {
-          return item[key]
-        }).reduce((accumulator, currentValue) => accumulator + currentValue)
-        score = totalPoints * multiplier
-      }
-      console.log(`${item.owner_name} ${pointIdentifier} score: ${score}`)
-    } else if (Object.keys(pointSystem).length >= 1) { // Fairly inefficient
-      score = 0;
-      // Otherwise, loop through the table headers, find their corresponding points and multiplier, and tally it up
-      Object.keys(item).forEach((key => {
-        // 0,0 for the last ones, since 0 times 0 is 0
-        const [points, multiplier] = !!pointSystem[key] ? pointSystem[key] : [0, 0]
-        score += points * multiplier;
-      }))
-      console.log(`${item.owner_name} tech score: ${score}`)
-    }
-
+  const reArrangeTableHeaders = (item) => {
     // JSON.stringify trick needed to properly exclude name for community & tech updates
     return JSON.parse(JSON.stringify({
       name: item.name ? item.name : undefined,
       comments: item.comments,
-      ...item,
-      score: score
+      ...item
     }))
   }
 
   /** Filters items (products, bizdev, community) by owner */
-  function filterByOwner(items, owner, pointIdentifier) {
+  function filterByOwner(items, owner) {
     const filteredItems = items.filter((presult) => presult.owner_name === owner);
     // Any manipulations of initially loaded product data can be done here
     if (filteredItems.length >= 1) {
       // Place comments second to front for product & bizdev, front for community
-      return filteredItems.map((item) => calculatePointsAndReArrangeTableHeaders(item, pointIdentifier))
+      return filteredItems.map((item) => reArrangeTableHeaders(item))
     }
     return filteredItems
   }
@@ -215,7 +185,7 @@ const App = ({ results, producers, products, bizdevs, community, pointSystem }) 
                 </CardContent> : null}
                 <CardContent>
                   <TableDataGrid
-                    tabledata={[calculatePointsAndReArrangeTableHeaders(result)]} // Note that no pointIdentifier is given here.
+                    tabledata={[reArrangeTableHeaders(result)]}
                     tabletitle="Tech Snapshot"
                   />
                 </CardContent>

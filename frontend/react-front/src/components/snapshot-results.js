@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
 import moment from 'moment'
-/*import { api_base } from '../config'
-import axios from 'axios'*/
 import { Button } from '@material-ui/core';
 import SnapshotScoring from './snapshot-scoring'
 import IntegratedScores from './integrated-snapshot-scores'
@@ -20,7 +18,7 @@ const App = ({ results, producers, products, bizdevs, community, snapresults, po
     }
   }
 
-  const getScoresView = () => {
+  const addScoreToItemsView = () => {
     if (viewType === 'individual') {
       return <SnapshotScoring
         results={snapresults}
@@ -62,7 +60,7 @@ const App = ({ results, producers, products, bizdevs, community, snapresults, po
         {viewType === 'individual' ? "Integrated" : "Individual"} View
       </Button>
       <div style={{ display: 'block', width: '100%' }}>
-        {getScoresView()}
+        {addScoreToItemsView()}
       </div>
     </div>
   )
