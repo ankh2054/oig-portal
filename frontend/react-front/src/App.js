@@ -131,6 +131,7 @@ const App = () => {
           results={results.filter((result) => result.owner_name === params.ownername)}
           products={products.filter((result) => result.owner_name === params.ownername)}
           bizdevs={bizdevs.filter((result) => result.owner_name === params.ownername)}
+          pointSystem={pointSystem}
         />
       </>
     );
