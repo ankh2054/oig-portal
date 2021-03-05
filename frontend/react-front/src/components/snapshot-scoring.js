@@ -47,23 +47,53 @@ const App = ({ results, producers, products, bizdevs, community, pointSystem }) 
   const classes = useStyles();
   const [expandedId, setExpandedId] = useState(false);
 
-  const reArrangeItem = (item) => {
+  // Sorry for the verbose name, but seemed descriptive
+  const calculatePointsAndReArrangeTableHeaders = (item, pointIdentifier) => {
+    let score = undefined;
+
+    if (pointIdentifier && pointSystem[pointIdentifier]) {
+      const multiplier = pointSystem[pointIdentifier][1];
+      if (item.points) {
+        // This is a product or bizdev update (or achievement, when integrated)
+        score = item.points * multiplier;
+      } else if (pointIdentifier === 'community') {
+        // A little complex to follow, but it:
+        // Step 1: finds every table header that contains "points"
+        // Step 2: finds all their values
+        // Step 3: tallies them all up together
+        const totalPoints = Object.keys(item).filter(columns => columns.indexOf('points') !== -1).map(key => {
+          return item[key]
+        }).reduce((accumulator, currentValue) => accumulator + currentValue)
+        score = totalPoints * multiplier
+      }
+      console.log(`${item.owner_name} ${pointIdentifier} score: ${score}`)
+    } else if (Object.keys(pointSystem).length >= 1) { // Fairly inefficient
+      score = 0;
+      // Otherwise, loop through the table headers, find their corresponding points and multiplier, and tally it up
+      Object.keys(item).forEach((key => {
+        // 0,0 for the last ones, since 0 times 0 is 0
+        const [points, multiplier] = !!pointSystem[key] ? pointSystem[key] : [0, 0]
+        score += points * multiplier;
+      }))
+      console.log(`${item.owner_name} tech score: ${score}`)
+    }
+
     // JSON.stringify trick needed to properly exclude name for community & tech updates
     return JSON.parse(JSON.stringify({
       name: item.name ? item.name : undefined,
       comments: item.comments,
-      ...item
+      ...item,
+      score: score
     }))
   }
 
   /** Filters items (products, bizdev, community) by owner */
-  function filterByOwner(items, owner) {
+  function filterByOwner(items, owner, pointIdentifier) {
     const filteredItems = items.filter((presult) => presult.owner_name === owner);
     // Any manipulations of initially loaded product data can be done here
-    /* Calculate scores via JS here */
     if (filteredItems.length >= 1) {
       // Place comments second to front for product & bizdev, front for community
-      return filteredItems.map((item) => reArrangeItem(item))
+      return filteredItems.map((item) => calculatePointsAndReArrangeTableHeaders(item, pointIdentifier))
     }
     return filteredItems
   }
@@ -114,9 +144,10 @@ const App = ({ results, producers, products, bizdevs, community, pointSystem }) 
   return (
     <Grid container spacing={4}>
       {results.map((result) => {
-        const filteredProducts = filterByOwner(products, result.owner_name);
-        const filteredBizdevs = filterByOwner(bizdevs, result.owner_name);
-        const filteredCommunity = filterByOwner(community, result.owner_name)
+        const filteredProducts = filterByOwner(products, result.owner_name, 'product');
+        const filteredBizdevs = filterByOwner(bizdevs, result.owner_name, 'bizdev');
+        const filteredCommunity = filterByOwner(community, result.owner_name, 'community')
+        // Another 'achievement' multiplier exists.
         return (
           <Grid item key={result.owner_name} xs={12} sm={12} md={12}>
             <Card className={classes.root} variant="outlined">
@@ -184,7 +215,7 @@ const App = ({ results, producers, products, bizdevs, community, pointSystem }) 
                 </CardContent> : null}
                 <CardContent>
                   <TableDataGrid
-                    tabledata={[reArrangeItem(result)]}
+                    tabledata={[calculatePointsAndReArrangeTableHeaders(result)]} // Note that no pointIdentifier is given here.
                     tabletitle="Tech Snapshot"
                   />
                 </CardContent>

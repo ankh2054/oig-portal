@@ -3,8 +3,8 @@ import moment from 'moment'
 /*import { api_base } from '../config'
 import axios from 'axios'*/
 import { Button } from '@material-ui/core';
-import SnapshotScoring from './snapshot_scoring'
-import IntegratedScores from './integrated-snapshot-scores'
+import SnapshotScoring from './snapshot-scoring'
+// import IntegratedScores from './integrated-snapshot-scores'
 
 
 const App = ({ results, producers, products, bizdevs, community, snapresults, pointSystem }) => {
@@ -82,16 +82,16 @@ const App = ({ results, producers, products, bizdevs, community, snapresults, po
 
   const getScoresView = () => {
     if (viewType === 'individual') {
-        return <SnapshotScoring
+      return <SnapshotScoring
         results={latestResults}
         producers={producers}
         products={products}
         bizdevs={bizdevs}
         community={community}
-        pointSystem={ pointSystem }
+        pointSystem={pointSystem}
       />
     }
-    if (viewType === 'integrated') {
+    /*if (viewType === 'integrated') {
       return <IntegratedScores
         results={latestResults}
         producers={producers}
@@ -99,7 +99,7 @@ const App = ({ results, producers, products, bizdevs, community, snapresults, po
         bizdevs={bizdevs}
         community={community}
       />
-    }
+    }*/
     return null
   }
 
@@ -152,7 +152,7 @@ const App = ({ results, producers, products, bizdevs, community, snapresults, po
           </Button>
         </DialogActions>
       </Dialog>*/}
-      <div style={{ display: 'block', width: '100%'}}>
+      <div style={{ display: 'block', width: '100%' }}>
         {getScoresView()}
       </div>
     </div>

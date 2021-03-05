@@ -69,7 +69,13 @@ const App = () => {
       setSnapshotSettings(response.data)
     });
     axios.get(api_base + '/api/pointsystem').then((response) => {
-      setPointSystem(response.data)
+      const pointSystemBase = response.data;
+      // More useful as an object
+      let formattedPointSystem = {};
+      pointSystemBase.forEach(item => {
+        formattedPointSystem[item.points_type] = [item.points, item.multiplier]
+      });
+      setPointSystem(formattedPointSystem)
     });
   }, [])
 
@@ -78,12 +84,12 @@ const App = () => {
 
     return (
       <>
-      <ProducerDetails
-      producer={producers.filter((result) => result.owner_name === params.ownername)[0]}
-      results={results.filter((result) => result.owner_name === params.ownername)}
-      products={products.filter((result) => result.owner_name === params.ownername)}
-      bizdevs={bizdevs.filter((result) => result.owner_name === params.ownername)}
-      />
+        <ProducerDetails
+          producer={producers.filter((result) => result.owner_name === params.ownername)[0]}
+          results={results.filter((result) => result.owner_name === params.ownername)}
+          products={products.filter((result) => result.owner_name === params.ownername)}
+          bizdevs={bizdevs.filter((result) => result.owner_name === params.ownername)}
+        />
       </>
     );
   }
