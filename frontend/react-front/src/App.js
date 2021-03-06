@@ -46,6 +46,7 @@ const App = () => {
   const [rawSnapshotLatestResults, setRawSnapshotLatestResults] = useState([])
   const [snapshotlatestresults, setSnapshotLatestResults] = useState([])
   const [snapshotSettings, setSnapshotSettings] = useState([])
+  const [rawPointSystem, setRawPointSystem] = useState([])
   const [pointSystem, setPointSystem] = useState([])
 
   useEffect(() => {
@@ -76,6 +77,7 @@ const App = () => {
     });
     axios.get(api_base + '/api/pointsystem').then((response) => {
       const pointSystemBase = response.data;
+      setRawPointSystem(pointSystemBase)
       // More useful as an object
       let formattedPointSystem = {};
       pointSystemBase.forEach(item => {
@@ -169,7 +171,7 @@ const App = () => {
                       />} />
                     <Route exact path='/guilds/:ownername' component={BPwithownername} />
                     <Route exact path='/form' component={() => <Testform producers={producers} />} />
-                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} pointSystem={pointSystem} />} />
+                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} pointSystem={rawPointSystem} />} />
                   </Router>
                 </Paper>
               </Grid>
