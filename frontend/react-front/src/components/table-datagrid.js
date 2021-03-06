@@ -150,6 +150,7 @@ export default function Table({ tabledata, tabletitle }) {
         cellStyle: key === "comments" ? {
           backgroundColor: '#ffff44'
         } : undefined,
+        render: key === "guild" ? rowData => <img src={rowData.guild} alt={rowData.owner_name} style={{width: 50, borderRadius: '50%'}}/> : undefined
       };
     });
     console.log("Table columns generated.");

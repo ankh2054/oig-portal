@@ -44,6 +44,7 @@ const useStyles = makeStyles((theme) => ({
 const reArrangeTableHeaders = (item) => {
   // JSON.stringify trick needed to properly exclude name for community & tech updates
   return JSON.parse(JSON.stringify({
+    guild: item.guild ? item.guild : undefined,
     name: item.name ? item.name : undefined,
     comments: item.comments,
     ...item
