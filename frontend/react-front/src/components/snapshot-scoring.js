@@ -47,6 +47,7 @@ const reArrangeTableHeaders = (item) => {
     guild: item.guild ? item.guild : undefined,
     name: item.name ? item.name : undefined,
     comments: item.comments,
+    score: item.score,
     ...item
   }))
 }
