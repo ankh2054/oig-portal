@@ -14,7 +14,7 @@ const getTechScore = (item, pointSystem) => {
     }))
     console.log(`${item.owner_name} tech score: ${score}`)
 
-    return score;
+    return Math.round(score);
 }
 
 const addScoreToItem = (item, pointSystem, pointIdentifier) => {
@@ -47,6 +47,8 @@ const addScoreToItem = (item, pointSystem, pointIdentifier) => {
     } else {
         score = getTechScore(item, pointSystem)
     }
+
+    score = Math.round(score)
 
     return {
         ...item,
