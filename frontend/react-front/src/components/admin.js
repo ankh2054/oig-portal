@@ -38,6 +38,7 @@ const AdminPanel = ({ snapshotSettings, pointSystem }) => {
                 label="Set snapshot date (GMT)" // This is timezone adjusted...
                 value={snapshotDate}
                 onChange={handleDateChange}
+                style={{ minWidth: "290px" }}
                 KeyboardButtonProps={{
                     'aria-label': 'change date',
                 }}

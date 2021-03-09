@@ -113,6 +113,12 @@ const getPointSystem = (request, reply) => {
   })
 }
 
+// Update point system
+const updatePointSystem = (request, reply) => {
+  const { points_type, points, multiplier } = request.body
+  reply.status(200).send(`**Next: update ${points_type} points ${points} multiplier ${multiplier}`);
+}
+
 //Set a snapshot for latest results where results is less than 1 minutes based on date_check timestamp of latest results.
 //UPDATE oig.results SET snaphot_date = $2 WHERE owner_name = $1 AND date_check > NOW() - INTERVAL '15 minutes'
 //update oig.results set snapshot_date = '2020-09-11 17:18:04.825519' where owner_name = 'eos42freedom' and date_check > timestamp '2020-10-23 17:31:22' - INTERVAL '1 minute';
@@ -191,7 +197,7 @@ const mothlyUpdate = (request, reply) => {
 // OIG admin page
 const snapshotResultCommentUpdate = (request, reply) => {
   const { owner_name, date_check, comments } = request.body
-  reply.status(200).send(`Not implemented: ${owner_name} snapshot result for ${date_check} needs to be updated with comment "${comments}"`);
+  reply.status(200).send(`**Next: ${owner_name} snapshot result for ${date_check} needs to be updated with comment "${comments}"`);
 }
 
 // Insert Product update
@@ -245,7 +251,7 @@ const communityUpdate = (request, reply) => {
 // Update snapshot date
 const updateSnapshotDate = (request, reply) => {
   const { newDate } = request.body
-  reply.status(200).send(`Implement later: update date to ${newDate}`);
+  reply.status(200).send(`**Next: update date to ${newDate}`);
 }
 
 // Get results for Particular Producer based on Month
@@ -261,4 +267,4 @@ const getUpdatesbyOwner = (request, reply) => {
   })
 }
 
-module.exports = { IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate };
+module.exports = { IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate };

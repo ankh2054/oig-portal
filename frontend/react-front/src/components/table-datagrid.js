@@ -115,7 +115,18 @@ export default function Table({ tabledata, tabletitle }) {
           );
         });
     } else if (tabletitle === "Point System") {
-      console.log(`handle point system update`)
+      const {
+        points_type, points, multiplier
+      } = newRow;
+      axios
+        .post(api_base + "/api/updatePointSystem", {
+          points_type, points, multiplier
+        })
+        .then(() => {
+          console.log(
+            `Points/multiplier for ${points_type} updated! Reload to confirm.`
+          );
+        });
     } else {
       console.log(`Unknown table type "${tabletitle}"...`);
     }
@@ -155,7 +166,7 @@ export default function Table({ tabledata, tabletitle }) {
         cellStyle: key === "comments" ? {
           backgroundColor: '#ffff44'
         } : undefined,
-        render: key === "guild" ? rowData => <img src={rowData.guild} alt={rowData.owner_name} style={{width: 50, borderRadius: '50%'}}/> : undefined
+        render: key === "guild" ? rowData => <img src={rowData.guild} alt={rowData.owner_name} style={{ width: 50, borderRadius: '50%' }} /> : undefined
       };
     });
     console.log("Table columns generated.");
