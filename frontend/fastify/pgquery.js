@@ -116,7 +116,18 @@ const getPointSystem = (request, reply) => {
 // Update point system
 const updatePointSystem = (request, reply) => {
   const { points_type, points, multiplier } = request.body
-  reply.status(200).send(`**Next: update ${points_type} points ${points} multiplier ${multiplier}`);
+
+  const toUpdate = (multiplier ? "multiplier=" + multiplier : "") + (points && multiplier ? ", " : "") + (points ? "points=" + points : "");
+
+  client.query(
+    `UPDATE oig.pointsystem SET ${toUpdate} WHERE points_type= $1`,
+    [points_type],
+    (error, results) => {
+      if (error) {
+        throw error
+      }
+      reply.status(200).send(`Points/multiplier for ${points_type} updated: ${points} * ${multiplier}`);
+    })
 }
 
 //Set a snapshot for latest results where results is less than 1 minutes based on date_check timestamp of latest results.
