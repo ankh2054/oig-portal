@@ -251,7 +251,15 @@ const communityUpdate = (request, reply) => {
 // Update snapshot date
 const updateSnapshotDate = (request, reply) => {
   const { newDate } = request.body
-  reply.status(200).send(`**Next: update date to ${newDate}`);
+  client.query(
+    'UPDATE oig.snapshotsettings SET snapshot_date=($1) WHERE ctid IN (SELECT ctid FROM oig.snapshotsettings LIMIT 1 FOR UPDATE)',
+    [newDate],
+    (error, results) => {
+      if (error) {
+        throw error
+      }
+      reply.status(200).send(`Snapshot date updated to: ${newDate}`);
+    })
 }
 
 // Get results for Particular Producer based on Month
