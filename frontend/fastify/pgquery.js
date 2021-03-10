@@ -208,7 +208,17 @@ const mothlyUpdate = (request, reply) => {
 // OIG admin page
 const snapshotResultCommentUpdate = (request, reply) => {
   const { owner_name, date_check, comments } = request.body
-  reply.status(200).send(`**Next: ${owner_name} snapshot result for ${date_check} needs to be updated with comment "${comments}"`);
+  const utcDate = moment.utc(date_check).subtract(1, "minutes");
+  client.query(
+    'UPDATE oig.results SET comments=($1) WHERE ctid IN (SELECT ctid FROM oig.results WHERE owner_name=($2) AND date_check > ($3) LIMIT 1 FOR UPDATE)',
+    [comments, owner_name, utcDate],
+    (error, results) => {
+      console.log(results)
+      if (error) {
+        throw error
+      }
+      reply.status(200).send(`${owner_name}'s result for ${date_check} updated with comments "${comments}"`);
+    })
 }
 
 // Insert Product update

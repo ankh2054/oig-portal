@@ -111,7 +111,7 @@ export default function Table({ tabledata, tabletitle }) {
         })
         .then(() => {
           console.log(
-            `Comments on snapshot tech result for ${owner_name} updated! Reload to confirm.`
+            `Comments on tech result for ${owner_name} updated! Reload to confirm.`
           );
         });
     } else if (tabletitle === "Point System") {
