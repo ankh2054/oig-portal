@@ -46,7 +46,7 @@ const App = ({ results, producers, products, bizdevs, community, snapresults, po
       <h1>Scores</h1>
       {/* We can select the date from the first entry of snapresults (usually aikon) 
           because all snapshots are done at the same time. If we ever 
-          change fastify /api/snapshotsnapresults to include a universal
+          change fastify /api/snapshotlatestresults to include a universal
           last checked date, then it would be good to change this code. */}
       {/* This will flash 'never' while loading. We could also hide it from displaying */}
       <h3>Snapshot data last fetched: {lastfetched}</h3>
