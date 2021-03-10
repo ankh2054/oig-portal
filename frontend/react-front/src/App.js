@@ -14,6 +14,7 @@ import AdminPanel from './components/admin'
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { api_base } from './config'
+import {addScoreToItem} from './functions/scoring'
 
 //import 'fontsource-roboto';
 import ButtonAppBar from './components/appbar'
@@ -29,61 +30,111 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-
 const App = () => {
   const classes = useStyles();
+  const [rawResults, setRawResults] = useState([])
   const [results, setResults] = useState([])
   const [producers, setProducers] = useState([])
+  const [rawProducts, setRawProducts] = useState([])
   const [products, setProducts] = useState([])
+  const [rawBizdevs, setRawBizdevs] = useState([])
   const [bizdevs, setBizdevs] = useState([])
+  const [rawCommunity, setRawCommunity] = useState([])
   const [community, setCommunity] = useState([])
+  const [rawLatestResults, setRawLatestResults] = useState([])
   const [latestresults, setLatestResults] = useState([])
+  const [rawSnapshotLatestResults, setRawSnapshotLatestResults] = useState([])
   const [snapshotlatestresults, setSnapshotLatestResults] = useState([])
   const [snapshotSettings, setSnapshotSettings] = useState([])
+  const [rawPointSystem, setRawPointSystem] = useState([])
   const [pointSystem, setPointSystem] = useState([])
 
   useEffect(() => {
     // Load data and set hooks. A future implementation could use axios.all
     axios.get(api_base + '/api/results').then((response) => {
-      setResults(response.data)
+      setRawResults(response.data)
     });
     axios.get(api_base + '/api/producers').then((response) => {
       setProducers(response.data)
     });
     axios.get(api_base + '/api/products').then((response) => {
-      setProducts(response.data)
+      setRawProducts(response.data)
     });
     axios.get(api_base + '/api/bizdevs').then((response) => {
-      setBizdevs(response.data)
+      setRawBizdevs(response.data)
     });
     axios.get(api_base + '/api/community').then((response) => {
-      setCommunity(response.data)
+      setRawCommunity(response.data)
     });
     axios.get(api_base + '/api/latestresults').then((response) => {
-      setLatestResults(response.data)
+      setRawLatestResults(response.data)
     });
     axios.get(api_base + '/api/snapshotlatestresults').then((response) => {
-      setSnapshotLatestResults(response.data)
+      setRawSnapshotLatestResults(response.data)
     });
     axios.get(api_base + '/api/snapshotsettings').then((response) => {
       setSnapshotSettings(response.data)
     });
     axios.get(api_base + '/api/pointsystem').then((response) => {
-      setPointSystem(response.data)
-    });
-  }, [])
+      const pointSystemBase = response.data;
+      setRawPointSystem(pointSystemBase)
+      // More useful as an object
+      let formattedPointSystem = {};
+      pointSystemBase.forEach(item => {
+        formattedPointSystem[item.points_type] = [item.points, item.multiplier]
+      });
+      setPointSystem(formattedPointSystem)
+    })
+  }, []);
+
+  // Calculate scores if formatted point system exists, and raw data (to be scored) exists
+  // This gets called twice (as do many functions). it appears to be due to React.StrictMode
+  // Fixing this would result in a lot of speed increases, I would guess.
+  if (Object.keys(pointSystem).length >= 1) {
+    if (results.length === 0 && rawResults.length >= 1) {
+      // This is bound to use up a lot of memory when adding scores - it's an array of 2.3k items.
+      //const formattedResults = rawResults.map((item) => addScoreToItem(item, pointSystem));
+      setResults(rawResults);
+    }
+
+    if (products.length === 0 && rawProducts.length >= 1) {
+      const formattedProducts = rawProducts.map((item) => addScoreToItem(item, pointSystem, 'product'));
+      setProducts(formattedProducts);
+    }
+
+    if (bizdevs.length === 0 && rawBizdevs.length >= 1) {
+      const formattedBizdevs = rawBizdevs.map((item) => addScoreToItem(item, pointSystem, 'bizdev'));
+      setBizdevs(formattedBizdevs);
+    }
+
+    if (community.length === 0 && rawCommunity.length >= 1) {
+      const formattedCommunity = rawCommunity.map((item) => addScoreToItem(item, pointSystem, 'community'));
+      setCommunity(formattedCommunity);
+    }
+
+    if (latestresults.length === 0 && rawLatestResults.length >= 1) {
+      const formattedLatestResults = rawLatestResults.map((item) => addScoreToItem(item, pointSystem));
+      setLatestResults(formattedLatestResults);
+    }
+
+    if (snapshotlatestresults.length === 0 && rawSnapshotLatestResults.length >= 1) {
+      const formattedLatestSnapshotResults = rawSnapshotLatestResults.map((item) => addScoreToItem(item, pointSystem));
+      setSnapshotLatestResults(formattedLatestSnapshotResults);
+    }
+  }
 
   const BPwithownername = () => {
     let params = useParams();
 
     return (
       <>
-      <ProducerDetails
-      producer={producers.filter((result) => result.owner_name === params.ownername)[0]}
-      results={results.filter((result) => result.owner_name === params.ownername)}
-      products={products.filter((result) => result.owner_name === params.ownername)}
-      bizdevs={bizdevs.filter((result) => result.owner_name === params.ownername)}
-      />
+        <ProducerDetails
+          producer={producers.filter((result) => result.owner_name === params.ownername)[0]}
+          results={results.filter((result) => result.owner_name === params.ownername)}
+          products={products.filter((result) => result.owner_name === params.ownername)}
+          bizdevs={bizdevs.filter((result) => result.owner_name === params.ownername)}
+          pointSystem={pointSystem}
+        />
       </>
     );
   }
@@ -110,7 +161,6 @@ const App = () => {
                       bizdevs={bizdevs}
                       community={community}
                       snapresults={snapshotlatestresults}
-                      pointSystem={pointSystem}
                     />} />
                     <Route exact path="/" component={() =>
                       <ProducerCards results={latestresults}
@@ -121,7 +171,7 @@ const App = () => {
                       />} />
                     <Route exact path='/guilds/:ownername' component={BPwithownername} />
                     <Route exact path='/form' component={() => <Testform producers={producers} />} />
-                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} pointSystem={pointSystem} />} />
+                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} pointSystem={rawPointSystem} />} />
                   </Router>
                 </Paper>
               </Grid>

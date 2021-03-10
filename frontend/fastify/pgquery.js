@@ -113,6 +113,23 @@ const getPointSystem = (request, reply) => {
   })
 }
 
+// Update point system
+const updatePointSystem = (request, reply) => {
+  const { points_type, points, multiplier } = request.body
+
+  const toUpdate = (multiplier ? "multiplier=" + multiplier : "") + (points && multiplier ? ", " : "") + (points ? "points=" + points : "");
+
+  client.query(
+    `UPDATE oig.pointsystem SET ${toUpdate} WHERE points_type= $1`,
+    [points_type],
+    (error, results) => {
+      if (error) {
+        throw error
+      }
+      reply.status(200).send(`Points/multiplier for ${points_type} updated: ${points} * ${multiplier}`);
+    })
+}
+
 //Set a snapshot for latest results where results is less than 1 minutes based on date_check timestamp of latest results.
 //UPDATE oig.results SET snaphot_date = $2 WHERE owner_name = $1 AND date_check > NOW() - INTERVAL '15 minutes'
 //update oig.results set snapshot_date = '2020-09-11 17:18:04.825519' where owner_name = 'eos42freedom' and date_check > timestamp '2020-10-23 17:31:22' - INTERVAL '1 minute';
@@ -191,7 +208,16 @@ const mothlyUpdate = (request, reply) => {
 // OIG admin page
 const snapshotResultCommentUpdate = (request, reply) => {
   const { owner_name, date_check, comments } = request.body
-  reply.status(200).send(`Not implemented: ${owner_name} snapshot result for ${date_check} needs to be updated with comment "${comments}"`);
+  const utcDate = moment.utc(date_check).subtract(1, "minutes");
+  client.query(
+    'UPDATE oig.results SET comments=($1) WHERE ctid IN (SELECT ctid FROM oig.results WHERE owner_name=($2) AND date_check > ($3) LIMIT 1 FOR UPDATE)',
+    [comments, owner_name, utcDate],
+    (error, results) => {
+      if (error) {
+        throw error
+      }
+      reply.status(200).send(`${owner_name}'s result for ${date_check} updated with comments "${comments}"`);
+    })
 }
 
 // Insert Product update
@@ -200,14 +226,14 @@ const productUpdate = (request, reply) => {
   const { owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, points, date_updated, comments } = request.body
 
   client.query(
-      'INSERT into oig.products (owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, points, date_updated, comments) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) ON CONFLICT (owner_name,name) DO UPDATE SET description = EXCLUDED.description, stage = EXCLUDED.stage, analytics_url = EXCLUDED.analytics_url, spec_url = EXCLUDED.spec_url, code_repo = EXCLUDED.code_repo, score = EXCLUDED.score, points = EXCLUDED.points, date_updated= EXCLUDED.date_updated, comments= EXCLUDED.comments ', 
-      [owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, points, date_updated, comments], 
-      (error, results) => {
-    if (error) {
-      throw error
-    }
-    reply.status(200).send(`Producer modified: ${owner_name}`);
-  })
+    'INSERT into oig.products (owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, points, date_updated, comments) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) ON CONFLICT (owner_name,name) DO UPDATE SET description = EXCLUDED.description, stage = EXCLUDED.stage, analytics_url = EXCLUDED.analytics_url, spec_url = EXCLUDED.spec_url, code_repo = EXCLUDED.code_repo, score = EXCLUDED.score, points = EXCLUDED.points, date_updated= EXCLUDED.date_updated, comments= EXCLUDED.comments ',
+    [owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, points, date_updated, comments],
+    (error, results) => {
+      if (error) {
+        throw error
+      }
+      reply.status(200).send(`Producer modified: ${owner_name}`);
+    })
 }
 
 // Insert Bizdev update
@@ -216,14 +242,14 @@ const bizdevUpdate = (request, reply) => {
   const { owner_name, name, description, stage, analytics_url, spec_url, score, points, date_updated, comments } = request.body
 
   client.query(
-      'INSERT into oig.bizdev (owner_name, name, description, stage, analytics_url, spec_url, score, points, date_updated, comments) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT (owner_name,name) DO UPDATE SET description = EXCLUDED.description, stage = EXCLUDED.stage, analytics_url = EXCLUDED.analytics_url, spec_url = EXCLUDED.spec_url, score = EXCLUDED.score, points = EXCLUDED.points, date_updated= EXCLUDED.date_updated, comments= EXCLUDED.comments ', 
-      [owner_name, name, description, stage, analytics_url, spec_url, score, points, date_updated, comments], 
-      (error, results) => {
-    if (error) {
-      throw error
-    }
-    reply.status(200).send(`Producer modified: ${owner_name}`);
-  })
+    'INSERT into oig.bizdev (owner_name, name, description, stage, analytics_url, spec_url, score, points, date_updated, comments) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT (owner_name,name) DO UPDATE SET description = EXCLUDED.description, stage = EXCLUDED.stage, analytics_url = EXCLUDED.analytics_url, spec_url = EXCLUDED.spec_url, score = EXCLUDED.score, points = EXCLUDED.points, date_updated= EXCLUDED.date_updated, comments= EXCLUDED.comments ',
+    [owner_name, name, description, stage, analytics_url, spec_url, score, points, date_updated, comments],
+    (error, results) => {
+      if (error) {
+        throw error
+      }
+      reply.status(200).send(`Producer modified: ${owner_name}`);
+    })
 }
 
 // Insert Community update
@@ -232,20 +258,28 @@ const communityUpdate = (request, reply) => {
   const { owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated, comments } = request.body
 
   client.query(
-      'INSERT into oig.community (owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated, comments) VALUES ($1,$2,$3,$4,$5,$6,$7,$8, $9) ON CONFLICT (owner_name) DO UPDATE SET origcontentpoints = EXCLUDED.origcontentpoints, transcontentpoints = EXCLUDED.transcontentpoints, eventpoints = EXCLUDED.eventpoints, managementpoints = EXCLUDED.managementpoints, score = EXCLUDED.score, date_updated= EXCLUDED.date_updated, comments= EXCLUDED.comments ', 
-      [owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated, comments], 
-      (error, results) => {
-    if (error) {
-      throw error
-    }
-    reply.status(200).send(`Producer modified: ${owner_name}`);
-  })
+    'INSERT into oig.community (owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated, comments) VALUES ($1,$2,$3,$4,$5,$6,$7,$8, $9) ON CONFLICT (owner_name) DO UPDATE SET origcontentpoints = EXCLUDED.origcontentpoints, transcontentpoints = EXCLUDED.transcontentpoints, eventpoints = EXCLUDED.eventpoints, managementpoints = EXCLUDED.managementpoints, score = EXCLUDED.score, date_updated= EXCLUDED.date_updated, comments= EXCLUDED.comments ',
+    [owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated, comments],
+    (error, results) => {
+      if (error) {
+        throw error
+      }
+      reply.status(200).send(`Producer modified: ${owner_name}`);
+    })
 }
 
 // Update snapshot date
 const updateSnapshotDate = (request, reply) => {
   const { newDate } = request.body
-  reply.status(200).send(`Implement later: update date to ${newDate}`);
+  client.query(
+    'UPDATE oig.snapshotsettings SET snapshot_date=($1) WHERE ctid IN (SELECT ctid FROM oig.snapshotsettings LIMIT 1 FOR UPDATE)',
+    [newDate],
+    (error, results) => {
+      if (error) {
+        throw error
+      }
+      reply.status(200).send(`Snapshot date updated to: ${newDate}`);
+    })
 }
 
 // Get results for Particular Producer based on Month
@@ -261,4 +295,4 @@ const getUpdatesbyOwner = (request, reply) => {
   })
 }
 
-module.exports = { IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate };
+module.exports = { IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate };

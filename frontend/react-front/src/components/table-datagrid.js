@@ -101,7 +101,7 @@ export default function Table({ tabledata, tabletitle }) {
             `Community points for ${owner_name} updated! Reload to confirm.`
           );
         });
-    } else if (tabletitle === "Tech Snapshot") {
+    } else if (tabletitle === "Tech Snapshot" || tabletitle === "Snapshot Tech Results") {
       const {
         owner_name, date_check, comments
       } = newRow;
@@ -111,7 +111,20 @@ export default function Table({ tabledata, tabletitle }) {
         })
         .then(() => {
           console.log(
-            `Comments on snapshot tech result for ${owner_name} updated! Reload to confirm.`
+            `Comments on tech result for ${owner_name} updated! Reload to confirm.`
+          );
+        });
+    } else if (tabletitle === "Point System") {
+      const {
+        points_type, points, multiplier
+      } = newRow;
+      axios
+        .post(api_base + "/api/updatePointSystem", {
+          points_type, points, multiplier
+        })
+        .then(() => {
+          console.log(
+            `Points/multiplier for ${points_type} updated! Reload to confirm.`
           );
         });
     } else {
@@ -127,6 +140,9 @@ export default function Table({ tabledata, tabletitle }) {
     if (!!columnObj['date_check']) {
       // If there is a date_check field, this is a tech result, and all fields bar comments should be uneditable
       return (key === "comments" ? "always" : "never")
+    } else if (!!columnObj['points_type']) {
+      // Points system - make point_type uneditable
+      return (key === "points_type" ? "never" : "always")
     } else {
       // Otherwise for community, product, bizdev, all should be editable except score and name.
       return (key !== "name" && key !== "score" ? "always" : "never")
@@ -150,6 +166,7 @@ export default function Table({ tabledata, tabletitle }) {
         cellStyle: key === "comments" ? {
           backgroundColor: '#ffff44'
         } : undefined,
+        render: key === "guild" ? rowData => <img src={rowData.guild} alt={rowData.owner_name} style={{ width: 50, borderRadius: '50%' }} /> : undefined
       };
     });
     console.log("Table columns generated.");
@@ -157,8 +174,8 @@ export default function Table({ tabledata, tabletitle }) {
   };
 
   return (
-    <div className="Table">
-      <div style={{ maxWidth: "100%" }}>
+    <div className="Table" style={{ maxWidth: "100%", width: "100%", marginBottom: "25px" }}>
+      <div style={{ maxWidth: "100%", width: "100%" }}>
         <MaterialTable
           columns={generateColumns()}
           editable={{

@@ -1,8 +1,6 @@
 import React from 'react'
 import TechresultTables from './tech-tablelist-results'
 
-
-
 const App = ({ results }) => {
   return (
     <div>

@@ -1,22 +1,51 @@
 import React from 'react'
-import ProdBizdev from './product-bizdev-results'
+import { reArrangeTableHeaders } from './snapshot-scoring'
+import TableDataGrid from './table-datagrid'
+
+// Return Guild Logo
+function getGuildLogoURL(guild, producers) {
+  let ownername = producers.find((producer) => producer.owner_name === guild)
+  //Conditional rendering if ownername is true, return logosvg.logo_svg
+  // Because one of your producers does not have a logo set
+  let logosvg_url = ownername ? ownername.logo_svg : ""
+  return logosvg_url
+}
 
 const App = ({ results, producers, products, bizdevs, community }) => {
+  function format(array) {
+    // Any manipulations of initially loaded data can be done here
+    if (array.length >= 1) {
+      // Place comments second to front for product & bizdev, front for community & tech
+      return array.map((item) => {
+        const itemWithGuildLogo = {
+          guild: getGuildLogoURL(item.owner_name, producers),
+          ...item
+        }
+        return reArrangeTableHeaders(itemWithGuildLogo)
+      })
+    }
+    return array
+  }
+
   return (
-    <div style={{ textAlign: 'left', maxWidth: '1200px', display: 'inline-block'}}>
-      <h2 style={{ border: '1px solid rgba(0, 0, 0, 0.54)', padding: '5px' }}>Products</h2>
-      <ProdBizdev
-          data={{ results: products, producers }}
-        />
-      <h2 style={{ border: '1px solid rgba(0, 0, 0, 0.54)', padding: '5px' }}>Bizdevs</h2>
-      <ProdBizdev
-          data={{ results: bizdevs, producers }}
-        />
-      <h2 style={{ border: '1px solid rgba(0, 0, 0, 0.54)', padding: '5px' }}>Community</h2>
-      <ProdBizdev
-          data={{ results: community, producers }}
-        />
-    </div>
+    <>
+      <TableDataGrid
+        tabledata={format(products)}
+        tabletitle="Products"
+      />
+      <TableDataGrid
+        tabledata={format(bizdevs)}
+        tabletitle="Bizdevs"
+      />
+      <TableDataGrid
+        tabledata={format(community)}
+        tabletitle="Community"
+      />
+      <TableDataGrid
+        tabledata={format(results)}
+        tabletitle="Snapshot Tech Results"
+      />
+    </>
   );
 }
 

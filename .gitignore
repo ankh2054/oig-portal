@@ -43,3 +43,6 @@ pip-delete-this-directory.txt
 
 # Notes
 *notes.txt
+
+# OSX
+*.DS_Store

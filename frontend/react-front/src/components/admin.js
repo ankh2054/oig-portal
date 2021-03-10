@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import { MuiPickersUtilsProvider, KeyboardDateTimePicker } from '@material-ui/pickers';
-import DateFnsUtils from '@date-io/date-fns';
 import { api_base } from "../config";
 import axios from "axios";
+import TableDataGrid from './table-datagrid'
+import moment from 'moment'
+import MomentUtils from '@date-io/moment'
+require('moment-timezone')
+
+moment.tz.setDefault('Europe/London')
+
 
 const AdminPanel = ({ snapshotSettings, pointSystem }) => {
     const [snapshotDate, updateSnapshotDate] = useState(null);
@@ -24,20 +30,26 @@ const AdminPanel = ({ snapshotSettings, pointSystem }) => {
 
     return <div>
         <h1>Admin Panel</h1>
-        {snapshotDate ? <MuiPickersUtilsProvider utils={DateFnsUtils}>
+        {snapshotDate ? <MuiPickersUtilsProvider utils={MomentUtils}>
             <KeyboardDateTimePicker
-                format="dd/MM/yyyy @ hh:mm aa"
+                format="LLL"
                 margin="normal"
                 id="set-snapshot-date"
-                label="Set snapshot date" // This is timezone adjusted...
+                label="Set snapshot date (GMT)" // This is timezone adjusted...
                 value={snapshotDate}
                 onChange={handleDateChange}
+                style={{ minWidth: "290px" }}
                 KeyboardButtonProps={{
                     'aria-label': 'change date',
                 }}
             />
         </MuiPickersUtilsProvider> : null}
-        <p>{JSON.stringify(pointSystem)}</p>
+        <div style={{ maxWidth: "600px", margin: "50px auto" }}>
+        <TableDataGrid
+            tabledata={pointSystem}
+            tabletitle="Point System"
+        />
+        </div>
     </div>
 }
 

@@ -64,7 +64,7 @@ const generateServicesProvided = (results) => {
   return jsx
 }
 
-const App = ({ producer, results, products, bizdevs }) => {
+const App = ({ producer, results, pointSystem }) => {
   // Ununused var // const classes = useStyles();
 
   return (
@@ -95,6 +95,7 @@ const App = ({ producer, results, products, bizdevs }) => {
       <h2 style={{ float: 'left', width: '100%', textAlign: 'left' }}>Latest Results</h2>
       <TechresultTables
         results={results}
+        pointSystem={pointSystem}
         description="Wax Mainnet"
       />
       <Link to={`/`}>

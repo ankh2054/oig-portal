@@ -51,9 +51,9 @@ fastify.post('/api/communityUpdate', db.communityUpdate)
 fastify.post('/api/snapshotResultCommentUpdate', db.snapshotResultCommentUpdate)
 // Retrieve momthly updates based on month
 fastify.post('/api/monthlyUpdates/:owner', db.getUpdatesbyOwner)
-// Update snapshot date
+// Update snapshot date and point system
 fastify.post('/api/updateSnapshotDate', db.updateSnapshotDate)
-
+fastify.post('/api/updatePointSystem', db.updatePointSystem)
 
 // Starts the Fastify Server //
 const start = async () => {

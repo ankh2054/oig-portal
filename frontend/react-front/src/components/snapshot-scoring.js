@@ -41,29 +41,28 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const reArrangeTableHeaders = (item) => {
+  // JSON.stringify trick needed to properly exclude name for community & tech updates
+  return JSON.parse(JSON.stringify({
+    guild: item.guild ? item.guild : undefined,
+    name: item.name ? item.name : undefined,
+    comments: item.comments,
+    score: item.score,
+    ...item
+  }))
+}
 
-
-const App = ({ results, producers, products, bizdevs, community, pointSystem }) => {
+const SnapshotScoring = ({ results, producers, products, bizdevs, community }) => {
   const classes = useStyles();
   const [expandedId, setExpandedId] = useState(false);
-
-  const reArrangeItem = (item) => {
-    // JSON.stringify trick needed to properly exclude name for community & tech updates
-    return JSON.parse(JSON.stringify({
-      name: item.name ? item.name : undefined,
-      comments: item.comments,
-      ...item
-    }))
-  }
 
   /** Filters items (products, bizdev, community) by owner */
   function filterByOwner(items, owner) {
     const filteredItems = items.filter((presult) => presult.owner_name === owner);
-    // Any manipulations of initially loaded product data can be done here
-    /* Calculate scores via JS here */
+    // Any manipulations of initially loaded data can be done here
     if (filteredItems.length >= 1) {
       // Place comments second to front for product & bizdev, front for community
-      return filteredItems.map((item) => reArrangeItem(item))
+      return filteredItems.map((item) => reArrangeTableHeaders(item))
     }
     return filteredItems
   }
@@ -114,9 +113,10 @@ const App = ({ results, producers, products, bizdevs, community, pointSystem }) 
   return (
     <Grid container spacing={4}>
       {results.map((result) => {
-        const filteredProducts = filterByOwner(products, result.owner_name);
-        const filteredBizdevs = filterByOwner(bizdevs, result.owner_name);
-        const filteredCommunity = filterByOwner(community, result.owner_name)
+        const filteredProducts = filterByOwner(products, result.owner_name, 'product');
+        const filteredBizdevs = filterByOwner(bizdevs, result.owner_name, 'bizdev');
+        const filteredCommunity = filterByOwner(community, result.owner_name, 'community')
+        // Another 'achievement' multiplier exists.
         return (
           <Grid item key={result.owner_name} xs={12} sm={12} md={12}>
             <Card className={classes.root} variant="outlined">
@@ -184,7 +184,7 @@ const App = ({ results, producers, products, bizdevs, community, pointSystem }) 
                 </CardContent> : null}
                 <CardContent>
                   <TableDataGrid
-                    tabledata={[reArrangeItem(result)]}
+                    tabledata={[reArrangeTableHeaders(result)]}
                     tabletitle="Tech Snapshot"
                   />
                 </CardContent>
@@ -197,4 +197,4 @@ const App = ({ results, producers, products, bizdevs, community, pointSystem }) 
   );
 }
 
-export default App
+export {SnapshotScoring, reArrangeTableHeaders}
