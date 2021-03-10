@@ -213,7 +213,6 @@ const snapshotResultCommentUpdate = (request, reply) => {
     'UPDATE oig.results SET comments=($1) WHERE ctid IN (SELECT ctid FROM oig.results WHERE owner_name=($2) AND date_check > ($3) LIMIT 1 FOR UPDATE)',
     [comments, owner_name, utcDate],
     (error, results) => {
-      console.log(results)
       if (error) {
         throw error
       }
