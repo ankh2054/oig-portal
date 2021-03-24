@@ -1,6 +1,5 @@
 import React from 'react';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
-import { Link } from 'react-router-dom';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -55,6 +54,35 @@ const useStyles = makeStyles((theme) => ({
   },
   table: {
     minWidth: 400,
+    '& th': {
+      padding: '30px 0',
+      textAlign: 'center',
+      border: '1px solid rgba(255,255,255,0.2)',
+      '& span': {
+        transform: 'rotate(315deg)',
+        display: 'inline-block'
+      }
+    },
+    '& td': {
+      padding: '7px 4px',
+      textAlign: 'center',
+      borderLeft: '1px solid rgb(224, 224, 224)',
+    }
+  },
+  ownerName: {
+    borderLeft: 'none',
+    padding: '0 5px',
+    '& a': {
+      textDecoration: 'none',
+      color: '#332b1f',
+      borderRadius: '100px',
+      fontWeight: 'bold',
+      padding: '10px',
+      background: 'linear-gradient(90.08deg, rgb(247, 142, 30), rgb(255, 220, 81) 236.03%)',
+      '&:hover': {
+        background: 'linear-gradient(275.91deg, rgb(247, 142, 30) 8.43%, rgb(255, 220, 81) 174.56%)'
+      }
+    }
   },
   textcolour: {
     color: 'white'
@@ -109,71 +137,69 @@ export default function ResultTables({ results, pointSystem }) {
   const classes = useStyles();
   return (
     <>
-      <TableContainer component={Paper} className={classes.tableroot}>
+      <TableContainer component={Paper} /* className={classes.tableroot} */>
         <Table className={classes.table} aria-label="customized table">
           <TableHead>
             <TableRow>
               <StyledTableCell>owner_name</StyledTableCell>
-              <StyledTableCell align="right">chains_json</StyledTableCell>
-              <StyledTableCell align="right">wax_json</StyledTableCell>
-              <StyledTableCell align="right">api_node</StyledTableCell>
-              <StyledTableCell align="right">seed_node</StyledTableCell>
-              <StyledTableCell align="right">http_check</StyledTableCell>
-              <StyledTableCell align="right">https_check</StyledTableCell>
-              <StyledTableCell align="right">tls_ver</StyledTableCell>
-              <StyledTableCell align="right">http2_check</StyledTableCell>
-              <StyledTableCell align="right">history_v1</StyledTableCell>
-              <StyledTableCell align="right">hyperion_v2</StyledTableCell>
-              <StyledTableCell align="right">cors_check</StyledTableCell>
-              <StyledTableCell align="right">oracle_feed</StyledTableCell>
-              <StyledTableCell align="right">snapshots</StyledTableCell>
-              <StyledTableCell align="right">cpu</StyledTableCell>
-              <StyledTableCell align="right">Score</StyledTableCell>
-              <StyledTableCell align="right">Date</StyledTableCell>
+              <StyledTableCell><span>chains_json</span></StyledTableCell>
+              <StyledTableCell><span>wax_json</span></StyledTableCell>
+              <StyledTableCell><span>api_node</span></StyledTableCell>
+              <StyledTableCell><span>seed_node</span></StyledTableCell>
+              <StyledTableCell><span>http_check</span></StyledTableCell>
+              <StyledTableCell><span>https_check</span></StyledTableCell>
+              <StyledTableCell><span>tls_ver</span></StyledTableCell>
+              <StyledTableCell><span>http2_check</span></StyledTableCell>
+              <StyledTableCell><span>history_v1</span></StyledTableCell>
+              <StyledTableCell><span>hyperion_v2</span></StyledTableCell>
+              <StyledTableCell><span>cors_check</span></StyledTableCell>
+              <StyledTableCell><span>oracle_feed</span></StyledTableCell>
+              <StyledTableCell><span>snapshots</span></StyledTableCell>
+              <StyledTableCell><span>cpu</span></StyledTableCell>
+              <StyledTableCell><span>score</span></StyledTableCell>
+              <StyledTableCell>date (gmt)</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {results.map((result) => (
               <StyledTableRow key={result.Key}>
-                <Link to={`/guilds/${result.owner_name}`}>
-                  <StyledTableCell component="th" scope="row">{result.owner_name}</StyledTableCell>
-                </Link>
-                <StyledTableCell align="right">{iconResult(result.chains_json)}</StyledTableCell>
-                <StyledTableCell align="right">{iconResult(result.wax_json)}</StyledTableCell>
+                <StyledTableCell className={classes.ownerName}><a href={`/guilds/${result.owner_name}`}>{result.owner_name}</a></StyledTableCell>
+                <StyledTableCell>{iconResult(result.chains_json)}</StyledTableCell>
+                <StyledTableCell>{iconResult(result.wax_json)}</StyledTableCell>
                 <HtmlTooltip title={result.api_node_error} aria-label="api_node_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.api_node)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.api_node)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.seed_node_error} aria-label="seed_node_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.seed_node)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.seed_node)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.http_check_error} aria-label="http_check_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.http_check)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.http_check)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.https_check_error} aria-label="https_check_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.https_check)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.https_check)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.https_check_error} aria-label="tls_check_error" placement="top">
-                  <StyledTableCell align="right">{textResult(result.tls_check)}</StyledTableCell>
+                  <StyledTableCell>{textResult(result.tls_check)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.http2_check_error} aria-label="http2_check_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.http2_check)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.http2_check)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.full_history_error} aria-label="full_history_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.full_history)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.full_history)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.full_history_error} aria-label="hyperion_v2_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.hyperion_v2)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.hyperion_v2)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.cors_check_error} aria-label="cors_check_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.cors_check)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.cors_check)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.oracle_feed_error} aria-label="oracle_feed_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.oracle_feed)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.oracle_feed)}</StyledTableCell>
                 </HtmlTooltip>
-                <StyledTableCell align="right">{iconResult(result.snapshots)}</StyledTableCell>
-                <StyledTableCell align="right">{result.cpu_avg}</StyledTableCell>
-                <StyledTableCell align="right">{result.score /* !pointSystem ? result.score : getTechScore(result, pointSystem) */}</StyledTableCell>
-                <StyledTableCell align="right">{datec(result.date_check)}</StyledTableCell>
+                <StyledTableCell>{iconResult(result.snapshots)}</StyledTableCell>
+                <StyledTableCell>{result.cpu_avg}</StyledTableCell>
+                <StyledTableCell>{Math.round(result.score) /* !pointSystem ? result.score : getTechScore(result, pointSystem) */}</StyledTableCell>
+                <StyledTableCell>{datec(result.date_check)}</StyledTableCell>
               </StyledTableRow>
             ))}
           </TableBody>
