@@ -104,7 +104,7 @@ export default function ResultTables({ results, pointSystem }) {
 
   // This function is called like 20 times before any computation!
   // However luckily, 'only' twice after it gets down to rendering.
-  console.log(`tech-tablelist-results loaded. ${!pointSystem ? "pointSystem not found, so we won't be calculating scores" : "pointSystem found, so we will be calculating scores."}`)
+  // console.log(`tech-tablelist-results loaded. ${!pointSystem ? "pointSystem not found, so we won't be calculating scores" : "pointSystem found, so we will be calculating scores."}`)
 
   const classes = useStyles();
   return (

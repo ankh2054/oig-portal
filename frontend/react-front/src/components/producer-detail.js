@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom';
 import TechresultTables from './tech-tablelist-results'
 //import ProdBizdev from './product-bizdev-results'
 import Button from '@material-ui/core/Button';
-import { green, red } from '@material-ui/core/colors';
+import { green, red, grey } from '@material-ui/core/colors';
 import Icon from '@material-ui/core/Icon';
+import CpuStatsGraph from './cpu-stats-graph'
 
 // Ununused var // 
 /* const useStyles = makeStyles((theme) => ({
@@ -43,19 +44,20 @@ const flagMap = {
 }
 
 const generateServicesProvided = (results) => {
+  let latest = results && results[0] ? results[0] : {};
   const services = [
-    ["Hyperion V1", true, null],
-    ["Hyperion V2", true, null],
-    ["API", true, null],
+    ["History V1", latest.hyperion_v2, null],
+    ["Hyperion V2", latest.hyperion_v2, null],
+    ["API", latest.api_node, null],
     ["Missed Blocks (24 hours)", true, null],
-    ["Security", true, 'fa fa-shield-alt']
+    ["Security", latest.tls_check && latest.tls_check !== "false", 'fa fa-shield-alt']
   ]
   const jsx = services.map((item, index) => {
-    const iconColor = item[1] === true ? green[500] : red[500];
+    const iconColor = item[1] === true ? green[500] : item[1] === false ? red[500] : grey[500];
     const serviceName = item[0];
     const iconClass = item[2] ? "fa " + item[2] : "fa fa-check-circle";
 
-    return <li style={{fontSize: '20px'}} key={index}>
+    return <li style={{ fontSize: '20px' }} key={index}>
       <Icon className={iconClass} style={{ color: iconColor }} />&nbsp;
       {serviceName}
     </li>
@@ -86,10 +88,12 @@ const App = ({ producer, results, pointSystem }) => {
         </ul>
       </div>
       {/* CPU graph */}
-      <div style={{ display: 'block', textAlign: 'left', width: '100%', float: 'left', marginBottom: '20px'}}>
-        <div style={{ display: 'inline-block', width: '60%', marginTop: '20px', marginLeft: '5%', minHeight: '100px' }}>
-        <div style={{ display: 'block', width: '100%', minHeight: '200px', border: '1px solid rgba(0, 0, 0, 0.54)'}}></div>
-        <h2 style={{ marginBlockStart: 0, marginBlockEnd: 0, border: '1px solid rgba(0, 0, 0, 0.54)', padding: '5px' }}>CPU stats</h2>
+      <div style={{ display: 'block', textAlign: 'left', width: '100%', float: 'left', marginBottom: '20px' }}>
+        <div style={{ display: 'inline-block', width: '800px', marginTop: '20px', marginLeft: '5%', minHeight: '100px' }}>
+          <div style={{ display: 'block', width: '100%', minHeight: '300px', border: '1px solid rgba(0, 0, 0, 0.54)' }}>
+            <CpuStatsGraph results={results.slice(0,7)} />
+          </div>
+          <h2 style={{ marginBlockStart: 0, marginBlockEnd: 0, border: '1px solid rgba(0, 0, 0, 0.54)', padding: '5px' }}>CPU stats</h2>
         </div>
       </div>
       <h2 style={{ float: 'left', width: '100%', textAlign: 'left' }}>Latest Results</h2>
