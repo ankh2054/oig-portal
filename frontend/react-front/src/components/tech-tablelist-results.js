@@ -13,7 +13,7 @@ import Icon from '@material-ui/core/Icon';
 import datec from '../functions/date'
 import Tooltip from '@material-ui/core/Tooltip';
 import Avatar from '@material-ui/core/Avatar';
-import { getTechScore } from '../functions/scoring'
+// import { getTechScore } from '../functions/scoring'
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -172,7 +172,7 @@ export default function ResultTables({ results, pointSystem }) {
                 </HtmlTooltip>
                 <StyledTableCell align="right">{iconResult(result.snapshots)}</StyledTableCell>
                 <StyledTableCell align="right">{result.cpu_avg}</StyledTableCell>
-                <StyledTableCell align="right">{!pointSystem ? result.score : getTechScore(result, pointSystem)}</StyledTableCell>
+                <StyledTableCell align="right">{result.score /* !pointSystem ? result.score : getTechScore(result, pointSystem) */}</StyledTableCell>
                 <StyledTableCell align="right">{datec(result.date_check)}</StyledTableCell>
               </StyledTableRow>
             ))}

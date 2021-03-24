@@ -14,7 +14,7 @@ import AdminPanel from './components/admin'
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { api_base } from './config'
-import {addScoreToItem} from './functions/scoring'
+// import {addScoreToItem} from './functions/scoring'
 
 //import 'fontsource-roboto';
 import ButtonAppBar from './components/appbar'
@@ -32,18 +32,18 @@ const useStyles = makeStyles((theme) => ({
 
 const App = () => {
   const classes = useStyles();
-  const [rawResults, setRawResults] = useState([])
+  // const [rawResults, setRawResults] = useState([])
   const [results, setResults] = useState([])
   const [producers, setProducers] = useState([])
-  const [rawProducts, setRawProducts] = useState([])
+  // const [rawProducts, setRawProducts] = useState([])
   const [products, setProducts] = useState([])
-  const [rawBizdevs, setRawBizdevs] = useState([])
+  // const [rawBizdevs, setRawBizdevs] = useState([])
   const [bizdevs, setBizdevs] = useState([])
-  const [rawCommunity, setRawCommunity] = useState([])
+  // const [rawCommunity, setRawCommunity] = useState([])
   const [community, setCommunity] = useState([])
-  const [rawLatestResults, setRawLatestResults] = useState([])
+  // const [rawLatestResults, setRawLatestResults] = useState([])
   const [latestresults, setLatestResults] = useState([])
-  const [rawSnapshotLatestResults, setRawSnapshotLatestResults] = useState([])
+  // const [rawSnapshotLatestResults, setRawSnapshotLatestResults] = useState([])
   const [snapshotlatestresults, setSnapshotLatestResults] = useState([])
   const [snapshotSettings, setSnapshotSettings] = useState([])
   const [rawPointSystem, setRawPointSystem] = useState([])
@@ -52,25 +52,31 @@ const App = () => {
   useEffect(() => {
     // Load data and set hooks. A future implementation could use axios.all
     axios.get(api_base + '/api/results').then((response) => {
-      setRawResults(response.data)
+      // setRawResults(response.data)
+      setResults(response.data)
     });
     axios.get(api_base + '/api/producers').then((response) => {
       setProducers(response.data)
     });
     axios.get(api_base + '/api/products').then((response) => {
-      setRawProducts(response.data)
+      // setRawProducts(response.data)
+      setProducts(response.data)
     });
     axios.get(api_base + '/api/bizdevs').then((response) => {
-      setRawBizdevs(response.data)
+      // setRawBizdevs(response.data)
+      setBizdevs(response.data)
     });
     axios.get(api_base + '/api/community').then((response) => {
-      setRawCommunity(response.data)
+      // setRawCommunity(response.data)
+      setCommunity(response.data)
     });
     axios.get(api_base + '/api/latestresults').then((response) => {
-      setRawLatestResults(response.data)
+      // setRawLatestResults(response.data)
+      setLatestResults(response.data)
     });
     axios.get(api_base + '/api/snapshotlatestresults').then((response) => {
-      setRawSnapshotLatestResults(response.data)
+      // setRawSnapshotLatestResults(response.data)
+      setSnapshotLatestResults(response.data)
     });
     axios.get(api_base + '/api/snapshotsettings').then((response) => {
       setSnapshotSettings(response.data)
@@ -87,7 +93,7 @@ const App = () => {
     })
   }, []);
 
-  // Calculate scores if formatted point system exists, and raw data (to be scored) exists
+  /* Calculate scores if formatted point system exists, and raw data (to be scored) exists
   // This gets called twice (as do many functions). it appears to be due to React.StrictMode
   // Fixing this would result in a lot of speed increases, I would guess.
   if (Object.keys(pointSystem).length >= 1) {
@@ -121,7 +127,7 @@ const App = () => {
       const formattedLatestSnapshotResults = rawSnapshotLatestResults.map((item) => addScoreToItem(item, pointSystem));
       setSnapshotLatestResults(formattedLatestSnapshotResults);
     }
-  }
+  }*/
 
   const BPwithownername = () => {
     let params = useParams();
