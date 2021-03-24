@@ -2,7 +2,6 @@ import React from "react";
 import moment from "moment";
 
 import {
-  LineChart,
   AreaChart,
   Area,
   CartesianGrid,
@@ -10,7 +9,6 @@ import {
   YAxis,
   Tooltip,
   Legend,
-  Line,
   ResponsiveContainer
 } from "recharts";
 
