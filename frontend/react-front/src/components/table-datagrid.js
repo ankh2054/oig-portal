@@ -145,11 +145,16 @@ export default function Table({ tabledata, tabletitle }) {
       return (key === "points_type" ? "never" : "always")
     } else {
       // Otherwise for community, product, bizdev, all should be editable except score and name.
-      return (key !== "name" && key !== "score" ? "always" : "never")
+      return (key !== "name" && key !== "score" && key !== "guild" ? "always" : "never")
     }
   }
 
+  const defaultCell = {
+    //whiteSpace: 'nowrap'
+  }
+
   const waxCell = {
+    ...defaultCell,
     color: '#332b1f',
     background: 'linear-gradient(90.08deg, rgb(247, 142, 30), rgb(255, 220, 81) 236.03%)',
   }
@@ -170,8 +175,8 @@ export default function Table({ tabledata, tabletitle }) {
         editable: (isEditable(key, columnObj)),
         // Highlight comments
         cellStyle: key === "comments" ? {
-          backgroundColor: '#ffff44'
-        } : key === 'points_type' ? waxCell : null,
+          ...defaultCell, backgroundColor: '#ffff44'
+        } : key === 'points_type' ? waxCell : defaultCell,
         render: key === "guild" ? rowData => <img src={rowData.guild} alt={rowData.owner_name} style={{ width: 50, borderRadius: '50%' }} /> : undefined
       };
     });
@@ -184,6 +189,7 @@ export default function Table({ tabledata, tabletitle }) {
   return (
     <MaterialTable
       columns={generateColumns()}
+      style={{ margin: '25px 0 50px', maxWidth: '1200px' }}
       options={{
         pageSize: maxLength,
         padding: 'dense'
