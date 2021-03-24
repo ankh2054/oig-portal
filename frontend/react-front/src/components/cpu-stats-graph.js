@@ -3,47 +3,68 @@ import moment from "moment";
 
 import {
   LineChart,
+  AreaChart,
+  Area,
   CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
   Legend,
-  Line
+  Line,
+  ResponsiveContainer
 } from "recharts";
 
 const CpuStatsGraph = ({ results }) => {
-  const data = results.map(result => { return {...result, date_check: moment(result.date_check).format("DD/MM @HH:mm") } })
-  
+  const data = results.map(result => { return { ...result, date_check: moment(result.date_check).format("D/M @H:mm"), cpu_agg_avg: 0.29 + Math.random()/10 } })
+
   return (
     <>
-      <LineChart
-        width={750}
-        height={300}
-        data={data}
-        syncId="cpuGraph"
-        margin={{ top: 25, right: 25, left: 25, bottom: 25 }}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="date_check" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Line type="monotone" dataKey="cpu_time" stroke="blue" />
-      </LineChart>
-      <LineChart
-        width={750}
-        height={300}
-        data={data}
-        syncId="cpuGraph"
-        margin={{ top: 25, right: 25, left: 25, bottom: 25 }}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="date_check" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Line type="monotone" dataKey="cpu_avg" stroke="green" />
-      </LineChart>
+      <ResponsiveContainer aspect={3.5}>
+        <AreaChart
+          data={data}
+          syncId="cpuGraph"
+          margin={{ top: 15, right: 15 }}
+        >
+          <defs>
+            <linearGradient id="colorTime" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#f78e1e" stopOpacity={0.8} />
+              <stop offset="95%" stopColor="#f78e1e" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date_check" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date_check" />
+          <YAxis />
+          <Tooltip />
+          <Area type="monotone" dataKey="cpu_time" stroke="#f78e1e" fillOpacity={1} fill="url(#colorTime)" />
+        </AreaChart>
+      </ResponsiveContainer>
+      <br></br>
+      <ResponsiveContainer aspect={3.5}>
+        <AreaChart data={data} syncId="cpuGraph" margin={{ top: 15, right: 15 }}>
+          <defs>
+            <linearGradient id="colorAvg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#1279FD" stopOpacity={0.8} />
+              <stop offset="95%" stopColor="#1279FD" stopOpacity={0} />
+            </linearGradient>
+            <linearGradient id="colorAggAvg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="green" stopOpacity={0.8} />
+              <stop offset="95%" stopColor="green" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date_check" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Area type="monotone" dataKey="cpu_avg" stroke="#1279FD" fillOpacity={1} fill="url(#colorAvg)" />
+          <Area type="monotone" dataKey="cpu_agg_avg" stroke="green" fillOpacity={1} fill="url(#colorAggAvg)" />
+        </AreaChart>
+      </ResponsiveContainer>
     </>
   );
 }
