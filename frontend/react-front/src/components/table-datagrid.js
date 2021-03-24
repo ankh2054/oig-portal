@@ -149,6 +149,11 @@ export default function Table({ tabledata, tabletitle }) {
     }
   }
 
+  const waxCell = {
+    color: '#332b1f',
+    background: 'linear-gradient(90.08deg, rgb(247, 142, 30), rgb(255, 220, 81) 236.03%)',
+  }
+
   /* This function is called when table state is updated. Ideally it should not be, as columns aren't supposed to change. */
   const generateColumns = () => {
     // Set object from first object in array
@@ -158,6 +163,7 @@ export default function Table({ tabledata, tabletitle }) {
       return {
         title: key,
         field: key,
+        align: 'left',
         // Hide owner_name
         hidden: key === "owner_name",
         // Make certain fields uneditable
@@ -165,7 +171,7 @@ export default function Table({ tabledata, tabletitle }) {
         // Highlight comments
         cellStyle: key === "comments" ? {
           backgroundColor: '#ffff44'
-        } : undefined,
+        } : key === 'points_type' ? waxCell : null,
         render: key === "guild" ? rowData => <img src={rowData.guild} alt={rowData.owner_name} style={{ width: 50, borderRadius: '50%' }} /> : undefined
       };
     });
@@ -173,35 +179,37 @@ export default function Table({ tabledata, tabletitle }) {
     return columnsSetup;
   };
 
+  const maxLength = tableState.length >= 20 ? 20 : tableState.length;
+
   return (
-    <div className="Table" style={{ maxWidth: "100%", width: "100%", marginBottom: "25px" }}>
-      <div style={{ maxWidth: "100%", width: "100%" }}>
-        <MaterialTable
-          columns={generateColumns()}
-          editable={{
-            onRowUpdate: (newRow, oldRow) => {
-              return new Promise((resolve, reject) => {
-                try {
-                  const tableCopy = [...tableState];
-                  const index = oldRow.tableData.id;
-                  tableCopy[index] = newRow;
-                  setTableState(tableCopy);
-                  console.log("Table state updated!");
-                  resolve(newRow);
-                } catch (err) {
-                  // This doesn't do anything and it's uncatched, but should be here so...
-                  reject(err);
-                }
-              }).then((newRow) => {
-                // Update database after state updated. Arguably this should be done the other way around.
-                updateDb(newRow);
-              });
-            },
-          }}
-          data={JSON.parse(JSON.stringify(tableState))} // This is neccessary for some reason. I think it's because material-table doesn't like a mutating state. Oddly, it doesn't matter for the columns above. Perhaps because they don't change?
-          title={tabletitle}
-        />
-      </div>
-    </div>
+    <MaterialTable
+      columns={generateColumns()}
+      options={{
+        pageSize: maxLength,
+        padding: 'dense'
+      }}
+      editable={{
+        onRowUpdate: (newRow, oldRow) => {
+          return new Promise((resolve, reject) => {
+            try {
+              const tableCopy = [...tableState];
+              const index = oldRow.tableData.id;
+              tableCopy[index] = newRow;
+              setTableState(tableCopy);
+              console.log("Table state updated!");
+              resolve(newRow);
+            } catch (err) {
+              // This doesn't do anything and it's uncatched, but should be here so...
+              reject(err);
+            }
+          }).then((newRow) => {
+            // Update database after state updated. Arguably this should be done the other way around.
+            updateDb(newRow);
+          });
+        },
+      }}
+      data={JSON.parse(JSON.stringify(tableState))} // This is neccessary for some reason. I think it's because material-table doesn't like a mutating state. Oddly, it doesn't matter for the columns above. Perhaps because they don't change?
+      title={tabletitle}
+    />
   );
 }

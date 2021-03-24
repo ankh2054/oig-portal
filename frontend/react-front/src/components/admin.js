@@ -28,7 +28,7 @@ const AdminPanel = ({ snapshotSettings, pointSystem }) => {
         updateSnapshotDate(snapshotSettings[0]['snapshot_date'])
     }
 
-    return <div>
+    return <div style={{ maxWidth: "500px", margin: "50px auto", textAlign: 'left' }}>
         <h1>Admin Panel</h1>
         {snapshotDate ? <MuiPickersUtilsProvider utils={MomentUtils}>
             <KeyboardDateTimePicker
@@ -44,12 +44,11 @@ const AdminPanel = ({ snapshotSettings, pointSystem }) => {
                 }}
             />
         </MuiPickersUtilsProvider> : null}
-        <div style={{ maxWidth: "600px", margin: "50px auto" }}>
+        <br></br><br></br>
         <TableDataGrid
             tabledata={pointSystem}
             tabletitle="Point System"
         />
-        </div>
     </div>
 }
 
