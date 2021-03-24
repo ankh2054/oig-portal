@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -12,6 +12,7 @@ import Icon from '@material-ui/core/Icon';
 import datec from '../functions/date'
 import Tooltip from '@material-ui/core/Tooltip';
 import Avatar from '@material-ui/core/Avatar';
+import Button from '@material-ui/core/Button';
 // import { getTechScore } from '../functions/scoring'
 
 const StyledTableCell = withStyles((theme) => ({
@@ -52,6 +53,10 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: 10,
     marginTop: 60
   },
+  pageButton: {
+    display: 'inline-block',
+    margin: '25px 5px'
+  },
   table: {
     minWidth: 400,
     '& th': {
@@ -69,19 +74,22 @@ const useStyles = makeStyles((theme) => ({
       borderLeft: '1px solid rgb(224, 224, 224)',
     }
   },
+  waxButton: {
+    textDecoration: 'none',
+    color: '#332b1f',
+    borderRadius: '100px',
+    fontWeight: 'bold',
+    padding: '15px 20px',
+    background: 'linear-gradient(90.08deg, rgb(247, 142, 30), rgb(255, 220, 81) 236.03%)',
+    '&:hover': {
+      background: 'linear-gradient(275.91deg, rgb(247, 142, 30) 8.43%, rgb(255, 220, 81) 174.56%)'
+    }
+  },
   ownerName: {
     borderLeft: 'none',
     padding: '0 5px',
-    '& a': {
-      textDecoration: 'none',
-      color: '#332b1f',
-      borderRadius: '100px',
-      fontWeight: 'bold',
-      padding: '10px',
-      background: 'linear-gradient(90.08deg, rgb(247, 142, 30), rgb(255, 220, 81) 236.03%)',
-      '&:hover': {
-        background: 'linear-gradient(275.91deg, rgb(247, 142, 30) 8.43%, rgb(255, 220, 81) 174.56%)'
-      }
+    '& a.waxButton': {
+      padding: '10px'
     }
   },
   textcolour: {
@@ -97,10 +105,33 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ResultTables({ results, pointSystem }) {
+export default function ResultTables({ results, pointSystem, hideOwnerName, resultsShown }) {
+  // Basic paginaton frontend setup - 21 results
+  const initialIndex = resultsShown ? resultsShown : 21;
+  const [resultSlice, setResultSlice] = useState(results.slice(0, initialIndex))
+  const [resultIndex, setResultIndex] = useState(initialIndex)
+
+  const changePage = (direction) => {
+    const range = resultSlice.length;
+    const max = results.length - 1;
+    const min = 0;
+    if (direction === "next") {
+      const draftEndSlice = resultIndex + range + 1;
+      const endSlice = draftEndSlice >= max ? max : draftEndSlice;
+      const startSlice = endSlice - range;
+      setResultSlice(results.slice(startSlice, endSlice));
+      setResultIndex(endSlice)
+    }
+    if (direction === "previous") {
+      const previousIndex = resultIndex - range - 1;
+      const endSlice = previousIndex > (min + range) ? previousIndex : min + range;
+      const startSlice = endSlice - range;
+      setResultSlice(results.slice(startSlice, endSlice));
+      setResultIndex(endSlice)
+    }
+  }
 
   const iconResult = (result) => {
-
     return (
       <>
         {result
@@ -141,7 +172,7 @@ export default function ResultTables({ results, pointSystem }) {
         <Table className={classes.table} aria-label="customized table">
           <TableHead>
             <TableRow>
-              <StyledTableCell>owner_name</StyledTableCell>
+              {hideOwnerName === true ? null : <StyledTableCell>owner_name</StyledTableCell>}
               <StyledTableCell><span>chains_json</span></StyledTableCell>
               <StyledTableCell><span>wax_json</span></StyledTableCell>
               <StyledTableCell><span>api_node</span></StyledTableCell>
@@ -161,9 +192,9 @@ export default function ResultTables({ results, pointSystem }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {results.map((result) => (
+            {resultSlice.map((result) => (
               <StyledTableRow key={result.Key}>
-                <StyledTableCell className={classes.ownerName}><a href={`/guilds/${result.owner_name}`}>{result.owner_name}</a></StyledTableCell>
+                {hideOwnerName === true ? null : <StyledTableCell className={classes.ownerName}><a className={classes.waxButton} href={`/guilds/${result.owner_name}`}>{result.owner_name}</a></StyledTableCell>}
                 <StyledTableCell>{iconResult(result.chains_json)}</StyledTableCell>
                 <StyledTableCell>{iconResult(result.wax_json)}</StyledTableCell>
                 <HtmlTooltip title={result.api_node_error} aria-label="api_node_error" placement="top">
@@ -205,6 +236,8 @@ export default function ResultTables({ results, pointSystem }) {
           </TableBody>
         </Table>
       </TableContainer>
+      <Button className={[classes.waxButton, classes.pageButton]} onClick={() => changePage('previous')}>BACK</Button>
+      <Button className={[classes.waxButton, classes.pageButton]} onClick={() => changePage('next')}>FORWARD</Button>
     </>
   );
 }

@@ -1,8 +1,8 @@
 import React from 'react'
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import TechresultTables from './tech-tablelist-results'
-import Button from '@material-ui/core/Button';
+// import Button from '@material-ui/core/Button';
 import { green, red, grey } from '@material-ui/core/colors';
 import Icon from '@material-ui/core/Icon';
 import CpuStatsGraph from './cpu-stats-graph';
@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
       },
     },
     '& h2': {
-      width: '100%', 
+      width: '100%',
       textAlign: 'left'
     },
     width: '100%',
@@ -144,20 +144,22 @@ const App = ({ producer, results, pointSystem }) => {
         </ul>
       </Paper>
       <Paper className={[classes.paper, classes.cpuStatsHolder]} variant="outlined">
-      <h2>CPU stats</h2>
-      <CpuStatsGraph results={results.slice(0, 7)} />
+        <h2>CPU stats</h2>
+        <CpuStatsGraph results={results.slice(0, 7)} />
       </Paper>
       <h2>Latest Results</h2>
       <TechresultTables
         results={results}
         pointSystem={pointSystem}
+        hideOwnerName={true}
+        // resultsShown={10}
         description="Wax Mainnet"
       />
-      <Link to={`/`}>
+      {/* No other page has this and it looks weird with pagination <Link to={`/`}>
         <Button variant="contained" className={classes.backButton} color="primary" >
           Back
         </Button>
-      </Link>
+  </Link> */}
     </div>
   )
 
