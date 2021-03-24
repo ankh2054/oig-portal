@@ -1,4 +1,5 @@
 import React from "react";
+import moment from "moment";
 
 import {
   LineChart,
@@ -11,12 +12,14 @@ import {
 } from "recharts";
 
 const CpuStatsGraph = ({ results }) => {
+  const data = results.map(result => { return {...result, date_check: moment(result.date_check).format("DD/MM @HH:mm") } })
+  
   return (
     <>
       <LineChart
         width={750}
         height={300}
-        data={results}
+        data={data}
         syncId="cpuGraph"
         margin={{ top: 25, right: 25, left: 25, bottom: 25 }}
       >
@@ -30,7 +33,7 @@ const CpuStatsGraph = ({ results }) => {
       <LineChart
         width={750}
         height={300}
-        data={results}
+        data={data}
         syncId="cpuGraph"
         margin={{ top: 25, right: 25, left: 25, bottom: 25 }}
       >
