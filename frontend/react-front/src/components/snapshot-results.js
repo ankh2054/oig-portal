@@ -5,7 +5,7 @@ import {SnapshotScoring} from './snapshot-scoring'
 import IntegratedScores from './integrated-snapshot-scores'
 
 
-const App = ({ results, producers, products, bizdevs, community, snapresults, pointSystem }) => {
+const App = ({ /*results, */ producers, products, bizdevs, community, snapresults, pointSystem }) => {
   const [viewType, setViewType] = useState('integrated')
 
   const lastfetched = !!snapresults && !!snapresults[0] && !!snapresults[0].snapshot_date ? moment(snapresults[0].snapshot_date).fromNow() : 'never';

@@ -161,7 +161,7 @@ const App = () => {
 
                     />} exact />
                     <Route exact path="/snapshot" component={() => <SnapshotResults
-                      results={latestresults}
+                      /*results={latestresults}*/
                       producers={producers}
                       products={products}
                       bizdevs={bizdevs}
