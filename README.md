@@ -54,3 +54,6 @@ Opening the product table for a BP in snapshot editor results in:
 ````
 Warning: findDOMNode is deprecated in StrictMode. findDOMNode was passed an instance of Transition which is inside StrictMode. 
 ```
+
+### Future proofing / refactoring ideas
+Replace moment.js with Luxon or a similarly maintained, lighter framework

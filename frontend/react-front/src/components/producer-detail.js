@@ -1,25 +1,84 @@
 import React from 'react'
-import { Link } from 'react-router-dom';
-// Ununused var // import { makeStyles } from '@material-ui/core/styles';
+// import { Link } from 'react-router-dom';
+import { makeStyles } from '@material-ui/core/styles';
 import TechresultTables from './tech-tablelist-results'
-//import ProdBizdev from './product-bizdev-results'
-import Button from '@material-ui/core/Button';
-import { green, red } from '@material-ui/core/colors';
+// import Button from '@material-ui/core/Button';
+import { green, red, grey } from '@material-ui/core/colors';
 import Icon from '@material-ui/core/Icon';
+import CpuStatsGraph from './cpu-stats-graph';
+import Paper from '@material-ui/core/Paper';
 
-// Ununused var // 
-/* const useStyles = makeStyles((theme) => ({
+
+const useStyles = makeStyles((theme) => ({
   root: {
-    
+    '& h1': {
+      width: '100%',
+      ' & small': {
+        fontFamily: 'monospace',
+        display: 'block'
+      },
+    },
+    '& h2': {
+      width: '100%',
+      textAlign: 'left'
+    },
+    width: '100%',
+    maxWidth: '800px',
+    margin: '0 auto 50px'
   },
-  media: {
-    height: 0,
-    paddingTop: '56.25%', // 16:9
+  paper: {
+    display: 'inline-block',
+    padding: '0 15px',
+    '& h2': {
+      marginBlockStart: 0,
+      marginBlockEnd: '15px',
+      color: theme.palette.text.secondary
+    },
   },
-  left: {
-    marginLeft: 'auto',
+  logoAndFlag: {
+    float: 'left',
+    textAlign: 'center',
+    //marginLeft: '21%',
+    //marginRight: '25px'
   },
-})); */
+  guildLogo: {
+    display: 'inline-block',
+    width: '100%',
+    maxWidth: '90px',
+    paddingTop: '15px'
+  },
+  flagIcon: {
+    color: 'black',
+    display: 'inline-block',
+    fontSize: '70px',
+    width: '100px'
+  },
+  servicesProvided: {
+    display: 'inline-block',
+    textAlign: 'left',
+    width: 'calc( 100% - 100px - 60px)',
+    float: 'right',
+    padding: '15px 40px',
+    '& ul': {
+      width: '100%',
+      listStyleType: 'none',
+      padding: 0,
+      margin: 0,
+      '& li': {
+        fontSize: '20px'
+      }
+    },
+  },
+  cpuStatsHolder: {
+    textAlign: 'left',
+    width: '100%',
+    padding: '25px',
+    margin: '25px 0'
+  },
+  backButton: {
+    margin: '25px auto'
+  }
+}));
 
 const flagMap = {
   "AE": "🇦🇪",
@@ -43,19 +102,20 @@ const flagMap = {
 }
 
 const generateServicesProvided = (results) => {
+  let latest = results && results[0] ? results[0] : {};
   const services = [
-    ["Hyperion V1", true, null],
-    ["Hyperion V2", true, null],
-    ["API", true, null],
-    ["Missed Blocks (24 hours)", true, null],
-    ["Security", true, 'fa fa-shield-alt']
+    ["History V1", latest.hyperion_v2, null],
+    ["Hyperion V2", latest.hyperion_v2, null],
+    ["API", latest.api_node, null],
+    ["Missed Blocks (24 hours)", null, null],
+    ["Security", latest.tls_check && latest.tls_check !== "false", 'fa fa-shield-alt']
   ]
   const jsx = services.map((item, index) => {
-    const iconColor = item[1] === true ? green[500] : red[500];
+    const iconColor = item[1] === true ? green[500] : item[1] === false ? red[500] : grey[500];
     const serviceName = item[0];
     const iconClass = item[2] ? "fa " + item[2] : "fa fa-check-circle";
 
-    return <li style={{fontSize: '20px'}} key={index}>
+    return <li key={index}>
       <Icon className={iconClass} style={{ color: iconColor }} />&nbsp;
       {serviceName}
     </li>
@@ -65,44 +125,41 @@ const generateServicesProvided = (results) => {
 }
 
 const App = ({ producer, results, pointSystem }) => {
-  // Ununused var // const classes = useStyles();
+  const classes = useStyles();
 
   return (
-    <div>
-      {producer ? <h1 style={{ width: '100%' }}>{producer.candidate} <small style={{ fontFamily: 'monospace', display: 'block' }}>{producer.owner_name}</small></h1> : null}
-      {/* BP Logo and flag */}
-      <div style={{ display: 'inline-block', textAlign: 'center', float: 'left', width: '20%', marginLeft: '5%', minHeight: '100px' }}>
-        {producer ? <img alt={producer.candidate + " logo"} style={{ display: 'inline-block', width: '100%', maxWidth: '90px' }} src={producer.logo_svg} /> : null}
+    <div className={classes.root}>
+      {producer ? <h1>{producer.candidate} <small>{producer.owner_name}</small></h1> : null}
+      <Paper className={[classes.paper, classes.logoAndFlag]} variant="outlined">
+        {producer ? <img alt={producer.candidate + " logo"} className={classes.guildLogo} src={producer.logo_svg} /> : null}
         <br />
-        {producer && flagMap[producer.country_code] ? <span style={{ color: 'black', display: 'inline-block', fontSize: '70px', width: '100px' }}>
+        {producer && flagMap[producer.country_code] ? <span className={classes.flagIcon}>
           {flagMap[producer.country_code]}
         </span> : null}
-      </div>
-      {/* Services provided */}
-      <div style={{ display: 'inline-block', textAlign: 'left', float: 'right', width: '60%', marginRight: '5%', minHeight: '100px' }}>
-        <h2 style={{ marginBlockStart: 0, marginBlockEnd: '15px', border: '1px solid rgba(0, 0, 0, 0.54)', padding: '5px' }}>Services Provided</h2>
-        <ul style={{ width: '100%', listStyleType: 'none', 'padding': 0, margin: 0 }}>
+      </Paper>
+      <Paper className={[classes.paper, classes.servicesProvided]} variant="outlined">
+        <h2>Services Provided</h2>
+        <ul>
           {generateServicesProvided(results)}
         </ul>
-      </div>
-      {/* CPU graph */}
-      <div style={{ display: 'block', textAlign: 'left', width: '100%', float: 'left', marginBottom: '20px'}}>
-        <div style={{ display: 'inline-block', width: '60%', marginTop: '20px', marginLeft: '5%', minHeight: '100px' }}>
-        <div style={{ display: 'block', width: '100%', minHeight: '200px', border: '1px solid rgba(0, 0, 0, 0.54)'}}></div>
-        <h2 style={{ marginBlockStart: 0, marginBlockEnd: 0, border: '1px solid rgba(0, 0, 0, 0.54)', padding: '5px' }}>CPU stats</h2>
-        </div>
-      </div>
-      <h2 style={{ float: 'left', width: '100%', textAlign: 'left' }}>Latest Results</h2>
+      </Paper>
+      <Paper className={[classes.paper, classes.cpuStatsHolder]} variant="outlined">
+        <h2>CPU stats</h2>
+        <CpuStatsGraph results={results.slice(0, 7)} />
+      </Paper>
+      <h2>Latest Results</h2>
       <TechresultTables
         results={results}
         pointSystem={pointSystem}
+        hideOwnerName={true}
+        // resultsShown={10}
         description="Wax Mainnet"
       />
-      <Link to={`/`}>
-        <Button variant="contained" color="primary" >
+      {/* No other page has this and it looks weird with pagination <Link to={`/`}>
+        <Button variant="contained" className={classes.backButton} color="primary" >
           Back
         </Button>
-      </Link>
+  </Link> */}
     </div>
   )
 

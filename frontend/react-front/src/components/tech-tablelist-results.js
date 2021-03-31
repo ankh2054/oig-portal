@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
-import { Link } from 'react-router-dom';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -13,7 +12,8 @@ import Icon from '@material-ui/core/Icon';
 import datec from '../functions/date'
 import Tooltip from '@material-ui/core/Tooltip';
 import Avatar from '@material-ui/core/Avatar';
-import { getTechScore } from '../functions/scoring'
+import Button from '@material-ui/core/Button';
+// import { getTechScore } from '../functions/scoring'
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -53,8 +53,44 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: 10,
     marginTop: 60
   },
+  pageButton: {
+    display: 'inline-block',
+    margin: '25px 5px'
+  },
   table: {
     minWidth: 400,
+    '& th': {
+      padding: '30px 0',
+      textAlign: 'center',
+      border: '1px solid rgba(255,255,255,0.2)',
+      '& span': {
+        transform: 'rotate(315deg)',
+        display: 'inline-block'
+      }
+    },
+    '& td': {
+      padding: '7px 4px',
+      textAlign: 'center',
+      borderLeft: '1px solid rgb(224, 224, 224)',
+    }
+  },
+  waxButton: {
+    textDecoration: 'none',
+    color: '#332b1f',
+    borderRadius: '100px',
+    fontWeight: 'bold',
+    padding: '15px 20px',
+    background: 'linear-gradient(90.08deg, rgb(247, 142, 30), rgb(255, 220, 81) 236.03%)',
+    '&:hover': {
+      background: 'linear-gradient(275.91deg, rgb(247, 142, 30) 8.43%, rgb(255, 220, 81) 174.56%)'
+    }
+  },
+  ownerName: {
+    borderLeft: 'none',
+    padding: '0 5px',
+    '& a.waxButton': {
+      padding: '10px'
+    }
   },
   textcolour: {
     color: 'white'
@@ -69,10 +105,33 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ResultTables({ results, pointSystem }) {
+export default function ResultTables({ results, pointSystem, hideOwnerName, resultsShown }) {
+  // Basic paginaton frontend setup - 21 results
+  const initialIndex = resultsShown ? resultsShown : 21;
+  const [resultSlice, setResultSlice] = useState(results.slice(0, initialIndex))
+  const [resultIndex, setResultIndex] = useState(initialIndex)
+
+  const changePage = (direction) => {
+    const range = resultSlice.length;
+    const max = results.length - 1;
+    const min = 0;
+    if (direction === "next") {
+      const draftEndSlice = resultIndex + range + 1;
+      const endSlice = draftEndSlice >= max ? max : draftEndSlice;
+      const startSlice = endSlice - range;
+      setResultSlice(results.slice(startSlice, endSlice));
+      setResultIndex(endSlice)
+    }
+    if (direction === "previous") {
+      const previousIndex = resultIndex - range - 1;
+      const endSlice = previousIndex > (min + range) ? previousIndex : min + range;
+      const startSlice = endSlice - range;
+      setResultSlice(results.slice(startSlice, endSlice));
+      setResultIndex(endSlice)
+    }
+  }
 
   const iconResult = (result) => {
-
     return (
       <>
         {result
@@ -104,81 +163,81 @@ export default function ResultTables({ results, pointSystem }) {
 
   // This function is called like 20 times before any computation!
   // However luckily, 'only' twice after it gets down to rendering.
-  console.log(`tech-tablelist-results loaded. ${!pointSystem ? "pointSystem not found, so we won't be calculating scores" : "pointSystem found, so we will be calculating scores."}`)
+  // console.log(`tech-tablelist-results loaded. ${!pointSystem ? "pointSystem not found, so we won't be calculating scores" : "pointSystem found, so we will be calculating scores."}`)
 
   const classes = useStyles();
   return (
     <>
-      <TableContainer component={Paper} className={classes.tableroot}>
+      <TableContainer component={Paper} /* className={classes.tableroot} */>
         <Table className={classes.table} aria-label="customized table">
           <TableHead>
             <TableRow>
-              <StyledTableCell>owner_name</StyledTableCell>
-              <StyledTableCell align="right">chains_json</StyledTableCell>
-              <StyledTableCell align="right">wax_json</StyledTableCell>
-              <StyledTableCell align="right">api_node</StyledTableCell>
-              <StyledTableCell align="right">seed_node</StyledTableCell>
-              <StyledTableCell align="right">http_check</StyledTableCell>
-              <StyledTableCell align="right">https_check</StyledTableCell>
-              <StyledTableCell align="right">tls_ver</StyledTableCell>
-              <StyledTableCell align="right">http2_check</StyledTableCell>
-              <StyledTableCell align="right">history_v1</StyledTableCell>
-              <StyledTableCell align="right">hyperion_v2</StyledTableCell>
-              <StyledTableCell align="right">cors_check</StyledTableCell>
-              <StyledTableCell align="right">oracle_feed</StyledTableCell>
-              <StyledTableCell align="right">snapshots</StyledTableCell>
-              <StyledTableCell align="right">cpu</StyledTableCell>
-              <StyledTableCell align="right">Score</StyledTableCell>
-              <StyledTableCell align="right">Date</StyledTableCell>
+              {hideOwnerName === true ? null : <StyledTableCell>owner_name</StyledTableCell>}
+              <StyledTableCell><span>chains_json</span></StyledTableCell>
+              <StyledTableCell><span>wax_json</span></StyledTableCell>
+              <StyledTableCell><span>api_node</span></StyledTableCell>
+              <StyledTableCell><span>seed_node</span></StyledTableCell>
+              <StyledTableCell><span>http_check</span></StyledTableCell>
+              <StyledTableCell><span>https_check</span></StyledTableCell>
+              <StyledTableCell><span>tls_ver</span></StyledTableCell>
+              <StyledTableCell><span>http2_check</span></StyledTableCell>
+              <StyledTableCell><span>history_v1</span></StyledTableCell>
+              <StyledTableCell><span>hyperion_v2</span></StyledTableCell>
+              <StyledTableCell><span>cors_check</span></StyledTableCell>
+              <StyledTableCell><span>oracle_feed</span></StyledTableCell>
+              <StyledTableCell><span>snapshots</span></StyledTableCell>
+              <StyledTableCell><span>cpu</span></StyledTableCell>
+              <StyledTableCell><span>score</span></StyledTableCell>
+              <StyledTableCell>date (gmt)</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {results.map((result) => (
+            {resultSlice.map((result) => (
               <StyledTableRow key={result.Key}>
-                <Link to={`/guilds/${result.owner_name}`}>
-                  <StyledTableCell component="th" scope="row">{result.owner_name}</StyledTableCell>
-                </Link>
-                <StyledTableCell align="right">{iconResult(result.chains_json)}</StyledTableCell>
-                <StyledTableCell align="right">{iconResult(result.wax_json)}</StyledTableCell>
+                {hideOwnerName === true ? null : <StyledTableCell className={classes.ownerName}><a className={classes.waxButton} href={`/guilds/${result.owner_name}`}>{result.owner_name}</a></StyledTableCell>}
+                <StyledTableCell>{iconResult(result.chains_json)}</StyledTableCell>
+                <StyledTableCell>{iconResult(result.wax_json)}</StyledTableCell>
                 <HtmlTooltip title={result.api_node_error} aria-label="api_node_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.api_node)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.api_node)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.seed_node_error} aria-label="seed_node_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.seed_node)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.seed_node)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.http_check_error} aria-label="http_check_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.http_check)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.http_check)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.https_check_error} aria-label="https_check_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.https_check)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.https_check)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.https_check_error} aria-label="tls_check_error" placement="top">
-                  <StyledTableCell align="right">{textResult(result.tls_check)}</StyledTableCell>
+                  <StyledTableCell>{textResult(result.tls_check)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.http2_check_error} aria-label="http2_check_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.http2_check)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.http2_check)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.full_history_error} aria-label="full_history_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.full_history)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.full_history)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.full_history_error} aria-label="hyperion_v2_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.hyperion_v2)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.hyperion_v2)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.cors_check_error} aria-label="cors_check_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.cors_check)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.cors_check)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.oracle_feed_error} aria-label="oracle_feed_error" placement="top">
-                  <StyledTableCell align="right">{iconResult(result.oracle_feed)}</StyledTableCell>
+                  <StyledTableCell>{iconResult(result.oracle_feed)}</StyledTableCell>
                 </HtmlTooltip>
-                <StyledTableCell align="right">{iconResult(result.snapshots)}</StyledTableCell>
-                <StyledTableCell align="right">{result.cpu_avg}</StyledTableCell>
-                <StyledTableCell align="right">{!pointSystem ? result.score : getTechScore(result, pointSystem)}</StyledTableCell>
-                <StyledTableCell align="right">{datec(result.date_check)}</StyledTableCell>
+                <StyledTableCell>{iconResult(result.snapshots)}</StyledTableCell>
+                <StyledTableCell>{result.cpu_avg}</StyledTableCell>
+                <StyledTableCell>{Math.round(result.score) /* !pointSystem ? result.score : getTechScore(result, pointSystem) */}</StyledTableCell>
+                <StyledTableCell>{datec(result.date_check)}</StyledTableCell>
               </StyledTableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+      <Button className={[classes.waxButton, classes.pageButton]} onClick={() => changePage('previous')}>BACK</Button>
+      <Button className={[classes.waxButton, classes.pageButton]} onClick={() => changePage('next')}>FORWARD</Button>
     </>
   );
 }
