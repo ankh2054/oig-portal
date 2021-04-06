@@ -5,7 +5,7 @@ const datec = (date) => {
     var e = c.toLocaleTimeString();
     var d = c.toLocaleDateString();
     var finaldate = d + " @ " + e */
-    return moment().format(`DD/MM/YY[@]H:mm`)
+    return moment(date).format(`DD/MM/YY[@]H:mm`)
     // ${'\u00A0'} must be used because nbsp doesn't work
   }
 

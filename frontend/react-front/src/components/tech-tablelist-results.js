@@ -105,27 +105,46 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ResultTables({ results, pointSystem, hideOwnerName, resultsShown }) {
+export default function ResultTables({ passedResults, hideOwnerName, loadMoreResults }) {
   // Basic paginaton frontend setup - 21 results
-  const initialIndex = resultsShown ? resultsShown : 21;
-  const [resultSlice, setResultSlice] = useState(results.slice(0, initialIndex))
+  const initialIndex = 21;
+  const [results, setResults] = useState(passedResults);
+  const [resultSlice, setResultSlice] = useState(passedResults.slice(0, initialIndex))
   const [resultIndex, setResultIndex] = useState(initialIndex)
+  const [fetchForwardLimit, setFetchForwardLimit] = useState(false)
 
-  const changePage = (direction) => {
-    const range = resultSlice.length;
-    const max = results.length - 1;
+  const getMax = (passedResults) => {
+    const rows = passedResults ? passedResults : results;
+    return rows.length - 1;
+  }
+
+  const changePage = async (direction) => {
     const min = 0;
+    let max = getMax();
     if (direction === "next") {
-      const draftEndSlice = resultIndex + range + 1;
-      const endSlice = draftEndSlice >= max ? max : draftEndSlice;
-      const startSlice = endSlice - range;
-      setResultSlice(results.slice(startSlice, endSlice));
+      let rows = results;
+      const draftEndSlice = resultIndex + initialIndex - 1; // 21-1 initially. Then 42-1, and 63-1
+      let endSlice = draftEndSlice >= max ? max : draftEndSlice; // set end slice to (20+21) - row 42, (41+21) - row 63, or (62+21) - row 84 - if it exceeds the loaded max (41) - row 42 use that instead
+      if (draftEndSlice >= (max+1) && !fetchForwardLimit) { // X >= 42 (row 43) initially
+        const index = endSlice + 1; // 41+1 (row 43)
+        const limit = draftEndSlice; // 63-1 on third press (row 63)
+        rows = await loadMoreResults(index, limit); // index 42-62 (row 43-64) should be now appended
+        max = getMax(rows) // new max of index 63 (row 64) should be returned
+        setResults(rows)
+        endSlice = draftEndSlice >= max ? max : draftEndSlice; // new end slice should be set to either the new max (62 - r63) or the draft end slice (63-1 - r63)
+        if (draftEndSlice >= max) {
+          console.log("Pagination limit reached...")
+          setFetchForwardLimit(true)
+        }
+      }
+      const startSlice = endSlice - initialIndex + 1; // (20+21) - 21 = 20+1 (r22) (41+21) - 21 = 41+1 (r43)
+      setResultSlice(rows.slice(startSlice, endSlice + 1)); // 22 - 42
       setResultIndex(endSlice)
     }
     if (direction === "previous") {
-      const previousIndex = resultIndex - range - 1;
-      const endSlice = previousIndex > (min + range) ? previousIndex : min + range;
-      const startSlice = endSlice - range;
+      const previousIndex = resultIndex - initialIndex - 1;
+      const endSlice = previousIndex > (min + initialIndex) ? previousIndex : min + initialIndex;
+      const startSlice = endSlice - initialIndex;
       setResultSlice(results.slice(startSlice, endSlice));
       setResultIndex(endSlice)
     }
@@ -173,6 +192,7 @@ export default function ResultTables({ results, pointSystem, hideOwnerName, resu
           <TableHead>
             <TableRow>
               {hideOwnerName === true ? null : <StyledTableCell>owner_name</StyledTableCell>}
+              <StyledTableCell><span>rownum</span></StyledTableCell>
               <StyledTableCell><span>chains_json</span></StyledTableCell>
               <StyledTableCell><span>wax_json</span></StyledTableCell>
               <StyledTableCell><span>api_node</span></StyledTableCell>
@@ -195,6 +215,7 @@ export default function ResultTables({ results, pointSystem, hideOwnerName, resu
             {resultSlice.map((result) => (
               <StyledTableRow key={result.Key}>
                 {hideOwnerName === true ? null : <StyledTableCell className={classes.ownerName}><a className={classes.waxButton} href={`/guilds/${result.owner_name}`}>{result.owner_name}</a></StyledTableCell>}
+                <StyledTableCell>{result.rownum}</StyledTableCell>
                 <StyledTableCell>{iconResult(result.chains_json)}</StyledTableCell>
                 <StyledTableCell>{iconResult(result.wax_json)}</StyledTableCell>
                 <HtmlTooltip title={result.api_node_error} aria-label="api_node_error" placement="top">

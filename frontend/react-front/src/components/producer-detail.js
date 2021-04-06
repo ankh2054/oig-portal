@@ -1,8 +1,8 @@
-import React from 'react'
-// import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+import { api_base } from '../config'
 import { makeStyles } from '@material-ui/core/styles';
 import TechresultTables from './tech-tablelist-results'
-// import Button from '@material-ui/core/Button';
 import { green, red, grey } from '@material-ui/core/colors';
 import Icon from '@material-ui/core/Icon';
 import CpuStatsGraph from './cpu-stats-graph';
@@ -124,8 +124,33 @@ const generateServicesProvided = (results) => {
   return jsx
 }
 
-const App = ({ producer, results, pointSystem }) => {
+const App = ({ producer }) => {
   const classes = useStyles();
+  const [results, setResults] = useState([]);
+
+  const preload = 42; // Number of results to preload (21 for 1 page, 42 for 2)
+
+  useEffect(() => {
+    if (producer) {
+      axios.get(api_base + `/api/paginatedresults/${producer.owner_name}?index=0&limit=${preload-1}`).then((response) => {
+        console.log(response.data)
+        setResults(response.data)
+      })
+    }
+  }, [producer]);
+
+
+  const loadMoreResults = async (index, limit) => {
+    if (!index || !limit) {
+      return results
+    }
+    console.log(index,limit)
+    const paginatedResults = await axios.get(api_base + `/api/paginatedresults/${producer.owner_name}?index=${index}&limit=${limit}`);
+    const newResults = [...results, ...paginatedResults.data];
+    console.log(newResults)
+    setResults(newResults);
+    return newResults;
+  }
 
   return (
     <div className={classes.root}>
@@ -148,18 +173,11 @@ const App = ({ producer, results, pointSystem }) => {
         <CpuStatsGraph results={results.slice(0, 7)} />
       </Paper>
       <h2>Latest Results</h2>
-      <TechresultTables
-        results={results}
-        pointSystem={pointSystem}
+      {results.length >= 1 ? <TechresultTables
+        passedResults={results}
         hideOwnerName={true}
-        // resultsShown={10}
-        description="Wax Mainnet"
-      />
-      {/* No other page has this and it looks weird with pagination <Link to={`/`}>
-        <Button variant="contained" className={classes.backButton} color="primary" >
-          Back
-        </Button>
-  </Link> */}
+        loadMoreResults={loadMoreResults}
+      /> : null}
     </div>
   )
 
