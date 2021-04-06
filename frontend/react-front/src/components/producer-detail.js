@@ -133,7 +133,6 @@ const App = ({ producer }) => {
   useEffect(() => {
     if (producer) {
       axios.get(api_base + `/api/paginatedresults/${producer.owner_name}?index=0&limit=${preload-1}`).then((response) => {
-        console.log(response.data)
         setResults(response.data)
       })
     }
@@ -144,10 +143,8 @@ const App = ({ producer }) => {
     if (!index || !limit) {
       return results
     }
-    console.log(index,limit)
     const paginatedResults = await axios.get(api_base + `/api/paginatedresults/${producer.owner_name}?index=${index}&limit=${limit}`);
     const newResults = [...results, ...paginatedResults.data];
-    console.log(newResults)
     setResults(newResults);
     return newResults;
   }
