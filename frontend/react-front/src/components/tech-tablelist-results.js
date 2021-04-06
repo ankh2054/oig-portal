@@ -111,7 +111,7 @@ export default function ResultTables({ passedResults, hideOwnerName, loadMoreRes
   const [results, setResults] = useState(passedResults);
   const [resultSlice, setResultSlice] = useState(passedResults.slice(0, initialIndex))
   const [resultIndex, setResultIndex] = useState(initialIndex)
-  const [fetchForwardLimit, setFetchForwardLimit] = useState(false)
+  const [fetchForwardLimit, setFetchForwardLimit] = useState(!hideOwnerName)
 
   const getMax = (passedResults) => {
     const rows = passedResults ? passedResults : results;
