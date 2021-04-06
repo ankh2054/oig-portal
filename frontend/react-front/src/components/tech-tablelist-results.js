@@ -192,7 +192,6 @@ export default function ResultTables({ passedResults, hideOwnerName, loadMoreRes
           <TableHead>
             <TableRow>
               {hideOwnerName === true ? null : <StyledTableCell>owner_name</StyledTableCell>}
-              <StyledTableCell><span>rownum</span></StyledTableCell>
               <StyledTableCell><span>chains_json</span></StyledTableCell>
               <StyledTableCell><span>wax_json</span></StyledTableCell>
               <StyledTableCell><span>api_node</span></StyledTableCell>
@@ -215,7 +214,6 @@ export default function ResultTables({ passedResults, hideOwnerName, loadMoreRes
             {resultSlice.map((result) => (
               <StyledTableRow key={result.Key}>
                 {hideOwnerName === true ? null : <StyledTableCell className={classes.ownerName}><a className={classes.waxButton} href={`/guilds/${result.owner_name}`}>{result.owner_name}</a></StyledTableCell>}
-                <StyledTableCell>{result.rownum}</StyledTableCell>
                 <StyledTableCell>{iconResult(result.chains_json)}</StyledTableCell>
                 <StyledTableCell>{iconResult(result.wax_json)}</StyledTableCell>
                 <HtmlTooltip title={result.api_node_error} aria-label="api_node_error" placement="top">
