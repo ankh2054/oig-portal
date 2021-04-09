@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import { MuiPickersUtilsProvider, KeyboardDateTimePicker } from '@material-ui/pickers';
 import { api_base } from "../config";
 import axios from "axios";
@@ -9,8 +10,17 @@ require('moment-timezone')
 
 moment.tz.setDefault('Europe/London')
 
+const useStyles = makeStyles((theme) => ({
+    root: {
+        maxWidth: "500px", margin: "50px auto", textAlign: 'left'
+    },
+    datePicker: {
+        minWidth: "290px"
+    }
+}))
 
 const AdminPanel = ({ snapshotSettings, pointSystem }) => {
+    const classes = useStyles();
     const [snapshotDate, updateSnapshotDate] = useState(null);
 
     const handleDateChange = (dateChange) => {
@@ -28,7 +38,7 @@ const AdminPanel = ({ snapshotSettings, pointSystem }) => {
         updateSnapshotDate(snapshotSettings[0]['snapshot_date'])
     }
 
-    return <div style={{ maxWidth: "500px", margin: "50px auto", textAlign: 'left' }}>
+    return <div className={classes.root}>
         <h1>Admin Panel</h1>
         {snapshotDate ? <MuiPickersUtilsProvider utils={MomentUtils}>
             <KeyboardDateTimePicker
@@ -38,7 +48,7 @@ const AdminPanel = ({ snapshotSettings, pointSystem }) => {
                 label="Set snapshot date (GMT)" // This is timezone adjusted...
                 value={snapshotDate}
                 onChange={handleDateChange}
-                style={{ minWidth: "290px" }}
+                className={classes.datePicker}
                 KeyboardButtonProps={{
                     'aria-label': 'change date',
                 }}

@@ -118,7 +118,7 @@ const App = ({ results, producers, products, bizdevs, community }) => {
       return (
         <Tooltip title={"TLS " + result.slice(4, 7)} aria-label={result.slice(4, 7)} placement="top">
           <IconButton>
-            <HttpsIcon style={{ color: green[500] }} />
+            <HttpsIcon /* Smart use of `style` */ style={{ color: green[500] }} />
           </IconButton>
         </Tooltip>
 
@@ -128,7 +128,7 @@ const App = ({ results, producers, products, bizdevs, community }) => {
       return (
         <Tooltip title={"TLS " + result.slice(4, 7)} aria-label={result.slice(4, 7)} placement="top">
           <IconButton>
-            <HttpsIcon style={{ color: green[500] }} />
+            <HttpsIcon /* Smart use of `style` */ style={{ color: green[500] }} />
           </IconButton>
         </Tooltip>
 
@@ -137,7 +137,7 @@ const App = ({ results, producers, products, bizdevs, community }) => {
       return (
         <Tooltip title={"TLS " + result.slice(4, 7)} aria-label={result.slice(4, 7)} placement="top">
           <IconButton>
-            <HttpsIcon style={{ color: red[500] }} />
+            <HttpsIcon /* Smart use of `style` */ style={{ color: red[500] }} />
           </IconButton>
         </Tooltip>
       );
@@ -157,12 +157,12 @@ const App = ({ results, producers, products, bizdevs, community }) => {
           //  : <Avatar className={classes.red}>SB</Avatar>
           ? <Tooltip title="top21" aria-label="top21" placement="top">
             <IconButton>
-              <FavoriteIcon style={{ color: green[500] }} />
+              <FavoriteIcon /* Smart use of `style` */ style={{ color: green[500] }} />
             </IconButton>
           </Tooltip>
           : <Tooltip title="standby" aria-label="standby" placement="top">
             <IconButton>
-              <FavoriteIcon style={{ color: red[500] }} />
+              <FavoriteIcon /* Smart use of `style` */ style={{ color: red[500] }} />
             </IconButton>
           </Tooltip>
         }

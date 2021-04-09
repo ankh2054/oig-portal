@@ -1,9 +1,17 @@
 import React, { useState } from "react";
 import MaterialTable from "material-table";
+import { makeStyles } from '@material-ui/core/styles';
 import { api_base } from "../config";
 import axios from "axios";
 
+const useStyles = makeStyles((theme) => ({
+  materialTable: {
+    margin: '25px 0 50px', maxWidth: '1200px'
+  }
+}))
+
 export default function Table({ tabledata, tabletitle }) {
+  const classes = useStyles();
   const [tableState, setTableState] = useState(tabledata);
 
   // Update row in database - now generic
@@ -177,7 +185,7 @@ export default function Table({ tabledata, tabletitle }) {
         cellStyle: key === "comments" ? {
           ...defaultCell, backgroundColor: '#ffffed'
         } : key === 'points_type' ? waxCell : defaultCell,
-        render: key === "guild" ? rowData => <a href={'/guilds/' + rowData.owner_name} alt={rowData.owner_name}><img src={rowData.guild} alt={rowData.owner_name} style={{ width: 50, borderRadius: '50%' }} /></a> : undefined
+        render: key === "guild" ? rowData => <a href={'/guilds/' + rowData.owner_name} alt={rowData.owner_name}><img src={rowData.guild} alt={rowData.owner_name} /* Smart use of `style` */ style={{ width: 50, borderRadius: '50%' }} /></a> : undefined
       };
     });
     console.log("Table columns generated.");
@@ -189,7 +197,7 @@ export default function Table({ tabledata, tabletitle }) {
   return (
     <MaterialTable
       columns={generateColumns()}
-      style={{ margin: '25px 0 50px', maxWidth: '1200px' }}
+      className={classes.materialTable}
       options={{
         pageSize: maxLength,
         padding: 'dense'

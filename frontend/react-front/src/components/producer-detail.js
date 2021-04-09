@@ -120,7 +120,7 @@ const generateServicesProvided = (results) => {
     const iconClass = item[2] ? "fa " + item[2] : item[1] === true ? "fa fa-check-circle" : item[1] === false ? "fa fa-times-circle" : "fa fa-question-circle";
 
     return <li key={index}>
-      <Icon className={iconClass} style={{ color: iconColor }} />&nbsp;
+      <Icon className={iconClass} /* Smart use of `style` */ style={{ color: iconColor }} />&nbsp;
       {serviceName}
     </li>
   }

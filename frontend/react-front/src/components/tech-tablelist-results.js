@@ -162,8 +162,8 @@ export default function ResultTables({ passedResults, hideOwnerName, loadMoreRes
       <>
         {result
           // Font-awesome icons
-          ? <Icon className="fa fa-check-circle" style={{ color: green[500] }} />
-          : <Icon className="fa fa-times-circle" style={{ color: red[500] }} />
+          ? <Icon className="fa fa-check-circle" /* Smart use of `style` */ style={{ color: green[500] }} />
+          : <Icon className="fa fa-times-circle" /* Smart use of `style` */ style={{ color: red[500] }} />
         }
       </>
     );

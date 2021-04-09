@@ -29,6 +29,9 @@ const useStyles = makeStyles((theme) => ({
     },
     submit:{
       marginBottom: '20px',
+    },
+    autoComplete: {
+      width: 300
     }
   }));
 
@@ -69,7 +72,7 @@ const App = ({ producers }) => {
           <Autocomplete
           freeSolo
           options={producers.map((option) => option.owner_name)}
-          style={{ width: 300 }}
+          className={classes.autoComplete}
           renderInput={(params) => (
             <TextField
               {...params}
