@@ -10,7 +10,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import { green, red } from '@material-ui/core/colors';
 import HttpsIcon from '@material-ui/icons/Https';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+//import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Grid from '@material-ui/core/Grid';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -40,10 +40,10 @@ const useStyles = makeStyles((theme) => ({
     },
     '& span': {
       marginLeft: 'calc(100% - 150px)',
-      color: '#332b1f',
       width: '150px',
       fontWeight: 'bold',
       '&:first-child': {
+        color: '#332b1f',
         fontSize: '1rem',
         padding: '10px 20px',
         marginBottom: '5px',

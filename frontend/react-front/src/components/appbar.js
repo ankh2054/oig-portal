@@ -4,8 +4,8 @@ import Link from '@material-ui/core/Link';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
+//import IconButton from '@material-ui/core/IconButton';
+//import MenuIcon from '@material-ui/icons/Menu';
 
 //import BOMsvg from '../assets/img/bomlogo'
 //<BOMsvg style={{ fontSize: 50 }} className={classes.bomsvg} />
