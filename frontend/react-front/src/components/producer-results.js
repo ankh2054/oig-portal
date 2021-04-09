@@ -18,7 +18,6 @@ import datec from '../functions/date'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-
   },
   media: {
     height: 0,
@@ -40,9 +39,9 @@ const useStyles = makeStyles((theme) => ({
       margin: 0
     },
     '& span': {
-      marginLeft: 'calc(100% - 175px - 40px - 32px)',
+      marginLeft: 'calc(100% - 150px)',
       color: '#332b1f',
-      width: '175px',
+      width: '150px',
       fontWeight: 'bold',
       '&:first-child': {
         fontSize: '1rem',
@@ -59,6 +58,12 @@ const useStyles = makeStyles((theme) => ({
   link: {
     textDecoration: 'none',
   },
+  summary: {
+    '& > *': {
+      textAlign: 'left',
+      fontSize: '1rem'
+    }
+  }
 }));
 
 
@@ -186,7 +191,7 @@ const App = ({ results, producers, products, bizdevs, community }) => {
                 className={classes.cardHeader}
               />
             </Link>
-            <CardContent>
+            <CardContent className={classes.summary}>
               <Typography variant="body2" color="textSecondary" component="p">
                 <b>Tech: </b>{parseInt(result.score)}
               </Typography>
