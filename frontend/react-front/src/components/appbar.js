@@ -1,4 +1,4 @@
-import React  from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Link from '@material-ui/core/Link';
 import AppBar from '@material-ui/core/AppBar';
@@ -25,14 +25,14 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(2),
   },
   link: {
-    margin: theme.spacing(1, 1.5),
+    margin: theme.spacing(0, 1.5),
   },
   title: {
     flexGrow: 1,
     padding: '0 30px'
   },
   menuwax: {
-   //background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
+    //background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
     background: '#000000',
     border: 0,
     borderRadius: 3,
@@ -40,10 +40,18 @@ const useStyles = makeStyles((theme) => ({
     padding: '0 30px',
   },
   logosvg: {
-    padding: '0 20px',
+    width: '60%',
+    height: '100%'
   },
   imageIcon: { height: '100%' },
-  iconRoot: { textAlign: 'center', padding: '0 30px', marginLeft: '-40px' },
+  iconRoot: {
+    textAlign: 'center',
+    width: '202px',
+    height: '72px'
+  },
+  toolbar: {
+    marginBottom: '40px'
+  }
 }));
 
 
@@ -51,23 +59,23 @@ const useStyles = makeStyles((theme) => ({
 export default function ButtonAppBar() {
   const classes = useStyles();
 
-  
+
   return (
     <>
-    <AppBar  position="fixed" className={classes.menuwax}>
-    <Toolbar>
-      <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
+      <AppBar position="fixed" className={classes.menuwax}>
+        <Toolbar>
+          {/*<IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
           <MenuIcon />
-      </IconButton>
-      <Link  href="/" className={classes.link}>
-      <Icon style={{ fontSize: 140 }} classes={{root: classes.iconRoot}}>
-        <WAXsvg style={{ fontSize: 140 }} className={classes.logosvg} />
-      </Icon>
-      </Link>
-      <Typography fontWeight="fontWeightBold" variant="h4" className={classes.title} color='inherit'>
-       OIG Portal
+  </IconButton>*/}
+          <Link href="/" className={classes.link}>
+            <Icon classes={{ root: classes.iconRoot }}>
+              <WAXsvg className={classes.logosvg} />
+            </Icon>
+          </Link>
+          <Typography fontWeight="fontWeightBold" variant="h4" className={classes.title} color='inherit'>
+            OIG Portal
       </Typography>
-        <nav>
+          <nav>
             <Link underline="none" variant="button" color="inherit" href="/" className={classes.link}>
               Home
             </Link>
@@ -83,13 +91,13 @@ export default function ButtonAppBar() {
             <Link variant="button" color="inherit" href="/admin" className={classes.link}>
               Admin
             </Link>
-      </nav>
-    </Toolbar>
-  </AppBar>
-  {/* To prefent items from going missing */}
-    <Toolbar />
-    <Toolbar />
-    <Toolbar />
-  </>
+          </nav>
+        </Toolbar>
+      </AppBar>
+      {/* To prefent items from going missing */}
+      <Toolbar className={classes.toolbar} />
+      {/*<Toolbar />
+      <Toolbar />*/}
+    </>
   );
 }
