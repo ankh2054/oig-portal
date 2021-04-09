@@ -19,17 +19,37 @@ import Icon from '@material-ui/core/Icon';
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    padding: 0,
     flexGrow: 1,
   },
   menuButton: {
     marginRight: theme.spacing(2),
   },
+  linkContainer: {
+    position: 'absolute',
+    right: '0',
+    [theme.breakpoints.down("sm")]: {
+      right: '-25px'
+    }
+  },
   link: {
     margin: theme.spacing(0, 1.5),
+    [theme.breakpoints.down("sm")]: {
+      fontSize: '0.8rem',
+      margin: theme.spacing(0, 0.8),
+    },
+    [theme.breakpoints.down("xs")]: {
+      fontSize: '0.6rem',
+      margin: theme.spacing(0, 0.6),
+    }
   },
   title: {
     flexGrow: 1,
-    padding: '0 30px'
+    padding: 0,
+    marginLeft: '80px',
+    [theme.breakpoints.down("sm")]: {
+      display: 'none'
+    },
   },
   menuwax: {
     //background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
@@ -47,7 +67,14 @@ const useStyles = makeStyles((theme) => ({
   iconRoot: {
     textAlign: 'center',
     width: '202px',
-    height: '72px'
+    height: '72px',
+    position: 'absolute',
+    left: '-50px',
+    top: '-5px',
+    [theme.breakpoints.down("xs")]: {
+      left: '-60px',
+      top: '-10px',
+    },
   },
   toolbar: {
     marginBottom: '40px'
@@ -75,7 +102,7 @@ export default function ButtonAppBar() {
           <Typography fontWeight="fontWeightBold" variant="h4" className={classes.title} color='inherit'>
             OIG Portal
       </Typography>
-          <nav>
+          <nav className={classes.linkContainer}>
             <Link underline="none" variant="button" color="inherit" href="/" className={classes.link}>
               Home
             </Link>
