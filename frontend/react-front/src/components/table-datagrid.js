@@ -177,7 +177,7 @@ export default function Table({ tabledata, tabletitle }) {
         cellStyle: key === "comments" ? {
           ...defaultCell, backgroundColor: '#ffff44'
         } : key === 'points_type' ? waxCell : defaultCell,
-        render: key === "guild" ? rowData => <img src={rowData.guild} alt={rowData.owner_name} style={{ width: 50, borderRadius: '50%' }} /> : undefined
+        render: key === "guild" ? rowData => <a href={'/guilds/' + rowData.owner_name} alt={rowData.owner_name}><img src={rowData.guild} alt={rowData.owner_name} style={{ width: 50, borderRadius: '50%' }} /></a> : undefined
       };
     });
     console.log("Table columns generated.");
