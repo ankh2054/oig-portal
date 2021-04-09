@@ -59,8 +59,13 @@ const useStyles = makeStyles((theme) => ({
   },
   table: {
     minWidth: 400,
+    //maxHeight: '80vh',
+    //display: 'block',
     '& th': {
       padding: '30px 0',
+      //position: 'sticky',
+      //zIndex: '999',
+      //top: 0,
       textAlign: 'center',
       border: '1px solid rgba(255,255,255,0.2)',
       '& span': {
@@ -88,8 +93,10 @@ const useStyles = makeStyles((theme) => ({
   ownerName: {
     borderLeft: 'none',
     padding: '0 5px',
-    '& a.waxButton': {
-      padding: '10px'
+    '& a': {
+      padding: '10px',
+      display: 'inline-block',
+      width: '100%',
     }
   },
   textcolour: {
