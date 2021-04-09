@@ -23,8 +23,11 @@ const useStyles = makeStyles((theme) => ({
       textAlign: 'left'
     },
     width: '100%',
-    maxWidth: '800px',
-    margin: '0 auto 50px'
+    margin: '0 auto 50px',
+  },
+  constrainedBox: {
+    margin: '0 auto 50px',
+    maxWidth: '500px'
   },
   paper: {
     display: 'inline-block',
@@ -108,12 +111,12 @@ const generateServicesProvided = (results) => {
     ["Hyperion V2", latest.hyperion_v2, null],
     ["API", latest.api_node, null],
     ["Missed Blocks (24 hours)", null, null],
-    ["Security", latest.tls_check && latest.tls_check !== "false", 'fa fa-shield-alt']
+    ["Security (TLS >= v1.2)", latest.tls_check && latest.tls_check !== "false" && latest.tls_check.indexOf('1.2') !== -1, 'fa fa-shield-alt']
   ]
   const jsx = services.map((item, index) => {
     const iconColor = item[1] === true ? green[500] : item[1] === false ? red[500] : grey[500];
     const serviceName = item[0];
-    const iconClass = item[2] ? "fa " + item[2] : "fa fa-check-circle";
+    const iconClass = item[2] ? "fa " + item[2] : item[1] === true ? "fa fa-check-circle" : item[1] === false ? "fa fa-times-circle" : "fa fa-question-circle";
 
     return <li key={index}>
       <Icon className={iconClass} style={{ color: iconColor }} />&nbsp;
@@ -124,7 +127,7 @@ const generateServicesProvided = (results) => {
   return jsx
 }
 
-const App = ({ producer }) => {
+const App = ({ producer, latestresults }) => {
   const classes = useStyles();
   const [results, setResults] = useState([]);
 
@@ -167,7 +170,7 @@ const App = ({ producer }) => {
       </Paper>
       <Paper className={[classes.paper, classes.cpuStatsHolder]} variant="outlined">
         <h2>CPU stats</h2>
-        <CpuStatsGraph results={results.slice(0, 7)} />
+        <CpuStatsGraph results={results.slice(0, 7)} latestresults={latestresults} />
       </Paper>
       <h2>Latest Results</h2>
       {results.length >= 1 ? <TechresultTables

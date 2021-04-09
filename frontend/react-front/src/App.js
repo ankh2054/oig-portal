@@ -136,6 +136,7 @@ const App = () => {
       <>
         <ProducerDetails
           producer={producers.filter((result) => result.owner_name === params.ownername)[0]}
+          latestresults={latestresults}
         />
       </>
     );
