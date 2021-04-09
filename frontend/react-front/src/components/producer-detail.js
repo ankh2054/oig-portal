@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
   },
   constrainedBox: {
     margin: '0 auto 50px',
-    maxWidth: '500px'
+    maxWidth: '550px'
   },
   paper: {
     display: 'inline-block',
@@ -76,7 +76,8 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'left',
     width: '100%',
     padding: '25px',
-    margin: '25px 0'
+    margin: '25px 0',
+    maxWidth: '1150px'
   },
   backButton: {
     margin: '25px auto'
@@ -135,7 +136,7 @@ const App = ({ producer, latestresults }) => {
 
   useEffect(() => {
     if (producer) {
-      axios.get(api_base + `/api/paginatedresults/${producer.owner_name}?index=0&limit=${preload-1}`).then((response) => {
+      axios.get(api_base + `/api/paginatedresults/${producer.owner_name}?index=0&limit=${preload - 1}`).then((response) => {
         setResults(response.data)
       })
     }
@@ -155,19 +156,21 @@ const App = ({ producer, latestresults }) => {
   return (
     <div className={classes.root}>
       {producer ? <h1>{producer.candidate} <small>{producer.owner_name}</small></h1> : null}
-      <Paper className={[classes.paper, classes.logoAndFlag]} variant="outlined">
-        {producer ? <img alt={producer.candidate + " logo"} className={classes.guildLogo} src={producer.logo_svg} /> : null}
-        <br />
-        {producer && flagMap[producer.country_code] ? <span className={classes.flagIcon}>
-          {flagMap[producer.country_code]}
-        </span> : null}
-      </Paper>
-      <Paper className={[classes.paper, classes.servicesProvided]} variant="outlined">
-        <h2>Services Provided</h2>
-        <ul>
-          {generateServicesProvided(results)}
-        </ul>
-      </Paper>
+      <div className={classes.constrainedBox}>
+        <Paper className={[classes.paper, classes.logoAndFlag]} variant="outlined">
+          {producer ? <img alt={producer.candidate + " logo"} className={classes.guildLogo} src={producer.logo_svg} /> : null}
+          <br />
+          {producer && flagMap[producer.country_code] ? <span className={classes.flagIcon}>
+            {flagMap[producer.country_code]}
+          </span> : null}
+        </Paper>
+        <Paper className={[classes.paper, classes.servicesProvided]} variant="outlined">
+          <h2>Services Provided</h2>
+          <ul>
+            {generateServicesProvided(results)}
+          </ul>
+        </Paper>
+      </div>
       <Paper className={[classes.paper, classes.cpuStatsHolder]} variant="outlined">
         <h2>CPU stats</h2>
         <CpuStatsGraph results={results.slice(0, 7)} latestresults={latestresults} />
