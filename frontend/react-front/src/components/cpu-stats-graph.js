@@ -11,11 +11,24 @@ import {
   ResponsiveContainer
 } from "recharts";
 
-const CpuStatsGraph = ({ results, latestresults }) => {
+const cpuSummary = ({ results, latestresults, raw }) => {
   const cpu_avgs = latestresults.map((result) => result.cpu_avg);
   const nonNull_cpu_avgs = cpu_avgs.filter((result) => !!result && result > 0 && result !== "1");
   const aggregate_average = nonNull_cpu_avgs.reduce((total, current) => +total + +current, 0) / nonNull_cpu_avgs.length;
-  const data = results.map((result) => { return { ...result, date_check: datec(result.date_check), "cpu time": result.cpu_time, "cpu average time": result.cpu_avg, "aggregate average time (all guilds)": aggregate_average.toFixed(2) } }).reverse();
+  const data = results.map((result) => { return { date_check: datec(result.date_check), "cpu time": result.cpu_time ? result.cpu_time : null, "cpu average time": result.cpu_avg ? result.cpu_avg : null, "aggregate average time (all guilds)": aggregate_average.toFixed(2) } }).reverse();
+  if (raw) {
+    return data
+  } else {
+    return <>
+      <p><strong>last 7 days cpu times (ms):</strong> <br/>{data.map(result => result['cpu time'] ? result['cpu time'] : "n/a").join(', ')}</p>
+      <p><strong>last 7 days cpu average time (ms):</strong> <br/>{data.map(result => result['cpu average time'] ? result['cpu average time'] : "n/a").join(', ')}</p>
+      <p><strong>aggregate average time (all guilds):</strong> <br/>{aggregate_average.toFixed(2)}</p>
+    </>
+  }
+}
+
+const CpuStatsGraph = ({ results, latestresults }) => {
+  const data = cpuSummary({ results, latestresults, raw: true })
 
   return (
     <>
@@ -64,7 +77,7 @@ const CpuStatsGraph = ({ results, latestresults }) => {
           </defs>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date_check" />
-          <YAxis label={{ value: 'average cpu times', angle: -90, position: 'insideLeft' }} />
+          <YAxis label={{ value: 'avg cpu times (ms)', angle: -90, position: 'insideLeft' }} />
           <Tooltip />
           {/*<Legend align="left"
           verticalAlign="top" 
@@ -81,4 +94,4 @@ const CpuStatsGraph = ({ results, latestresults }) => {
   );
 }
 
-export default CpuStatsGraph;
+export {CpuStatsGraph, cpuSummary};

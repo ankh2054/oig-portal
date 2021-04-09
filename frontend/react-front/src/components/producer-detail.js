@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import TechresultTables from './tech-tablelist-results'
 import { green, red, grey } from '@material-ui/core/colors';
 import Icon from '@material-ui/core/Icon';
-import CpuStatsGraph from './cpu-stats-graph';
+import {CpuStatsGraph, cpuSummary} from './cpu-stats-graph';
 import Paper from '@material-ui/core/Paper';
 
 
@@ -41,6 +41,10 @@ const useStyles = makeStyles((theme) => ({
   logoAndFlag: {
     float: 'left',
     textAlign: 'center',
+    [theme.breakpoints.down("sm")]: {
+      width: '100%',
+      marginBottom: '25px'
+    }
     //marginLeft: '21%',
     //marginRight: '25px'
   },
@@ -60,6 +64,9 @@ const useStyles = makeStyles((theme) => ({
     display: 'inline-block',
     textAlign: 'left',
     width: 'calc( 100% - 100px - 60px)',
+    [theme.breakpoints.down("sm")]: {
+      width: '100%',
+    },
     float: 'right',
     padding: '15px 40px',
     '& ul': {
@@ -77,7 +84,19 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     padding: '25px',
     margin: '25px 0',
-    maxWidth: '1150px'
+    maxWidth: '1150px',
+    [theme.breakpoints.down("xs")]: {
+      display: 'none'
+    }
+  },
+  smallCpuStats: {
+    margin: '25px 0',
+    textAlign: 'left',
+    padding: '25px',
+    width: '100%',
+    [theme.breakpoints.up("sm")]: {
+      display: 'none'
+    }
   },
   backButton: {
     margin: '25px auto'
@@ -174,6 +193,10 @@ const App = ({ producer, latestresults }) => {
       <Paper className={[classes.paper, classes.cpuStatsHolder]} variant="outlined">
         <h2>CPU stats</h2>
         <CpuStatsGraph results={results.slice(0, 7)} latestresults={latestresults} />
+      </Paper>
+      <Paper className={[classes.paper, classes.smallCpuStats]} variant="outlined">
+        <h2>CPU stats</h2>
+        <p>{cpuSummary({ results: results.slice(0, 7), latestresults})}</p>
       </Paper>
       <h2>Latest Results</h2>
       {results.length >= 1 ? <TechresultTables
