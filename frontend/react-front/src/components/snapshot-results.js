@@ -1,13 +1,23 @@
 import React, { useState } from 'react'
 import moment from 'moment'
+import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 import {SnapshotScoring} from './snapshot-scoring'
 import IntegratedScores from './integrated-snapshot-scores'
 
+const useStyles = makeStyles((theme) => ({
+  changeViewButton: {
+    marginBottom: '20px'
+  },
+  viewHolder: {
+    display: 'block', width: '100%'
+  }
+}))
 
-const App = ({ results, producers, products, bizdevs, community, snapresults, pointSystem }) => {
+const App = ({ /*results, */ producers, products, bizdevs, community, snapresults, pointSystem }) => {
+  const classes = useStyles();
+  
   const [viewType, setViewType] = useState('integrated')
-
   const lastfetched = !!snapresults && !!snapresults[0] && !!snapresults[0].snapshot_date ? moment(snapresults[0].snapshot_date).fromNow() : 'never';
 
   const changeView = () => {
@@ -55,11 +65,11 @@ const App = ({ results, producers, products, bizdevs, community, snapresults, po
         variant="contained"
         color="primary"
         onClick={changeView}
-        style={{ marginBottom: '20px' }}
+        className={classes.changeViewButton}
       >
         {viewType === 'individual' ? "Integrated" : "Individual"} View
       </Button>
-      <div style={{ display: 'block', width: '100%' }}>
+      <div className={classes.viewHolder}>
         {loadView()}
       </div>
     </div>

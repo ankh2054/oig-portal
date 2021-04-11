@@ -6,7 +6,7 @@ const App = ({ results }) => {
     <div>
       <h1>Latest Results</h1>
       <TechresultTables
-            results={ results }
+            passedResults={ results }
             description="WAX Mainnet"
        />
     </div>

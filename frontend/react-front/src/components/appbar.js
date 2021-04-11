@@ -1,11 +1,11 @@
-import React  from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Link from '@material-ui/core/Link';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
+//import IconButton from '@material-ui/core/IconButton';
+//import MenuIcon from '@material-ui/icons/Menu';
 
 //import BOMsvg from '../assets/img/bomlogo'
 //<BOMsvg style={{ fontSize: 50 }} className={classes.bomsvg} />
@@ -19,20 +19,40 @@ import Icon from '@material-ui/core/Icon';
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    padding: 0,
     flexGrow: 1,
   },
   menuButton: {
     marginRight: theme.spacing(2),
   },
+  linkContainer: {
+    position: 'absolute',
+    right: '0',
+    [theme.breakpoints.down("sm")]: {
+      right: '-25px'
+    }
+  },
   link: {
-    margin: theme.spacing(1, 1.5),
+    margin: theme.spacing(0, 1.5),
+    [theme.breakpoints.down("sm")]: {
+      fontSize: '0.8rem',
+      margin: theme.spacing(0, 0.8),
+    },
+    [theme.breakpoints.down("xs")]: {
+      fontSize: '0.6rem',
+      margin: theme.spacing(0, 0.6),
+    }
   },
   title: {
     flexGrow: 1,
-    padding: '0 30px'
+    padding: 0,
+    marginLeft: '80px',
+    [theme.breakpoints.down("sm")]: {
+      display: 'none'
+    },
   },
   menuwax: {
-   //background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
+    //background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
     background: '#000000',
     border: 0,
     borderRadius: 3,
@@ -40,10 +60,25 @@ const useStyles = makeStyles((theme) => ({
     padding: '0 30px',
   },
   logosvg: {
-    padding: '0 20px',
+    width: '60%',
+    height: '100%'
   },
   imageIcon: { height: '100%' },
-  iconRoot: { textAlign: 'center', padding: '0 30px', marginLeft: '-40px' },
+  iconRoot: {
+    textAlign: 'center',
+    width: '202px',
+    height: '72px',
+    position: 'absolute',
+    left: '-50px',
+    top: '-5px',
+    [theme.breakpoints.down("xs")]: {
+      left: '-60px',
+      top: '-10px',
+    },
+  },
+  toolbar: {
+    marginBottom: '40px'
+  }
 }));
 
 
@@ -51,23 +86,23 @@ const useStyles = makeStyles((theme) => ({
 export default function ButtonAppBar() {
   const classes = useStyles();
 
-  
+
   return (
     <>
-    <AppBar  position="fixed" className={classes.menuwax}>
-    <Toolbar>
-      <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
+      <AppBar position="fixed" className={classes.menuwax}>
+        <Toolbar>
+          {/*<IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
           <MenuIcon />
-      </IconButton>
-      <Link  href="/" className={classes.link}>
-      <Icon style={{ fontSize: 140 }} classes={{root: classes.iconRoot}}>
-        <WAXsvg style={{ fontSize: 140 }} className={classes.logosvg} />
-      </Icon>
-      </Link>
-      <Typography fontWeight="fontWeightBold" variant="h4" className={classes.title} color='inherit'>
-       OIG Portal
+  </IconButton>*/}
+          <Link href="/" className={classes.link}>
+            <Icon classes={{ root: classes.iconRoot }}>
+              <WAXsvg className={classes.logosvg} />
+            </Icon>
+          </Link>
+          <Typography fontWeight="fontWeightBold" variant="h4" className={classes.title} color='inherit'>
+            OIG Portal
       </Typography>
-        <nav>
+          <nav className={classes.linkContainer}>
             <Link underline="none" variant="button" color="inherit" href="/" className={classes.link}>
               Home
             </Link>
@@ -83,13 +118,13 @@ export default function ButtonAppBar() {
             <Link variant="button" color="inherit" href="/admin" className={classes.link}>
               Admin
             </Link>
-      </nav>
-    </Toolbar>
-  </AppBar>
-  {/* To prefent items from going missing */}
-    <Toolbar />
-    <Toolbar />
-    <Toolbar />
-  </>
+          </nav>
+        </Toolbar>
+      </AppBar>
+      {/* To prefent items from going missing */}
+      <Toolbar className={classes.toolbar} />
+      {/*<Toolbar />
+      <Toolbar />*/}
+    </>
   );
 }

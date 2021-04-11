@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
 const App = () => {
   const classes = useStyles();
   // const [rawResults, setRawResults] = useState([])
-  const [results, setResults] = useState([])
+  // const [results, setResults] = useState([])
   const [producers, setProducers] = useState([])
   // const [rawProducts, setRawProducts] = useState([])
   const [products, setProducts] = useState([])
@@ -47,14 +47,14 @@ const App = () => {
   const [snapshotlatestresults, setSnapshotLatestResults] = useState([])
   const [snapshotSettings, setSnapshotSettings] = useState([])
   const [rawPointSystem, setRawPointSystem] = useState([])
-  const [pointSystem, setPointSystem] = useState([])
+  // const [pointSystem, setPointSystem] = useState([])
 
   useEffect(() => {
     // Load data and set hooks. A future implementation could use axios.all
-    axios.get(api_base + '/api/results').then((response) => {
+    /* axios.get(api_base + '/api/results').then((response) => {
       // setRawResults(response.data)
       setResults(response.data)
-    });
+    });*/
     axios.get(api_base + '/api/producers').then((response) => {
       setProducers(response.data)
     });
@@ -89,7 +89,7 @@ const App = () => {
       pointSystemBase.forEach(item => {
         formattedPointSystem[item.points_type] = [item.points, item.multiplier]
       });
-      setPointSystem(formattedPointSystem)
+      // setPointSystem(formattedPointSystem)
     })
   }, []);
 
@@ -136,10 +136,7 @@ const App = () => {
       <>
         <ProducerDetails
           producer={producers.filter((result) => result.owner_name === params.ownername)[0]}
-          results={results.filter((result) => result.owner_name === params.ownername)}
-          products={products.filter((result) => result.owner_name === params.ownername)}
-          bizdevs={bizdevs.filter((result) => result.owner_name === params.ownername)}
-          pointSystem={pointSystem}
+          latestresults={latestresults}
         />
       </>
     );
@@ -161,7 +158,7 @@ const App = () => {
 
                     />} exact />
                     <Route exact path="/snapshot" component={() => <SnapshotResults
-                      results={latestresults}
+                      /*results={latestresults}*/
                       producers={producers}
                       products={products}
                       bizdevs={bizdevs}

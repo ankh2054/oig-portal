@@ -48,7 +48,10 @@ const reArrangeTableHeaders = (item) => {
     name: item.name ? item.name : undefined,
     comments: item.comments,
     score: item.score,
-    ...item
+    ...item,
+    date_updated: datec(item.date_updated),
+    date_check: datec(item.date_check),
+    snapshot_date: datec(item.snapshot_date)
   }))
 }
 

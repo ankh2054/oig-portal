@@ -173,6 +173,20 @@ const getResultsbyOwner = (request, reply) => {
   })
 }
 
+// Paginated results for particular owner
+const getPaginatedResultsByOwner = (request, reply) => {
+  const { owner } = request.params;
+  const { index, limit } = request.query;
+  const start = index ? +index + 1 : 1;
+  const end = limit ? +limit + 1 : 10;
+
+  client.query('SELECT  * FROM ( SELECT ROW_NUMBER() OVER ( ORDER BY date_check DESC ) AS RowNum, * FROM oig.results WHERE owner_name = $1 ) AS RowConstrainedResult WHERE RowNum >= $2 AND RowNum <= $3 ORDER BY RowNum', [owner, start, end], (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(results.rows);
+  })
+}
 
 // Set producer active or not - send true or false in body
 // OIG admin page 
@@ -295,4 +309,4 @@ const getUpdatesbyOwner = (request, reply) => {
   })
 }
 
-module.exports = { IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate };
+module.exports = { IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner };

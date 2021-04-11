@@ -1,9 +1,30 @@
 import React, { useState } from "react";
 import MaterialTable from "material-table";
+import { makeStyles } from '@material-ui/core/styles';
 import { api_base } from "../config";
 import axios from "axios";
+import { Button } from '@material-ui/core';
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'inline-block',
+    width: '100%',
+    margin: '25px 0',
+  },
+  materialTable: {
+    margin: '0 auto',
+    maxWidth: '1200px'
+  },
+  addItemButton: {
+    position: 'relative',
+    float: 'left',
+    left: '10px',
+    top: '-45px'
+  }
+}))
 
 export default function Table({ tabledata, tabletitle }) {
+  const classes = useStyles();
   const [tableState, setTableState] = useState(tabledata);
 
   // Update row in database - now generic
@@ -175,47 +196,81 @@ export default function Table({ tabledata, tabletitle }) {
         editable: (isEditable(key, columnObj)),
         // Highlight comments
         cellStyle: key === "comments" ? {
-          ...defaultCell, backgroundColor: '#ffff44'
+          ...defaultCell, backgroundColor: '#ffffed'
         } : key === 'points_type' ? waxCell : defaultCell,
-        render: key === "guild" ? rowData => <img src={rowData.guild} alt={rowData.owner_name} style={{ width: 50, borderRadius: '50%' }} /> : undefined
+        render: key === "guild" ? rowData => <a href={'/guilds/' + rowData.owner_name} alt={rowData.owner_name}><img src={rowData.guild} alt={rowData.owner_name} /* Smart use of `style` */ style={{ width: 50, borderRadius: '50%' }} /></a> : undefined
       };
     });
     console.log("Table columns generated.");
     return columnsSetup;
   };
 
+  const addItem = (tabletitle) => {
+    const owner_name = prompt("Add new item to " + tabletitle + ". Please enter guild name: ", "sentnlagents");
+  }
+
   const maxLength = tableState.length >= 20 ? 20 : tableState.length;
 
   return (
-    <MaterialTable
-      columns={generateColumns()}
-      style={{ margin: '25px 0 50px', maxWidth: '1200px' }}
-      options={{
-        pageSize: maxLength,
-        padding: 'dense'
-      }}
-      editable={{
-        onRowUpdate: (newRow, oldRow) => {
-          return new Promise((resolve, reject) => {
-            try {
-              const tableCopy = [...tableState];
-              const index = oldRow.tableData.id;
-              tableCopy[index] = newRow;
-              setTableState(tableCopy);
-              console.log("Table state updated!");
-              resolve(newRow);
-            } catch (err) {
-              // This doesn't do anything and it's uncatched, but should be here so...
-              reject(err);
-            }
-          }).then((newRow) => {
-            // Update database after state updated. Arguably this should be done the other way around.
-            updateDb(newRow);
-          });
-        },
-      }}
-      data={JSON.parse(JSON.stringify(tableState))} // This is neccessary for some reason. I think it's because material-table doesn't like a mutating state. Oddly, it doesn't matter for the columns above. Perhaps because they don't change?
-      title={tabletitle}
-    />
+    <div className={classes.root}>
+      <MaterialTable
+        columns={generateColumns()}
+        className={classes.materialTable}
+        options={{
+          pageSize: maxLength,
+          padding: 'dense'
+        }}
+        editable={{
+          onRowUpdate: (newRow, oldRow) => {
+            return new Promise((resolve, reject) => {
+              try {
+                const tableCopy = [...tableState];
+                const index = oldRow.tableData.id;
+                tableCopy[index] = newRow;
+                setTableState(tableCopy);
+                console.log("Table state updated!");
+                resolve(newRow);
+              } catch (err) {
+                // This doesn't do anything and it's uncatched, but should be here so...
+                reject(err);
+              }
+            }).then((newRow) => {
+              // Update database after state updated. Arguably this should be done the other way around.
+              updateDb(newRow);
+            });
+          },
+        }}
+        data={JSON.parse(JSON.stringify(tableState))} // This is neccessary for some reason. I think it's because material-table doesn't like a mutating state. Oddly, it doesn't matter for the columns above. Perhaps because they don't change?
+        title={tabletitle}
+      />
+      {tabletitle === "Products" || tabletitle === "Bizdevs" || tabletitle === "Community" ? <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        className={classes.addItemButton}
+        onClick={e => addItem(tabletitle)}
+      >Add new item to "{tabletitle}"</Button> : null}
+      {/*<Dialog
+        open={popupOpen}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Create new"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Last fetched: {lastfetched}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary" autoFocus>
+            Cancel
+          </Button>
+          <Button onClick={handleConfirm} color="primary">
+            Continue
+          </Button>
+        </DialogActions>
+      </Dialog>*/}
+    </div>
   );
 }

@@ -20,6 +20,7 @@ import { api_base } from '../config'
 const useStyles = makeStyles((theme) => ({
     root: {
       maxWidth: 345,
+      width: '100%'
     },
     left: {
       marginLeft: 'auto',
@@ -29,6 +30,10 @@ const useStyles = makeStyles((theme) => ({
     },
     submit:{
       marginBottom: '20px',
+    },
+    autoComplete: {
+      width: '100%',
+      maxWidth: 300,
     }
   }));
 
@@ -62,14 +67,14 @@ const App = ({ producers }) => {
 
   return (
     <Grid container justify="center" >
-    <Grid item xs={6}>
+    <Grid item xs={12} md={6}>
     <Paper  elevation={3}>
       <h1>Submit Monthly Update</h1>
       <form className={classes.form} onSubmit={handleSubmit(apisubmit)}>
           <Autocomplete
           freeSolo
           options={producers.map((option) => option.owner_name)}
-          style={{ width: 300 }}
+          className={classes.autoComplete}
           renderInput={(params) => (
             <TextField
               {...params}
