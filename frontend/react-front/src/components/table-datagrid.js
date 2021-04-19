@@ -265,6 +265,7 @@ export default function Table({ tabledata, tabletitle }) {
         // This gets overwritten, but no worries - it'll be off by seconds at max.
         date_updated: new Date()
       }
+      // This code can be made simpler - .push() wasn't the solution to updating state. See https://stackoverflow.com/a/60957646 - material-table doesn't work with hooks
       if (found[0]) {
         tableCopy[found[0]] = finalPayload;
       } else {
