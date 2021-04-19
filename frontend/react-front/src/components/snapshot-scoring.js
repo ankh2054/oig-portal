@@ -164,24 +164,24 @@ const SnapshotScoring = ({ results, producers, products, bizdevs, community }) =
                 </IconButton>
               </CardActions>
               <Collapse in={expandedId === result.owner_name ? true : false} timeout="auto" unmountOnExit>
-                {!!filteredProducts.length >= 1 ? <CardContent>
+                <CardContent>
                   <TableDataGrid
                     tabledata={filteredProducts}
                     tabletitle="Products"
                   />
-                </CardContent> : null}
-                {!!filteredBizdevs.length >= 1 ? <CardContent>
+                </CardContent>
+                <CardContent>
                   <TableDataGrid
                     tabledata={filteredBizdevs}
                     tabletitle="Bizdevs"
                   />
-                </CardContent> : null}
-                {!!filteredCommunity.length >= 1 ? <CardContent>
+                </CardContent>
+                <CardContent>
                   <TableDataGrid
                     tabledata={filteredCommunity}
                     tabletitle="Community"
                   />
-                </CardContent> : null}
+                </CardContent>
                 <CardContent>
                   <TableDataGrid
                     tabledata={[reArrangeTableHeaders(result)]}
