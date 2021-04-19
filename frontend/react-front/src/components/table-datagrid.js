@@ -9,11 +9,10 @@ import datec from '../functions/date'
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'inline-block',
-    width: '100%',
-    margin: '25px 0',
+    width: '100%'
   },
   materialTable: {
-    margin: '0 auto',
+    margin: '25px auto',
     maxWidth: '1200px'
   },
   addItemButton: {
@@ -21,6 +20,9 @@ const useStyles = makeStyles((theme) => ({
     float: 'left',
     left: '10px',
     top: '-45px'
+  },
+  addItemButtonEmpty: {
+    
   }
 }))
 
@@ -29,10 +31,10 @@ export default function Table({ tabledata, tabletitle }) {
   const [tableState, setTableState] = useState(tabledata);
 
   // Update row in database - now generic
-  const updateDb = (newRow) => {
+  const updateDb = (payload) => {
     const date_updated = new Date();
     // TODO: calculate score
-    const score = newRow.score ? newRow.score : 10;
+    const score = payload.score ? payload.score : 10;
     if (tabletitle === "Products") {
       const {
         owner_name,
@@ -44,7 +46,7 @@ export default function Table({ tabledata, tabletitle }) {
         code_repo,
         points,
         comments
-      } = newRow;
+      } = payload;
       axios
         .post(api_base + "/api/productUpdate", {
           owner_name,
@@ -74,7 +76,7 @@ export default function Table({ tabledata, tabletitle }) {
         spec_url,
         points,
         comments
-      } = newRow;
+      } = payload;
       axios
         .post(api_base + "/api/bizdevUpdate", {
           owner_name,
@@ -102,7 +104,7 @@ export default function Table({ tabledata, tabletitle }) {
         managementpoints,
         outstandingpoints,
         comments
-      } = newRow;
+      } = payload;
       axios
         .post(api_base + "/api/communityUpdate", {
           owner_name,
@@ -123,7 +125,7 @@ export default function Table({ tabledata, tabletitle }) {
     } else if (tabletitle === "Tech Snapshot" || tabletitle === "Snapshot Tech Results") {
       const {
         owner_name, date_check, comments
-      } = newRow;
+      } = payload;
       axios
         .post(api_base + "/api/snapshotResultCommentUpdate", {
           owner_name, date_check, comments
@@ -136,7 +138,7 @@ export default function Table({ tabledata, tabletitle }) {
     } else if (tabletitle === "Point System") {
       const {
         points_type, points, multiplier
-      } = newRow;
+      } = payload;
       axios
         .post(api_base + "/api/updatePointSystem", {
           points_type, points, multiplier
@@ -232,7 +234,7 @@ export default function Table({ tabledata, tabletitle }) {
     const spec_url = isProdOrBizdev ? prompt(`${intro} spec_url: `, "") : null;
     const code_repo = type === 'product' ? prompt(`${intro} code_repo: `, "") : null;
     const comments = prompt(`${intro} comments (optional): `, "");
-    const payload = type !== 'unknownType' ? {
+    const initialPayload = type !== 'unknownType' ? {
       owner_name,
       name,
       description,
@@ -250,12 +252,27 @@ export default function Table({ tabledata, tabletitle }) {
     } : {
       'error': 'Payload not set up'
     };
-    const cleanPayload = JSON.parse(JSON.stringify(payload))
+    const payload = JSON.parse(JSON.stringify(initialPayload))
     // Should ideally be an integrated table editor, when we make it pretty
     // eslint-disable-next-line no-restricted-globals
-    const itemConfirm = confirm(`Confirm new ${type}: ${Object.keys(cleanPayload).map(key => payload[key]).join(' | ')}`);
+    const itemConfirm = confirm(`Confirm new ${type}: ${Object.keys(payload).map(key => payload[key]).join(' | ')}`);
     if (itemConfirm) {
-      updateDb(cleanPayload)
+      const tableCopy = [...tableState];
+      const found = tableCopy.map((row, index) => payload.name && row.name === payload.name && row.owner_name === payload.owner_name ? index : !payload.name && payload.owner_name === row.owner_name ? index : -1).filter(row => { return +row >= 0 });
+      console.log(`Data will ${!found[0] ? "not" : null} be overwritten.`);
+      const finalPayload = {
+        ...payload,
+        // This gets overwritten, but no worries - it'll be off by seconds at max.
+        date_updated: new Date()
+      }
+      if (found[0]) {
+        tableCopy[found[0]] = finalPayload;
+      } else {
+        tableCopy.push(finalPayload)
+      }
+      setTableState(tableCopy);
+      console.log("Table state updated!");
+      updateDb(finalPayload)
     }
     // Should have an else clause allowing user to edit
   }
@@ -265,7 +282,7 @@ export default function Table({ tabledata, tabletitle }) {
 
   return (
     <div className={classes.root}>
-      <MaterialTable
+      {tableState.length >= 1 ? <MaterialTable
         columns={generateColumns()}
         className={classes.materialTable}
         options={{
@@ -276,30 +293,36 @@ export default function Table({ tabledata, tabletitle }) {
           onRowUpdate: (newRow, oldRow) => {
             return new Promise((resolve, reject) => {
               try {
+                const payload = {
+                  ...newRow,
+                  // This gets overwritten, but no worries - it'll be off by seconds at max.
+                  date_updated: new Date()
+                }
                 const tableCopy = [...tableState];
                 const index = oldRow.tableData.id;
-                tableCopy[index] = newRow;
+                tableCopy[index] = payload;
                 setTableState(tableCopy);
                 console.log("Table state updated!");
-                resolve(newRow);
+                resolve(payload);
               } catch (err) {
                 // This doesn't do anything and it's uncatched, but should be here so...
                 reject(err);
               }
-            }).then((newRow) => {
+            }).then((payload) => {
               // Update database after state updated. Arguably this should be done the other way around.
-              updateDb(newRow);
+              updateDb(payload);
             });
           },
         }}
-        data={JSON.parse(JSON.stringify(tableState))} // This is neccessary for some reason. I think it's because material-table doesn't like a mutating state. Oddly, it doesn't matter for the columns above. Perhaps because they don't change?
+        // The below code is terrible, but it has to be this way: https://github.com/mbrn/material-table/issues/1900
+        data={Array.from(JSON.parse(JSON.stringify(tableState)))} // This is neccessary for some reason. I think it's because material-table doesn't like a mutating state. Oddly, it doesn't matter for the columns above. Perhaps because they don't change?
         title={tabletitle}
-      />
+      /> : null}
       {tabletitle === "Products" || tabletitle === "Bizdevs" || tabletitle === "Community" ? <Button
         type="submit"
         variant="contained"
         color="primary"
-        className={classes.addItemButton}
+        className={tableState.length >= 1 ? classes.addItemButton : classes.addItemButtonEmpty}
         onClick={e => addItem(tabletitle)}
       >Add new item to "{tabletitle}"</Button> : null}
       {/*<Dialog
