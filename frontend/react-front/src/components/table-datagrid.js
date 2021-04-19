@@ -30,7 +30,9 @@ export default function Table({ tabledata, tabletitle }) {
 
   // Update row in database - now generic
   const updateDb = (newRow) => {
-    // TODO: Update date_updated in request
+    const date_updated = new Date();
+    // TODO: calculate score
+    const score = newRow.score ? newRow.score : 10;
     if (tabletitle === "Products") {
       const {
         owner_name,
@@ -40,9 +42,7 @@ export default function Table({ tabledata, tabletitle }) {
         analytics_url,
         spec_url,
         code_repo,
-        score,
         points,
-        date_updated,
         comments
       } = newRow;
       axios
@@ -72,9 +72,7 @@ export default function Table({ tabledata, tabletitle }) {
         stage,
         analytics_url,
         spec_url,
-        score,
         points,
-        date_updated,
         comments
       } = newRow;
       axios
@@ -103,8 +101,6 @@ export default function Table({ tabledata, tabletitle }) {
         eventpoints,
         managementpoints,
         outstandingpoints,
-        score,
-        date_updated,
         comments
       } = newRow;
       axios
@@ -213,9 +209,58 @@ export default function Table({ tabledata, tabletitle }) {
   };
 
   const addItem = (tabletitle) => {
-    const owner_name = prompt("Add new item to " + tabletitle + ". Please enter guild name: ", "sentnlagents");
+    const typeMap = {
+      "Products": "product",
+      "Bizdevs": "bizdev",
+      "Community": "community"
+    }
+    const type = typeMap[tabletitle] ? typeMap[tabletitle] : "unknownType";
+    const isProdOrBizdev = type === 'product' || type === 'bizdev';
+    const isComm = type === 'community';
+    const intro = `Add new ${type}. Please enter`;
+    const owner_name = prompt(`${intro} guild name: `, "sentnlagents");
+    const name = isProdOrBizdev ? prompt(`${intro} name: `, `New ${type}`) : null;
+    const description = isProdOrBizdev ? prompt(`${intro} description: `, "") : null;
+    const stage = isProdOrBizdev ? prompt(`${intro} stage: `, (type === 'product' ? 'Development' : 'Qualified Lead')) : null;
+    const points = isProdOrBizdev ? prompt(`${intro} points: `, "") : null;
+    const origcontentpoints = isComm ? prompt(`${intro} origcontentpoints: `, "") : null;
+    const transcontentpoints = isComm ? prompt(`${intro} transcontentpoints: `, "") : null;
+    const eventpoints = isComm ? prompt(`${intro} eventpoints: `, "") : null;
+    const managementpoints = isComm ? prompt(`${intro} managementpoints: `, "") : null;
+    const outstandingpoints = isComm ? prompt(`${intro} outstandingpoints: `, "") : null;
+    const analytics_url = isProdOrBizdev ? prompt(`${intro} analytics_url: `, "") : null;
+    const spec_url = isProdOrBizdev ? prompt(`${intro} spec_url: `, "") : null;
+    const code_repo = type === 'product' ? prompt(`${intro} code_repo: `, "") : null;
+    const comments = prompt(`${intro} comments (optional): `, "");
+    const payload = type !== 'unknownType' ? {
+      owner_name,
+      name,
+      description,
+      stage,
+      points: +points,
+      origcontentpoints: +origcontentpoints,
+      transcontentpoints: +transcontentpoints,
+      eventpoints: +eventpoints,
+      managementpoints: +managementpoints,
+      outstandingpoints: +outstandingpoints,
+      analytics_url,
+      spec_url,
+      code_repo,
+      comments
+    } : {
+      'error': 'Payload not set up'
+    };
+    const cleanPayload = JSON.parse(JSON.stringify(payload))
+    // Should ideally be an integrated table editor, when we make it pretty
+    // eslint-disable-next-line no-restricted-globals
+    const itemConfirm = confirm(`Confirm new ${type}: ${Object.keys(cleanPayload).map(key => payload[key]).join(' | ')}`);
+    if (itemConfirm) {
+      updateDb(cleanPayload)
+    }
+    // Should have an else clause allowing user to edit
   }
-  
+
+
   const maxLength = tableState.length >= 20 ? 20 : tableState.length;
 
   return (
