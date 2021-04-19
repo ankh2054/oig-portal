@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { api_base } from "../config";
 import axios from "axios";
 import { Button } from '@material-ui/core';
+import datec from '../functions/date'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,6 +30,7 @@ export default function Table({ tabledata, tabletitle }) {
 
   // Update row in database - now generic
   const updateDb = (newRow) => {
+    // TODO: Update date_updated in request
     if (tabletitle === "Products") {
       const {
         owner_name,
@@ -165,8 +167,8 @@ export default function Table({ tabledata, tabletitle }) {
       // Points system - make point_type uneditable
       return (key === "points_type" ? "never" : "always")
     } else {
-      // Otherwise for community, product, bizdev, all should be editable except score and name.
-      return (key !== "name" && key !== "score" && key !== "guild" ? "always" : "never")
+      // Otherwise for community, product, bizdev, all should be editable except score, name, guild, and date.
+      return (key !== "name" && key !== "score" && key !== "guild" && key !== "date_updated" ? "always" : "never")
     }
   }
 
@@ -186,6 +188,11 @@ export default function Table({ tabledata, tabletitle }) {
     const columnObj = !!tableState[0] ? tableState[0] : {};
     // Create Columns from keys of object prop
     const columnsSetup = Object.keys(columnObj).map(function (key) {
+      // Not sure if this will work for multiple types of items?
+      const renderGuildLogo = (rowData) => <a href={'/guilds/' + rowData.owner_name} alt={rowData.owner_name}><img src={rowData.guild} alt={rowData.owner_name} /* Smart use of `style` */ style={{ width: 50, borderRadius: '50%' }} /></a>;
+      const isDate = key === 'date_updated' || key === 'date_check' || key === 'snapshot_date';
+      const dateHead = isDate ? key : null;
+      const renderDate = (rowData) => datec(rowData[dateHead]);
       return {
         title: key,
         field: key,
@@ -198,7 +205,7 @@ export default function Table({ tabledata, tabletitle }) {
         cellStyle: key === "comments" ? {
           ...defaultCell, backgroundColor: '#ffffed'
         } : key === 'points_type' ? waxCell : defaultCell,
-        render: key === "guild" ? rowData => <a href={'/guilds/' + rowData.owner_name} alt={rowData.owner_name}><img src={rowData.guild} alt={rowData.owner_name} /* Smart use of `style` */ style={{ width: 50, borderRadius: '50%' }} /></a> : undefined
+        render: key === "guild" ? rowData => renderGuildLogo(rowData) : isDate ? rowData => renderDate(rowData) : undefined
       };
     });
     console.log("Table columns generated.");
@@ -208,7 +215,7 @@ export default function Table({ tabledata, tabletitle }) {
   const addItem = (tabletitle) => {
     const owner_name = prompt("Add new item to " + tabletitle + ". Please enter guild name: ", "sentnlagents");
   }
-
+  
   const maxLength = tableState.length >= 20 ? 20 : tableState.length;
 
   return (
