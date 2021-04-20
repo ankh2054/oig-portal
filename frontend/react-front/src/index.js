@@ -5,13 +5,11 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { BrowserRouter, Route } from 'react-router-dom';
 
-
+// Strict mode is a good idea: https://reactjs.org/docs/strict-mode.html
 ReactDOM.render(
-  <React.StrictMode>
      <BrowserRouter>
         <Route component={App} />
-     </BrowserRouter>
-  </React.StrictMode>,
+     </BrowserRouter>,
   document.getElementById('root')
 );
 
