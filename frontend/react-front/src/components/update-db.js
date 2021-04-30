@@ -5,7 +5,7 @@ import axios from "axios";
 const updateDb = (payload, type, tabletitle) => {
     const date_updated = new Date();
     // TODO: calculate score
-    const score = payload.score ? payload.score : 10;
+    const score = payload.score ? payload.score : 0;
     if (type === "product") {
         const {
             owner_name,
@@ -22,7 +22,7 @@ const updateDb = (payload, type, tabletitle) => {
             .post(api_base + "/api/productUpdate", {
                 owner_name,
                 name,
-                description,
+                description: description ? description : "",
                 stage,
                 analytics_url,
                 spec_url,
@@ -43,8 +43,6 @@ const updateDb = (payload, type, tabletitle) => {
             name,
             description,
             stage,
-            analytics_url,
-            spec_url,
             points,
             comments
         } = payload;
@@ -52,10 +50,8 @@ const updateDb = (payload, type, tabletitle) => {
             .post(api_base + "/api/bizdevUpdate", {
                 owner_name,
                 name,
-                description,
+                description: description ? description : "",
                 stage,
-                analytics_url,
-                spec_url,
                 score,
                 points,
                 date_updated,

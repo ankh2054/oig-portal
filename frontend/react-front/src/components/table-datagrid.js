@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export default function Table({ tabledata, tabletitle }) {
+export default function Table({ tabledata, tabletitle, defaultOwner }) {
   const classes = useStyles();
   const [tableState, setTableState] = useState(tabledata);
 
@@ -99,7 +99,7 @@ export default function Table({ tabledata, tabletitle }) {
         data={Array.from(JSON.parse(JSON.stringify(tableState)))} // This is neccessary for some reason. I think it's because material-table doesn't like a mutating state. Oddly, it doesn't matter for the columns above. Perhaps because they don't change?
         title={tabletitle}
       /> : null}
-      <AddNewDialog type={type} tableState={tableState} setTableState={setTableState} />
+      <AddNewDialog type={type} tableState={tableState} setTableState={setTableState} defaultOwner ={defaultOwner} />
     </div>
   );
 }

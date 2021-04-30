@@ -26,32 +26,24 @@ const App = ({ results, producers, products, bizdevs, community }) => {
     }
     return array
   }
-
-  const addItem = (type) => {
-    alert("trigger add " + type)
-  }
-
+  
   return (
     <>
       <TableDataGrid
         tabledata={format(products)}
         tabletitle="Products"
-        addItem={addItem}
       />
       <TableDataGrid
         tabledata={format(bizdevs)}
         tabletitle="Bizdevs"
-        addItem={addItem}
       />
       <TableDataGrid
         tabledata={format(community)}
         tabletitle="Community"
-        addItem={addItem}
       />
       <TableDataGrid
         tabledata={format(results)}
         tabletitle="Snapshot Tech Results"
-        addItem={addItem}
       />
     </>
   );

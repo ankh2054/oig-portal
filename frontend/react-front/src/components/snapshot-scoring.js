@@ -168,18 +168,21 @@ const SnapshotScoring = ({ results, producers, products, bizdevs, community }) =
                   <TableDataGrid
                     tabledata={filteredProducts}
                     tabletitle="Products"
+                    defaultOwner={result.owner_name}
                   />
                 </CardContent>
                 <CardContent>
                   <TableDataGrid
                     tabledata={filteredBizdevs}
                     tabletitle="Bizdevs"
+                    defaultOwner={result.owner_name}
                   />
                 </CardContent>
                 <CardContent>
                   <TableDataGrid
                     tabledata={filteredCommunity}
                     tabletitle="Community"
+                    defaultOwner={result.owner_name}
                   />
                 </CardContent>
                 <CardContent>

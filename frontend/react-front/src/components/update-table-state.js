@@ -1,5 +1,7 @@
 import updateDb from './update-db'
 
+// Note: .push() wasn't the solution to updating state. See https://stackoverflow.com/a/60957646 - material-table doesn't work with hooks
+
 const updateTableState = (newRow, oldRow, type, tabletitle, tableState, setTableState) => {
     return new Promise((resolve, reject) => {
       try {
