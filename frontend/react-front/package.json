@@ -5,6 +5,7 @@
   "dependencies": {
     "@date-io/core": "^1.3.6",
     "@date-io/moment": "1.x",
+    "@eosdacio/ual-wax": "^1.4.3",
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.57",
@@ -24,7 +25,10 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.3",
     "recharts": "^2.0.8",
-    "typescript": "^4.2.3"
+    "typescript": "^4.2.3",
+    "ual-anchor": "^1.0.5",
+    "ual-reactjs-renderer": "^0.3.1",
+    "ual-scatter": "^0.3.0"
   },
   "scripts": {
     "start": "REACT_APP_ENVIRONMENT=development PORT=3001 react-scripts start",

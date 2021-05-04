@@ -243,6 +243,9 @@ export default function AddNewDialog({ type, tableState, setTableState, defaultO
                 break;
             case 16:
                 submitNewItem()
+                break;
+            default:
+                break;
         }
     }
 

@@ -4,9 +4,8 @@ import { MuiPickersUtilsProvider, KeyboardDateTimePicker } from '@material-ui/pi
 import { api_base } from "../config";
 import axios from "axios";
 import TableDataGrid from './table-datagrid'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import MomentUtils from '@date-io/moment'
-require('moment-timezone')
 
 moment.tz.setDefault('Europe/London')
 
@@ -45,7 +44,7 @@ const AdminPanel = ({ snapshotSettings, pointSystem }) => {
                 format="LLL"
                 margin="normal"
                 id="set-snapshot-date"
-                label="Set snapshot date (GMT)" // This is timezone adjusted...
+                label="Set snapshot date (London)" // This is timezone adjusted...
                 value={snapshotDate}
                 onChange={handleDateChange}
                 className={classes.datePicker}
