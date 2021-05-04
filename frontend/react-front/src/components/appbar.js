@@ -95,9 +95,8 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-export default function ButtonAppBar() {
+export default function ButtonAppBar({activeUser, loginModal, logout, isAdmin}) {
   const classes = useStyles();
-
 
   return (
     <>
@@ -130,8 +129,8 @@ export default function ButtonAppBar() {
             <Link variant="button" color="inherit" href="/admin" className={classes.link}>
               Admin
             </Link>
-            <Link variant="button" color="inherit" href="#" className={[classes.link, classes.waxButton]}>
-              Log In
+            <Link variant="button" color="inherit" href="#" onClick={loginModal} className={[classes.link, classes.waxButton]}>
+              {activeUser ? "Log out " + activeUser.accountName : "Log In"}
             </Link>
           </nav>
         </Toolbar>

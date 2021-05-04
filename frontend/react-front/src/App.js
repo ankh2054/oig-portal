@@ -30,7 +30,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-const App = () => {
+const App = (props) => {
+  const [isAdmin, setIsAdmin ] = useState(false);
+
   const classes = useStyles();
   // const [rawResults, setRawResults] = useState([])
   // const [results, setResults] = useState([])
@@ -148,7 +150,11 @@ const App = () => {
         <>
           <CssBaseline />
           <Container component="main" maxWidth="xl">
-            <ButtonAppBar />
+            <ButtonAppBar
+            activeUser={props.ual.activeUser}
+            loginModal={props.ual.showModal}
+            logout={props.ual.logout}
+            isAdmin={isAdmin} />
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <Paper className={classes.paper}>
