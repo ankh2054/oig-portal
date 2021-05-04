@@ -78,7 +78,19 @@ const useStyles = makeStyles((theme) => ({
   },
   toolbar: {
     marginBottom: '40px'
-  }
+  },
+  waxButton: {
+    color: '#332b1f',
+    borderRadius: '100px',
+    fontWeight: 'bold',
+    padding: '15px 20px',
+    textDecoration: 'none',
+    background: 'linear-gradient(90.08deg, rgb(247, 142, 30), rgb(255, 220, 81) 236.03%)',
+    '&:hover': {
+      textDecoration: 'none',
+      background: 'linear-gradient(275.91deg, rgb(247, 142, 30) 8.43%, rgb(255, 220, 81) 174.56%)'
+    }
+  },
 }));
 
 
@@ -117,6 +129,9 @@ export default function ButtonAppBar() {
             </Link>
             <Link variant="button" color="inherit" href="/admin" className={classes.link}>
               Admin
+            </Link>
+            <Link variant="button" color="inherit" href="#" className={[classes.link, classes.waxButton]}>
+              Log In
             </Link>
           </nav>
         </Toolbar>
