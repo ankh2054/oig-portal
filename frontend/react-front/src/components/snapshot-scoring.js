@@ -10,7 +10,7 @@ import IconButton from '@material-ui/core/IconButton'
 import Typography from '@material-ui/core/Typography'
 import { green, red } from '@material-ui/core/colors'
 // Ununused var // import HttpsIcon from '@material-ui/icons/Https'
-import MoreVertIcon from '@material-ui/icons/MoreVert'
+// import MoreVertIcon from '@material-ui/icons/MoreVert'
 import Grid from '@material-ui/core/Grid'
 // Ununused var // import FavoriteIcon from '@material-ui/icons/Favorite'
 import Tooltip from '@material-ui/core/Tooltip'
@@ -39,6 +39,28 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.getContrastText(green[500]),
     backgroundColor: green[500],
   },
+  cardHeader: {
+    '& span': {
+      // half the page, minus half the link width, minus half the icon size, minus half the icon right margin size
+      marginLeft: 'calc(50% - 75px - 20px - 8px)',
+      width: '150px',
+      fontWeight: 'bold',
+      '&:first-child': {
+        color: '#332b1f',
+        fontSize: '1rem',
+        padding: '10px 20px',
+        marginBottom: '5px',
+        borderRadius: '80px',
+        background: 'linear-gradient(90.08deg, rgb(247, 142, 30), rgb(255, 220, 81) 236.03%)',
+        '&:hover': {
+          background: 'linear-gradient(275.91deg, rgb(247, 142, 30) 8.43%, rgb(255, 220, 81) 174.56%)'
+        },
+      }
+    },
+  },
+  link: {
+    textDecoration: 'none',
+  },
 }));
 
 const reArrangeTableHeaders = (item) => {
@@ -48,14 +70,11 @@ const reArrangeTableHeaders = (item) => {
     name: item.name ? item.name : undefined,
     comments: item.comments,
     score: item.score,
-    ...item,
-    date_updated: datec(item.date_updated),
-    date_check: datec(item.date_check),
-    snapshot_date: datec(item.snapshot_date)
+    ...item
   }))
 }
 
-const SnapshotScoring = ({ results, producers, products, bizdevs, community }) => {
+const SnapshotScoring = ({ results, producers, products, bizdevs, community, isAdmin }) => {
   const classes = useStyles();
   const [expandedId, setExpandedId] = useState(false);
 
@@ -123,18 +142,19 @@ const SnapshotScoring = ({ results, producers, products, bizdevs, community }) =
         return (
           <Grid item key={result.owner_name} xs={12} sm={12} md={12}>
             <Card className={classes.root} variant="outlined">
-              <Link to={`/guilds/${result.owner_name}`}>
+              <Link to={`/guilds/${result.owner_name}`} className={classes.link}>
                 <CardHeader
                   avatar={
                     <Avatar alt={result.owner_name} src={logo(result.owner_name)} className={classes.large} />
                   }
-                  action={
+                  /*action={
                     <IconButton aria-label="settings">
                       <MoreVertIcon />
                     </IconButton>
-                  }
+                  }*/
                   title={result.owner_name}
                   subheader={datec(result.date_check)}
+                  className={classes.cardHeader}
                 />
               </Link>
               <CardContent>
@@ -167,28 +187,35 @@ const SnapshotScoring = ({ results, producers, products, bizdevs, community }) =
                 </IconButton>
               </CardActions>
               <Collapse in={expandedId === result.owner_name ? true : false} timeout="auto" unmountOnExit>
-                {!!filteredProducts.length >= 1 ? <CardContent>
+                <CardContent>
                   <TableDataGrid
                     tabledata={filteredProducts}
                     tabletitle="Products"
+                    defaultOwner={result.owner_name}
+                    isAdmin={isAdmin}
                   />
-                </CardContent> : null}
-                {!!filteredBizdevs.length >= 1 ? <CardContent>
+                </CardContent>
+                <CardContent>
                   <TableDataGrid
                     tabledata={filteredBizdevs}
                     tabletitle="Bizdevs"
+                    defaultOwner={result.owner_name}
+                    isAdmin={isAdmin}
                   />
-                </CardContent> : null}
-                {!!filteredCommunity.length >= 1 ? <CardContent>
+                </CardContent>
+                <CardContent>
                   <TableDataGrid
                     tabledata={filteredCommunity}
                     tabletitle="Community"
+                    defaultOwner={result.owner_name}
+                    isAdmin={isAdmin}
                   />
-                </CardContent> : null}
+                </CardContent>
                 <CardContent>
                   <TableDataGrid
                     tabledata={[reArrangeTableHeaders(result)]}
                     tabletitle="Tech Snapshot"
+                    isAdmin={isAdmin}
                   />
                 </CardContent>
               </Collapse>
@@ -200,4 +227,4 @@ const SnapshotScoring = ({ results, producers, products, bizdevs, community }) =
   );
 }
 
-export {SnapshotScoring, reArrangeTableHeaders}
+export { SnapshotScoring, reArrangeTableHeaders }

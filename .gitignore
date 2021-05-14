@@ -46,3 +46,4 @@ pip-delete-this-directory.txt
 
 # OSX
 *.DS_Store
+workspace.code-workspace

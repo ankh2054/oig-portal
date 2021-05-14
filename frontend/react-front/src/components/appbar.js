@@ -78,14 +78,25 @@ const useStyles = makeStyles((theme) => ({
   },
   toolbar: {
     marginBottom: '40px'
-  }
+  },
+  waxButton: {
+    color: '#332b1f',
+    borderRadius: '100px',
+    fontWeight: 'bold',
+    padding: '15px 20px',
+    textDecoration: 'none',
+    background: 'linear-gradient(90.08deg, rgb(247, 142, 30), rgb(255, 220, 81) 236.03%)',
+    '&:hover': {
+      textDecoration: 'none',
+      background: 'linear-gradient(275.91deg, rgb(247, 142, 30) 8.43%, rgb(255, 220, 81) 174.56%)'
+    }
+  },
 }));
 
 
 
-export default function ButtonAppBar() {
+export default function ButtonAppBar({ activeUser, loginModal, logOut, isAdmin }) {
   const classes = useStyles();
-
 
   return (
     <>
@@ -115,8 +126,12 @@ export default function ButtonAppBar() {
             <Link underline="none" variant="button" color="inherit" href="/form" className={classes.link}>
               Submit Update
             </Link>
-            <Link variant="button" color="inherit" href="/admin" className={classes.link}>
-              Admin
+            {isAdmin ?
+              <Link variant="button" color="inherit" href="/admin" className={classes.link}>
+                Admin
+          </Link> : null}
+            <Link variant="button" color="inherit" href="#" onClick={activeUser ? logOut : loginModal} className={[classes.link, classes.waxButton]}>
+              {activeUser ? "Log out " + activeUser.accountName : "Log In"}
             </Link>
           </nav>
         </Toolbar>

@@ -4,9 +4,8 @@ import { MuiPickersUtilsProvider, KeyboardDateTimePicker } from '@material-ui/pi
 import { api_base } from "../config";
 import axios from "axios";
 import TableDataGrid from './table-datagrid'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import MomentUtils from '@date-io/moment'
-require('moment-timezone')
 
 moment.tz.setDefault('Europe/London')
 
@@ -19,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const AdminPanel = ({ snapshotSettings, pointSystem }) => {
+const AdminPanel = ({ snapshotSettings, pointSystem, isAdmin }) => {
     const classes = useStyles();
     const [snapshotDate, updateSnapshotDate] = useState(null);
 
@@ -38,14 +37,14 @@ const AdminPanel = ({ snapshotSettings, pointSystem }) => {
         updateSnapshotDate(snapshotSettings[0]['snapshot_date'])
     }
 
-    return <div className={classes.root}>
+    return isAdmin ? <div className={classes.root}>
         <h1>Admin Panel</h1>
         {snapshotDate ? <MuiPickersUtilsProvider utils={MomentUtils}>
             <KeyboardDateTimePicker
                 format="LLL"
                 margin="normal"
                 id="set-snapshot-date"
-                label="Set snapshot date (GMT)" // This is timezone adjusted...
+                label="Set snapshot date (London)" // This is timezone adjusted...
                 value={snapshotDate}
                 onChange={handleDateChange}
                 className={classes.datePicker}
@@ -58,8 +57,9 @@ const AdminPanel = ({ snapshotSettings, pointSystem }) => {
         <TableDataGrid
             tabledata={pointSystem}
             tabletitle="Point System"
+            isAdmin={isAdmin}
         />
-    </div>
+    </div> : null
 }
 
 export default AdminPanel
