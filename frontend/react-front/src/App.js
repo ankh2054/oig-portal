@@ -35,7 +35,8 @@ const App = (props) => {
     "oigservicesx",
     "ben.hive",
     "ig.kaefer",
-    "waxoigadminp"
+    "waxoigadminp",
+    "sentnlagents"
   ]
 
   const classes = useStyles();
