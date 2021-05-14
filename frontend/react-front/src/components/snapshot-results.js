@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const App = ({ /*results, */ producers, products, bizdevs, community, snapresults, pointSystem }) => {
+const App = ({ /*results, */ producers, products, bizdevs, community, snapresults, pointSystem, isAdmin }) => {
   const classes = useStyles();
   
   const [viewType, setViewType] = useState('integrated')
@@ -37,6 +37,7 @@ const App = ({ /*results, */ producers, products, bizdevs, community, snapresult
         bizdevs={bizdevs}
         community={community}
         pointSystem={pointSystem}
+        isAdmin={isAdmin}
       />
     }
     if (viewType === 'integrated') {
@@ -46,6 +47,7 @@ const App = ({ /*results, */ producers, products, bizdevs, community, snapresult
         products={products}
         bizdevs={bizdevs}
         community={community}
+        isAdmin={isAdmin}
       />
     }
     return null

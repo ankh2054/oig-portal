@@ -31,7 +31,12 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const App = (props) => {
-  const [isAdmin, setIsAdmin ] = useState(false);
+  const admins = [
+    "oigservicesx",
+    "ben.hive",
+    "ig.kaefer",
+    "waxoigadminp"
+  ]
 
   const classes = useStyles();
   // const [rawResults, setRawResults] = useState([])
@@ -151,17 +156,16 @@ const App = (props) => {
           <CssBaseline />
           <Container component="main" maxWidth="xl">
             <ButtonAppBar
-            activeUser={props.ual.activeUser}
-            loginModal={props.ual.showModal}
-            logout={props.ual.logout}
-            isAdmin={isAdmin} />
+              activeUser={props.ual.activeUser}
+              loginModal={props.ual.showModal}
+              logOut={props.ual.logout}
+              isAdmin={props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1} />
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <Paper className={classes.paper}>
                   <Router>
                     <Route path="/latestresults" component={() => <MonthlyResults
                       results={latestresults}
-
                     />} exact />
                     <Route exact path="/snapshot" component={() => <SnapshotResults
                       /*results={latestresults}*/
@@ -170,6 +174,7 @@ const App = (props) => {
                       bizdevs={bizdevs}
                       community={community}
                       snapresults={snapshotlatestresults}
+                      isAdmin={props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1}
                     />} />
                     <Route exact path="/" component={() =>
                       <ProducerCards results={latestresults}
@@ -180,7 +185,7 @@ const App = (props) => {
                       />} />
                     <Route exact path='/guilds/:ownername' component={BPwithownername} />
                     <Route exact path='/form' component={() => <Testform producers={producers} />} />
-                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} pointSystem={rawPointSystem} />} />
+                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} pointSystem={rawPointSystem} isAdmin={props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1} />} />
                   </Router>
                 </Paper>
               </Grid>

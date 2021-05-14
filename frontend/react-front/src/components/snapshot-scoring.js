@@ -74,7 +74,7 @@ const reArrangeTableHeaders = (item) => {
   }))
 }
 
-const SnapshotScoring = ({ results, producers, products, bizdevs, community }) => {
+const SnapshotScoring = ({ results, producers, products, bizdevs, community, isAdmin }) => {
   const classes = useStyles();
   const [expandedId, setExpandedId] = useState(false);
 
@@ -192,6 +192,7 @@ const SnapshotScoring = ({ results, producers, products, bizdevs, community }) =
                     tabledata={filteredProducts}
                     tabletitle="Products"
                     defaultOwner={result.owner_name}
+                    isAdmin={isAdmin}
                   />
                 </CardContent>
                 <CardContent>
@@ -199,6 +200,7 @@ const SnapshotScoring = ({ results, producers, products, bizdevs, community }) =
                     tabledata={filteredBizdevs}
                     tabletitle="Bizdevs"
                     defaultOwner={result.owner_name}
+                    isAdmin={isAdmin}
                   />
                 </CardContent>
                 <CardContent>
@@ -206,12 +208,14 @@ const SnapshotScoring = ({ results, producers, products, bizdevs, community }) =
                     tabledata={filteredCommunity}
                     tabletitle="Community"
                     defaultOwner={result.owner_name}
+                    isAdmin={isAdmin}
                   />
                 </CardContent>
                 <CardContent>
                   <TableDataGrid
                     tabledata={[reArrangeTableHeaders(result)]}
                     tabletitle="Tech Snapshot"
+                    isAdmin={isAdmin}
                   />
                 </CardContent>
               </Collapse>
@@ -223,4 +227,4 @@ const SnapshotScoring = ({ results, producers, products, bizdevs, community }) =
   );
 }
 
-export {SnapshotScoring, reArrangeTableHeaders}
+export { SnapshotScoring, reArrangeTableHeaders }

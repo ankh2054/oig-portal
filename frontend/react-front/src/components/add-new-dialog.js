@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 
-export default function AddNewDialog({ type, tableState, setTableState, defaultOwner }) {
+export default function AddNewDialog({ type, tableState, setTableState, defaultOwner, isAdmin }) {
     const classes = useStyles();
 
     const isProdOrBizdev = type === 'product' || type === 'bizdev';
@@ -267,7 +267,7 @@ export default function AddNewDialog({ type, tableState, setTableState, defaultO
 
     return (
         <>
-            {type !== 'unknownType' ? <Button
+            {type !== 'unknownType' && isAdmin ? <Button
                 type="submit"
                 variant="contained"
                 color="primary"

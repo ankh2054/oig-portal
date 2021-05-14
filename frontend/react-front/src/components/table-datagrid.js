@@ -8,7 +8,8 @@ import AddNewDialog from "./add-new-dialog";
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'inline-block',
-    width: '100%'
+    width: '100%',
+    marginBottom: '25px'
   },
   materialTable: {
     margin: '25px auto',
@@ -16,14 +17,15 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export default function Table({ tabledata, tabletitle, defaultOwner }) {
+export default function Table({ tabledata, tabletitle, defaultOwner, isAdmin }) {
   const classes = useStyles();
   const [tableState, setTableState] = useState(tabledata);
 
   const typeMap = {
     "Products": "product",
     "Bizdevs": "bizdev",
-    "Community": "community"
+    "Community": "community",
+    "Point System": "pointSystem"
   }
   const type = typeMap[tabletitle] ? typeMap[tabletitle] : "unknownType";
 
@@ -38,6 +40,9 @@ export default function Table({ tabledata, tabletitle, defaultOwner }) {
   }
 
   const isEditable = (key, columnObj) => {
+    if (!isAdmin) {
+      return 'never'
+    }
     if (!!columnObj['date_check']) {
       // If there is a date_check field, this is a tech result, and all fields bar comments should be uneditable
       return (key === "comments" ? "always" : "never")
@@ -66,12 +71,12 @@ export default function Table({ tabledata, tabletitle, defaultOwner }) {
         field: key,
         align: 'left',
         // Hide owner_name
-        hidden: key === "owner_name",
+        hidden: key === "owner_name" || (key === "comments" && !isAdmin),
         // Make certain fields uneditable
         editable: (isEditable(key, columnObj)),
         // Highlight comments
         cellStyle: key === "comments" ? {
-          ...defaultCell, backgroundColor: '#ffffed'
+          ...defaultCell, backgroundColor: '#ffffed',
         } : key === 'points_type' ? waxCell : defaultCell,
         render: key === "guild" ? rowData => renderGuildLogo(rowData) : isDate ? rowData => renderDate(rowData) : undefined
       };
@@ -81,7 +86,7 @@ export default function Table({ tabledata, tabletitle, defaultOwner }) {
   };
 
   const maxLength = tableState.length >= 20 ? 20 : tableState.length;
-  // Throws an error when length is out of available bounds
+  // Throws a warning when length is out of available bounds
 
   return (
     <div className={classes.root}>
@@ -92,14 +97,34 @@ export default function Table({ tabledata, tabletitle, defaultOwner }) {
           pageSize: maxLength,
           padding: 'dense'
         }}
-        editable={{
+        actions={isAdmin && type !== 'unknownType' && type !== 'pointSystem' ? [
+          (rowData) => { // Only show delete for product, biz, and comm
+            return {
+              icon: 'delete',
+              tooltip: 'Delete ' + type,
+              onClick: (event, rowData) => {
+                alert('Delete functionality TBA')
+              }
+            }
+          },
+          (rowData) => { // Same with refresh points - though we may want to add this to tech results?
+            return {
+              icon: 'refresh',
+              tooltip: 'Recalculate Points',
+              onClick: (event, rowData) => {
+                alert('Recalculate functionality TBA')
+              }
+            }
+          }
+        ] : null}
+        editable={isAdmin ? { // Show only for admins
           onRowUpdate: (newRow, oldRow) => updateTableState(newRow, oldRow, type, tabletitle, tableState, setTableState),
-        }}
+        } : false}
         // The below code is terrible, but it has to be this way: https://github.com/mbrn/material-table/issues/1900
         data={Array.from(JSON.parse(JSON.stringify(tableState)))} // This is neccessary for some reason. I think it's because material-table doesn't like a mutating state. Oddly, it doesn't matter for the columns above. Perhaps because they don't change?
         title={tabletitle}
       /> : null}
-      <AddNewDialog type={type} tableState={tableState} setTableState={setTableState} defaultOwner ={defaultOwner} />
+      <AddNewDialog type={type} tableState={tableState} setTableState={setTableState} defaultOwner={defaultOwner} isAdmin={isAdmin} />
     </div>
   );
 }

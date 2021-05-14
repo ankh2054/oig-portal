@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const AdminPanel = ({ snapshotSettings, pointSystem }) => {
+const AdminPanel = ({ snapshotSettings, pointSystem, isAdmin }) => {
     const classes = useStyles();
     const [snapshotDate, updateSnapshotDate] = useState(null);
 
@@ -37,7 +37,7 @@ const AdminPanel = ({ snapshotSettings, pointSystem }) => {
         updateSnapshotDate(snapshotSettings[0]['snapshot_date'])
     }
 
-    return <div className={classes.root}>
+    return isAdmin ? <div className={classes.root}>
         <h1>Admin Panel</h1>
         {snapshotDate ? <MuiPickersUtilsProvider utils={MomentUtils}>
             <KeyboardDateTimePicker
@@ -57,8 +57,9 @@ const AdminPanel = ({ snapshotSettings, pointSystem }) => {
         <TableDataGrid
             tabledata={pointSystem}
             tabletitle="Point System"
+            isAdmin={isAdmin}
         />
-    </div>
+    </div> : null
 }
 
 export default AdminPanel
