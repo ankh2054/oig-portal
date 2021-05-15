@@ -8,7 +8,9 @@ import AddNewDialog from "./add-new-dialog";
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'inline-block',
-    width: '100%',
+    width: '100%'
+  },
+  noTable: {
     marginBottom: '25px'
   },
   materialTable: {
@@ -24,8 +26,7 @@ export default function Table({ tabledata, tabletitle, defaultOwner, isAdmin }) 
   const typeMap = {
     "Products": "product",
     "Bizdevs": "bizdev",
-    "Community": "community",
-    "Point System": "pointSystem"
+    "Community": "community"
   }
   const type = typeMap[tabletitle] ? typeMap[tabletitle] : "unknownType";
 
@@ -89,7 +90,7 @@ export default function Table({ tabledata, tabletitle, defaultOwner, isAdmin }) 
   // Throws a warning when length is out of available bounds
 
   return (
-    <div className={classes.root}>
+    <div className={tableState.length >= 1 ? classes.root : [classes.root, classes.noTable]}>
       {tableState.length >= 1 ? <MaterialTable
         columns={generateColumns()}
         className={classes.materialTable}
@@ -97,7 +98,7 @@ export default function Table({ tabledata, tabletitle, defaultOwner, isAdmin }) 
           pageSize: maxLength,
           padding: 'dense'
         }}
-        actions={isAdmin && type !== 'unknownType' && type !== 'pointSystem' ? [
+        actions={isAdmin && type !== 'unknownType' && tabletitle !== 'Point System' ? [
           (rowData) => { // Only show delete for product, biz, and comm
             return {
               icon: 'delete',

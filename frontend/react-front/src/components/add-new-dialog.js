@@ -273,7 +273,7 @@ export default function AddNewDialog({ type, tableState, setTableState, defaultO
                 color="primary"
                 className={tableState.length >= 1 ? classes.addItemButton : classes.addItemButtonEmpty}
                 onClick={e => addItem(type)}
-            >Add new {type}</Button> : null}
+            >{type === 'community' ? "Add/update community points" : `Add new ${type}`}</Button> : null}
             <Dialog
                 open={popupOpen}
                 onClose={handleClose}
