@@ -99,27 +99,21 @@ export default function Table({ tabledata, tabletitle, defaultOwner, isAdmin }) 
           padding: 'dense'
         }}
         actions={isAdmin && type !== 'unknownType' && tabletitle !== 'Point System' ? [
-          (rowData) => { // Only show delete for product, biz, and comm
-            return {
-              icon: 'delete',
-              tooltip: 'Delete ' + type,
-              onClick: (event, rowData) => {
-                alert('Delete functionality TBA')
-              }
-            }
-          },
-          (rowData) => { // Same with refresh points - though we may want to add this to tech results?
+          (rowData) => { // Only show recalc points for product, biz, and comm - though we may want to add this to tech results?
             return {
               icon: 'refresh',
               tooltip: 'Recalculate Points',
               onClick: (event, rowData) => {
-                alert('Recalculate functionality TBA')
+                alert('Recalculate functionality TBA: ' + JSON.stringify(rowData))
               }
             }
           }
         ] : null}
-        editable={isAdmin ? { // Show only for admins
+        editable={isAdmin && type !== 'unknownType' ? { // Show only for admins
           onRowUpdate: (newRow, oldRow) => updateTableState(newRow, oldRow, type, tabletitle, tableState, setTableState),
+          onRowDelete: (oldData) => alert('Delete functionality TBA: ' + JSON.stringify(oldData))
+        } : isAdmin ? { // No delete for snapshot tech results or point system
+          onRowUpdate: (newRow, oldRow) => updateTableState(newRow, oldRow, type, tabletitle, tableState, setTableState)
         } : false}
         // The below code is terrible, but it has to be this way: https://github.com/mbrn/material-table/issues/1900
         data={Array.from(JSON.parse(JSON.stringify(tableState)))} // This is neccessary for some reason. I think it's because material-table doesn't like a mutating state. Oddly, it doesn't matter for the columns above. Perhaps because they don't change?
