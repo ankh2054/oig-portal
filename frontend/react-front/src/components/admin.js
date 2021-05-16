@@ -55,8 +55,8 @@ const AdminPanel = ({ snapshotSettings, pointSystem, isAdmin }) => {
         </MuiPickersUtilsProvider> : null}
         <br></br><br></br>
         <TableDataGrid
-            tabledata={pointSystem}
-            tabletitle="Point System"
+            tableData={pointSystem}
+            tableTitle="Point System"
             isAdmin={isAdmin}
         />
     </div> : null

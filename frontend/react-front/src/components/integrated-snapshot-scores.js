@@ -30,23 +30,23 @@ const App = ({ results, producers, products, bizdevs, community, isAdmin }) => {
   return (
     <>
       <TableDataGrid
-        tabledata={format(products)}
-        tabletitle="Products"
+        tableData={format(products)}
+        tableTitle="Products"
         isAdmin={isAdmin}
       />
       <TableDataGrid
-        tabledata={format(bizdevs)}
-        tabletitle="Bizdevs"
+        tableData={format(bizdevs)}
+        tableTitle="Bizdevs"
         isAdmin={isAdmin}
       />
       <TableDataGrid
-        tabledata={format(community)}
-        tabletitle="Community"
+        tableData={format(community)}
+        tableTitle="Community"
         isAdmin={isAdmin}
       />
       <TableDataGrid
-        tabledata={format(results)}
-        tabletitle="Snapshot Tech Results"
+        tableData={format(results)}
+        tableTitle="Snapshot Tech Results"
         isAdmin={isAdmin}
       />
     </>

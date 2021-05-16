@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import MaterialTable from "material-table";
 import { makeStyles } from '@material-ui/core/styles';
 import datec from '../functions/date'
-import updateTableState from './update-table-state'
+import tryUpdateTable from './try-update-table'
 import AddNewDialog from "./add-new-dialog";
 
 const useStyles = makeStyles((theme) => ({
@@ -16,19 +16,27 @@ const useStyles = makeStyles((theme) => ({
   materialTable: {
     margin: '25px auto',
     maxWidth: '1200px'
+  },
+  guildLink: {
+    fontWeight: 'bold',
+    textDecoration: 'none',
+    color: 'rgb(247, 142, 30)',
+    '&:hover': {
+      textDecoration: 'none'
+    }
   }
 }))
 
-export default function Table({ tabledata, tabletitle, defaultOwner, isAdmin }) {
+export default function Table({ tableData, tableTitle, defaultGuild, isAdmin }) {
   const classes = useStyles();
-  const [tableState, setTableState] = useState(tabledata);
+  const [tableState, setTableState] = useState(tableData);
 
   const typeMap = {
     "Products": "product",
     "Bizdevs": "bizdev",
     "Community": "community"
   }
-  const type = typeMap[tabletitle] ? typeMap[tabletitle] : "unknownType";
+  const type = typeMap[tableTitle] ? typeMap[tableTitle] : "unknownType";
 
   const defaultCell = {
     //whiteSpace: 'nowrap'
@@ -63,7 +71,7 @@ export default function Table({ tabledata, tabletitle, defaultOwner, isAdmin }) 
     // Create Columns from keys of object prop
     const columnsSetup = Object.keys(columnObj).map(function (key) {
       // Not sure if this will work for multiple types of items?
-      const renderGuildLogo = (rowData) => <a href={'/guilds/' + rowData.owner_name} alt={rowData.owner_name}><img src={rowData.guild} alt={rowData.owner_name} /* Smart use of `style`*/ style={{ width: 50, borderRadius: '50%' }} /></a>;
+      const renderGuildLogo = (rowData) => <a href={'/guilds/' + rowData.owner_name} alt={rowData.owner_name} className={classes.guildLink}><img src={rowData.guild} alt={rowData.owner_name} /* Smart use of `style`*/ style={{ width: 50, borderRadius: '50%' }} /></a>;
       const isDate = key === 'date_updated' || key === 'date_check' || key === 'snapshot_date';
       const dateHead = isDate ? key : null;
       const renderDate = (rowData) => datec(rowData[dateHead]);
@@ -98,28 +106,26 @@ export default function Table({ tabledata, tabletitle, defaultOwner, isAdmin }) 
           pageSize: maxLength,
           padding: 'dense'
         }}
-        actions={isAdmin && type !== 'unknownType' && tabletitle !== 'Point System' ? [
-          (rowData) => { // Only show recalc points for product, biz, and comm - though we may want to add this to tech results?
+        actions={isAdmin && type !== 'unknownType' && tableTitle !== 'Point System' ? [
+          (oldRow) => { // Only show recalc points for product, biz, and comm - though we may want to add this to tech results?
             return {
               icon: 'refresh',
-              tooltip: 'Recalculate Points',
-              onClick: (event, rowData) => {
-                alert('Recalculate functionality TBA: ' + JSON.stringify(rowData))
-              }
+              tooltip: 'Recalculate Score',
+              onClick: (event, oldRow) => tryUpdateTable('recalc', oldRow, tableTitle, tableState, setTableState, type)
             }
           }
         ] : null}
         editable={isAdmin && type !== 'unknownType' ? { // Show only for admins
-          onRowUpdate: (newRow, oldRow) => updateTableState(newRow, oldRow, type, tabletitle, tableState, setTableState),
-          onRowDelete: (oldData) => alert('Delete functionality TBA: ' + JSON.stringify(oldData))
+          onRowUpdate: (newRow, oldRow) => tryUpdateTable('update', oldRow, tableTitle, tableState, setTableState, type, newRow),
+          onRowDelete: (oldRow) => tryUpdateTable('delete', oldRow, tableTitle, tableState, setTableState, type),
         } : isAdmin ? { // No delete for snapshot tech results or point system
-          onRowUpdate: (newRow, oldRow) => updateTableState(newRow, oldRow, type, tabletitle, tableState, setTableState)
+          onRowUpdate: (newRow, oldRow) => tryUpdateTable('update', oldRow, tableTitle, tableState, setTableState, type, newRow)
         } : false}
         // The below code is terrible, but it has to be this way: https://github.com/mbrn/material-table/issues/1900
         data={Array.from(JSON.parse(JSON.stringify(tableState)))} // This is neccessary for some reason. I think it's because material-table doesn't like a mutating state. Oddly, it doesn't matter for the columns above. Perhaps because they don't change?
-        title={tabletitle}
+        title={tableTitle}
       /> : null}
-      <AddNewDialog type={type} tableState={tableState} setTableState={setTableState} defaultOwner={defaultOwner} isAdmin={isAdmin} />
+      <AddNewDialog type={type} tableState={tableState} setTableState={setTableState} defaultGuild={defaultGuild} isAdmin={isAdmin} />
     </div>
   );
 }
