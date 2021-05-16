@@ -56,6 +56,8 @@ fastify.post('/api/monthlyUpdates/:owner', db.getUpdatesbyOwner)
 // Update snapshot date and point system
 fastify.post('/api/updateSnapshotDate', db.updateSnapshotDate)
 fastify.post('/api/updatePointSystem', db.updatePointSystem)
+// Delete items
+fastify.post('/api/deleteItem', db.deleteItem)
 
 // Starts the Fastify Server //
 const start = async () => {
