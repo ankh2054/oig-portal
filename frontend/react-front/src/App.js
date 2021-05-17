@@ -53,7 +53,7 @@ const App = (props) => {
   const [latestresults, setLatestResults] = useState([])
   // const [rawSnapshotLatestResults, setRawSnapshotLatestResults] = useState([])
   const [snapshotlatestresults, setSnapshotLatestResults] = useState([])
-  const [snapshotSettings, asetSnapshotSettings] = useState([])
+  const [snapshotSettings, setSnapshotSettings] = useState([])
   const [rawPointSystem, setRawPointSystem] = useState([])
   const [pointSystem, setPointSystem] = useState([])
 
