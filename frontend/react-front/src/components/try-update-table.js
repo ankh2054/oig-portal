@@ -1,9 +1,10 @@
 import updateDb from './update-db'
+import {getItemScore} from '../functions/scoring'
 
 // Note: .push() wasn't the solution to updating state. See https://stackoverflow.com/a/60957646 - material-table doesn't work with hooks
 // Both of these options update the database after state updated. Arguably this should be done the other way around.
 
-const tryUpdateTable = (operation, oldRow, tableTitle, tableState, setTableState, type, newRow) => {
+const tryUpdateTable = (operation, oldRow, tableTitle, tableState, setTableState, type, pointSystem, newRow) => {
   // If the operation is delete - run a seperate function for deleting state & db entry
   if (!newRow && operation === 'delete') {
     return new Promise((resolve) => {
@@ -26,7 +27,7 @@ const tryUpdateTable = (operation, oldRow, tableTitle, tableState, setTableState
       owner_name: oldRow.owner_name,
       name: oldRow.name,
       comments: oldRow.comments,
-      score: 44,
+      score: 0,
       description: oldRow.description,
       stage: oldRow.stage,
       analytics_url: oldRow.analytics_url,
@@ -39,6 +40,7 @@ const tryUpdateTable = (operation, oldRow, tableTitle, tableState, setTableState
       managementpoints: oldRow.managementpoints,
       outstandingpoints: oldRow.outstandingpoints,
     }))
+    payload.score = getItemScore(payload, pointSystem, type)
     console.log("Score recalculated.")
   }
   if (operation === 'update') {

@@ -11,7 +11,7 @@ function getGuildLogoURL(guild, producers) {
   return logosvg_url
 }
 
-const App = ({ results, producers, products, bizdevs, community, isAdmin }) => {
+const App = ({ results, producers, products, bizdevs, community, isAdmin, pointSystem }) => {
   function format(array) {
     // Any manipulations of initially loaded data can be done here
     if (array.length >= 1) {
@@ -33,21 +33,25 @@ const App = ({ results, producers, products, bizdevs, community, isAdmin }) => {
         tableData={format(products)}
         tableTitle="Products"
         isAdmin={isAdmin}
+        pointSystem={pointSystem}
       />
       <TableDataGrid
         tableData={format(bizdevs)}
         tableTitle="Bizdevs"
         isAdmin={isAdmin}
+        pointSystem={pointSystem}
       />
       <TableDataGrid
         tableData={format(community)}
         tableTitle="Community"
         isAdmin={isAdmin}
+        pointSystem={pointSystem}
       />
       <TableDataGrid
         tableData={format(results)}
         tableTitle="Snapshot Tech Results"
         isAdmin={isAdmin}
+        pointSystem={pointSystem}
       />
     </>
   );

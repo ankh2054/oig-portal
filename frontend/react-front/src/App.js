@@ -53,9 +53,9 @@ const App = (props) => {
   const [latestresults, setLatestResults] = useState([])
   // const [rawSnapshotLatestResults, setRawSnapshotLatestResults] = useState([])
   const [snapshotlatestresults, setSnapshotLatestResults] = useState([])
-  const [snapshotSettings, setSnapshotSettings] = useState([])
+  const [snapshotSettings, asetSnapshotSettings] = useState([])
   const [rawPointSystem, setRawPointSystem] = useState([])
-  // const [pointSystem, setPointSystem] = useState([])
+  const [pointSystem, setPointSystem] = useState([])
 
   useEffect(() => {
     // Load data and set hooks. A future implementation could use axios.all
@@ -97,7 +97,7 @@ const App = (props) => {
       pointSystemBase.forEach(item => {
         formattedPointSystem[item.points_type] = [item.points, item.multiplier]
       });
-      // setPointSystem(formattedPointSystem)
+      setPointSystem(formattedPointSystem)
     })
   }, []);
 
@@ -173,6 +173,7 @@ const App = (props) => {
                       producers={producers}
                       products={products}
                       bizdevs={bizdevs}
+                      pointSystem={pointSystem}
                       community={community}
                       snapresults={snapshotlatestresults}
                       isAdmin={props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1}

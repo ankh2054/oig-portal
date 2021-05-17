@@ -74,7 +74,7 @@ const reArrangeTableHeaders = (item) => {
   }))
 }
 
-const SnapshotScoring = ({ results, producers, products, bizdevs, community, isAdmin }) => {
+const SnapshotScoring = ({ results, producers, products, bizdevs, community, isAdmin, pointSystem }) => {
   const classes = useStyles();
   const [expandedId, setExpandedId] = useState(false);
 
@@ -193,6 +193,7 @@ const SnapshotScoring = ({ results, producers, products, bizdevs, community, isA
                     tableTitle="Products"
                     defaultGuild={result.owner_name}
                     isAdmin={isAdmin}
+                    pointSystem={pointSystem}
                   />
                 </CardContent>
                 <CardContent>

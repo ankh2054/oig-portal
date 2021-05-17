@@ -19,6 +19,7 @@ const updateDb = (operation, type, payload, tableTitle) => {
     }
     if (operation === 'update') {
         const date_updated = new Date();
+        const score = payload.score ? payload.score : 0;
         if (type === "product") {
             const {
                 owner_name,
@@ -28,7 +29,6 @@ const updateDb = (operation, type, payload, tableTitle) => {
                 analytics_url,
                 spec_url,
                 code_repo,
-                score,
                 points,
                 comments
             } = payload;
@@ -42,7 +42,7 @@ const updateDb = (operation, type, payload, tableTitle) => {
                     spec_url,
                     code_repo,
                     score,
-                    points,
+                    points: +points,
                     date_updated,
                     comments
                 })
@@ -57,7 +57,6 @@ const updateDb = (operation, type, payload, tableTitle) => {
                 name,
                 description,
                 stage,
-                score,
                 points,
                 comments
             } = payload;
@@ -68,7 +67,7 @@ const updateDb = (operation, type, payload, tableTitle) => {
                     description: description ? description : "",
                     stage,
                     score,
-                    points,
+                    points: +points,
                     date_updated,
                     comments
                 })
@@ -85,17 +84,16 @@ const updateDb = (operation, type, payload, tableTitle) => {
                 eventpoints,
                 managementpoints,
                 outstandingpoints,
-                score,
                 comments
             } = payload;
             axios
                 .post(api_base + "/api/communityUpdate", {
                     owner_name,
-                    origcontentpoints,
-                    transcontentpoints,
-                    eventpoints,
-                    managementpoints,
-                    outstandingpoints,
+                    origcontentpoints: +origcontentpoints,
+                    transcontentpoints: +transcontentpoints,
+                    eventpoints: +eventpoints,
+                    managementpoints: +managementpoints,
+                    outstandingpoints: +outstandingpoints,
                     score,
                     date_updated,
                     comments

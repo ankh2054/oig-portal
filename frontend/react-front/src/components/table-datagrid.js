@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export default function Table({ tableData, tableTitle, defaultGuild, isAdmin }) {
+export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, pointSystem }) {
   const classes = useStyles();
   const [tableState, setTableState] = useState(tableData);
 
@@ -111,15 +111,15 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin }) 
             return {
               icon: 'refresh',
               tooltip: 'Recalculate Score',
-              onClick: (event, oldRow) => tryUpdateTable('recalc', oldRow, tableTitle, tableState, setTableState, type)
+              onClick: (event, oldRow) => tryUpdateTable('recalc', oldRow, tableTitle, tableState, setTableState, type, pointSystem)
             }
           }
         ] : null}
         editable={isAdmin && type !== 'unknownType' ? { // Show only for admins
-          onRowUpdate: (newRow, oldRow) => tryUpdateTable('update', oldRow, tableTitle, tableState, setTableState, type, newRow),
+          onRowUpdate: (newRow, oldRow) => tryUpdateTable('update', oldRow, tableTitle, tableState, setTableState, type, pointSystem, newRow),
           onRowDelete: (oldRow) => tryUpdateTable('delete', oldRow, tableTitle, tableState, setTableState, type),
         } : isAdmin ? { // No delete for snapshot tech results or point system
-          onRowUpdate: (newRow, oldRow) => tryUpdateTable('update', oldRow, tableTitle, tableState, setTableState, type, newRow)
+          onRowUpdate: (newRow, oldRow) => tryUpdateTable('update', oldRow, tableTitle, tableState, setTableState, type, pointSystem, newRow)
         } : false}
         // The below code is terrible, but it has to be this way: https://github.com/mbrn/material-table/issues/1900
         data={Array.from(JSON.parse(JSON.stringify(tableState)))} // This is neccessary for some reason. I think it's because material-table doesn't like a mutating state. Oddly, it doesn't matter for the columns above. Perhaps because they don't change?

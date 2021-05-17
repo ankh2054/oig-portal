@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
         top: '-45px'
     },
     addItemButtonEmpty: {
-        margin: "10px auto"
+        margin: "10px auto 50px"
     }
 }))
 
