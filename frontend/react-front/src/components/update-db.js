@@ -4,7 +4,18 @@ import axios from "axios";
 // Update row in database - now generic
 const updateDb = (operation, type, payload, tableTitle) => {
     if (operation === 'delete') {
-        alert("Delete called for payload: " + JSON.stringify(payload))
+        const { owner_name, name } = payload;
+        axios
+            .post(api_base + "/api/deleteItem", {
+                type,
+                owner_name,
+                name
+            })
+            .then(() => {
+                console.log(
+                    `${type !== 'community' ? `${type} '${name}' by ` : 'Community points for'} ${owner_name} deleted! Reload to confirm.`
+                );
+            });
     }
     if (operation === 'update') {
         const date_updated = new Date();

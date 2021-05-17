@@ -21,11 +21,24 @@ const tryUpdateTable = (operation, oldRow, tableTitle, tableState, setTableState
   let payload = {};
   // TODO: Integrate with score system
   if (!newRow && operation === 'recalc') {
-    payload = {
-      ...oldRow,
-      tableData: undefined,
-      score: 0
-    }
+    payload = JSON.parse(JSON.stringify({
+      guild: oldRow.guild,
+      owner_name: oldRow.owner_name,
+      name: oldRow.name,
+      comments: oldRow.comments,
+      score: 44,
+      description: oldRow.description,
+      stage: oldRow.stage,
+      analytics_url: oldRow.analytics_url,
+      spec_url: oldRow.spec_url,
+      code_repo: oldRow.code_repo,
+      points: oldRow.points,
+      origcontentpoints: oldRow.origcontentpoints,
+      transcontentpoints: oldRow.transcontentpoints,
+      eventpoints: oldRow.eventpoints,
+      managementpoints: oldRow.managementpoints,
+      outstandingpoints: oldRow.outstandingpoints,
+    }))
     console.log("Score recalculated.")
   }
   if (operation === 'update') {

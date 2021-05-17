@@ -311,13 +311,13 @@ const getUpdatesbyOwner = (request, reply) => {
 
 // Delete product, bizdev, or community item
 const deleteItem = (request, reply) => {
-  const { type, owner, name } = request.body;
+  const { type, owner_name, name } = request.body;
 
-  if (type !== 'type' && !name) {
+  if (!type) {
     reply.status(400).send('Please include type');
   }
 
-  if (type !== 'owner' && !name) {
+  if (!owner_name) {
     reply.status(400).send('Please include owner');
   }
 
@@ -326,7 +326,7 @@ const deleteItem = (request, reply) => {
   }
 
   const query = [
-    `DELETE FROM "oig"."${type === 'product' ? 'products' : type}" WHERE "owner_name"='${owner}'`,
+    `DELETE FROM "oig"."${type === 'product' ? 'products' : type}" WHERE "owner_name"='${owner_name}'`,
     `AND "name"='${name}'`
   ]
 
