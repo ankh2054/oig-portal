@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 
-export default function AddNewDialog({ type, tableState, setTableState, defaultGuild, isAdmin }) {
+export default function AddNewDialog({ type, tableState, setTableState, defaultGuild, isAdmin, pointSystem }) {
     const classes = useStyles();
 
     const isProdOrBizdev = type === 'product' || type === 'bizdev';
@@ -109,7 +109,7 @@ export default function AddNewDialog({ type, tableState, setTableState, defaultG
         // Should ideally be an integrated table editor, when we make it pretty
         payload.date_updated = new Date()
         // TODO: Update table state
-        updateDb('update', type, payload)
+        updateDb('create', type, payload, null, pointSystem)
         handleClose()
     }
 
@@ -151,7 +151,7 @@ export default function AddNewDialog({ type, tableState, setTableState, defaultG
             setPopupData({
                 ...defaultPopupData,
                 desc: "Please enter " + niceName + ":",
-                confirm: `${isComm ? "Add/update community points" : `Add new ${type}`}`
+                confirm: `${isComm ? "Update community points" : `Add new ${type}`}`
             })
             return
         }
@@ -272,7 +272,7 @@ export default function AddNewDialog({ type, tableState, setTableState, defaultG
                 color="primary"
                 className={tableState.length >= 1 ? classes.addItemButton : classes.addItemButtonEmpty}
                 onClick={e => addItem(type)}
-            >{isComm ? "Add/update community points" : `Add new ${type}`}</Button> : null}
+            >{isComm ? "Update community points" : `Add new ${type}`}</Button> : null}
             <Dialog
                 open={popupOpen}
                 onClose={handleClose}

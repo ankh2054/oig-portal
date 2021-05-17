@@ -1,8 +1,9 @@
 import { api_base } from "../config";
 import axios from "axios";
+import {getItemScore} from '../functions/scoring'
 
 // Update row in database - now generic
-const updateDb = (operation, type, payload, tableTitle) => {
+const updateDb = (operation, type, payload, tableTitle, pointSystem) => {
     if (operation === 'delete') {
         const { owner_name, name } = payload;
         axios
@@ -17,9 +18,9 @@ const updateDb = (operation, type, payload, tableTitle) => {
                 );
             });
     }
-    if (operation === 'update') {
+    if (operation === 'update' || operation === 'create') {
         const date_updated = new Date();
-        const score = payload.score ? payload.score : 0;
+        const score = payload.score ? payload.score : operation === 'create' && !!pointSystem ? getItemScore(payload, pointSystem, type) : 0;
         if (type === "product") {
             const {
                 owner_name,

@@ -39,6 +39,8 @@ const App = (props) => {
     "sentnlagents"
   ]
 
+  const adminOverride = false;
+
   const classes = useStyles();
   // const [rawResults, setRawResults] = useState([])
   // const [results, setResults] = useState([])
@@ -160,7 +162,7 @@ const App = (props) => {
               activeUser={props.ual.activeUser}
               loginModal={props.ual.showModal}
               logOut={props.ual.logout}
-              isAdmin={props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1} />
+              isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} />
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <Paper className={classes.paper}>
@@ -176,7 +178,7 @@ const App = (props) => {
                       pointSystem={pointSystem}
                       community={community}
                       snapresults={snapshotlatestresults}
-                      isAdmin={props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1}
+                      isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)}
                     />} />
                     <Route exact path="/" component={() =>
                       <ProducerCards results={latestresults}
@@ -187,7 +189,7 @@ const App = (props) => {
                       />} />
                     <Route exact path='/guilds/:ownername' component={BPwithownername} />
                     <Route exact path='/form' component={() => <Testform producers={producers} />} />
-                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} pointSystem={rawPointSystem} isAdmin={props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1} />} />
+                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} pointSystem={rawPointSystem} isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} />} />
                   </Router>
                 </Paper>
               </Grid>

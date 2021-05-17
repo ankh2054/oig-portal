@@ -8,13 +8,13 @@ import AddNewDialog from "./add-new-dialog";
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'inline-block',
-    width: '100%'
+    width: '100%',
+    margin: '5px auto'
   },
   noTable: {
     marginBottom: '25px'
   },
   materialTable: {
-    margin: '25px auto',
     maxWidth: '1200px'
   },
   guildLink: {
@@ -125,7 +125,7 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
         data={Array.from(JSON.parse(JSON.stringify(tableState)))} // This is neccessary for some reason. I think it's because material-table doesn't like a mutating state. Oddly, it doesn't matter for the columns above. Perhaps because they don't change?
         title={tableTitle}
       /> : null}
-      <AddNewDialog type={type} tableState={tableState} setTableState={setTableState} defaultGuild={defaultGuild} isAdmin={isAdmin} />
+      <AddNewDialog type={type} tableState={tableState} setTableState={setTableState} defaultGuild={defaultGuild} isAdmin={isAdmin} pointSystem={pointSystem} />
     </div>
   );
 }
