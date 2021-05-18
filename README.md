@@ -57,3 +57,13 @@ Warning: findDOMNode is deprecated in StrictMode. findDOMNode was passed an inst
 
 ### Future proofing / refactoring ideas
 Replace moment.js with Luxon or a similarly maintained, lighter framework
+
+## Generating cached images
+
+```SELECT logo_svg from "oig"."producer"```
+
+Save in logolist.txt
+
+Run wget -r -H -nc -np --cut-dirs=1 -A .png,.jpeg,.jpg -e robots=off -l1 -i ./logolist.txt
+
+Then place in logo_cache
