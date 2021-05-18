@@ -1,42 +1,42 @@
 # oig-portal
-OIG portals to easily check services of BPs for reporting
+WAX OIG portal
 
-Backend will run as Python
 
-Frontend
-Nodejs fastify server will contain the CRUD operatios to database & the APIS we can call to access data in DB.
-Nodejs React as our user frontend which when build will reside in express server.
-Nginx then proxy any port 80 requets to the express server running on port 3000
-
-DB
-PostgreSQL
-
-## Install (Frontend)
-cd frontend/fastify \
-&& npm ci \
-&& cd ../react-front \
-&& npm ci
-
-### Start Fastify
-cd frontend/fastify \
-&& npm run dev
-
-### Start React (after Fastify)
-\[Seperate Tab - needs fastify running to get data\]:
+# Build the production OIG container
 ```
-cd frontend/react-front \
-&& npm run start
-```
-### Start React (after Fastify) [Powershell]
-\[Seperate Tab - needs fastify running to get data\]:
-```
-cd frontend/react-front
-npm run start-win
-```
-### Run producer-data
-Start PostGreSQL
+CD into directory of choice
+docker build https://github.com/ankh2054/oig-portal.git -t oig-portal 
 
-python3 backend/producer-data.py
+```
+
+
+## ENV Variables
+
+|ENV & ARG                 |Value                          |Description                                   |
+|--------------------------|---------------------------------------|--------------------------------------|
+|**PGPASSWORD**            |`postgresqlpassword`                   | PostgreSQL password                  |
+|**DB_DATABASE**           |`waxram`                               | Database Name for RAM data           |
+|**DB_USER**               |`waxramuser`                           | Database user with access to DB      |
+|**DB_PASSWORD**           |`waxramuserpassword`                   | Password for Database user       	  |
+
+
+
+
+# Run the container using nginx proxy
+
+```
+docker run  --name oig.sentnl.io --expose 80 \
+-d -e "VIRTUAL_HOST=oig.sentnl.io" \
+-e "LETSENCRYPT_HOST=oig.sentnl.io" \
+-e "LETSENCRYPT_EMAIL=charles.holtzkampf@gmail.com" \
+-e "PGPASSWORD=postgresqlpassword" \
+-e "DB_DATABASE=waxdb" \
+-e "DB_USER=waxramuser" \
+-e "DB_PASSWORD=waxramuserpassword" \
+-v /data/sites/oig.sentnl.io/postgresql:/var/lib/postgresql \
+oig-portal:latest
+```
+
 
 ### Known errors
 ````
