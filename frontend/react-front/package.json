@@ -36,6 +36,7 @@
     "start-win": "set REACT_APP_ENVIRONMENT=development && set PORT=3001 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "builddocker": "REACT_APP_ENVIRONMENT=production react-scripts build && rm build/static/*/*.map && mkdir -p ../fastify/public && cp -r -f build/* ../fastify/public/",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
