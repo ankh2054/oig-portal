@@ -2,7 +2,7 @@ import React from 'react'
 import ProducerResults from './producer-results'
 
 
-const App = ({ results, producers, products, bizdevs, community }) => {
+const App = ({ results, producers, products, bizdevs, community, producerLogos }) => {
   
   return (
     <div>
@@ -13,6 +13,7 @@ const App = ({ results, producers, products, bizdevs, community }) => {
             products={ products }
             bizdevs={ bizdevs }
             community={ community }
+            producerLogos={producerLogos}
        />
     </div>
   )

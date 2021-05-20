@@ -74,7 +74,7 @@ const reArrangeTableHeaders = (item) => {
   }))
 }
 
-const SnapshotScoring = ({ results, producers, products, bizdevs, community, isAdmin, pointSystem }) => {
+const SnapshotScoring = ({ results, producers, products, bizdevs, community, isAdmin, pointSystem, producerLogos }) => {
   const classes = useStyles();
   const [expandedId, setExpandedId] = useState(false);
 
@@ -90,6 +90,7 @@ const SnapshotScoring = ({ results, producers, products, bizdevs, community, isA
   }
 
   // Return Guild Logo
+  /* Add image caching */
   function logo(owner) {
     let ownername = producers.find((producer) => producer.owner_name === owner)
     //Conditional rendering if ownername is true, return logosvg.logo_svg
@@ -145,7 +146,7 @@ const SnapshotScoring = ({ results, producers, products, bizdevs, community, isA
               <Link to={`/guilds/${result.owner_name}`} className={classes.link}>
                 <CardHeader
                   avatar={
-                    <Avatar alt={result.owner_name} src={logo(result.owner_name)} className={classes.large} />
+                    <Avatar alt={result.owner_name} src={logo(result.owner_name)} className={classes.large} /> 
                   }
                   /*action={
                     <IconButton aria-label="settings">

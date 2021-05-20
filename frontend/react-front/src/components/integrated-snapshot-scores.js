@@ -3,6 +3,7 @@ import { reArrangeTableHeaders } from './snapshot-scoring'
 import TableDataGrid from './table-datagrid'
 
 // Return Guild Logo
+/* Add image caching */
 function getGuildLogoURL(guild, producers) {
   let ownername = producers.find((producer) => producer.owner_name === guild)
   //Conditional rendering if ownername is true, return logosvg.logo_svg
@@ -11,7 +12,7 @@ function getGuildLogoURL(guild, producers) {
   return logosvg_url
 }
 
-const App = ({ results, producers, products, bizdevs, community, isAdmin, pointSystem }) => {
+const App = ({ results, producers, products, bizdevs, community, isAdmin, pointSystem, producerLogos }) => {
   function format(array) {
     // Any manipulations of initially loaded data can be done here
     if (array.length >= 1) {

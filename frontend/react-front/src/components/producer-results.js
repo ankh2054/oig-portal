@@ -68,9 +68,10 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-const App = ({ results, producers, products, bizdevs, community }) => {
+const App = ({ results, producers, products, bizdevs, community, producerLogos }) => {
   const classes = useStyles();
   // Return Guild Logo
+  /* Add image caching */
   function logo(owner) {
     let ownername = producers.find((producer) => producer.owner_name === owner)
     //Conditional rendering if ownername is true, return logosvg.logo_svg

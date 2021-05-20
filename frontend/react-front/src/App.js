@@ -30,6 +30,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
+function importAll(r) {
+  return r.keys().map(r);
+}
+
+const producerLogos = importAll(require.context('./', false, /\.(png|jpe?g|svg)$/));
+
 const App = (props) => {
   const admins = [
     "oigservicesx",
@@ -147,6 +153,7 @@ const App = (props) => {
         <ProducerDetails
           producer={producers.filter((result) => result.owner_name === params.ownername)[0]}
           latestresults={latestresults}
+          producerLogos={producerLogos}
         />
       </>
     );
@@ -179,6 +186,7 @@ const App = (props) => {
                       community={community}
                       snapresults={snapshotlatestresults}
                       isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)}
+                      producerLogos={producerLogos}
                     />} />
                     <Route exact path="/" component={() =>
                       <ProducerCards results={latestresults}
@@ -186,6 +194,7 @@ const App = (props) => {
                         products={products}
                         bizdevs={bizdevs}
                         community={community}
+                        producerLogos={producerLogos}
                       />} />
                     <Route exact path='/guilds/:ownername' component={BPwithownername} />
                     <Route exact path='/form' component={() => <Testform producers={producers} />} />
