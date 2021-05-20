@@ -7,6 +7,7 @@ import { green, red, grey } from '@material-ui/core/colors';
 import Icon from '@material-ui/core/Icon';
 import {CpuStatsGraph, cpuSummary} from './cpu-stats-graph';
 import Paper from '@material-ui/core/Paper';
+import getCachedImage from './getCachedImage'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -147,7 +148,7 @@ const generateServicesProvided = (results) => {
   return jsx
 }
 
-const App = ({ producer, latestresults, producerLogos }) => {
+const App = ({ producer, latestresults, producerLogos, producerDomainMap }) => {
   const classes = useStyles();
   const [results, setResults] = useState([]);
 
@@ -177,8 +178,7 @@ const App = ({ producer, latestresults, producerLogos }) => {
       {producer ? <h1>{producer.candidate} <small>{producer.owner_name}</small></h1> : null}
       <div className={classes.constrainedBox}>
         <Paper className={[classes.paper, classes.logoAndFlag]} variant="outlined">
-          {/* Add image caching */}
-          {producer ? <img alt={producer.candidate + " logo"} className={classes.guildLogo} src={producer.logo_svg} /> : null}
+          {producer && producerLogos ? <img alt={producer.candidate + " logo"} className={classes.guildLogo} src={getCachedImage(producer.logo_svg, producerLogos, producerDomainMap)} /> : null}
           <br />
           {producer && flagMap[producer.country_code] ? <span className={classes.flagIcon}>
             {flagMap[producer.country_code]}

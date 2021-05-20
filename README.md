@@ -64,6 +64,6 @@ Replace moment.js with Luxon or a similarly maintained, lighter framework
 
 Save in logolist.txt
 
-Run wget -r -H -nc -np --cut-dirs=1 -A .png,.jpeg,.jpg -e robots=off -l1 -i ./logolist.txt
+Run wget -r --cut-dirs=20 -A .png,.jpeg,.jpg  -i ./logolist.txt
 
 Then place in logo_cache

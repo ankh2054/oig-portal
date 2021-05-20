@@ -19,6 +19,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import clsx from 'clsx'
 import Collapse from '@material-ui/core/Collapse'
 import TableDataGrid from './table-datagrid'
+import getCachedImage from './getCachedImage'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -74,7 +75,7 @@ const reArrangeTableHeaders = (item) => {
   }))
 }
 
-const SnapshotScoring = ({ results, producers, products, bizdevs, community, isAdmin, pointSystem, producerLogos }) => {
+const SnapshotScoring = ({ results, producers, products, bizdevs, community, isAdmin, pointSystem, producerLogos, producerDomainMap }) => {
   const classes = useStyles();
   const [expandedId, setExpandedId] = useState(false);
 
@@ -90,13 +91,12 @@ const SnapshotScoring = ({ results, producers, products, bizdevs, community, isA
   }
 
   // Return Guild Logo
-  /* Add image caching */
   function logo(owner) {
     let ownername = producers.find((producer) => producer.owner_name === owner)
     //Conditional rendering if ownername is true, return logosvg.logo_svg
     // Because one of your producers does not have a logo set
     let logosvg_url = ownername ? ownername.logo_svg : ""
-    return logosvg_url
+    return getCachedImage(logosvg_url, producerLogos, producerDomainMap)
   }
 
   // Returns score from state 

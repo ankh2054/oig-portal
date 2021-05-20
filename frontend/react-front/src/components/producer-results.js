@@ -15,6 +15,7 @@ import Grid from '@material-ui/core/Grid';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import Tooltip from '@material-ui/core/Tooltip';
 import datec from '../functions/date'
+import getCachedImage from './getCachedImage'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -68,16 +69,15 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-const App = ({ results, producers, products, bizdevs, community, producerLogos }) => {
+const App = ({ results, producers, products, bizdevs, community, producerLogos, producerDomainMap }) => {
   const classes = useStyles();
   // Return Guild Logo
-  /* Add image caching */
   function logo(owner) {
     let ownername = producers.find((producer) => producer.owner_name === owner)
     //Conditional rendering if ownername is true, return logosvg.logo_svg
     // Because one of your producers does not have a logo set
     let logosvg_url = ownername ? ownername.logo_svg : ""
-    return logosvg_url
+    return getCachedImage(logosvg_url, producerLogos, producerDomainMap)
   }
 
   // Returns score from state 

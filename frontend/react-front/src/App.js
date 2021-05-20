@@ -31,10 +31,16 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 function importAll(r) {
-  return r.keys().map(r);
+  let producerDomainMap = {};
+  r.keys().forEach((r, index) => { const base = r.split("/"); producerDomainMap[base[2]] = [base[1], index]  })
+
+  return {
+    producerLogos: r.keys().map(r),
+    producerDomainMap
+  }
 }
 
-const producerLogos = importAll(require.context('./', false, /\.(png|jpe?g|svg)$/));
+const {producerLogos, producerDomainMap} = importAll(require.context('./assets/logo_cache', true, /\.(png|jpe?g|svg)$/));
 
 const App = (props) => {
   const admins = [
@@ -154,6 +160,7 @@ const App = (props) => {
           producer={producers.filter((result) => result.owner_name === params.ownername)[0]}
           latestresults={latestresults}
           producerLogos={producerLogos}
+          producerDomainMap={producerDomainMap}
         />
       </>
     );
@@ -187,6 +194,7 @@ const App = (props) => {
                       snapresults={snapshotlatestresults}
                       isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)}
                       producerLogos={producerLogos}
+                      producerDomainMap={producerDomainMap}
                     />} />
                     <Route exact path="/" component={() =>
                       <ProducerCards results={latestresults}
@@ -195,6 +203,7 @@ const App = (props) => {
                         bizdevs={bizdevs}
                         community={community}
                         producerLogos={producerLogos}
+                        producerDomainMap={producerDomainMap}
                       />} />
                     <Route exact path='/guilds/:ownername' component={BPwithownername} />
                     <Route exact path='/form' component={() => <Testform producers={producers} />} />
