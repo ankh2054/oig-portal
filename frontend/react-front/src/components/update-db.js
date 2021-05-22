@@ -20,7 +20,7 @@ const updateDb = (operation, type, payload, tableTitle, pointSystem) => {
     }
     if (operation === 'update' || operation === 'create') {
         const date_updated = new Date();
-        const score = payload.score ? payload.score : operation === 'create' && !!pointSystem ? getItemScore(payload, pointSystem, type) : 0;
+        const score = +payload.score >=1 ? payload.score : operation === 'create' && !!pointSystem ? getItemScore(payload, pointSystem, type) : 0;
         if (type === "product") {
             const {
                 owner_name,

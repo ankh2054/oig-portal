@@ -108,7 +108,11 @@ export default function AddNewDialog({ type, tableState, setTableState, defaultG
         let payload = JSON.parse(JSON.stringify(initialPayload))
         // Should ideally be an integrated table editor, when we make it pretty
         payload.date_updated = new Date()
-        // TODO: Update table state
+        /* Update table state- not working
+        const tableCopy = [...tableState];
+        tableCopy.push(payload);
+        setTableState([...tableCopy]);
+        console.log("New row added to table state!");*/
         updateDb('create', type, payload, null, pointSystem)
         handleClose()
     }
