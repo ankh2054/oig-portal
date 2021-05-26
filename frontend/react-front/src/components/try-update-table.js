@@ -23,22 +23,29 @@ const tryUpdateTable = (operation, currentRow, tableTitle, tableState, setTableS
   // TODO: Integrate with score system
   if (!newRow && (operation === 'recalc' || operation === 'create')) {
     payload = {
-      guild: currentRow.guild,
+      guild: currentRow.guild ? currentRow.guild : currentRow.owner_name,
       owner_name: currentRow.owner_name,
-      name: currentRow.name,
       comments: currentRow.comments,
       score: 0,
-      description: currentRow.description,
-      stage: currentRow.stage,
-      analytics_url: currentRow.analytics_url,
-      spec_url: currentRow.spec_url,
-      code_repo: currentRow.code_repo,
-      points: currentRow.points,
-      origcontentpoints: currentRow.origcontentpoints,
-      transcontentpoints: currentRow.transcontentpoints,
-      eventpoints: currentRow.eventpoints,
-      managementpoints: currentRow.managementpoints,
-      outstandingpoints: currentRow.outstandingpoints,
+      ...(type === 'product' || type === 'bizdev' ? {
+        name: currentRow.name,
+        description: currentRow.description,
+        stage: currentRow.stage,
+        analytics_url: currentRow.analytics_url,
+        spec_url: currentRow.spec_url,
+        code_repo: currentRow.code_repo,
+        points: currentRow.points,
+      } : {}),
+      ...(type === 'product' ? {
+        code_repo: currentRow.code_repo
+      } : {}),
+      ...(type === 'community' ? {
+        origcontentpoints: +currentRow.origcontentpoints,
+        transcontentpoints: +currentRow.transcontentpoints,
+        eventpoints: +currentRow.eventpoints,
+        managementpoints: +currentRow.managementpoints,
+        outstandingpoints: +currentRow.outstandingpoints,
+      } : {})
     }
     payload.score = getItemScore(payload, pointSystem, type)
     console.log("Score recalculated.")
@@ -61,7 +68,7 @@ const tryUpdateTable = (operation, currentRow, tableTitle, tableState, setTableS
         tableCopy[index] = payload;
       }
       setTableState([...tableCopy]);
-      console.log("Table state updated!");
+      console.log("Table state updated! Operation " + operation);
       resolve(payload);
     }).then((payload) => {
       if (operation !== 'create') {
