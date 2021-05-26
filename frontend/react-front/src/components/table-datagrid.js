@@ -101,6 +101,7 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
         className={classes.materialTable}
         options={{
           pageSize: tableState.length >= 20 ? 20 : tableState.length,
+          // Cannot be dynamically changed: https://github.com/mbrn/material-table/issues/1480
           pageSizeOptions: [
             (parseInt(tableState.length/4) <= 5 ? tableState.length : parseInt(tableState.length/8)), (parseInt(tableState.length/4) <= 10 ? 10 : parseInt(tableState.length/4)), (parseInt(tableState.length/4) <= 20 ? 20 : parseInt(tableState.length/2))
           ],
