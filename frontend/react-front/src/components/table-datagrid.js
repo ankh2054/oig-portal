@@ -102,7 +102,7 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
         options={{
           pageSize: tableState.length >= 20 ? 20 : tableState.length,
           pageSizeOptions: [
-            (parseInt(tableState.length/8) + 1), (parseInt(tableState.length/4) + 2), ...((parseInt(tableState.length/2) + 3) <= tableState.length ? [tableState.length] : [(parseInt(tableState.length/2) + 3), tableState.length])
+            (parseInt(tableState.length/4) <= 5 ? tableState.length : parseInt(tableState.length/8)), (parseInt(tableState.length/4) <= 10 ? 10 : parseInt(tableState.length/4)), (parseInt(tableState.length/4) <= 20 ? 20 : parseInt(tableState.length/2))
           ],
           padding: 'dense'
         }}
