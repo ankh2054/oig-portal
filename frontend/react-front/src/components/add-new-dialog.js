@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 
-export default function AddNewDialog({ type, tableState, setTableState, defaultGuild, isAdmin, pointSystem }) {
+export default function AddNewDialog({ type, tableState, tryUpdateTable, setTableState, defaultGuild, isAdmin, pointSystem }) {
     const classes = useStyles();
 
     const isProdOrBizdev = type === 'product' || type === 'bizdev';
@@ -108,7 +108,12 @@ export default function AddNewDialog({ type, tableState, setTableState, defaultG
         let payload = JSON.parse(JSON.stringify(initialPayload))
         // Should ideally be an integrated table editor, when we make it pretty
         payload.date_updated = new Date()
-        // TODO: Update table state
+        /* Update table state- not working
+        const tableCopy = [...tableState];
+        tableCopy.push(payload);
+        setTableState([...tableCopy]);
+        console.log("New row added to table state!");*/
+        tryUpdateTable('create', payload, null, tableState, setTableState, type, pointSystem)
         updateDb('create', type, payload, null, pointSystem)
         handleClose()
     }
@@ -136,7 +141,7 @@ export default function AddNewDialog({ type, tableState, setTableState, defaultG
     const changePrompt = (name, niceName, promptDefault, confirm) => {
         if (!niceName) {
             setShowPrompt(false)
-            console.log(promptAnswers)
+            // console.log(promptAnswers)
             const confirmation = <ul>{Object.keys(promptAnswers).map(answer => <li key={answer}><strong>{answer}:</strong> {promptAnswers[answer]}</li>)}</ul>
             setPopupData({
                 ...defaultPopupData,

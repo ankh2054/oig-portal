@@ -5,7 +5,6 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { Anchor } from 'ual-anchor';
-import { Scatter } from 'ual-scatter';
 import { Wax } from '@eosdacio/ual-wax';
 
 import { UALProvider, withUAL } from 'ual-reactjs-renderer';
@@ -21,13 +20,12 @@ const waxChain = {
 
 const AppWithUAL = withUAL(App);
 const appName = "OIG Admin Portal";
-const scatter = new Scatter([waxChain], { appName: appName });
 const anchor = new Anchor([waxChain], { appName: appName });
 const waxcloud = new Wax([waxChain], { appName: appName });
 
 // Strict mode is a good idea: https://reactjs.org/docs/strict-mode.html
 ReactDOM.render(
-   <UALProvider chains={[waxChain]} authenticators={[waxcloud, anchor, scatter ]} appName={appName}>
+   <UALProvider chains={[waxChain]} authenticators={[waxcloud, anchor ]} appName={appName}>
      <Router>
         <AppWithUAL />
      </Router>,

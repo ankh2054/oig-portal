@@ -223,7 +223,7 @@ export default function ResultTables({ passedResults, hideOwnerName, loadMoreRes
           </TableHead>
           <TableBody>
             {resultSlice.map((result) => (
-              <StyledTableRow key={result.Key}>
+              <StyledTableRow key={result.key}>
                 {hideOwnerName === true ? null : <StyledTableCell className={classes.ownerName}><a className={classes.waxButton} href={`/guilds/${result.owner_name}`}>{result.owner_name}</a></StyledTableCell>}
                 <StyledTableCell>{iconResult(result.chains_json)}</StyledTableCell>
                 <StyledTableCell>{iconResult(result.wax_json)}</StyledTableCell>

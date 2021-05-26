@@ -94,38 +94,37 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
     return columnsSetup;
   };
 
-  const maxLength = tableState.length >= 20 ? 20 : tableState.length;
-  // Throws a warning when length is out of available bounds
-
   return (
     <div className={tableState.length >= 1 ? classes.root : [classes.root, classes.noTable]}>
       {tableState.length >= 1 ? <MaterialTable
         columns={generateColumns()}
         className={classes.materialTable}
         options={{
-          pageSize: maxLength,
+          pageSize: tableState.length >= 20 ? 20 : tableState.length,
+          // Cannot be dynamically changed: https://github.com/mbrn/material-table/issues/1480
+          pageSizeOptions: [
+            (parseInt(tableState.length/4) <= 5 ? tableState.length : parseInt(tableState.length/8)), (parseInt(tableState.length/4) <= 10 ? 10 : parseInt(tableState.length/4)), (parseInt(tableState.length/4) <= 20 ? 20 : parseInt(tableState.length/2))
+          ],
           padding: 'dense'
         }}
         actions={isAdmin && type !== 'unknownType' && tableTitle !== 'Point System' ? [
-          (oldRow) => { // Only show recalc points for product, biz, and comm - though we may want to add this to tech results?
-            return {
-              icon: 'refresh',
-              tooltip: 'Recalculate Score',
-              onClick: (event, oldRow) => tryUpdateTable('recalc', oldRow, tableTitle, tableState, setTableState, type, pointSystem)
-            }
+          { // Only show recalc points for product, biz, and comm - though we may want to add this to tech results?
+            icon: 'refresh',
+            tooltip: 'Recalculate Score',
+            onClick: (event, currentRow) => tryUpdateTable('recalc', currentRow, tableTitle, tableState, setTableState, type, pointSystem)
           }
         ] : null}
         editable={isAdmin && type !== 'unknownType' ? { // Show only for admins
-          onRowUpdate: (newRow, oldRow) => tryUpdateTable('update', oldRow, tableTitle, tableState, setTableState, type, pointSystem, newRow),
-          onRowDelete: (oldRow) => tryUpdateTable('delete', oldRow, tableTitle, tableState, setTableState, type),
+          onRowUpdate: (newRow, currentRow) => tryUpdateTable('update', currentRow, tableTitle, tableState, setTableState, type, pointSystem, newRow),
+          onRowDelete: (currentRow) => tryUpdateTable('delete', currentRow, tableTitle, tableState, setTableState, type),
         } : isAdmin ? { // No delete for snapshot tech results or point system
-          onRowUpdate: (newRow, oldRow) => tryUpdateTable('update', oldRow, tableTitle, tableState, setTableState, type, pointSystem, newRow)
+          onRowUpdate: (newRow, currentRow) => tryUpdateTable('update', currentRow, tableTitle, tableState, setTableState, type, pointSystem, newRow)
         } : false}
         // The below code is terrible, but it has to be this way: https://github.com/mbrn/material-table/issues/1900
         data={Array.from(JSON.parse(JSON.stringify(tableState)))} // This is neccessary for some reason. I think it's because material-table doesn't like a mutating state. Oddly, it doesn't matter for the columns above. Perhaps because they don't change?
         title={tableTitle}
       /> : null}
-      <AddNewDialog type={type} tableState={tableState} setTableState={setTableState} defaultGuild={defaultGuild} isAdmin={isAdmin} pointSystem={pointSystem} />
+      <AddNewDialog type={type} tableState={tableState} tryUpdateTable={tryUpdateTable} setTableState={setTableState} defaultGuild={defaultGuild} isAdmin={isAdmin} pointSystem={pointSystem} />
     </div>
   );
 }

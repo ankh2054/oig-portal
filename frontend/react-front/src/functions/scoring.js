@@ -20,10 +20,10 @@ const getTechScore = (item, pointSystem) => {
 const getItemScore = (item, pointSystem, pointIdentifier) => {
     if (!pointSystem) {
         console.log("No pointsystem supplied. Returning item with blank score")
-        return undefined
+        return 0
     }
     
-    let score = undefined;
+    let score = 0;
 
     if (pointIdentifier && pointSystem[pointIdentifier]) {
         const multiplier = pointSystem[pointIdentifier][1];
