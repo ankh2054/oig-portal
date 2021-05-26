@@ -4,42 +4,42 @@ import {getItemScore} from '../functions/scoring'
 // Note: .push() wasn't the solution to updating state. See https://stackoverflow.com/a/60957646 - material-table doesn't work with hooks
 // Both of these options update the database after state updated. Arguably this should be done the other way around.
 
-const tryUpdateTable = (operation, oldRow, tableTitle, tableState, setTableState, type, pointSystem, newRow) => {
+const tryUpdateTable = (operation, currentRow, tableTitle, tableState, setTableState, type, pointSystem, newRow) => {
   // If the operation is delete - run a seperate function for deleting state & db entry
   if (!newRow && operation === 'delete') {
     return new Promise((resolve) => {
       const tableCopy = [...tableState];
-      const index = oldRow.tableData.id;
+      const index = currentRow.tableData.id;
       tableCopy.splice(index, 1);
       setTableState(tableCopy);
       console.log("Row spliced from table state!");
-      resolve(oldRow);
-    }).then((oldRow) => {
-      updateDb('delete', type, oldRow);
+      resolve(currentRow);
+    }).then((currentRow) => {
+      updateDb('delete', type, currentRow);
     });
   }
   // Else, construct a payload
   let payload = {};
   // TODO: Integrate with score system
-  if (!newRow && operation === 'recalc') {
-    payload = JSON.parse(JSON.stringify({
-      guild: oldRow.guild,
-      owner_name: oldRow.owner_name,
-      name: oldRow.name,
-      comments: oldRow.comments,
+  if (!newRow && (operation === 'recalc' || operation === 'create')) {
+    payload = {
+      guild: currentRow.guild,
+      owner_name: currentRow.owner_name,
+      name: currentRow.name,
+      comments: currentRow.comments,
       score: 0,
-      description: oldRow.description,
-      stage: oldRow.stage,
-      analytics_url: oldRow.analytics_url,
-      spec_url: oldRow.spec_url,
-      code_repo: oldRow.code_repo,
-      points: oldRow.points,
-      origcontentpoints: oldRow.origcontentpoints,
-      transcontentpoints: oldRow.transcontentpoints,
-      eventpoints: oldRow.eventpoints,
-      managementpoints: oldRow.managementpoints,
-      outstandingpoints: oldRow.outstandingpoints,
-    }))
+      description: currentRow.description,
+      stage: currentRow.stage,
+      analytics_url: currentRow.analytics_url,
+      spec_url: currentRow.spec_url,
+      code_repo: currentRow.code_repo,
+      points: currentRow.points,
+      origcontentpoints: currentRow.origcontentpoints,
+      transcontentpoints: currentRow.transcontentpoints,
+      eventpoints: currentRow.eventpoints,
+      managementpoints: currentRow.managementpoints,
+      outstandingpoints: currentRow.outstandingpoints,
+    }
     payload.score = getItemScore(payload, pointSystem, type)
     console.log("Score recalculated.")
   }
@@ -54,13 +54,19 @@ const tryUpdateTable = (operation, oldRow, tableTitle, tableState, setTableState
     payload.date_updated = new Date();
     return new Promise((resolve) => {
       const tableCopy = [...tableState];
-      const index = oldRow.tableData.id;
-      tableCopy[index] = payload;
+      if (operation === 'create') {
+        tableCopy.unshift(payload) 
+      } else {
+        const index = currentRow.tableData.id;
+        tableCopy[index] = payload;
+      }
       setTableState([...tableCopy]);
       console.log("Table state updated!");
       resolve(payload);
     }).then((payload) => {
-      updateDb('update', type, payload, tableTitle);
+      if (operation !== 'create') {
+        updateDb('update', type, payload, tableTitle);
+      }
     });
   }
 }

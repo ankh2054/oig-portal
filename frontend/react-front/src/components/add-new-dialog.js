@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 
-export default function AddNewDialog({ type, tableState, addNewItem, defaultGuild, isAdmin, pointSystem }) {
+export default function AddNewDialog({ type, tableState, tryUpdateTable, setTableState, defaultGuild, isAdmin, pointSystem }) {
     const classes = useStyles();
 
     const isProdOrBizdev = type === 'product' || type === 'bizdev';
@@ -113,6 +113,7 @@ export default function AddNewDialog({ type, tableState, addNewItem, defaultGuil
         tableCopy.push(payload);
         setTableState([...tableCopy]);
         console.log("New row added to table state!");*/
+        tryUpdateTable('create', payload, null, tableState, setTableState, type, pointSystem)
         updateDb('create', type, payload, null, pointSystem)
         handleClose()
     }
@@ -140,7 +141,7 @@ export default function AddNewDialog({ type, tableState, addNewItem, defaultGuil
     const changePrompt = (name, niceName, promptDefault, confirm) => {
         if (!niceName) {
             setShowPrompt(false)
-            console.log(promptAnswers)
+            // console.log(promptAnswers)
             const confirmation = <ul>{Object.keys(promptAnswers).map(answer => <li key={answer}><strong>{answer}:</strong> {promptAnswers[answer]}</li>)}</ul>
             setPopupData({
                 ...defaultPopupData,
