@@ -94,6 +94,10 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
     return columnsSetup;
   };
 
+  const addNewItem = () => {
+    alert("Add event")
+  }
+
   const maxLength = tableState.length >= 20 ? 20 : tableState.length;
   // Throws a warning when length is out of available bounds
 
@@ -107,13 +111,12 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
           padding: 'dense'
         }}
         actions={isAdmin && type !== 'unknownType' && tableTitle !== 'Point System' ? [
-          (oldRow) => { // Only show recalc points for product, biz, and comm - though we may want to add this to tech results?
-            return {
-              icon: 'refresh',
-              tooltip: 'Recalculate Score',
-              onClick: (event, oldRow) => tryUpdateTable('recalc', oldRow, tableTitle, tableState, setTableState, type, pointSystem)
-            }
+          { // Only show recalc points for product, biz, and comm - though we may want to add this to tech results?
+            icon: 'refresh',
+            tooltip: 'Recalculate Score',
+            onClick: (event, oldRow) => tryUpdateTable('recalc', oldRow, tableTitle, tableState, setTableState, type, pointSystem)
           }
+          // Tried to solve using https://github.com/mbrn/material-table/issues/830 but too difficult to pre-fill content...
         ] : null}
         editable={isAdmin && type !== 'unknownType' ? { // Show only for admins
           onRowUpdate: (newRow, oldRow) => tryUpdateTable('update', oldRow, tableTitle, tableState, setTableState, type, pointSystem, newRow),
@@ -125,7 +128,7 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
         data={Array.from(JSON.parse(JSON.stringify(tableState)))} // This is neccessary for some reason. I think it's because material-table doesn't like a mutating state. Oddly, it doesn't matter for the columns above. Perhaps because they don't change?
         title={tableTitle}
       /> : null}
-      <AddNewDialog type={type} tableState={tableState} setTableState={setTableState} defaultGuild={defaultGuild} isAdmin={isAdmin} pointSystem={pointSystem} />
+      <AddNewDialog type={type} tableState={tableState} addNewItem={addNewItem} defaultGuild={defaultGuild} isAdmin={isAdmin} pointSystem={pointSystem} />
     </div>
   );
 }

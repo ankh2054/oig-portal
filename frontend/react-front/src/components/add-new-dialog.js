@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 
-export default function AddNewDialog({ type, tableState, setTableState, defaultGuild, isAdmin, pointSystem }) {
+export default function AddNewDialog({ type, tableState, addNewItem, defaultGuild, isAdmin, pointSystem }) {
     const classes = useStyles();
 
     const isProdOrBizdev = type === 'product' || type === 'bizdev';
