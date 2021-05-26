@@ -9,6 +9,8 @@ import { Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import updateDb from './update-db'
 
+// TODO: calculate score for new entries
+
 const useStyles = makeStyles((theme) => ({
     addItemButton: {
         position: 'relative',
@@ -17,12 +19,12 @@ const useStyles = makeStyles((theme) => ({
         top: '-45px'
     },
     addItemButtonEmpty: {
-        margin: "10px auto"
+        margin: "10px auto 50px"
     }
 }))
 
 
-export default function AddNewDialog({ type, tableState, setTableState, defaultOwner, isAdmin }) {
+export default function AddNewDialog({ type, tableState, setTableState, defaultGuild, isAdmin, pointSystem }) {
     const classes = useStyles();
 
     const isProdOrBizdev = type === 'product' || type === 'bizdev';
@@ -35,7 +37,7 @@ export default function AddNewDialog({ type, tableState, setTableState, defaultO
     const [promptAnswers, setPromptAnswers] = useState({})
 
     const defaultPopupData = {
-        title: `Add new ${type}`,
+        title: `${isComm ? "Update community points" : `Add new ${type}`}`,
         desc: "",
         promptLabel: "",
         promptDefault: "",
@@ -86,7 +88,7 @@ export default function AddNewDialog({ type, tableState, setTableState, defaultO
                 comments
             }
         }
-        if (type === 'community') {
+        if (isComm) {
             return {
                 owner_name,
                 origcontentpoints: +origcontentpoints,
@@ -103,15 +105,11 @@ export default function AddNewDialog({ type, tableState, setTableState, defaultO
     }
 
     const processNewItem = (initialPayload) => {
-        const payload = JSON.parse(JSON.stringify(initialPayload))
+        let payload = JSON.parse(JSON.stringify(initialPayload))
         // Should ideally be an integrated table editor, when we make it pretty
-        const finalPayload = {
-            ...payload,
-            // This gets overwritten, but no worries - it'll be off by seconds at max.
-            date_updated: new Date()
-        }
-        // TODO: Update table state (which in turn, updates the DB)
-        updateDb(finalPayload, type)
+        payload.date_updated = new Date()
+        // TODO: Update table state
+        updateDb('create', type, payload, null, pointSystem)
         handleClose()
     }
 
@@ -138,12 +136,13 @@ export default function AddNewDialog({ type, tableState, setTableState, defaultO
     const changePrompt = (name, niceName, promptDefault, confirm) => {
         if (!niceName) {
             setShowPrompt(false)
+            console.log(promptAnswers)
             const confirmation = <ul>{Object.keys(promptAnswers).map(answer => <li key={answer}><strong>{answer}:</strong> {promptAnswers[answer]}</li>)}</ul>
             setPopupData({
                 ...defaultPopupData,
                 desc: `Please confirm the following ${type} details:`,
                 confirmation,
-                confirm: `Confirm new ${type}`
+                confirm: `${isComm ? "Confirm community update" : `Confirm new ${type}`}`
             })
             return
         }
@@ -152,7 +151,7 @@ export default function AddNewDialog({ type, tableState, setTableState, defaultO
             setPopupData({
                 ...defaultPopupData,
                 desc: "Please enter " + niceName + ":",
-                confirm: `Add new ${type}`
+                confirm: `${isComm ? "Update community points" : `Add new ${type}`}`
             })
             return
         }
@@ -192,7 +191,7 @@ export default function AddNewDialog({ type, tableState, setTableState, defaultO
         setPopupStage(stage)
         switch (stage) {
             case 1:
-                const lastGuild = tableState.length >= 1 ? tableState[tableState.length - 1].owner_name : defaultOwner ? defaultOwner : null;
+                const lastGuild = tableState.length >= 1 ? tableState[tableState.length - 1].owner_name : defaultGuild ? defaultGuild : null;
                 changePrompt('owner_name', 'guild name', lastGuild)
                 break;
             case 2:
@@ -273,7 +272,7 @@ export default function AddNewDialog({ type, tableState, setTableState, defaultO
                 color="primary"
                 className={tableState.length >= 1 ? classes.addItemButton : classes.addItemButtonEmpty}
                 onClick={e => addItem(type)}
-            >Add new {type}</Button> : null}
+            >{isComm ? "Update community points" : `Add new ${type}`}</Button> : null}
             <Dialog
                 open={popupOpen}
                 onClose={handleClose}

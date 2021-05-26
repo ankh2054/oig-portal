@@ -17,13 +17,10 @@ const getTechScore = (item, pointSystem) => {
     return Math.round(score);
 }
 
-const addScoreToItem = (item, pointSystem, pointIdentifier) => {
+const getItemScore = (item, pointSystem, pointIdentifier) => {
     if (!pointSystem) {
         console.log("No pointsystem supplied. Returning item with blank score")
-        return {
-            ...item,
-            score: undefined
-        }
+        return undefined
     }
     
     let score = undefined;
@@ -50,10 +47,7 @@ const addScoreToItem = (item, pointSystem, pointIdentifier) => {
 
     score = Math.round(score)
 
-    return {
-        ...item,
-        score
-    }
+    return score
 }
 
-export {addScoreToItem, getTechScore}
+export {getItemScore, getTechScore}

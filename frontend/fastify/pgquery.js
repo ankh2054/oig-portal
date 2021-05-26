@@ -309,4 +309,33 @@ const getUpdatesbyOwner = (request, reply) => {
   })
 }
 
-module.exports = { IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner };
+// Delete product, bizdev, or community item
+const deleteItem = (request, reply) => {
+  const { type, owner_name, name } = request.body;
+
+  if (!type) {
+    reply.status(400).send('Please include type');
+  }
+
+  if (!owner_name) {
+    reply.status(400).send('Please include owner');
+  }
+
+  if (type !== 'community' && !name) {
+    reply.status(400).send('Please include name');
+  }
+
+  const query = [
+    `DELETE FROM "oig"."${type === 'product' ? 'products' : type}" WHERE "owner_name"='${owner_name}'`,
+    `AND "name"='${name}'`
+  ]
+
+  client.query((type === 'community' ? query[0] : query.join(' ')), [], (error, results) => {
+    if (error) {
+      reply.status(500).send('Failed: ' + error.message);
+    }
+    reply.status(200).send('Deleted');
+  })
+}
+
+module.exports = { deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner };

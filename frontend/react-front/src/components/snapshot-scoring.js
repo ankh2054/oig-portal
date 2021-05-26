@@ -74,7 +74,7 @@ const reArrangeTableHeaders = (item) => {
   }))
 }
 
-const SnapshotScoring = ({ results, producers, products, bizdevs, community, isAdmin }) => {
+const SnapshotScoring = ({ results, producers, products, bizdevs, community, isAdmin, pointSystem }) => {
   const classes = useStyles();
   const [expandedId, setExpandedId] = useState(false);
 
@@ -189,32 +189,33 @@ const SnapshotScoring = ({ results, producers, products, bizdevs, community, isA
               <Collapse in={expandedId === result.owner_name ? true : false} timeout="auto" unmountOnExit>
                 <CardContent>
                   <TableDataGrid
-                    tabledata={filteredProducts}
-                    tabletitle="Products"
-                    defaultOwner={result.owner_name}
+                    tableData={filteredProducts}
+                    tableTitle="Products"
+                    defaultGuild={result.owner_name}
+                    isAdmin={isAdmin}
+                    pointSystem={pointSystem}
+                  />
+                </CardContent>
+                <CardContent>
+                  <TableDataGrid
+                    tableData={filteredBizdevs}
+                    tableTitle="Bizdevs"
+                    defaultGuild={result.owner_name}
                     isAdmin={isAdmin}
                   />
                 </CardContent>
                 <CardContent>
                   <TableDataGrid
-                    tabledata={filteredBizdevs}
-                    tabletitle="Bizdevs"
-                    defaultOwner={result.owner_name}
+                    tableData={filteredCommunity}
+                    tableTitle="Community"
+                    defaultGuild={result.owner_name}
                     isAdmin={isAdmin}
                   />
                 </CardContent>
                 <CardContent>
                   <TableDataGrid
-                    tabledata={filteredCommunity}
-                    tabletitle="Community"
-                    defaultOwner={result.owner_name}
-                    isAdmin={isAdmin}
-                  />
-                </CardContent>
-                <CardContent>
-                  <TableDataGrid
-                    tabledata={[reArrangeTableHeaders(result)]}
-                    tabletitle="Tech Snapshot"
+                    tableData={[reArrangeTableHeaders(result)]}
+                    tableTitle="Tech Snapshot"
                     isAdmin={isAdmin}
                   />
                 </CardContent>

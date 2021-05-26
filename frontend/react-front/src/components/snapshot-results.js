@@ -47,6 +47,7 @@ const App = ({ /*results, */ producers, products, bizdevs, community, snapresult
         products={products}
         bizdevs={bizdevs}
         community={community}
+        pointSystem={pointSystem}
         isAdmin={isAdmin}
       />
     }
