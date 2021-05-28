@@ -19,7 +19,12 @@ fastify.register(require('fastify-static'), {
     root: path.join(__dirname, 'public'),
     prefix: '/', // optional: default '/'
   })
-  
+
+fastify.get('/snapshot', (req, reply) => reply.sendFile('index.html'))
+fastify.get('/admin', (req, reply) => reply.sendFile('index.html')) 
+fastify.get('/form', (req, reply) => reply.sendFile('index.html'))  
+fastify.get('/latestresults', (req, reply) => reply.sendFile('index.html'))
+
 
 // PG Routes//
 fastify.get('/api/producers', db.getProducers)
