@@ -13,6 +13,9 @@ ENV PACKAGES="\
   python3-setuptools\
   libpq-dev \ 
   python3-dev \
+  libpython3.6-dev \
+  libnss3 \
+  libnss3-dev \
 "
 #tzdata
 ARG DEBIAN_FRONTEND=noninteractive
