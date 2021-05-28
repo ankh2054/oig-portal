@@ -73,6 +73,7 @@ RUN mv fastify/DEFAULTS.env fastify/.env
 
 # Install python requirements
 WORKDIR /app/backend
+RUN pip3 install wheel 
 RUN pip3 install -r requirements.txt
 
 
