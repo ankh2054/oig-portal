@@ -233,7 +233,7 @@ EOF
 env_setup
 create_supervisor_conf
 postgresql_install
-ram_db_setup
+oig_db_setup
 
 
 
