@@ -11,6 +11,8 @@ ENV PACKAGES="\
   python3-pip \
   sudo \
   python3-setuptools\
+  libpq-dev \ 
+  python3-dev \
 "
 #tzdata
 ARG DEBIAN_FRONTEND=noninteractive
