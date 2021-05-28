@@ -218,7 +218,7 @@ autorestart=true
 numprocs=1
 user=postgres
 [program:frontend]
-command=bash -c 'sleep 7 && node server.js &> logs/frontend.log'
+command=bash -c 'node server.js &> logs/frontend.log'
 directory=/app/fastify
 priority=4
 autostart=true

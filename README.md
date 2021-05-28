@@ -30,7 +30,7 @@ docker run  --name oig.sentnl.io --expose 80 \
 -e "LETSENCRYPT_HOST=oig.sentnl.io" \
 -e "LETSENCRYPT_EMAIL=charles.holtzkampf@gmail.com" \
 -e "PGPASSWORD=postgresqlpassword" \
--e "DB_DATABASE=waxdb" \
+-e "DB_DATABASE=oig" \
 -e "DB_USER=waxramuser" \
 -e "DB_PASSWORD=waxramuserpassword" \
 -v /data/sites/oig.sentnl.io/postgresql:/var/lib/postgresql \

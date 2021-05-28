@@ -1,4 +1,5 @@
 const { port } = require('./config');
+const path = require('path');
 
 
 const fastify = require('fastify')({
@@ -14,12 +15,11 @@ fastify.register(require('fastify-cors'), {
 const db = require('./pgquery')
 
 //Routes/////////
-fastify.get('/', (request, reply)=>{
-    reply
-        .code(200)
-        .header('Content-Type', 'application/json; charset=utf-8')
-        .send({ hello: 'world' })
-});
+fastify.register(require('fastify-static'), {
+    root: path.join(__dirname, 'public'),
+    prefix: '/', // optional: default '/'
+  })
+  
 
 // PG Routes//
 fastify.get('/api/producers', db.getProducers)
