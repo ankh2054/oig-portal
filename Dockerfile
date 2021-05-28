@@ -61,7 +61,7 @@ WORKDIR /app
 COPY backend backend
 COPY frontend/fastify fastify
 COPY frontend/react-front react
-COPY files/requirements.txt /app/backend
+
 
 RUN mkdir -p fastify/logs && mkdir -p react/logs && mkdir -p backend/logs
 
