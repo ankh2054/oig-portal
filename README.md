@@ -16,8 +16,8 @@ docker build https://github.com/ankh2054/oig-portal.git -t oig-portal
 |--------------------------|---------------------------------------|--------------------------------------|
 |**PGPASSWORD**            |`postgresqlpassword`                   | PostgreSQL password                  |
 |**DB_DATABASE**           |`waxram`                               | Database Name for RAM data           |
-|**DB_USER**               |`waxramuser`                           | Database user with access to DB      |
-|**DB_PASSWORD**           |`waxramuserpassword`                   | Password for Database user       	  |
+|**DB_USER**               |`oigdbuser`                            | Database user with access to DB      |
+|**DB_PASSWORD**           |`oigdbpassword`                        | Password for Database user       	  |
 
 
 

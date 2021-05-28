@@ -7,8 +7,6 @@ ENV PACKAGES="\
   postgresql-contrib \
   postgresql \
   postgresql-client \
-  timescaledb-postgresql-12 \
-  timescaledb-tools \
   python3 \
   python3-pip \
   sudo \
