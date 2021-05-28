@@ -10,6 +10,7 @@ ENV PACKAGES="\
   python3 \
   python3-pip \
   sudo \
+  python3-setuptools\
 "
 #tzdata
 ARG DEBIAN_FRONTEND=noninteractive
