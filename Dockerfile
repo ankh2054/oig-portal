@@ -71,6 +71,10 @@ RUN mkdir -p fastify/logs && mkdir -p react/logs && mkdir -p backend/logs
 # .ENV files
 RUN mv fastify/DEFAULTS.env fastify/.env 
 
+# Install python requirements
+WORKDIR /app/backend
+RUN pip3 install -r requirements.txt
+
 
 # Install nodejs modules 
 WORKDIR /app/react
@@ -82,9 +86,7 @@ WORKDIR /app/fastify
 RUN npm ci --silent && \
     npm install  --silent
 
-# Install python requirements
-WORKDIR /app/backend
-RUN pip3 install -r requirements.txt
+
 
 # Nginx
 COPY files/nginx.conf /etc/nginx/nginx.conf
