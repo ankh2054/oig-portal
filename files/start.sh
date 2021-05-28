@@ -28,48 +28,13 @@ sed -i "s/pgpassword/$DB_PASSWORD/" dbapi/.env
 }
 
 
-ram_db_setup(){
+oig_db_setup(){
 
 echo "Starting PostgreSQL"
 sudo -u postgres ${PG_BINDIR}/postgres -D ${PG_DATA} -c config_file=${PG_CONFIG_FILE} >logfile 2>&1 &
 
 echo "creating initdb.sql file"
   cat > initdb.sql <<EOF
-    CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
-    CREATE SCHEMA wax;
-      
-    CREATE TABLE wax.candles10s (
-    timestamp   TIMESTAMP without time zone NOT NULL UNIQUE,
-    open        DOUBLE PRECISION  NOT NULL,
-    high        DOUBLE PRECISION  NOT NULL,
-    low         DOUBLE PRECISION  NOT NULL,
-    close       DOUBLE PRECISION  NOT NULL,
-    volume      DOUBLE PRECISION  NOT NULL
-    );
-    CREATE USER ${DB_USER} WITH ENCRYPTED PASSWORD '${DB_PASSWORD}';
-    GRANT ALL PRIVILEGES ON DATABASE ${DB_DATABASE} TO ${DB_USER};
-    GRANT ALL PRIVILEGES ON SCHEMA wax TO ${DB_USER};
-    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA wax TO ${DB_USER};
-    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA wax TO ${DB_USER};
-    SELECT create_hypertable('wax.candles10s', 'timestamp');
-EOF
-
-sleep 5 
-
-
-echo "installing DB: ${DB_DATABASE}" 
-createdb -U postgres ${DB_DATABASE}
-
-echo "Setting up timescaleDB"
-psql -U postgres ${DB_DATABASE} < initdb.sql
-
-echo "Stopping Postgres DB ready for Supervisor "
-ps -aux | ps axf | grep "/usr/lib/postgresql/12/bin/postgres"  | grep -v grep | awk '{print "kill -9 " $1}' | sh
-
-}
-
-ram_DB_init(){
-  psql -U postgres <<- EOSQL
       CREATE SCHEMA oig;
 
       CREATE TABLE oig.producer (
@@ -206,9 +171,22 @@ ram_DB_init(){
       GRANT ALL PRIVILEGES ON SCHEMA oig TO ${DB_USER} ;
       GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA oig TO ${DB_USER} ;
       GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA oig TO ${DB_USER} ;
+EOF
 
-EOSQL
+sleep 5 
+
+
+echo "installing DB: ${DB_DATABASE}" 
+createdb -U postgres ${DB_DATABASE}
+
+echo "Setting up OIGDB"
+psql -U postgres ${DB_DATABASE} < initdb.sql
+
+echo "Stopping Postgres DB ready for Supervisor "
+ps -aux | ps axf | grep "/usr/lib/postgresql/13/bin/postgres"  | grep -v grep | awk '{print "kill -9 " $1}' | sh
+
 }
+
 # ########################
 # Creating supervisor file
 ###########################
