@@ -30,12 +30,12 @@ RUN npm ci --silent && \
     npm run builddocker
 
 WORKDIR /app/fastify
-RUN npm install --silent --verbose 
+RUN npm install --silent 
 #    npm install --silent
 
 
 # Nginx
-COPY files/proxy-nginx.conf /etc/nginx/nginx.conf
+COPY files/nginx.conf /etc/nginx/nginx.conf
 
 ADD files/start.sh /
 RUN chmod u+x /start.sh
