@@ -3,3 +3,4 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 ## Perform a snapshot
 */30 * * * * /usr/bin/python3 /app/backend/producer-data.py
+
