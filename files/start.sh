@@ -35,7 +35,7 @@ command=/usr/sbin/nginx
 autorestart=true
 autostart=true
 [program:frontend]
-command=bash -c 'node server.js &> logs/frontend.log'
+command=sh -c 'node server.js &> logs/frontend.log'
 directory=/app/fastify
 priority=4
 autostart=true
