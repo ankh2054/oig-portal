@@ -1,6 +1,5 @@
 #!/bin/sh
 
-
 env_setup() {
 cd /app
 
