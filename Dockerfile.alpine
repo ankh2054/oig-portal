@@ -16,7 +16,7 @@ RUN   apk add  --no-cache $PACKAGES
 WORKDIR /app
 
 COPY frontend/fastify fastify
-COPY frontend/react react
+COPY frontend/react-front react
 
 RUN mkdir -p fastify/logs
 
