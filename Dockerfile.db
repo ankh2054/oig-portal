@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 
 # APT ENV
 ENV PACKAGES="\
-  build-essentials \
+  build-essential \
   supervisor \
   postgresql-contrib \
   postgresql \
