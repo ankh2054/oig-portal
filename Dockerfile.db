@@ -73,7 +73,7 @@ RUN chmod 0644 /app/backend/cron && \
     crontab -u root /app/backend/cron
 
 # Entrypoint
-ADD files/db-start.sh /start.sh
+ADD files/db-start.sh /
 RUN chmod +x /start.sh
 CMD /start.sh
 
