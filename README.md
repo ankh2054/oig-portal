@@ -11,7 +11,7 @@ WAX OIG portal
 
 # 3 Build the DB container
 
-`docker build -f Dockerfile.DB -t oig-postgresql:prod .`
+`docker build -f Dockerfile.db -t oig-postgresql:prod .`
 
 
 
