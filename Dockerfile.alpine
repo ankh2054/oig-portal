@@ -1,0 +1,42 @@
+# dockerfile
+FROM alpine:3.12
+
+ENV PACKAGES="\
+  supervisor \
+  nginx \
+  npm \
+  nodejs\
+"
+
+
+#RUN apk add  --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.12/main/ nodejs=12.18.4-r0 && \
+RUN   apk add  --no-cache $PACKAGES 
+
+
+WORKDIR /app
+
+COPY fastify fastify
+COPY react react
+
+RUN mkdir -p fastify/logs
+
+# .ENV files
+RUN mv fastify/DEFAULTS.env fastify/.env
+
+# Install nodejs modules 
+WORKDIR /app/react
+RUN npm ci --silent && \
+    npm install react-scripts@3.4.1 -g --silent && \
+    npm run builddocker
+
+WORKDIR /app/fastify
+RUN npm ci --silent && \
+    npm install --silent
+
+
+# Nginx
+COPY files/proxy-nginx.conf /etc/nginx/nginx.conf
+
+ADD files/start.sh /
+RUN chmod u+x /start.sh
+CMD /start.sh

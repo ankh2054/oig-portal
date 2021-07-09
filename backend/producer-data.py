@@ -73,6 +73,7 @@ def pointsResults(results,pointsystem):
     for check in pointsystem:
         # Look in results dict and find check key and get value
         checkResult = results.get(check[0])
+        minrequirementscheck = results.get(check[3])
         # CPU exception
         if check == 'cpu_time':
             if checkResult <= 0.5:
@@ -86,10 +87,15 @@ def pointsResults(results,pointsystem):
         else:
             if checkResult == True:
                 points = points+(check[1]*check[2])
+            # If checkresult fails and its a minimum requirement deduct 100 points
+            elif checkResult == False and minrequirementscheck == True:
+                points = points-100
             else:
                 points = points+0
     return points
 
+
+"""
 def producerlist():
     prod_table = get_table_data("eosio","producers","eosio","100")
     producers = eosio.getEOStable(prod_table)
@@ -109,10 +115,12 @@ def producerlist():
             # Append new dict to top21list
             producer_final.append(new)
     return producer_final
+"""
 
 ## Get list of producers and produce tuple
 def producer_chain_list():
-    producers = producerlist()
+    # Get list of current active producers from DB - these are set by OIG
+    producers = db_connect.getProducers() 
     # Create empty list
     top21producers = eosio.producerSCHED()
     producer_final = []
@@ -120,7 +128,10 @@ def producer_chain_list():
     # proddict = {}
     for i in producers:
         try:
-            response = requests.get(url=i['url'] + '/chains.json')
+            # Set guild default website URL from tuple obtained from DB
+            guildurl = i[2]
+            response = requests.get(url=guildurl + '/chains.json')
+            #response = requests.get(url=i['url'] + '/chains.json')
             # If the response was successful, no Exception will be raised
             response.raise_for_status()
         except HTTPError as http_err:
@@ -139,7 +150,8 @@ def producer_chain_list():
             else:
                 # new = proddict.copy()
                 # Now get new JSON file
-                response = requests.get(url=i['url']+"/"+waxjson)
+                response = requests.get(url=guildurl+"/"+waxjson)
+                #response = requests.get(url=i['url']+"/"+waxjson)
                 try:
                     # Get response data in JSON
                     json_response = response.json()
@@ -157,10 +169,11 @@ def producer_chain_list():
                     print('JSON parsing error')
                 else:
                     # is producer currently in top21
-                    top21 = i['owner'] in top21producers
-                    thistuple = (i['owner'], candidate_name, i['url'], i['url'] + '/'+waxjson, i['url'] + '/chains.json', logo_256, top21, country_code)
+                    top21 = i[0] in top21producers
+                    thistuple = (i[0], candidate_name, guildurl, guildurl + '/'+waxjson, guildurl + '/chains.json', logo_256, top21, country_code)
                     producer_final.append(thistuple)
     return producer_final
+
 
 # Iterate over all different types of possible URLs and features
 def node_types(type, node, owner_name):
@@ -174,7 +187,7 @@ def node_types(type, node, owner_name):
         # If fields in JSON are empty strings pass NULL to DB
         if node.get(nodes) == "":
             nodeurl = None
-        # Else pass in URL or featurelist
+        # Else pass in node URL or featurelist
         else:         
             nodeurl = node.get(nodes)
         finallist.append(nodeurl)
@@ -223,6 +236,13 @@ def node_list():
                 # Get seed nodes
                 if "seed" in node_type:
                     thistuple = node_types("seed", node, owner_name)
+                    changetuple = list(thistuple)
+                    # P2P endpoints don't have features list in JSON BP standard
+                    # We therefor need to Update last item (feature) in list 
+                    # We update this to p2p_endpoint, so we can ensure duplicates are not added to DB
+                    changetuple[-1] = ['p2p_endpoint']
+                    # Change list back to tuple
+                    thistuple = tuple(changetuple)
                     node_list.append(thistuple)
                 if "full" in node_type:
                     thistuple = node_types("full", node, owner_name)
@@ -234,9 +254,9 @@ def node_list():
 
 def check_api(producer,checktype):
     if checktype == "httpchk":
-        api = db_connect.getNodes(producer,'http')
+        api = db_connect.getQueryNodes(producer,'chain-api','http')
     else:
-        api = db_connect.getNodes(producer,'api')
+        api = db_connect.getQueryNodes(producer,'chain-api','api')
     # If there is no API or Full node in DB return False
     #if None in api:
     if api == None:
@@ -278,9 +298,10 @@ def check_api(producer,checktype):
             else:
                 return False, str(headers)
 
+
 # History nodes type checks
 # Pass in history-v1, hyperion-v2 
-def check_full_node(producer,type):
+def check_full_node(producer,feature):
     transactions = eosio.randomTransaction()
     # if transaction list is empty sleep for 1 second
     while not transactions:
@@ -292,10 +313,10 @@ def check_full_node(producer,type):
     except:
         trx2 = trx
     # Query nodes in DB
-    api = db_connect.getQueryNodes(producer,type)
+    api = db_connect.getQueryNodes(producer,feature,'api')
     # If there is no v1_history or hyperion node in DB return False
     if api == None:
-        return False, 'No ' + type + ' in JSON'
+        return False, 'No ' + feature + ' in JSON'
     else:
         
         info = "/v1/history/get_transaction"
@@ -357,7 +378,7 @@ def check_full_node(producer,type):
             return False, error
 
 def check_https(producer,checktype):
-    api = db_connect.getNodes(producer,'http')
+    api = db_connect.getQueryNodes(producer,'chain-api','https')
     # If there is no API or Full HTTPS node in DB return False
     if api == None:
         return False, 'No API node available in JSON'
@@ -408,9 +429,9 @@ def check_https(producer,checktype):
                 port = "443"
             return core.check_tls(httpsendpoint,port)
 
-def api_security(producer, sectype):
+def api_security(producer,features,sectype):
     # Check through all nodes
-    apis = db_connect.getNodes(producer,'all_apis')
+    apis = db_connect.getQueryNodes(producer,features,'all_apis')
     # If there is no API or Full node in DB return True, as no security to test
     if apis == None:
         return True, 'No APIs to test for', sectype
@@ -455,9 +476,9 @@ def api_security(producer, sectype):
 
 
 
-def check_P2P(producer):
+def check_P2P(producer,features):
    # Get P2P host and port
-   p2p = db_connect.getNodes(producer,'p2p')
+   p2p = db_connect.getQueryNodes(producer,features,'p2p')
    if p2p == None:
        return False, 'No seed node configured in JSON'
    # Slit host and port
@@ -475,7 +496,7 @@ def check_P2P(producer):
 def delphioracle_actors():
     print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting Delpi Oracle Data ",core.bcolors.ENDC)
     chain = "mainnet"
-    #Get list of guilds posting to delphioracle looking at actions
+    #Get list of guilds posting to delphioracle looking at actions, save last 100 actions.
     delphi_actions = get_actions_data("delphioracle","100")
     actions = eosio.get_stuff(delphi_actions,chain,'action')
     guilds = actions['simple_actions']
@@ -542,7 +563,7 @@ def cpuresults(producer,producercpu):
         # Removed testnet data for now and only return 1
         '''
         # Iterate backwards from current)_headblock until you find a block produced by producer and that contains transactions
-        # We only go back as far as 4000 blocks, if not found then return False.
+        # We only go back as far as 500 blocks, if not found then return False.
         cpu = eosio.get_testnetproducer_cpustats(producer)
         if cpu == None:
             return int(1.0)
@@ -555,13 +576,20 @@ def cpuresults(producer,producercpu):
         return stat
 
 def cpuAverage(producer):
-    allcpu = db_connect.getCPU(producer)
-    #allcpu = allcpu[0]
+    try:
+        allcpu = db_connect.getCPU(producer)
+    except:
+        # New Guilds will not have any CPU scores, so set to 0
+        allcpu = 0
     cpu_final = []
     for cpu in allcpu:
         cpu_final.append(cpu[0])
-    avg_cpu = statistics.median(cpu_final) 
-    return avg_cpu
+    try:
+        avg_cpu = statistics.median(cpu_final) 
+        return avg_cpu
+    except:
+        # New Guilds will not have any CPU scores, so set to 0
+        return 0
 
    
 def resultsGet(producer,check,pointsystem):
@@ -610,7 +638,7 @@ def takeSnapshot(now):
     print("Now: ", now)
     
 
-'2021-02-05 12:29:48.930000+00:00', 'sentnlagents', '2021-02-05 19:52:45.608381'
+
 ## Final Results print output function to display results to console for each check
 def printOuput(results,description):
     result = results[0]
@@ -674,15 +702,15 @@ def finalresults():
         printOuput(http2_check,"HTTP2 is enabled on RPC API endpoint: ")
         
         # Producer API check
-        producer_apicheck = api_security(producer,'producer_api')
+        producer_apicheck = api_security(producer,'chain-api','producer_api')
         printOuput(producer_apicheck,"Producer API is disabled on visible nodes: ")
 
         # Net API check
-        net_apicheck = api_security(producer,'net_api')
+        net_apicheck = api_security(producer,'chain-api','net_api')
         printOuput(net_apicheck,"net_api API is disabled on visible nodes: ")
 
         # DB size API check
-        dbsize_apicheck = api_security(producer,'db_size_api')
+        dbsize_apicheck = api_security(producer,'chain-api','db_size_api')
         printOuput(dbsize_apicheck,"db_size API is disabled on visible nodes:")
         
         #CPU checks
@@ -697,17 +725,17 @@ def finalresults():
 
         # v2 Hyperion check
         hyperion_v2 = check_full_node(producer,'hyperion-v2')
-        printOuput(full_history,"Running a v2 Hyperion node: ")
+        printOuput(hyperion_v2,"Running a v2 Hyperion node: ")
 
         # Set snapshots to False until we find a way
         snapshots = [False,'oops']
 
-        seed_node = check_P2P(producer)
+        seed_node = check_P2P(producer,'p2p_endpoint')
         printOuput(seed_node,"Running a seed node: ")
 
          # Get current UTC timestamp
         dt = datetime.utcnow()
-        # Create a function for this
+        # Obtain points from list for each check
         pointslist = { 
             'cors_check': cors_check[0],
             'http_check': http_check[0],
@@ -779,7 +807,7 @@ def main():
     # Get list of producers
     print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",core.bcolors.ENDC)
     producers = producer_chain_list()
-    # Add producers to DB
+    # Update producers to DB
     db_connect.producerInsert(producers)
     # Add nodes to DB
     print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of nodes from JSON files ",core.bcolors.ENDC)
@@ -791,6 +819,8 @@ def main():
     # Take snapshot
     # takeSnapshot(now)
 
+
+#print(api_security('sentnlagents','chain-api','producer_api'))
 if __name__ == "__main__":
    main()
 

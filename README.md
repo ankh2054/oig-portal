@@ -1,13 +1,19 @@
 # oig-portal
 WAX OIG portal
 
+# 1 Pull down repo & Create the docker network 
+`git pull https://github.com/ankh2054/oig-portal.git`
+`docker network create sentnl-net`
 
-# Build the production OIG container
-```
-CD into directory of choice
-docker build https://github.com/ankh2054/oig-portal.git -t oig-portal 
+# 2 Build the website  container
+`docker build -f Dockerfile.alpine -t oig-frontend:prod .`
 
-```
+
+# 3 Build the DB container
+
+`docker build -f Dockerfile.DB -t oig-postgresql:prod .`
+
+
 
 
 ## ENV Variables
@@ -18,11 +24,11 @@ docker build https://github.com/ankh2054/oig-portal.git -t oig-portal
 |**DB_DATABASE**           |`waxram`                               | Database Name for RAM data           |
 |**DB_USER**               |`oigdbuser`                            | Database user with access to DB      |
 |**DB_PASSWORD**           |`oigdbpassword`                        | Password for Database user       	  |
+|**PGNAME**                |`oig.db`                               | PG container name                    |
 
 
 
-
-# Run the container using nginx proxy
+# Run the frontend container
 
 ```
 docker run  --name oig.sentnl.io --expose 80 \
@@ -33,9 +39,23 @@ docker run  --name oig.sentnl.io --expose 80 \
 -e "DB_DATABASE=oig" \
 -e "DB_USER=waxramuser" \
 -e "DB_PASSWORD=waxramuserpassword" \
--v /data/sites/oig.sentnl.io/postgresql:/var/lib/postgresql \
-oig-portal:latest
+-e "PGNAME=oig.db" \
+oig-frontend:prod
 ```
+
+
+# 4 Run the DB container 
+
+```
+docker run --network=sentnl-net  --name oig.db --expose 5432 \
+-d -e "PGPASSWORD=postgresqlpassword" \
+-e "DB_DATABASE=dbname" \
+-e "DB_USER=dbuser" \
+-e "DB_PASSWORD=dbpassword" \
+-v /data/sites/oig.sentnl.io/postgresql:/var/lib/postgresql \
+oig-postgresql:prod
+```
+
 
 
 ### Known errors

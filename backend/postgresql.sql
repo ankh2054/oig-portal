@@ -30,7 +30,7 @@ CREATE TABLE oig.nodes (
 );
 
 /* Unique index to cover two culumns*/
-CREATE UNIQUE INDEX idx_nodes_type ON oig.nodes(owner_name, node_type);
+CREATE UNIQUE INDEX idx_nodes_type ON oig.nodes(owner_name, node_type, features);
 
 
 CREATE TABLE oig.results (
@@ -79,7 +79,8 @@ CREATE UNIQUE INDEX idx_results_type ON oig.results(owner_name, date_check);
 CREATE TABLE oig.pointsystem (
 	points_type VARCHAR ( 50 ) PRIMARY KEY,
 	points SMALLINT,
-    multiplier DECIMAL NOT NULL
+    multiplier DECIMAL NOT NULL,
+    min_requirements BOOLEAN 
 );
 
 CREATE TABLE oig.products (

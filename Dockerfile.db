@@ -1,0 +1,79 @@
+FROM ubuntu:18.04
+
+# APT ENV
+ENV PACKAGES="\
+  supervisor \
+  postgresql-contrib \
+  postgresql \
+  postgresql-client \
+  sudo \
+  python3.7 \
+  python3-pip \
+  python3-setuptools\
+  libpq-dev \ 
+  python3.7-dev \
+  cron \
+"
+
+
+#tzdata
+ARG DEBIAN_FRONTEND=noninteractive
+
+ENV TZ=Europe/London
+
+# PostgreSQL ENV
+ENV PG_VERSION 13
+ENV PG_BASE /var/lib/postgresql
+ENV PG_PASSWORD_FILE ${PG_BASE}/pwfile
+ENV PG_DATA ${PG_BASE}/${PG_VERSION}/main
+ENV PG_CONFIG_DIR /etc/postgresql/${PG_VERSION}/main
+ENV PG_CONFIG_FILE ${PG_CONFIG_DIR}/postgresql.conf
+ENV PG_BINDIR /usr/lib/postgresql/${PG_VERSION}/bin
+ENV PGUSER=postgres
+ENV NODE_ENV=production
+
+
+
+# To prevent - Warning: apt-key output should not be parsed (stdout is not a terminal)
+ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
+
+# Install required packages to add APT certifcate and APT REPOs
+RUN apt update && apt install --no-install-recommends -y wget gnupg2 ca-certificates software-properties-common
+
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -c -s)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list
+RUN wget --quiet --no-check-certificate -O- https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - 
+
+
+RUN apt update && apt install --no-install-recommends -y $PACKAGES  && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt clean
+
+
+RUN rm -rf "$PG_BASE" && mkdir -p "$PG_BASE" && chown -R postgres:postgres "$PG_BASE" \
+      && mkdir -p /var/run/postgresql/$PG_VERSION-main.pg_stat_tmp \
+      && chown -R postgres:postgres /var/run/postgresql && chmod g+s /var/run/postgresql 
+
+WORKDIR /app
+COPY backend backend
+
+
+# Install python requirements
+WORKDIR /app/backend
+RUN pip3 install wheel 
+RUN pip3 install -r requirements.txt
+
+
+WORKDIR /app
+COPY files/pg_hba.conf $PG_CONFIG_DIR/pg_hba.conf
+
+# Setup crontask for user oig
+ADD files/cron /app/backend/cron
+RUN chmod 0644 /app/backend/cron && \
+    chown oig:oig /app/backend/cron && \
+    crontab -u oig /app/backend/cron
+
+# Entrypoint
+ADD files/start.sh /
+RUN chmod +x /start.sh
+CMD /start.sh
+

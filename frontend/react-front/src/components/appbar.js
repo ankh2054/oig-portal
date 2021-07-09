@@ -123,9 +123,10 @@ export default function ButtonAppBar({ activeUser, loginModal, logOut, isAdmin }
             <Link underline="none" variant="button" color="inherit" href="/snapshot" className={classes.link}>
               Scores
             </Link>
+            {isAdmin ?
             <Link underline="none" variant="button" color="inherit" href="/form" className={classes.link}>
               Submit Update
-            </Link>
+              </Link> : null}
             {isAdmin ?
               <Link variant="button" color="inherit" href="/admin" className={classes.link}>
                 Admin

@@ -91,7 +91,6 @@ def getSnapshottakendate():
     query = "SELECT DISTINCT ON (snapshot_date) snapshot_date FROM oig.results WHERE owner_name = 'sentnlagents' ORDER BY snapshot_date DESC"
     return dbSelect(query)
 
-print(getSnapshottakendate())
 # DB Inserts
 def producerInsert(records):
     query = """ INSERT INTO oig.producer (owner_name, candidate, url, jsonurl, chainsurl, logo_svg, top21, country_code) 
@@ -104,9 +103,9 @@ def producerInsert(records):
     dbInsertMany(records, query)
 
 def nodesInsert(records):
-    query = """ INSERT INTO oig.nodes (owner_name, node_type, http_node_url, https_node_url, p2p_url, features) 
+    query = """ INSERT INTO oig.nodes (owner_name, node_type, https_node_url, http_node_url, p2p_url, features) 
                 VALUES (%s,%s,%s,%s,%s,%s)
-                ON CONFLICT (owner_name,node_type) DO UPDATE SET http_node_url = EXCLUDED.http_node_url, https_node_url = EXCLUDED.https_node_url, p2p_url = EXCLUDED.p2p_url, features = EXCLUDED.features ;
+                ON CONFLICT (owner_name,node_type,features) DO UPDATE SET http_node_url = EXCLUDED.http_node_url, https_node_url = EXCLUDED.https_node_url, p2p_url = EXCLUDED.p2p_url;
             """
     dbInsertMany(records, query)
 
@@ -164,15 +163,28 @@ def createSnapshot(snapshot_date,producer,now):
 #nodesInsert(records_insert)
 
 # Get query type nodes that contain features
-def getQueryNodes(producer,feature):
+def getQueryNodes(producer,feature,type):
     try:
         # Create connection to DB
         connection = db_connection()
         # Open cursor to DB
         cursor = connection.cursor()
-        pg_select = """ 
-        SELECT COALESCE(http_node_url,https_node_url) FROM oig.nodes WHERE owner_name = %s AND features @> ARRAY[%s]::text[];    
-        """
+        if type == 'https':
+            pg_select = """ 
+            SELECT https_node_url FROM oig.nodes WHERE owner_name = %s AND features @> ARRAY[%s]::text[];    
+            """
+        elif type == 'all_apis':
+            pg_select = """ 
+            SELECT http_node_url,https_node_url FROM oig.nodes WHERE owner_name = %s AND features @> ARRAY[%s]::text[];
+            """
+        elif type == 'p2p':
+            pg_select = """ 
+            SELECT p2p_url FROM oig.nodes WHERE owner_name = %s AND features @> ARRAY[%s]::text[];
+            """
+        else:
+            pg_select = """ 
+            SELECT COALESCE(https_node_url,http_node_url) FROM oig.nodes WHERE owner_name = %s AND features @> ARRAY[%s]::text[];    
+            """
         # SELECT * FROM oig.nodes WHERE features @> ARRAY['chain-api']::text[];
      
         cursor.execute(pg_select, (producer,feature ))
@@ -188,34 +200,8 @@ def getQueryNodes(producer,feature):
             cursor.close()
             connection.close()
 
-
-def getProducerUrl(owner_name):
-    try:
-         # Create connection to DB
-        connection = db_connection()
-        # Open cursor to DB
-        cursor = connection.cursor()
-        postgreSQL_select_Query = "select * from oig.producer where owner_name = %s"
-
-        cursor.execute(postgreSQL_select_Query, (owner_name,))
-        producer_records = cursor.fetchall()
-        for row in producer_records:
-            jsonurl = row[3]
-            return jsonurl
-
-    except (Exception, psycopg2.Error) as error:
-        print("Error fetching data from PostgreSQL table", error)
-
-    finally:
-        # closing database connection
-        if (connection):
-            cursor.close()
-            connection.close()
-
-
-
 # Get nodes
-def getNodes(producer,type):
+def getNodes2(producer,type):
     try:
         # Create connection to DB
         connection = db_connection()
@@ -255,6 +241,28 @@ def getNodes(producer,type):
             connection.close()
 
 
+def getProducerUrl(owner_name):
+    try:
+         # Create connection to DB
+        connection = db_connection()
+        # Open cursor to DB
+        cursor = connection.cursor()
+        postgreSQL_select_Query = "select * from oig.producer where owner_name = %s"
+
+        cursor.execute(postgreSQL_select_Query, (owner_name,))
+        producer_records = cursor.fetchall()
+        for row in producer_records:
+            jsonurl = row[3]
+            return jsonurl
+
+    except (Exception, psycopg2.Error) as error:
+        print("Error fetching data from PostgreSQL table", error)
+
+    finally:
+        # closing database connection
+        if (connection):
+            cursor.close()
+            connection.close()
 
 # Get past 30 days worth of CPU stats for producer
 def getCPU(producer):

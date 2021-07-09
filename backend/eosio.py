@@ -76,8 +76,8 @@ def getrandomNode(nodelist):
 
 # Mainnet V2,V1 END POINT
 nodelist = getFullnodes()
-hyperion_Node = getrandomNode(nodelist)
-#hyperion_Node = 'https://wax.eosrio.io'
+#hyperion_Node = getrandomNode(nodelist)
+hyperion_Node = 'https://hyperion.sentnl.io'
 
 # Testnet V2 END point
 API_ENDPOINT2_TESTNET = 'https://testnet.waxsweden.org'
@@ -264,7 +264,7 @@ def get_testnetproducer_cpustats(producer):
         current_headblock = current_headblock - 1
         # Only go back 4000 Blocks
         amount = amount + 1
-        if amount == 400:
+        if amount == 500:
             return None
     else:
         return currentblock['transactions'][0]['cpu_usage_us']
