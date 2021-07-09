@@ -30,7 +30,7 @@ RUN npm ci --silent && \
     npm run builddocker
 
 WORKDIR /app/fastify
-RUN npm ci --silent --verbose 
+RUN npm install --silent --verbose 
 #    npm install --silent
 
 
