@@ -4,10 +4,10 @@ env_setup() {
 cd /app
 
 # Add DB API database settings
-sed -i "s/pgdb/$DB_DATABASE/" dbapi/.env && \
-sed -i "s/pgmuser/$DB_USER/" dbapi/.env && \
-sed -i "s/pgpassword/$DB_PASSWORD/" dbapi/.env
-sed -i "s/pgdockername/$PGNAME/" dbapi/.env 
+sed -i "s/pgdb/$DB_DATABASE/" fastify/.env && \
+sed -i "s/pguser/$DB_USER/" fastify/.env && \
+sed -i "s/pgpassword/$DB_PASSWORD/" fastify/.env
+sed -i "s/pgdockername/$PGNAME/" fastify/.env 
 }
 
 
@@ -17,8 +17,8 @@ sed -i "s/pgdockername/$PGNAME/" dbapi/.env
 ###########################
 
 create_supervisor_conf() {
-  rm -rf /etc/supervisor/supervisord.conf
-  cat > /etc/supervisor/supervisord.conf <<EOF
+  rm -rf /etc/supervisord.conf
+  cat > /etc/supervisord.conf <<EOF
 [unix_http_server]
 file=/var/run/supervisor.sock   ; 
 chmod=0700                       ; 
@@ -59,7 +59,7 @@ create_supervisor_conf
 
 # Start Supervisor 
 echo "Starting Supervisor"
-/usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
+/usr/bin/supervisord -n -c /etc/supervisord.conf
 
 
 
