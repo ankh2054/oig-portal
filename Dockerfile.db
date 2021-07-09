@@ -69,8 +69,7 @@ COPY files/pg_hba.conf $PG_CONFIG_DIR/pg_hba.conf
 # Setup crontask for user oig
 ADD files/cron /app/backend/cron
 RUN chmod 0644 /app/backend/cron && \
-    chown oig:oig /app/backend/cron && \
-    crontab -u oig /app/backend/cron
+    crontab -u root /app/backend/cron
 
 # Entrypoint
 ADD files/start.sh /
