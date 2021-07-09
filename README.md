@@ -31,7 +31,7 @@ WAX OIG portal
 # Run the frontend container
 
 ```
-docker run  --name oig.sentnl.io --expose 80 \
+docker run --network=sentnl-net --name oig.sentnl.io --expose 80 \
 -d -e "VIRTUAL_HOST=oig.sentnl.io" \
 -e "LETSENCRYPT_HOST=oig.sentnl.io" \
 -e "LETSENCRYPT_EMAIL=charles.holtzkampf@gmail.com" \
