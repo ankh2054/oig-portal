@@ -26,6 +26,9 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     margin: '0 auto 50px',
   },
+  warning: {
+    textAlign: 'center !important'
+  },
   constrainedBox: {
     margin: '0 auto 50px',
     maxWidth: '550px'
@@ -148,11 +151,11 @@ const generateServicesProvided = (results) => {
   return jsx
 }
 
-const App = ({ producer, latestresults, producerLogos, producerDomainMap }) => {
+const App = ({ producer, latestresults, producerLogos, producerDomainMap, activeUser }) => {
   const classes = useStyles();
   const [results, setResults] = useState([]);
 
-  const preload = 42; // Number of results to preload (21 for 1 page, 42 for 2)
+  const preload = 60; // Number of results to preload (21 for 1 page, 42 for 2)
 
   useEffect(() => {
     if (producer) {
@@ -176,30 +179,31 @@ const App = ({ producer, latestresults, producerLogos, producerDomainMap }) => {
   return (
     <div className={classes.root}>
       {producer ? <h1>{producer.candidate} <small>{producer.owner_name}</small></h1> : null}
+      {results.length === 0 ? <h2 className={classes.warning}>No data recorded for this guild yet.</h2> : !producer.active ? <h2 className={classes.warning}>This guild is retired.</h2> : activeUser && activeUser.accountName === producer.account_name ? <h2 className={classes.warning}>This is your guild.</h2> : null }
       <div className={classes.constrainedBox}>
-        <Paper className={[classes.paper, classes.logoAndFlag]} variant="outlined">
-          {producer && producerLogos ? <img alt={producer.candidate + " logo"} className={classes.guildLogo} src={getCachedImage(producer.logo_svg, producerLogos, producerDomainMap)} /> : null}
+        {producer && (producer.logo_svg || producer.country_code) ? <Paper className={[classes.paper, classes.logoAndFlag]} variant="outlined">
+          {producerLogos ? <img alt={producer.candidate + " logo"} className={classes.guildLogo} src={getCachedImage(producer.logo_svg, producerLogos, producerDomainMap)} /> : null}
           <br />
-          {producer && flagMap[producer.country_code] ? <span className={classes.flagIcon}>
+          {flagMap[producer.country_code] ? <span className={classes.flagIcon}>
             {flagMap[producer.country_code]}
           </span> : null}
-        </Paper>
-        <Paper className={[classes.paper, classes.servicesProvided]} variant="outlined">
+        </Paper> : null }
+        {results.length >=1 ? <Paper className={[classes.paper, classes.servicesProvided]} variant="outlined">
           <h2>Services Provided</h2>
           <ul>
             {generateServicesProvided(results)}
           </ul>
-        </Paper>
+        </Paper> : null}
       </div>
-      <Paper className={[classes.paper, classes.cpuStatsHolder]} variant="outlined">
+      {results.length >=1 ? <Paper className={[classes.paper, classes.cpuStatsHolder]} variant="outlined">
         <h2>CPU stats</h2>
         <CpuStatsGraph results={results.slice(0, 7)} latestresults={latestresults} />
-      </Paper>
-      <Paper className={[classes.paper, classes.smallCpuStats]} variant="outlined">
+      </Paper> : null}
+      {results.length >=1 ? <Paper className={[classes.paper, classes.smallCpuStats]} variant="outlined">
         <h2>CPU stats</h2>
         <p>{cpuSummary({ results: results.slice(0, 7), latestresults})}</p>
-      </Paper>
-      <h2>Latest Results</h2>
+      </Paper> : null }
+      {results.length >=1 ? <h2>Latest Results</h2> : null }
       {results.length >= 1 ? <TechresultTables
         passedResults={results}
         hideOwnerName={true}
