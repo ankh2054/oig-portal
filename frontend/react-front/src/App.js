@@ -161,6 +161,7 @@ const App = (props) => {
           latestresults={latestresults}
           producerLogos={producerLogos}
           producerDomainMap={producerDomainMap}
+          activeUser={props.ual.activeUser}
         />
       </>
     );

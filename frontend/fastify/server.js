@@ -67,7 +67,7 @@ fastify.post('/api/deleteItem', db.deleteItem)
 // Add new guild
 fastify.post('/api/addNewGuild', db.addNewGuild)
 // Truncated monthly results
-fastify.get('/api/truncatedPaginatedResults', db.getTruncatedPaginatedResults)
+fastify.get('/api/truncatedPaginatedResults/:owner', db.getTruncatedPaginatedResults)
 
 // Starts the Fastify Server //
 const start = async () => {
