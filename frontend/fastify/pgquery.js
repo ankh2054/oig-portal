@@ -16,7 +16,7 @@ client.connect()
 
 // Get all producers
 const getProducers = (request, reply) => {
-  client.query('SELECT * FROM oig.producer WHERE active ORDER BY owner_name ASC', (error, results) => {
+  client.query('SELECT * FROM oig.producer ORDER BY owner_name ASC', (error, results) => {
     if (error) {
       throw error
     }
