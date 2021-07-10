@@ -338,4 +338,18 @@ const deleteItem = (request, reply) => {
   })
 }
 
+const addNewGuild = (request, reply) => {
+  const { owner_name, url } = request.body
+  const active = true;
+  client.query(
+    `INSERT INTO "oig"."producer"("owner_name", "candidate", "url", "jsonurl", "chainsurl", "active") VALUES($1, ' ', $2, ' ', ' ', $3)`,
+    [owner_name, url, active],
+    (error, results) => {
+      if (error) {
+        throw error
+      }
+      reply.status(200).send(`Guild created! ${owner_name}`);
+    })
+}
+
 module.exports = { deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner };
