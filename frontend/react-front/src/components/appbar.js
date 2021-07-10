@@ -112,7 +112,7 @@ export default function ButtonAppBar({ activeUser, loginModal, logOut, isAdmin }
           </Link>
           <Typography fontWeight="fontWeightBold" variant="h4" className={classes.title} color='inherit'>
             OIG Portal
-      </Typography>
+          </Typography>
           <nav className={classes.linkContainer}>
             <Link underline="none" variant="button" color="inherit" href="/" className={classes.link}>
               Home
@@ -124,13 +124,17 @@ export default function ButtonAppBar({ activeUser, loginModal, logOut, isAdmin }
               Scores
             </Link>
             {isAdmin ?
-            <Link underline="none" variant="button" color="inherit" href="/form" className={classes.link}>
-              Submit Update
+              <Link underline="none" variant="button" color="inherit" href="/form" className={classes.link}>
+                Submit Update
               </Link> : null}
             {isAdmin ?
               <Link variant="button" color="inherit" href="/admin" className={classes.link}>
                 Admin
-          </Link> : null}
+              </Link> : null}
+            {activeUser ?
+              <Link variant="button" color="inherit" href={`/guilds/${activeUser.accountName}`} className={classes.link}>
+                Profile
+              </Link> : null}
             <Link variant="button" color="inherit" href="#" onClick={activeUser ? logOut : loginModal} className={[classes.link, classes.waxButton]}>
               {activeUser ? "Log out " + activeUser.accountName : "Log In"}
             </Link>
