@@ -20,6 +20,12 @@ import getCachedImage from './getCachedImage'
 const useStyles = makeStyles((theme) => ({
   root: {
   },
+  retired: {
+    opacity: 0.7,
+    '& *': {
+      filter: 'grayscale(1)'
+    }
+  },
   media: {
     height: 0,
     paddingTop: '56.25%', // 16:9
@@ -171,22 +177,67 @@ const App = ({ results, producers, products, bizdevs, community, producerLogos, 
     );
   }
 
+  const isActive = (owner_name) => {
+    const owner = producers.find(producer => producer.owner_name === owner_name)
+    return owner ? (owner.active !== false && owner.active !== null) : true;
+  }
 
   return (
     <Grid container spacing={4}>
-      {results.map((result) => (
+      {results.map((result) => {
+        return isActive(result.owner_name) === true ? (
+          /* ACTIVE */
+          <Grid item key={result.owner_name} xs={12} sm={6} md={3}>
+            <Card className={classes.root} variant="outlined">
+              <Link className={classes.link} to={`/guilds/${result.owner_name}`}>
+                <CardHeader
+                  avatar={
+                    <Avatar alt={result.owner_name} src={logo(result.owner_name)} className={classes.large} />
+                  }
+                  /*action={
+                    <IconButton aria-label="settings">
+                      <MoreVertIcon />
+                    </IconButton>
+                  }*/
+                  title={result.owner_name}
+                  subheader={datec(result.date_check)}
+                  className={classes.cardHeader}
+                />
+              </Link>
+              <CardContent className={classes.summary}>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  <b>Tech: </b>{parseInt(result.score)}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  <b>Products: </b>{statescore(result.owner_name, products)}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  <b>Bizdev: </b>{statescore(result.owner_name, bizdevs)}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  <b>Community: </b>{statescore(result.owner_name, community)}
+                </Typography>
+              </CardContent>
+              <CardActions disableSpacing>
+                {top21(result.owner_name)}
+                <IconButton aria-label="share">
+                  {textResult(result.tls_check)}
+                </IconButton>
+                <IconButton className={classes.left} >
+                  {totalscore(result.score, statescore(result.owner_name, products), statescore(result.owner_name, bizdevs), statescore(result.owner_name, community))}
+                </IconButton>
+              </CardActions>
+            </Card>
+          </Grid>
+        ) : (
+        /* INACTIVE */
         <Grid item key={result.owner_name} xs={12} sm={6} md={3}>
-          <Card className={classes.root} variant="outlined">
+          <Card className={[classes.root, classes.retired]} variant="outlined">
             <Link className={classes.link} to={`/guilds/${result.owner_name}`}>
               <CardHeader
                 avatar={
                   <Avatar alt={result.owner_name} src={logo(result.owner_name)} className={classes.large} />
                 }
-                /*action={
-                  <IconButton aria-label="settings">
-                    <MoreVertIcon />
-                  </IconButton>
-                }*/
                 title={result.owner_name}
                 subheader={datec(result.date_check)}
                 className={classes.cardHeader}
@@ -216,9 +267,9 @@ const App = ({ results, producers, products, bizdevs, community, producerLogos, 
               </IconButton>
             </CardActions>
           </Card>
-        </Grid>
-      ))}
-    </Grid>
+        </Grid>)
+      }
+      )}</Grid>
   );
 }
 
