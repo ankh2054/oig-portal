@@ -95,7 +95,7 @@ const App = ({ results, producers, products, bizdevs, community, producerLogos, 
   // Counts all scores together
   function totalscore(tech, product, bizdev, community) {
     // Set passing score
-    let pass = 150
+    let pass = 120
     let sum = parseInt(tech) + product + bizdev + community
     if (sum >= pass) {
       return (
