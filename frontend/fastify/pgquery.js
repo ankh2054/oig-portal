@@ -352,4 +352,4 @@ const addNewGuild = (request, reply) => {
     })
 }
 
-module.exports = { deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner };
+module.exports = { deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner, addNewGuild };

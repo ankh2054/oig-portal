@@ -64,6 +64,8 @@ fastify.post('/api/updateSnapshotDate', db.updateSnapshotDate)
 fastify.post('/api/updatePointSystem', db.updatePointSystem)
 // Delete items
 fastify.post('/api/deleteItem', db.deleteItem)
+// Add new guild
+fastify.post('/api/addNewGuild', db.addNewGuild)
 
 // Starts the Fastify Server //
 const start = async () => {
