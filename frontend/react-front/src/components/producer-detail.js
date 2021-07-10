@@ -156,7 +156,7 @@ const App = ({ producer, latestresults, producerLogos, producerDomainMap }) => {
 
   useEffect(() => {
     if (producer) {
-      axios.get(api_base + `/api/paginatedresults/${producer.owner_name}?index=0&limit=${preload - 1}`).then((response) => {
+      axios.get(api_base + `/api/truncatedPaginatedResults/${producer.owner_name}?index=0&limit=${preload - 1}`).then((response) => {
         setResults(response.data)
       })
     }
@@ -167,7 +167,7 @@ const App = ({ producer, latestresults, producerLogos, producerDomainMap }) => {
     if (!index || !limit) {
       return results
     }
-    const paginatedResults = await axios.get(api_base + `/api/paginatedresults/${producer.owner_name}?index=${index}&limit=${limit}`);
+    const paginatedResults = await axios.get(api_base + `/api/truncatedPaginatedResults/${producer.owner_name}?index=${index}&limit=${limit}`);
     const newResults = [...results, ...paginatedResults.data];
     setResults(newResults);
     return newResults;

@@ -188,6 +188,42 @@ const getPaginatedResultsByOwner = (request, reply) => {
   })
 }
 
+const getTruncatedPaginatedResults = (request, reply)  => {
+  const { owner } = request.params;
+  const { index, limit } = request.query;
+  const start = index ? +index + 1 : 1;
+  const end = limit ? +limit + 1 : 10;
+
+  client.query(`SELECT * FROM ( SELECT ROW_NUMBER() OVER ( ORDER BY date_check DESC ) AS RowNum, * FROM (select distinct on (date_trunc('day', date_check)) * from oig.results where owner_name = $1) AS DistinctSet ) AS RowConstrainedResult WHERE RowNum >= $2 AND RowNum <= $3 ORDER BY RowNum`, [owner, start, end], (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(results.rows);
+  })
+}
+
+/* Get the max and min values for various days:
+
+select  cast(date_check as date)
+,       min(score) as MinScore
+,       max(score) as MaxScore
+from    oig.results
+where owner_name = 'sentnlagents'
+group by 
+        cast(date_check as date)
+order by date_check DESC
+
+gives results like:
+
+2021-01-09	119.7365	119.7365
+2021-01-08	119.7365	119.7365
+2021-01-05	82.8945	101.3155
+2021-01-03	82.8945	82.8945
+2020-12-27	101.3155	147.368
+2020-12-09	147.368	147.368
+
+*/
+
 // Set producer active or not - send true or false in body
 // OIG admin page 
 const IsProducerActive = (request, reply) => {
@@ -352,4 +388,4 @@ const addNewGuild = (request, reply) => {
     })
 }
 
-module.exports = { deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner, addNewGuild };
+module.exports = { deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner, addNewGuild, getTruncatedPaginatedResults };
