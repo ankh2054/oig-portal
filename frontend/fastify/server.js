@@ -24,6 +24,7 @@ fastify.get('/snapshot', (req, reply) => reply.sendFile('index.html'))
 fastify.get('/admin', (req, reply) => reply.sendFile('index.html')) 
 fastify.get('/form', (req, reply) => reply.sendFile('index.html'))  
 fastify.get('/latestresults', (req, reply) => reply.sendFile('index.html'))
+fastify.get('/guilds/*', (req, reply) => reply.sendFile('index.html'))
 
 
 // PG Routes//
