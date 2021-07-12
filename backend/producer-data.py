@@ -302,6 +302,7 @@ def check_api(producer,checktype):
 # History nodes type checks
 # Pass in history-v1, hyperion-v2 
 def check_full_node(producer,feature):
+    infourl = "/v1/history/get_transaction"
     transactions = eosio.randomTransaction()
     # if transaction list is empty sleep for 1 second
     while not transactions:
@@ -312,19 +313,28 @@ def check_full_node(producer,feature):
         trx2 = transactions[1]
     except:
         trx2 = trx
-    # Query nodes in DB
-    api = db_connect.getQueryNodes(producer,feature,'api')
+    # Query nodes in DB and try and obtain API node
+    try:
+        api = db_connect.getQueryNodes(producer,feature,'api')[0]
     # If there is no v1_history or hyperion node in DB return False
-    if api == None:
+    except:
         return False, 'No ' + feature + ' in JSON'
+    # If hyperion, check whether last indexed equals total indexed blocks
+    if feature == 'hyperion-v2':
+        #Obtain Hyperion result
+        hyperionresult = eosio.hyperionindexedBlocks(api)
+        if hyperionresult[0] == False:
+            return False, hyperionresult[1]
+        else:
+            info = infourl
+    # If all checks are good assign info paramater for checking
     else:
-        
-        info = "/v1/history/get_transaction"
+        info = infourl
     try:
         headers = {'Content-Type': 'application/json'}
         payload = {'id': trx}
-        curlreq = core.curl_request(api[0]+info,'POST',headers,payload)
-        response = requests.post(api[0]+info, headers=headers, json=payload)
+        curlreq = core.curl_request(api+info,'POST',headers,payload)
+        response = requests.post(api+info, headers=headers, json=payload)
         # If the response was successful, no Exception will be raised
         response.raise_for_status()
     # If returns codes are 500 OR 404
@@ -356,13 +366,13 @@ def check_full_node(producer,feature):
             # Try to get first TRX
             status = jsonres.get('trx').get('receipt').get('status')
         except:
-            # If first TRX fails  look for error and move try again
+            # If first TRX fails  look for error and try again
             status = jsonres.get('error').get('what')
             print("except",status)
             try:
                 # Try to get second TRX
                 payload = {'id': trx2}
-                response = requests.post(api[0]+info, headers=headers, json=payload)
+                response = requests.post(api+info, headers=headers, json=payload)
                 jsonres = response.json()
                 status = jsonres.get('trx').get('receipt').get('status')
             except:
@@ -820,7 +830,7 @@ def main():
     # takeSnapshot(now)
 
 
-#print(api_security('sentnlagents','chain-api','producer_api'))
+#print(check_full_node('amsterdamwax','hyperion-v2'))
 if __name__ == "__main__":
    main()
 

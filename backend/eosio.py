@@ -87,7 +87,22 @@ API_ENDPOINT_TESTNET = 'https://wax-testnet.dapplica.io'
 
 
 
-
+def hyperionindexedBlocks(host):
+    try:
+        url = host + '/v2/health'
+        response = requests.get(url, verify=False)
+        jsonres = response.json()
+    except:
+        return False, 'Could not connect to Hyperion'
+    health_info = jsonres.get('health')
+    service_data = health_info[2]['service_data']
+    last_indexed = int(service_data['last_indexed_block'])
+    total_indexed = int(service_data['total_indexed_blocks'])
+    # Check if total index is between total_index-10 and last_index+1, as they wont always exactly match.
+    if last_indexed in range(last_indexed-10, total_indexed+1):
+        return True, 'Hyperion Total blocks matches last indexed'
+    else:
+        return False, 'Hyperion last indexed does not match total indexed with range of 10'
 
 
 def headblock(type):
