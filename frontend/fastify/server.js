@@ -24,6 +24,7 @@ fastify.get('/snapshot', (req, reply) => reply.sendFile('index.html'))
 fastify.get('/admin', (req, reply) => reply.sendFile('index.html')) 
 fastify.get('/form', (req, reply) => reply.sendFile('index.html'))  
 fastify.get('/latestresults', (req, reply) => reply.sendFile('index.html'))
+fastify.get('/guilds/*', (req, reply) => reply.sendFile('index.html'))
 
 
 // PG Routes//
@@ -63,6 +64,10 @@ fastify.post('/api/updateSnapshotDate', db.updateSnapshotDate)
 fastify.post('/api/updatePointSystem', db.updatePointSystem)
 // Delete items
 fastify.post('/api/deleteItem', db.deleteItem)
+// Add new guild
+fastify.post('/api/addNewGuild', db.addNewGuild)
+// Truncated monthly results
+fastify.get('/api/truncatedPaginatedResults/:owner', db.getTruncatedPaginatedResults)
 
 // Starts the Fastify Server //
 const start = async () => {

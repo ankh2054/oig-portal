@@ -16,7 +16,8 @@ CREATE TABLE oig.producer (
     active BOOLEAN NOT NULL,
     logo_svg VARCHAR ( 100 ), /*Can be Null as sometimes people dont have a logo */
     country_code VARCHAR ( 100 ), /*Can be Null as sometimes people dont have a country specified */
-    top21 BOOLEAN NOT NULL
+    top21 BOOLEAN NOT NULL,
+    account_name VARCHAR ( 12 ) /* Used for login */
 );
 
 

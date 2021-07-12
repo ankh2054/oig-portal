@@ -46,4 +46,8 @@ pip-delete-this-directory.txt
 
 # OSX
 *.DS_Store
+
+# Other
 workspace.code-workspace
+frontend/fastify/public/*
+*yarn.lock
