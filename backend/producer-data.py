@@ -87,9 +87,9 @@ def pointsResults(results,pointsystem):
         else:
             if checkResult == True:
                 points = points+(check[1]*check[2])
-            # If checkresult fails and its a minimum requirement deduct 100 points
+            # If checkresult fails and its a minimum requirement deduct 1000 points, so the guld fails the min point requirements
             elif checkResult == False and minrequirementscheck == True:
-                points = points-100
+                points = points-1000
             else:
                 points = points+0
     return points
