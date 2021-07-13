@@ -55,7 +55,10 @@ RUN rm -rf "$PG_BASE" && mkdir -p "$PG_BASE" && chown -R postgres:postgres "$PG_
       && mkdir -p /var/run/postgresql/$PG_VERSION-main.pg_stat_tmp \
       && chown -R postgres:postgres /var/run/postgresql && chmod g+s /var/run/postgresql 
 
+
 WORKDIR /app
+
+# Pull down python code from github and save into backend
 COPY backend backend
 
 
