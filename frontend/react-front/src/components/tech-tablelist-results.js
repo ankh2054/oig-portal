@@ -116,7 +116,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ResultTables({ passedResults, hideOwnerName, loadMoreResults }) {
+export default function ResultTables({ passedResults, hideOwnerName, loadMoreResults, activeGuilds }) {
   // Basic paginaton frontend setup - 21 results
   const initialIndex = 21;
   const [results, setResults] = useState(passedResults);
@@ -136,7 +136,7 @@ export default function ResultTables({ passedResults, hideOwnerName, loadMoreRes
       let rows = results;
       const draftEndSlice = resultIndex + initialIndex - 1; // 21-1 initially. Then 42-1, and 63-1
       let endSlice = draftEndSlice >= max ? max : draftEndSlice; // set end slice to (20+21) - row 42, (41+21) - row 63, or (62+21) - row 84 - if it exceeds the loaded max (41) - row 42 use that instead
-      if (draftEndSlice >= (max+1) && !fetchForwardLimit) { // X >= 42 (row 43) initially
+      if (draftEndSlice >= (max + 1) && !fetchForwardLimit) { // X >= 42 (row 43) initially
         const index = endSlice + 1; // 41+1 (row 43)
         const limit = draftEndSlice; // 63-1 on third press (row 63)
         rows = await loadMoreResults(index, limit); // index 42-62 (row 43-64) should be now appended
@@ -213,6 +213,7 @@ export default function ResultTables({ passedResults, hideOwnerName, loadMoreRes
               <StyledTableCell><span>http2_check</span></StyledTableCell>
               <StyledTableCell><span>history_v1</span></StyledTableCell>
               <StyledTableCell><span>hyperion_v2</span></StyledTableCell>
+              <StyledTableCell><span>atomic_api</span></StyledTableCell>
               <StyledTableCell><span>cors_check</span></StyledTableCell>
               <StyledTableCell><span>oracle_feed</span></StyledTableCell>
               <StyledTableCell><span>snapshots</span></StyledTableCell>
@@ -222,8 +223,8 @@ export default function ResultTables({ passedResults, hideOwnerName, loadMoreRes
             </TableRow>
           </TableHead>
           <TableBody>
-            {resultSlice.map((result) => (
-              <StyledTableRow key={result.key}>
+            {resultSlice.map((result) => {
+              return !hideOwnerName && activeGuilds && activeGuilds.indexOf(result.owner_name) === -1 ? null : <StyledTableRow key={result.key}>
                 {hideOwnerName === true ? null : <StyledTableCell className={classes.ownerName}><a className={classes.waxButton} href={`/guilds/${result.owner_name}`}>{result.owner_name}</a></StyledTableCell>}
                 <StyledTableCell>{iconResult(result.chains_json)}</StyledTableCell>
                 <StyledTableCell>{iconResult(result.wax_json)}</StyledTableCell>
@@ -239,7 +240,7 @@ export default function ResultTables({ passedResults, hideOwnerName, loadMoreRes
                 <HtmlTooltip title={result.https_check_error} aria-label="https_check_error" placement="top">
                   <StyledTableCell>{iconResult(result.https_check)}</StyledTableCell>
                 </HtmlTooltip>
-                <HtmlTooltip title={result.https_check_error} aria-label="tls_check_error" placement="top">
+                <HtmlTooltip title={result.tls_check_error} aria-label="tls_check_error" placement="top">
                   <StyledTableCell>{textResult(result.tls_check)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.http2_check_error} aria-label="http2_check_error" placement="top">
@@ -248,8 +249,11 @@ export default function ResultTables({ passedResults, hideOwnerName, loadMoreRes
                 <HtmlTooltip title={result.full_history_error} aria-label="full_history_error" placement="top">
                   <StyledTableCell>{iconResult(result.full_history)}</StyledTableCell>
                 </HtmlTooltip>
-                <HtmlTooltip title={result.full_history_error} aria-label="hyperion_v2_error" placement="top">
+                <HtmlTooltip title={result.hyperion_v2_error} aria-label="hyperion_v2_error" placement="top">
                   <StyledTableCell>{iconResult(result.hyperion_v2)}</StyledTableCell>
+                </HtmlTooltip>
+                <HtmlTooltip title={result.atomic_api_error} aria-label="atomic_api_error" placement="top">
+                  <StyledTableCell>{iconResult(result.atomic_api)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.cors_check_error} aria-label="cors_check_error" placement="top">
                   <StyledTableCell>{iconResult(result.cors_check)}</StyledTableCell>
@@ -262,7 +266,7 @@ export default function ResultTables({ passedResults, hideOwnerName, loadMoreRes
                 <StyledTableCell>{Math.round(result.score) /* !pointSystem ? result.score : getTechScore(result, pointSystem) */}</StyledTableCell>
                 <StyledTableCell>{datec(result.date_check)}</StyledTableCell>
               </StyledTableRow>
-            ))}
+            })}
           </TableBody>
         </Table>
       </TableContainer>

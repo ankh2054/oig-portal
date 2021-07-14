@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const AdminPanel = ({ snapshotSettings, pointSystem, isAdmin }) => {
+const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin }) => {
     const classes = useStyles();
     const [snapshotDate, updateSnapshotDate] = useState(null);
 

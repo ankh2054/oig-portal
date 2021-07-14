@@ -91,6 +91,8 @@ echo "creating initdb.sql file"
           date_check TIMESTAMPTZ NOT NULL,
           score DECIMAL NOT NULL,
           snapshot_date TIMESTAMPTZ,
+          atomic_api_error VARCHAR ( 1000 ),
+          atomic_api BOOLEAN NOT NULL,
           comments VARCHAR ( 1000 )
       );
       /* Unique index to cover two culumns*/

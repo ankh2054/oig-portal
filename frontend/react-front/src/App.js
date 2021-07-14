@@ -56,6 +56,7 @@ const App = (props) => {
   const classes = useStyles();
   // const [rawResults, setRawResults] = useState([])
   // const [results, setResults] = useState([])
+  const [rawProducers, setRawProducers] = useState([])
   const [producers, setProducers] = useState([])
   // const [rawProducts, setRawProducts] = useState([])
   const [products, setProducts] = useState([])
@@ -78,7 +79,8 @@ const App = (props) => {
       setResults(response.data)
     });*/
     axios.get(api_base + '/api/producers').then((response) => {
-      setProducers(response.data)
+      setRawProducers(response.data)
+      setProducers(response.data.filter((producer) => producer.active === true))
     });
     axios.get(api_base + '/api/products').then((response) => {
       // setRawProducts(response.data)
@@ -157,7 +159,7 @@ const App = (props) => {
     return (
       <>
         <ProducerDetails
-          producer={producers.filter((result) => result.owner_name === params.ownername)[0]}
+          producer={rawProducers.filter((result) => result.owner_name === params.ownername)[0]}
           latestresults={latestresults}
           producerLogos={producerLogos}
           producerDomainMap={producerDomainMap}
@@ -184,6 +186,7 @@ const App = (props) => {
                   <Router>
                     <Route path="/latestresults" component={() => <MonthlyResults
                       results={latestresults}
+                      activeGuilds={rawProducers.filter(producer => producer.active === true).map(producer => producer.owner_name)}
                     />} exact />
                     <Route exact path="/snapshot" component={() => <SnapshotResults
                       /*results={latestresults}*/
@@ -196,10 +199,11 @@ const App = (props) => {
                       isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)}
                       producerLogos={producerLogos}
                       producerDomainMap={producerDomainMap}
+                      activeGuilds={rawProducers.filter(producer => producer.active === true).map(producer => producer.owner_name)}
                     />} />
                     <Route exact path="/" component={() =>
                       <ProducerCards results={latestresults}
-                        producers={producers}
+                        producers={rawProducers}
                         products={products}
                         bizdevs={bizdevs}
                         community={community}
@@ -208,7 +212,7 @@ const App = (props) => {
                       />} />
                     <Route exact path='/guilds/:ownername' component={BPwithownername} />
                     <Route exact path='/form' component={() => <Testform producers={producers} isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} />} />
-                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} pointSystem={rawPointSystem} isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} />} />
+                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} producers={rawProducers} pointSystem={rawPointSystem} isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} />} />
                   </Router>
                 </Paper>
               </Grid>
