@@ -133,6 +133,7 @@ const generateServicesProvided = (results) => {
   const services = [
     ["History V1", latest.hyperion_v2, null],
     ["Hyperion V2", latest.hyperion_v2, null],
+    ["Atomic API", latest.atomic_api, null],
     ["API", latest.api_node, null],
     ["Missed Blocks (24 hours)", null, null],
     ["Security (TLS >= v1.2)", latest.tls_check && latest.tls_check !== "false" && latest.tls_check.indexOf('1.2') !== -1, 'fa fa-shield-alt']

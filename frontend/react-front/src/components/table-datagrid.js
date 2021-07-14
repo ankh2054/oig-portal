@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, pointSystem }) {
+export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, pointSystem, activeGuilds }) {
   const classes = useStyles();
   const [tableState, setTableState] = useState(tableData);
 

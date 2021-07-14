@@ -234,7 +234,21 @@ const IsProducerActive = (request, reply) => {
     if (error) {
       throw error
     }
-    reply.status(200).send(`Producer modified: ${owner}`);
+    reply.status(200).send(`${owner} is active: ${active ? "true" : "false"}`);
+  })
+}
+
+
+// Set producer account_name
+const setAccountName = (request, reply) => {
+  const owner = request.params.owner
+  const { account_name } = request.body
+
+  client.query('UPDATE oig.producer SET account_name = $1 WHERE owner_name = $2', [account_name, owner], (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(`Account name for ${owner} set to ${account_name}`);
   })
 }
 
@@ -388,4 +402,4 @@ const addNewGuild = (request, reply) => {
     })
 }
 
-module.exports = { deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner, addNewGuild, getTruncatedPaginatedResults };
+module.exports = { deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner, addNewGuild, getTruncatedPaginatedResults, setAccountName };

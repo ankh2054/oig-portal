@@ -47,6 +47,8 @@ fastify.get('/api/pointsystem', db.getPointSystem)
 fastify.post('/api/snapshot', db.setSnapshotResults)
 // Activate or deactivate producer
 fastify.put('/api/activeproducer/:owner', db.IsProducerActive)
+// Set account name of producer
+fastify.put('/api/setAccountName/:owner', db.setAccountName)
 // Guild add monthly updates
 fastify.post('/api/monthlyUpdate', db.mothlyUpdate)
 // Guild product updates/insert

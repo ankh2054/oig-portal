@@ -12,18 +12,18 @@ function getGuildLogoURL(guild, producers, producerLogos, producerDomainMap) {
   return getCachedImage(logosvg_url, producerLogos, producerDomainMap)
 }
 
-const App = ({ results, producers, products, bizdevs, community, isAdmin, pointSystem, producerLogos, producerDomainMap }) => {
+const App = ({ results, producers, products, bizdevs, community, isAdmin, pointSystem, producerLogos, producerDomainMap, activeGuilds }) => {
   function format(array) {
     // Any manipulations of initially loaded data can be done here
     if (array.length >= 1) {
       // Place comments second to front for product & bizdev, front for community & tech
-      return array.map((item) => {
+      return array.map(item => {
         const itemWithGuildLogo = {
           guild: getGuildLogoURL(item.owner_name, producers, producerLogos, producerDomainMap),
           ...item
         }
         return reArrangeTableHeaders(itemWithGuildLogo)
-      })
+      }).filter(result => activeGuilds.indexOf(result.owner_name) !== -1)
     }
     return array
   }
