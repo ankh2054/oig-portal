@@ -5,10 +5,12 @@ import { makeStyles } from '@material-ui/core/styles';
 import TechresultTables from './tech-tablelist-results'
 import { green, red, grey } from '@material-ui/core/colors';
 import Icon from '@material-ui/core/Icon';
-import {CpuStatsGraph, cpuSummary} from './cpu-stats-graph';
+import { CpuStatsGraph, cpuSummary } from './cpu-stats-graph';
 import Paper from '@material-ui/core/Paper';
-import getCachedImage from './getCachedImage'
-
+import getCachedImage from './getCachedImage';
+import hyperionV2Logo from '../assets/img/hyperion.png';
+import apiLogo from '../assets/img/api.png';
+import historyV1Logo from '../assets/img/v1.png';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -79,7 +81,8 @@ const useStyles = makeStyles((theme) => ({
       padding: 0,
       margin: 0,
       '& li': {
-        fontSize: '20px'
+        fontSize: '20px',
+        padding: '5px 0'
       }
     },
   },
@@ -104,6 +107,33 @@ const useStyles = makeStyles((theme) => ({
   },
   backButton: {
     margin: '25px auto'
+  },
+  hyperionGreen: {
+    height: '40px',
+    verticalAlign: 'middle',
+    marginLeft: '-8px',
+    display: 'inline-block',
+    filter: 'invert(49%) sepia(7%) saturate(3407%) hue-rotate(73deg) brightness(116%) contrast(94%)',
+  },
+  hyperionRed: {
+    height: '40px',
+    verticalAlign: 'middle',
+    marginLeft: '-8px',
+    display: 'inline-block',
+    filter: 'invert(34%) sepia(78%) saturate(3670%) hue-rotate(344deg) brightness(104%) contrast(91%)',
+  },
+  hyperionGrey: {
+    height: '40px',
+    verticalAlign: 'middle',
+    marginLeft: '-8px',
+    display: 'inline-block',
+    filter: 'invert(56%) sepia(24%) saturate(0%) hue-rotate(153deg) brightness(104%) contrast(102%)',
+  },
+  genericIcon: {
+    verticalAlign: 'middle',
+    transform: 'scale(1.2)',
+    marginRight: '8px',
+    display: 'inline-block'
   }
 }));
 
@@ -128,23 +158,27 @@ const flagMap = {
   "US": "🇺🇸"
 }
 
-const generateServicesProvided = (results) => {
+const generateServicesProvided = (results, classes) => {
   let latest = results && results[0] ? results[0] : {};
+  console.log(latest)
   const services = [
-    ["History V1", latest.hyperion_v2, null],
-    ["Hyperion V2", latest.hyperion_v2, null],
+    ["History V1", latest.full_history, null, <img alt="" src={historyV1Logo} className={latest.full_history === true ? classes.hyperionGreen : latest.full_history === false ? classes.hyperionRed : classes.hyperionGrey}/>],
+    ["Hyperion V2", latest.hyperion_v2, null, <img alt="" src={hyperionV2Logo} className={latest.hyperion_v2 === true ? classes.hyperionGreen : latest.hyperion_v2 === false ? classes.hyperionRed : classes.hyperionGrey}/>],
     ["Atomic API", latest.atomic_api, null],
-    ["API", latest.api_node, null],
+    ["API", latest.api_node, null, <img alt="" src={apiLogo} className={latest.api_node === true ? classes.hyperionGreen : latest.api_node === false ? classes.hyperionRed : classes.hyperionGrey}/>],
     ["Missed Blocks (24 hours)", null, null],
     ["Security (TLS >= v1.2)", latest.tls_check && latest.tls_check !== "false" && latest.tls_check.indexOf('1.2') !== -1, 'fa fa-shield-alt']
   ]
+
   const jsx = services.map((item, index) => {
     const iconColor = item[1] === true ? green[500] : item[1] === false ? red[500] : grey[500];
     const serviceName = item[0];
     const iconClass = item[2] ? "fa " + item[2] : item[1] === true ? "fa fa-check-circle" : item[1] === false ? "fa fa-times-circle" : "fa fa-question-circle";
 
+    const icon = !item[3] ? <Icon className={[iconClass, classes.genericIcon]} /* Smart use of `style` */ style={{ color: iconColor }} /> : item[3];
+
     return <li key={index}>
-      <Icon className={iconClass} /* Smart use of `style` */ style={{ color: iconColor }} />&nbsp;
+      {icon}&nbsp;
       {serviceName}
     </li>
   }
@@ -180,7 +214,7 @@ const App = ({ producer, latestresults, producerLogos, producerDomainMap, active
   return (
     <div className={classes.root}>
       {producer ? <h1>{producer.candidate} <small>{producer.owner_name}</small></h1> : null}
-      {results.length === 0 ? <h2 className={classes.warning}>No data recorded for this guild yet.</h2> : !producer.active ? <h2 className={classes.warning}>This guild is retired.</h2> : activeUser && activeUser.accountName === producer.account_name ? <h2 className={classes.warning}>This is your guild.</h2> : null }
+      {results.length === 0 ? <h2 className={classes.warning}>No data recorded for this guild yet.</h2> : !producer.active ? <h2 className={classes.warning}>This guild is retired.</h2> : activeUser && activeUser.accountName === producer.account_name ? <h2 className={classes.warning}>This is your guild.</h2> : null}
       <div className={classes.constrainedBox}>
         {producer && (producer.logo_svg || producer.country_code) ? <Paper className={[classes.paper, classes.logoAndFlag]} variant="outlined">
           {producerLogos ? <img alt={producer.candidate + " logo"} className={classes.guildLogo} src={getCachedImage(producer.logo_svg, producerLogos, producerDomainMap)} /> : null}
@@ -188,23 +222,23 @@ const App = ({ producer, latestresults, producerLogos, producerDomainMap, active
           {flagMap[producer.country_code] ? <span className={classes.flagIcon}>
             {flagMap[producer.country_code]}
           </span> : null}
-        </Paper> : null }
-        {results.length >=1 ? <Paper className={[classes.paper, classes.servicesProvided]} variant="outlined">
+        </Paper> : null}
+        {results.length >= 1 ? <Paper className={[classes.paper, classes.servicesProvided]} variant="outlined">
           <h2>Services Provided</h2>
           <ul>
-            {generateServicesProvided(results)}
+            {generateServicesProvided(results, classes)}
           </ul>
         </Paper> : null}
       </div>
-      {results.length >=1 ? <Paper className={[classes.paper, classes.cpuStatsHolder]} variant="outlined">
+      {results.length >= 1 ? <Paper className={[classes.paper, classes.cpuStatsHolder]} variant="outlined">
         <h2>CPU stats</h2>
         <CpuStatsGraph results={results.slice(0, 7)} latestresults={latestresults} />
       </Paper> : null}
-      {results.length >=1 ? <Paper className={[classes.paper, classes.smallCpuStats]} variant="outlined">
+      {results.length >= 1 ? <Paper className={[classes.paper, classes.smallCpuStats]} variant="outlined">
         <h2>CPU stats</h2>
-        <p>{cpuSummary({ results: results.slice(0, 7), latestresults})}</p>
-      </Paper> : null }
-      {results.length >=1 ? <h2>Latest Results</h2> : null }
+        <p>{cpuSummary({ results: results.slice(0, 7), latestresults })}</p>
+      </Paper> : null}
+      {results.length >= 1 ? <h2>Latest Results</h2> : null}
       {results.length >= 1 ? <TechresultTables
         passedResults={results}
         hideOwnerName={true}
