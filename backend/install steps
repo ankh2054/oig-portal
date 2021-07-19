@@ -1,0 +1,93 @@
+[Big Sur - ensure later packages can be installed]
+sudo chown -R $(whoami):admin /usr/local/* \
+&& sudo chmod -R g+rwx /usr/local/*
+
+[Install Postgres.app if on Mac]
+https://postgresapp.com/downloads.html
+
+[Add Postgres to PATH]
+Bash:
+echo 'export PATH=$PATH:/Applications/Postgres.app/Contents/Versions/latest/bin' >> ~/.bash_profile \
+&& source ~/.bash_profile
+
+ZSH:
+echo 'export PATH=$PATH:/Applications/Postgres.app/Contents/Versions/latest/bin' >> ~/.zshrc \
+&& source ~/.zshrc
+
+[Install packages via Brew]
+brew install openssl \
+&& brew install python3
+
+[Install virtualenv]
+pip3 install virtualenv
+
+Open Postgres.app and click Initialize.
+
+[Windows - make psql accessible by PowerShell]
+$Env:Path += ";C:\Program Files\PostgreSQL\13\bin"
+
+You may also need to replace METHOD in C:\Program Files\PostgreSQL\13\data\pg_hba.conf to ´trust´, in order to run these commands without a password.
+
+[An import may be needed here! Not all the code is set up to work with a blank database]
+
+[Create OIG database & set up]
+echo 'CREATE DATABASE oig;' | psql postgres \
+&& psql -d oig -h localhost -p 5432 -f postgresql.sql
+
+[Create OIG database & set up - Windows]
+echo 'CREATE DATABASE oig;' | psql -U postgres
+psql -U postgres -d oig -h localhost -p 5432 -f postgresql.sql
+
+[If you mess it up - drop the table]
+echo 'drop database oig' | psql postgres \
+&& echo 'drop role oiguser' | psql postgres
+
+[If you mess it up - drop the table - Windows]
+echo 'drop database oig' | psql -U postgres
+echo 'drop role oiguser' | psql -U postgres
+
+[Check it works]
+psql postgres
+postgres=# \c oig
+postgres=# \d oig.producer
+postgres=# \d oig.results
+postgres=# \q
+
+[Upgrade Python if need be]
+[sudo] pip3 install --upgrade pip
+
+[Windows - make virtualenv accessible by PowerShell]
+$Env:Path += ";C:\python39\lib\site-packages"
+
+[Create virtualenv]
+virtualenv venv \
+&& source venv/bin/activate
+
+Windows:
+py -m virtualenv venv
+.\venv\Scripts\activate
+
+*You should now see (venv) prepend your prompt.
+
+[Install requirements]
+pip3 install -r requirements.txt
+
+[If psycopg2 fails]
+env LDFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib" \
+pip3 --no-cache install psycopg2-binary
+
+[If preprocessing fails]
+pip3 --no-cache install preprocessing
+
+Proceed...
+python3 producer-data.py
+py producer-data.py
+
+Whatever fails to install: pip3 install XYZ
+
+What I needed to install:
+pip3 install requests psycopg2 preprocessing simplejson pyopenssl
+
+[Shut down]
+Click 'Stop' in Postgres.app
+'deactivate' to stop virtualenv

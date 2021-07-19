@@ -57,6 +57,12 @@ oig-postgresql:prod
 ```
 
 
+# 5 Update frontendcontainer 
+
+
+
+# 6 Update the backend container 
+ ** see oig-backend
 
 ### Known errors
 ````
