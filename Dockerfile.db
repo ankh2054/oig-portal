@@ -15,6 +15,7 @@ ENV PACKAGES="\
   python3 \
   python3.7-dev \
   cron \
+  git \
 "
 
 
@@ -56,10 +57,13 @@ RUN rm -rf "$PG_BASE" && mkdir -p "$PG_BASE" && chown -R postgres:postgres "$PG_
       && chown -R postgres:postgres /var/run/postgresql && chmod g+s /var/run/postgresql 
 
 
-WORKDIR /app
 
-# Pull down python code from github and save into backend
-COPY backend backend
+# Add files
+WORKDIR /app
+ADD backend/*.py backend
+ADD backend/*.sql backend
+ADD files/pg_hba.conf $PG_CONFIG_DIR/pg_hba.conf
+ADD files/cron backend/cron
 
 
 # Install python requirements
@@ -68,11 +72,7 @@ RUN pip3 install wheel
 RUN pip3 install -r requirements.txt
 
 
-WORKDIR /app
-COPY files/pg_hba.conf $PG_CONFIG_DIR/pg_hba.conf
-
 # Setup crontask for user oig
-ADD files/cron /app/backend/cron
 RUN chmod 0644 /app/backend/cron && \
     crontab -u root /app/backend/cron
 

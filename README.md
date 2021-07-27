@@ -28,7 +28,7 @@ WAX OIG portal
 
 
 
-# Run the frontend container
+# 4 Run the frontend container
 
 ```
 docker run --network=sentnl-net --name oig.sentnl.io --expose 80 \
@@ -44,7 +44,7 @@ oig-frontend:prod
 ```
 
 
-# 4 Run the DB container 
+# 5 Run the DB container 
 
 ```
 docker run --network=sentnl-net  --name oig.db --expose 5432 \
@@ -57,33 +57,13 @@ oig-postgresql:prod
 ```
 
 
+# 6 Update frontendcontainer 
+- Rebuild container image
+- Delete original container 
+- Restart container
 
-### Known errors
-````
-<IconButton>
-    <HttpsIcon ... />
-</IconButton>
-````
-This causes a `validateDOMNesting` error: button inside a button.
 
-Error: Objects are not valid as a React child (found: object with keys {id}). If you meant to render a collection of children, use an array instead.
+# 7 Update the backend container 
+ * Run update script passing name of container and master Postgresqpassword
+## EXample: ./db-update.sh oig-portal pgpassword
 
-Editing the name of a product causes a new entry for that product rather than replacing it (in snapshot editor). Fixed via disabling the name update field.
-
-Opening the product table for a BP in snapshot editor results in:
-````
-Warning: findDOMNode is deprecated in StrictMode. findDOMNode was passed an instance of Transition which is inside StrictMode. 
-```
-
-### Future proofing / refactoring ideas
-Replace moment.js with Luxon or a similarly maintained, lighter framework
-
-## Generating cached images
-
-```SELECT logo_svg from "oig"."producer"```
-
-Save in logolist.txt
-
-Run wget -r --cut-dirs=20 -A .png,.jpeg,.jpg  -i ./logolist.txt
-
-Then place in logo_cache
