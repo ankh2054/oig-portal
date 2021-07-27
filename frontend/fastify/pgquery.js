@@ -252,6 +252,19 @@ const setAccountName = (request, reply) => {
   })
 }
 
+// Set producer account_name
+const updateProducer = (request, reply) => {
+  const owner = request.params.owner
+  const { account_name, active } = request.body
+
+  client.query('UPDATE oig.producer SET "active" = $1, "account_name" = $2 WHERE "owner_name" = $3', [active, account_name, owner], (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(`Account name for ${owner} set to ${account_name}, active state set to ${active}`);
+  })
+}
+
 // Insert monthly update
 // ???????
 const mothlyUpdate = (request, reply) => {
@@ -389,11 +402,11 @@ const deleteItem = (request, reply) => {
 }
 
 const addNewGuild = (request, reply) => {
-  const { owner_name, url } = request.body
+  const { owner_name, url, account_name } = request.body
   const active = true;
   client.query(
-    `INSERT INTO "oig"."producer"("owner_name", "candidate", "url", "jsonurl", "chainsurl", "active") VALUES($1, ' ', $2, ' ', ' ', $3)`,
-    [owner_name, url, active],
+    `INSERT INTO "oig"."producer"("owner_name", "candidate", "url", "jsonurl", "chainsurl", "active", "account_name") VALUES($1, ' ', $2, ' ', ' ', $3, $4)`,
+    [owner_name, url, active, account_name],
     (error, results) => {
       if (error) {
         throw error
@@ -402,4 +415,4 @@ const addNewGuild = (request, reply) => {
     })
 }
 
-module.exports = { deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner, addNewGuild, getTruncatedPaginatedResults, setAccountName };
+module.exports = { deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner, addNewGuild, getTruncatedPaginatedResults, setAccountName, updateProducer };

@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function AddNewDialog({ type, tableState, tryUpdateTable, setTableState, defaultGuild, isAdmin, pointSystem }) {
     const classes = useStyles();
-
+    const isGuild = type === 'guild';
     const isProdOrBizdev = type === 'product' || type === 'bizdev';
     const isComm = type === 'community';
     const [popupOpen, setPopupOpen] = useState(false);
@@ -61,7 +61,10 @@ export default function AddNewDialog({ type, tableState, tryUpdateTable, setTabl
             analytics_url,
             spec_url,
             code_repo,
-            comments
+            comments, 
+            guild_name,
+            guild_url, 
+            account_name
         } = payload;
         if (type === 'product') {
             return {
@@ -99,6 +102,13 @@ export default function AddNewDialog({ type, tableState, tryUpdateTable, setTabl
                 comments
             }
         }
+        if (isGuild) {
+            return {
+                guild_name,
+                url: guild_url,
+                account_name: account_name ? account_name : guild_name
+            }
+        }
         return {
             'error': 'Payload not set up'
         }
@@ -125,8 +135,14 @@ export default function AddNewDialog({ type, tableState, tryUpdateTable, setTabl
             return
         }
         let errors = [];
-        if (!sanitisedPayload.owner_name) {
+        if (!isGuild && !sanitisedPayload.owner_name) {
             errors.push("owner_name")
+        }
+        if (isGuild && !sanitisedPayload.guild_name) {
+            errors.push("guild_name")
+        }
+        if (isGuild && !sanitisedPayload.url) {
+            errors.push("guild_url")
         }
         if ((type === 'product' || type === 'bizdev') && !sanitisedPayload.name) {
             errors.push("name")
@@ -197,10 +213,10 @@ export default function AddNewDialog({ type, tableState, tryUpdateTable, setTabl
         switch (stage) {
             case 1:
                 const lastGuild = tableState.length >= 1 ? tableState[tableState.length - 1].owner_name : defaultGuild ? defaultGuild : null;
-                changePrompt('owner_name', 'guild name', lastGuild)
+                isGuild ? changePrompt('guild_name', 'guild name (12 characters)') : changePrompt('owner_name', 'guild name', lastGuild)
                 break;
             case 2:
-                isProdOrBizdev ? changePrompt('name', 'name', `New ${type}`) : changeStage(6)
+                isGuild ? changeStage(11) : isProdOrBizdev ? changePrompt('name', 'name', `New ${type}`) : changeStage(6)
                 break;
             case 3:
                 changePrompt('description', 'description', '')
@@ -230,17 +246,17 @@ export default function AddNewDialog({ type, tableState, tryUpdateTable, setTabl
                 break;
             case 11:
                 setPromptType('url')
-                type === 'product' ? changePrompt('analytics_url', 'analytics_url', '') : changeStage(14)
+                type === 'product' ? changePrompt('analytics_url', 'analytics_url', 'https://') : isGuild ? changePrompt('guild_url', 'guild URL', 'https://') : changeStage(14)
                 break;
             case 12:
-                changePrompt('spec_url', 'spec_url', '')
+                isGuild ? changeStage(14) : changePrompt('spec_url', 'spec_url', 'https://')
                 break;
             case 13:
-                changePrompt('code_repo', 'code_repo', '')
+                changePrompt('code_repo', 'code_repo', 'https://')
                 break;
             case 14:
                 setPromptType('text')
-                changePrompt('comments', 'comments (optional)', '', 'Finish');
+                isGuild ? changePrompt('account_name', 'account name (optional, this is used for logging in.)', '', 'Finish') : changePrompt('comments', 'comments (optional)', '', 'Finish');
                 break;
             case 15:
                 changePrompt(null)

@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, pointSystem, activeGuilds }) {
+export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, pointSystem }) {
   const classes = useStyles();
   const [tableState, setTableState] = useState(tableData);
 
@@ -58,6 +58,9 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
     } else if (!!columnObj['points_type']) {
       // Points system - make point_type uneditable
       return (key === "points_type" ? "never" : "always")
+    } else if (!!columnObj['guild_name']) {
+      // Guild settings - make all uneditable except account_name
+      return (key === "account_name" ? "always" : "never")
     } else {
       // Otherwise for community, product, bizdev, all should be editable except score, name, guild, and date.
       return (key !== "name" && key !== "score" && key !== "guild" && key !== "date_updated" ? "always" : "never")
@@ -86,7 +89,7 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
         // Highlight comments
         cellStyle: key === "comments" ? {
           ...defaultCell, backgroundColor: '#ffffed',
-        } : key === 'points_type' ? waxCell : defaultCell,
+        } : (key === 'points_type' || key === 'guild_name') ? waxCell : defaultCell,
         render: key === "guild" ? rowData => renderGuildLogo(rowData) : isDate ? rowData => renderDate(rowData) : undefined
       };
     });
@@ -113,6 +116,12 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
             tooltip: 'Recalculate Score',
             onClick: (event, currentRow) => tryUpdateTable('recalc', currentRow, tableTitle, tableState, setTableState, type, pointSystem)
           }
+        ] : isAdmin && tableTitle === 'Guild Settings' ? [
+          {
+            icon: 'visibility',
+            tooltip: 'Set Active/Inactive',
+            onClick: (event, currentRow) => tryUpdateTable('toggleActive', currentRow, tableTitle, tableState, setTableState)
+          }
         ] : null}
         editable={isAdmin && type !== 'unknownType' ? { // Show only for admins
           onRowUpdate: (newRow, currentRow) => tryUpdateTable('update', currentRow, tableTitle, tableState, setTableState, type, pointSystem, newRow),
@@ -124,7 +133,7 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
         data={Array.from(JSON.parse(JSON.stringify(tableState)))} // This is neccessary for some reason. I think it's because material-table doesn't like a mutating state. Oddly, it doesn't matter for the columns above. Perhaps because they don't change?
         title={tableTitle}
       /> : null}
-      <AddNewDialog type={type} tableState={tableState} tryUpdateTable={tryUpdateTable} setTableState={setTableState} defaultGuild={defaultGuild} isAdmin={isAdmin} pointSystem={pointSystem} />
+      <AddNewDialog type={tableTitle === "Guild Settings" ? "guild" : type} tableState={tableState} tryUpdateTable={tryUpdateTable} setTableState={setTableState} defaultGuild={defaultGuild} isAdmin={isAdmin} pointSystem={pointSystem} />
     </div>
   );
 }

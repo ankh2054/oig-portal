@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { api_base } from '../config'
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
 import TechresultTables from './tech-tablelist-results'
 import { green, red, grey } from '@material-ui/core/colors';
+import Tooltip from '@material-ui/core/Tooltip';
 import Icon from '@material-ui/core/Icon';
 import { CpuStatsGraph, cpuSummary } from './cpu-stats-graph';
 import Paper from '@material-ui/core/Paper';
@@ -11,6 +12,17 @@ import getCachedImage from './getCachedImage';
 import hyperionV2Logo from '../assets/img/hyperion.png';
 import apiLogo from '../assets/img/api.png';
 import historyV1Logo from '../assets/img/v1.png';
+import atomicLogo from '../assets/img/atomic.png';
+
+const HtmlTooltip = withStyles((theme) => ({
+  tooltip: {
+    backgroundColor: '#f5f5f9',
+    color: 'rgba(0, 0, 0, 0.87)',
+    maxWidth: 220,
+    fontSize: theme.typography.pxToRem(12),
+    border: '1px solid #e60000',
+  },
+}))(Tooltip);
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -115,6 +127,13 @@ const useStyles = makeStyles((theme) => ({
     display: 'inline-block',
     filter: 'invert(49%) sepia(7%) saturate(3407%) hue-rotate(73deg) brightness(116%) contrast(94%)',
   },
+  atomicGreen: {
+    height: '38px',
+    verticalAlign: 'middle',
+    marginLeft: '-10px',
+    display: 'inline-block',
+    filter: 'invert(48%) sepia(62%) saturate(424%) hue-rotate(73deg) brightness(108%) contrast(91%)',
+  },
   hyperionRed: {
     height: '40px',
     verticalAlign: 'middle',
@@ -122,12 +141,26 @@ const useStyles = makeStyles((theme) => ({
     display: 'inline-block',
     filter: 'invert(34%) sepia(78%) saturate(3670%) hue-rotate(344deg) brightness(104%) contrast(91%)',
   },
+  atomicRed: {
+    height: '38px',
+    verticalAlign: 'middle',
+    marginLeft: '-8px',
+    display: 'inline-block',
+    filter: 'invert(33%) sepia(91%) saturate(3715%) hue-rotate(345deg) brightness(110%) contrast(91%)',
+  },
   hyperionGrey: {
     height: '40px',
     verticalAlign: 'middle',
     marginLeft: '-8px',
     display: 'inline-block',
     filter: 'invert(56%) sepia(24%) saturate(0%) hue-rotate(153deg) brightness(104%) contrast(102%)',
+  },
+  atomicGrey: {
+    height: '38px',
+    verticalAlign: 'middle',
+    marginLeft: '-8px',
+    display: 'inline-block',
+    filter: 'invert(63%) sepia(0%) saturate(0%) hue-rotate(136deg) brightness(102%) contrast(88%)',
   },
   genericIcon: {
     verticalAlign: 'middle',
@@ -158,29 +191,53 @@ const flagMap = {
   "US": "🇺🇸"
 }
 
+const calculateSecurity = (latest) => {
+  const res = {
+    producer: latest.producer_api_check === "true",
+    net: latest.net_api_check === "true",
+    dbsize: latest.dbsize_api_check === "true",
+    tls: latest.tls_check !== "false" && (latest.tls_check.indexOf('1.2') !== -1 || latest.tls_check.indexOf('1.3') !== -1)
+  }
+  const success = Object.keys(res).flatMap(key => res[key]).indexOf(false) === -1
+  const summary = [
+    !res.producer ? "Producer API is enabled" : "",
+    !res.net ? "Net API is enabled" : "",
+    !res.dbsize ? "DBSize API is enabled" : "",
+    !res.tls ? "TLS is either not enabled or below 1.2" : ""
+  ].filter(message => message !== "").join("\n")
+  return {
+    success,
+    summary
+  }
+}
+
 const generateServicesProvided = (results, classes) => {
   let latest = results && results[0] ? results[0] : {};
-  console.log(latest)
+  const security = calculateSecurity(latest);
   const services = [
-    ["History V1", latest.full_history, null, <img alt="" src={historyV1Logo} className={latest.full_history === true ? classes.hyperionGreen : latest.full_history === false ? classes.hyperionRed : classes.hyperionGrey}/>],
-    ["Hyperion V2", latest.hyperion_v2, null, <img alt="" src={hyperionV2Logo} className={latest.hyperion_v2 === true ? classes.hyperionGreen : latest.hyperion_v2 === false ? classes.hyperionRed : classes.hyperionGrey}/>],
-    ["Atomic API", latest.atomic_api, null],
-    ["API", latest.api_node, null, <img alt="" src={apiLogo} className={latest.api_node === true ? classes.hyperionGreen : latest.api_node === false ? classes.hyperionRed : classes.hyperionGrey}/>],
+    ["History V1", latest.full_history, null, <img alt="" src={historyV1Logo} className={latest.full_history === true ? classes.hyperionGreen : latest.full_history === false ? classes.hyperionRed : classes.hyperionGrey} />],
+    ["Hyperion V2", latest.hyperion_v2, null, <img alt="" src={hyperionV2Logo} className={latest.hyperion_v2 === true ? classes.hyperionGreen : latest.hyperion_v2 === false ? classes.hyperionRed : classes.hyperionGrey} />],
+    ["Atomic API", latest.atomic_api, null, <img alt="" src={atomicLogo} className={latest.atomic_api === true ? classes.atomicGreen : latest.atomic_api === false ? classes.atomicRed : classes.atomicGrey} />],
+    ["API", latest.api_node, null, <img alt="" src={apiLogo} className={latest.api_node === true ? classes.hyperionGreen : latest.api_node === false ? classes.hyperionRed : classes.hyperionGrey} />],
     ["Missed Blocks (24 hours)", null, null],
-    ["Security (TLS >= v1.2)", latest.tls_check && latest.tls_check !== "false" && latest.tls_check.indexOf('1.2') !== -1, 'fa fa-shield-alt']
+    ["Security", security.success, 'fa fa-shield-alt']
   ]
 
   const jsx = services.map((item, index) => {
     const iconColor = item[1] === true ? green[500] : item[1] === false ? red[500] : grey[500];
     const serviceName = item[0];
     const iconClass = item[2] ? "fa " + item[2] : item[1] === true ? "fa fa-check-circle" : item[1] === false ? "fa fa-times-circle" : "fa fa-question-circle";
-
     const icon = !item[3] ? <Icon className={[iconClass, classes.genericIcon]} /* Smart use of `style` */ style={{ color: iconColor }} /> : item[3];
 
-    return <li key={index}>
+    return serviceName === "Security" && !security.success ? (<HtmlTooltip title={security.summary} aria-label="summary" placement="left">
+      <li key={index}>
+        {icon}&nbsp;
+        {serviceName}
+      </li>
+    </HtmlTooltip>) : (<li key={index}>
       {icon}&nbsp;
       {serviceName}
-    </li>
+    </li>)
   }
   )
   return jsx
