@@ -1,6 +1,6 @@
 import { api_base } from "../config";
 import axios from "axios";
-import {getItemScore} from '../functions/scoring'
+import { getItemScore } from '../functions/scoring'
 
 // Update row in database - now generic
 const updateDb = (operation, type, payload, tableTitle, pointSystem) => {
@@ -128,6 +128,33 @@ const updateDb = (operation, type, payload, tableTitle, pointSystem) => {
                 .then(() => {
                     console.log(
                         `Points/multiplier for ${points_type} updated! Reload to confirm.`
+                    );
+                });
+        } else if (tableTitle === "Guild Settings") {
+            const {
+                account_name, guild_name, active
+            } = payload;
+            axios
+                .put(api_base + "/api/updateProducer/" + guild_name, {
+                    account_name, active
+                })
+                .then(() => {
+                    console.log(
+                        `Guild updated - ${guild_name}. Account name ${account_name}, active state ${active}. Reload to confirm.`
+                    );
+                });
+        } else if (type === "guild") {
+            const {
+                account_name, guild_name, url
+            } = payload;
+            const owner_name = guild_name;
+            axios
+                .post(api_base + "/api/addNewGuild", {
+                    owner_name, url, account_name
+                })
+                .then(() => {
+                    console.log(
+                        `Guild added - ${owner_name}. Reload to confirm.`
                     );
                 });
         } else {

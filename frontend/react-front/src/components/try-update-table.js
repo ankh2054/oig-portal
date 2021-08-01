@@ -23,10 +23,16 @@ const tryUpdateTable = (operation, currentRow, tableTitle, tableState, setTableS
   // TODO: Integrate with score system
   if (!newRow && (operation === 'recalc' || operation === 'create')) {
     payload = {
-      guild: currentRow.guild ? currentRow.guild : currentRow.owner_name,
-      owner_name: currentRow.owner_name,
-      comments: currentRow.comments,
-      score: 0,
+      ...(type === "guild" ? {
+        guild_name: currentRow.guild_name,
+        url: currentRow.url,
+        account_name: currentRow.accountName
+      } : {
+        guild: currentRow.guild ? currentRow.guild : currentRow.owner_name,
+        owner_name: currentRow.owner_name,
+        comments: currentRow.comments,
+        score: 0,
+      }),
       ...(type === 'product' || type === 'bizdev' ? {
         name: currentRow.name,
         description: currentRow.description,
@@ -47,8 +53,19 @@ const tryUpdateTable = (operation, currentRow, tableTitle, tableState, setTableS
         outstandingpoints: +currentRow.outstandingpoints,
       } : {})
     }
-    payload.score = getItemScore(payload, pointSystem, type)
-    console.log("Score recalculated.")
+    if (type !== "guild") {
+      payload.score = getItemScore(payload, pointSystem, type)
+      console.log("Score (re)calculated.")
+    }
+  }
+  if (operation === 'toggleActive') {
+    const { guild_name, account_name, active } = currentRow;
+    payload = {
+      guild_name,
+      account_name,
+      active: active === "false" ? "true" : "false"
+    }
+    console.log(`Guild ${guild_name} active state set to ${active}`)
   }
   if (operation === 'update') {
     payload = newRow
@@ -58,7 +75,15 @@ const tryUpdateTable = (operation, currentRow, tableTitle, tableState, setTableS
   if (!newRow && operation === 'update') {
     console.log("Table update called, but no newRow provided.")
   } else {
-    payload.date_updated = new Date();
+    let dbPayload = null;
+    if (type === "guild" || tableTitle === "Guild Settings") {
+      dbPayload = payload;
+      payload = {
+        guild_name: payload.owner_name ? payload.owner_name : payload.guild_name,
+        account_name: payload.account_name ? payload.account_name : null,
+        active: !!payload.active ? payload.active : true
+      }
+    }
     return new Promise((resolve) => {
       const tableCopy = [...tableState];
       if (operation === 'create') {
@@ -69,7 +94,7 @@ const tryUpdateTable = (operation, currentRow, tableTitle, tableState, setTableS
       }
       setTableState([...tableCopy]);
       console.log("Table state updated! Operation " + operation);
-      resolve(payload);
+      resolve(dbPayload ? dbPayload : payload);
     }).then((payload) => {
       if (operation !== 'create') {
         updateDb('update', type, payload, tableTitle);
