@@ -75,7 +75,7 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-const App = ({ results, producers, products, bizdevs, community, producerLogos, producerDomainMap }) => {
+const App = ({ results, producers, products, bizdevs, community, producerLogos, producerDomainMap, minimumTechScore }) => {
   const classes = useStyles();
   // Return Guild Logo
   function logo(owner) {
@@ -101,7 +101,7 @@ const App = ({ results, producers, products, bizdevs, community, producerLogos, 
   // Counts all scores together
   function totalscore(tech, product, bizdev, community) {
     // Set passing score
-    let pass = 120
+    let pass = minimumTechScore
     let sum = parseInt(tech) + product + bizdev + community
     if (sum >= pass) {
       return (

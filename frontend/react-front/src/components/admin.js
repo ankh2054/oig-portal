@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { MuiPickersUtilsProvider, KeyboardDateTimePicker } from '@material-ui/pickers';
 import { api_base } from "../config";
 import axios from "axios";
-import { Button } from '@material-ui/core';
+import { Button, TextField } from '@material-ui/core';
 import TableDataGrid from './table-datagrid'
 import moment from 'moment-timezone'
 import MomentUtils from '@date-io/moment'
@@ -17,14 +17,19 @@ const useStyles = makeStyles((theme) => ({
     datePicker: {
         minWidth: "290px"
     },
+    techScore: {
+        maxWidth: "290px"
+    },
     hidden: {
         display: 'none'
     }
 }))
 
-const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin }) => {
+const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimumTechScore }) => {
     const classes = useStyles();
     const [snapshotDate, updateSnapshotDate] = useState(null);
+    const [passedScore, updatePassedScore] = useState(120)
+    const [minTechScore, updateMinTechScore] = useState(minimumTechScore);
     const [currentTable, setCurrentTable] = useState('pointSystem')
 
     const handleDateChange = (dateChange) => {
@@ -36,6 +41,21 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin }) => {
             );
         });
         updateSnapshotDate(dateChange)
+    }
+
+    const handleTechScoreChange = (event) => {
+        updateMinTechScore(event.target.value)
+    }
+
+    const handleSaveTechScoreChange = () => {
+        axios.post(api_base + "/api/updateAdminSettings", {
+            minimum_tech_score: minTechScore
+        }).then(() => {
+            console.log(
+                `Minimum tech score updated to ${minTechScore}! Reload to confirm.`
+            );
+        });
+        updatePassedScore(minTechScore)
     }
 
     if (!snapshotDate && !!snapshotSettings[0]) {
@@ -64,6 +84,18 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin }) => {
 
     return isAdmin ? <div className={classes.root}>
         <h1>Admin Panel</h1>
+        {minTechScore ? <TextField value={minTechScore} className={classes.techScore} fullWidth="true" onChange={handleTechScoreChange} label="Minimum Tech Score"></TextField> : null }
+        <br></br><br></br>
+        {minTechScore ? <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            onClick={handleSaveTechScoreChange}
+            disabled={passedScore === minTechScore}
+        >
+            Save
+        </Button> : null}
+        <br></br><br></br>
         {snapshotDate ? <MuiPickersUtilsProvider utils={MomentUtils}>
             <KeyboardDateTimePicker
                 format="LLL"
