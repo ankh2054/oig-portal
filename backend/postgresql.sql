@@ -131,6 +131,10 @@ CREATE TABLE oig.snapshotsettings (
     snapshot_date TIMESTAMPTZ 
 );
 
+CREATE TABLE oig.adminsettings (
+    minimum_tech_score SMALLINT NOT NULL 
+);
+
 CREATE TABLE oig.updates (
 	owner_name VARCHAR ( 12 ),
 	tech_ops VARCHAR ( 10000 ),

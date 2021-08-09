@@ -130,6 +130,36 @@ const updatePointSystem = (request, reply) => {
     })
 }
 
+const getAdminSettings = (request, reply) => {
+  console.log(pguser, pgport, pgpassword, pgdb, pghost)
+  client.query('SELECT * FROM oig.adminsettings', (error, results) => {
+    if (error) {
+      throw error
+    }
+    reply.status(200).send(results.rows);
+  })
+}
+
+// Update point system
+const updateAdminSettings = (request, reply) => {
+  const { minimum_tech_score } = request.body
+
+  const toUpdate = (minimum_tech_score ? "minimum_tech_score=" + minimum_tech_score : "");
+
+  if (toUpdate === "") {
+    reply.status(400).send(`No updates sent`);
+  } else {
+    client.query(
+      `UPDATE oig.adminsettings SET ${toUpdate}`,
+      (error, results) => {
+        if (error) {
+          throw error
+        }
+        reply.status(200).send(`Minimum tech score updated`);
+      })
+  }
+}
+
 //Set a snapshot for latest results where results is less than 1 minutes based on date_check timestamp of latest results.
 //UPDATE oig.results SET snaphot_date = $2 WHERE owner_name = $1 AND date_check > NOW() - INTERVAL '15 minutes'
 //update oig.results set snapshot_date = '2020-09-11 17:18:04.825519' where owner_name = 'eos42freedom' and date_check > timestamp '2020-10-23 17:31:22' - INTERVAL '1 minute';
@@ -415,4 +445,4 @@ const addNewGuild = (request, reply) => {
     })
 }
 
-module.exports = { deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner, addNewGuild, getTruncatedPaginatedResults, setAccountName, updateProducer };
+module.exports = { deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner, addNewGuild, getTruncatedPaginatedResults, setAccountName, updateProducer, getAdminSettings, updateAdminSettings };

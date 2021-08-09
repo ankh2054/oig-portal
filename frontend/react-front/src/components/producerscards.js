@@ -2,7 +2,7 @@ import React from 'react'
 import ProducerResults from './producer-results'
 
 
-const App = ({ results, producers, products, bizdevs, community, producerLogos, producerDomainMap }) => {
+const App = ({ results, producers, products, bizdevs, community, producerLogos, producerDomainMap, minimumTechScore }) => {
   
   return (
     <div>
@@ -15,6 +15,7 @@ const App = ({ results, producers, products, bizdevs, community, producerLogos, 
             community={ community }
             producerLogos={producerLogos}
             producerDomainMap={producerDomainMap}
+            minimumTechScore={minimumTechScore}
        />
     </div>
   )

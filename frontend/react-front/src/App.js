@@ -71,6 +71,7 @@ const App = (props) => {
   const [snapshotSettings, setSnapshotSettings] = useState([])
   const [rawPointSystem, setRawPointSystem] = useState([])
   const [pointSystem, setPointSystem] = useState([])
+  const [minimumTechScore, setMinimumTechScore] = useState([]);
 
   useEffect(() => {
     // Load data and set hooks. A future implementation could use axios.all
@@ -115,6 +116,11 @@ const App = (props) => {
       });
       setPointSystem(formattedPointSystem)
     })
+    axios.get(api_base + '/api/getAdminSettings').then((response) => {
+      const data = response.data;
+      const minScore = data && data[0] && data[0].minimum_tech_score ? data[0].minimum_tech_score : 999;
+      setMinimumTechScore(minScore)
+    });
   }, []);
 
   /* Calculate scores if formatted point system exists, and raw data (to be scored) exists
@@ -209,10 +215,11 @@ const App = (props) => {
                         community={community}
                         producerLogos={producerLogos}
                         producerDomainMap={producerDomainMap}
+                        minimumTechScore={minimumTechScore}
                       />} />
                     <Route exact path='/guilds/:ownername' component={BPwithownername} />
                     <Route exact path='/form' component={() => <Testform producers={producers} isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} />} />
-                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} producers={rawProducers} pointSystem={rawPointSystem} isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} />} />
+                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} producers={rawProducers} pointSystem={rawPointSystem} isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} minimumTechScore={minimumTechScore} />} />
                   </Router>
                 </Paper>
               </Grid>

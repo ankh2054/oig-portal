@@ -14,3 +14,11 @@ add atomic_api_error VARCHAR ( 1000 );
 
 INSERT INTO oig.pointsystem(points_type,points,multiplier,min_requirements)
 VALUES ('atomic_api','2','11',false);
+
+-- Do this while logged into oiguser / the user fastify will log in as
+
+CREATE TABLE oig.adminsettings (
+    minimum_tech_score SMALLINT NOT NULL 
+);
+
+INSERT INTO oig.adminsettings(minimum_tech_score) VALUES(120);

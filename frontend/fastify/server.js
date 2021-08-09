@@ -72,6 +72,9 @@ fastify.post('/api/deleteItem', db.deleteItem)
 fastify.post('/api/addNewGuild', db.addNewGuild)
 // Truncated monthly results
 fastify.get('/api/truncatedPaginatedResults/:owner', db.getTruncatedPaginatedResults)
+// Admin settings - just minimum tech score for now
+fastify.get('/api/getAdminSettings', db.getAdminSettings)
+fastify.post('/api/updateAdminSettings', db.updateAdminSettings)
 
 // Starts the Fastify Server //
 const start = async () => {
