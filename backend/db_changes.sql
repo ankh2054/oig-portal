@@ -22,3 +22,4 @@ CREATE TABLE oig.adminsettings (
 );
 
 INSERT INTO oig.adminsettings(minimum_tech_score) VALUES(120);
+

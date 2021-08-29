@@ -1,0 +1,7 @@
+post http://localhost:3000/api/updateAdminSettings
+Content-Type: application/json
+
+{
+"minimum_tech_score": "130"
+}
+

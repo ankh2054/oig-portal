@@ -554,7 +554,7 @@ def getcpustats():
     # Pull transactions from eosmechanics and save cpu time 
     chain = "mainnet"
     eosmech_actions = get_actions_data("eosmechanics","120")
-    query = ['simple_actions']
+    #query = ['simple_actions']
     actions = eosio.get_stuff(eosmech_actions,chain,'actions')
     trxs = actions['simple_actions']
     # Create empty list

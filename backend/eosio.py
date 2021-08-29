@@ -89,7 +89,7 @@ def getrandomNode(nodelist):
 # Mainnet V2,V1 END POINT
 nodelist = getFullnodes()
 #hyperion_Node = getrandomNode(nodelist)
-hyperion_Node = 'https://hyperion.sentnl.io'
+hyperion_Node = 'https://hyperion-test.sentnl.io'
 
 # Testnet V2 END point
 API_ENDPOINT2_TESTNET = 'https://testnet.waxsweden.org'
@@ -107,7 +107,10 @@ def hyperionindexedBlocks(host):
     except:
         return False, 'Could not connect to Hyperion'
     health_info = jsonres.get('health')
-    service_data = health_info[2]['service_data']
+    try:
+        service_data = health_info[2]['service_data']
+    except:
+        return False, 'Hyperion last indexed does not match total indexed with range of 10'
     last_indexed = int(service_data['last_indexed_block'])
     total_indexed = int(service_data['total_indexed_blocks'])
     # Check if total index is between total_index-10 and last_index+1, as they wont always exactly match.
@@ -259,7 +262,7 @@ def get_stuff(payload,chain,type):
         api_url = str(Api_Calls('v2-history', 'get_actions'))
     URL = URL + api_url
     try:
-        response = requests.get(URL, params=payload)
+        response = requests.get(URL, params=payload,timeout=60)
         response_json = json.loads(response.text)
     except Exception as err:
         print(err, 'Node could not provide information failed trying a new node')
