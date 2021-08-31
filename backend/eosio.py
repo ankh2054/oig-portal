@@ -226,15 +226,18 @@ def randomTransaction():
         response_json = json.loads(response.text)
         # Get all transactions
         transactions = response_json['transactions']
+        
     # Extract all transaction IDs
     trxlist = []
     for trx in transactions:
         try:
             trx = trx['trx']['id']
         except:
-            # return emtpy string
+            # If not trx ix found set to False
             trx = False
-        trxlist.append(trx)
+        # Only add transaction to list if not false
+        if trx != False:
+            trxlist.append(trx)
     return trxlist
 
 

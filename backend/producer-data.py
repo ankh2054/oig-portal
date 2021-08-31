@@ -320,9 +320,8 @@ def check_atomic_assets(producer,feature):
             error = curlreq+' '+str(status)
             return False, error
 
-# History nodes type checks
-# Pass in history-v1, hyperion-v2 
-def check_full_node(producer,feature):
+def get_random_trx():
+    trxlist = []
     transactions = eosio.randomTransaction()
     # if transaction list is empty sleep for 1 second
     while not transactions:
@@ -333,6 +332,15 @@ def check_full_node(producer,feature):
         trx2 = transactions[1]
     except:
         trx2 = trx
+    trxlist.append(trx)
+    trxlist.append(trx2)
+    return(trxlist)
+
+# History nodes type checks
+# Pass in history-v1, hyperion-v2 
+def check_full_node(producer,feature,trxlist):
+    trx = trxlist[0]
+    trx2 = trxlist[1]
     # Query nodes in DB and try and obtain API node
     try:
         api = db_connect.getQueryNodes(producer,feature,'api')[0]
@@ -342,11 +350,12 @@ def check_full_node(producer,feature):
     # If hyperion, check whether last indexed equals total indexed blocks
     if feature == 'hyperion-v2':
         #Obtain Hyperion result
-        hyperionresult = eosio.hyperionindexedBlocks(api)
-        if hyperionresult[0] == False:
-            return False, hyperionresult[1]
-        else:
-            info = str(eosio.Api_Calls('v1-history', 'get_transaction'))
+        #hyperionresult = eosio.hyperionindexedBlocks(api)
+        #if hyperionresult[0] == False:
+        #    return False, hyperionresult[1]
+        #else:
+            #info = str(eosio.Api_Calls('v2-history', 'get_schedule'))
+        info = str(eosio.Api_Calls('v1-history', 'get_transaction'))
     else:
         info = str(eosio.Api_Calls('v1-history', 'get_transaction'))
     try:
@@ -386,6 +395,7 @@ def check_full_node(producer,feature):
             status = jsonres.get('trx').get('receipt').get('status')
         except:
             # If first TRX fails  look for error and try again
+            time.sleep(5)
             status = jsonres.get('error').get('what')
             print("except",status)
             try:
@@ -405,6 +415,7 @@ def check_full_node(producer,feature):
             # also return status which is the error
             error = curlreq+' '+str(status)
             return False, error
+
 
 def check_https(producer,checktype):
     api = db_connect.getQueryNodes(producer,'chain-api','https')
@@ -706,6 +717,8 @@ def printOuput(results,description):
     
 
 def finalresults():
+     # Get random transactions
+    trxlist = get_random_trx()
     # Get list of registered active producers
     producersdb = db_connect.getProducers()
     # Get CPU stats for top21 producers
@@ -777,11 +790,11 @@ def finalresults():
         print("CPU latency average over 30days:",core.bcolors.OKYELLOW, cpuavg,core.bcolors.ENDC,"ms")
         
         # v1 History check
-        full_history = check_full_node(producer,'history-v1')
+        full_history = check_full_node(producer,'history-v1',trxlist)
         printOuput(full_history,"Running a v1 History node: ")
 
         # v2 Hyperion check
-        hyperion_v2 = check_full_node(producer,'hyperion-v2')
+        hyperion_v2 = check_full_node(producer,'hyperion-v2',trxlist)
         printOuput(hyperion_v2,"Running a v2 Hyperion node: ")
 
         # Atomic Assets API
@@ -886,6 +899,14 @@ def main():
 
 #print(check_full_node('sentnlagents','history-v1'))
 if __name__ == "__main__":
-   main()
+   trxlist = get_random_trx()
+   producersdb = db_connect.getProducers()
+   for producer in producersdb:
+        producer = producer[0]
+        hyperion_v2 = check_full_node(producer,'hyperion-v2',trxlist)
+        print(producer)
+        printOuput(hyperion_v2,"Running a v2 Hyperion node: ")
+   
+   #main()
 
 
