@@ -54,7 +54,7 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
     }
     if (!!columnObj['date_check']) {
       // If there is a date_check field, this is a tech result, and all fields bar comments should be uneditable
-      return (key === "comments" ? "always" : "never")
+      return ((key === "comments" || key === "score") ? "always" : "never")
     } else if (!!columnObj['points_type']) {
       // Points system - make point_type uneditable
       return (key === "points_type" ? "never" : "always")
