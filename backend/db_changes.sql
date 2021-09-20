@@ -23,3 +23,9 @@ CREATE TABLE oig.adminsettings (
 
 INSERT INTO oig.adminsettings(minimum_tech_score) VALUES(120);
 
+
+drop index if exists oig.idx_nodes_type;
+drop index if exists oig.idx_nodes_types;
+CREATE UNIQUE INDEX idx_nodes_type ON oig.nodes(owner_name, node_type, http_node_url );
+
+

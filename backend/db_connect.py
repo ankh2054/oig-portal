@@ -105,7 +105,7 @@ def producerInsert(records):
 def nodesInsert(records):
     query = """ INSERT INTO oig.nodes (owner_name, node_type, https_node_url, http_node_url, p2p_url, features) 
                 VALUES (%s,%s,%s,%s,%s,%s)
-                ON CONFLICT (owner_name,node_type,features) DO UPDATE SET http_node_url = EXCLUDED.http_node_url, https_node_url = EXCLUDED.https_node_url, p2p_url = EXCLUDED.p2p_url;
+                ON CONFLICT (owner_name,node_type,http_node_url) DO UPDATE SET http_node_url = EXCLUDED.http_node_url, https_node_url = EXCLUDED.https_node_url, p2p_url = EXCLUDED.p2p_url, features = EXCLUDED.features;
             """
     dbInsertMany(records, query)
 

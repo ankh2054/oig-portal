@@ -27,6 +27,10 @@ class Api_Calls:
             self.url = '/v1/db_size/get'
         elif version == 'net':
             self.url = '/v1/net/'
+        elif version == '/v2/history/get_transaction':
+            self.url = '/v2/history/get_transaction?'
+        else:
+            self.url ='/'
 
             
         self.version = version
@@ -89,7 +93,7 @@ def getrandomNode(nodelist):
 # Mainnet V2,V1 END POINT
 nodelist = getFullnodes()
 #hyperion_Node = getrandomNode(nodelist)
-hyperion_Node = 'https://hyperion-test.sentnl.io'
+hyperion_Node = 'https://hyperion.sentnl.io'
 
 # Testnet V2 END point
 API_ENDPOINT2_TESTNET = 'https://testnet.waxsweden.org'
@@ -208,11 +212,11 @@ def producerSCHED():
 def randomTransaction():
     api_url = str(Api_Calls('v1', 'get_block'))
     # Generate random number 
-    r1 = random.randint(0, 420)
+    #r1 = random.randint(0, 420)
     # Create Block header json payload
     curheadblock = headblock("mainnet")
-    # block to test is headblock minus random number
-    testblock = curheadblock-r1
+    # block to test is headblock minus 420
+    testblock = curheadblock-420
     URL = hyperion_Node + api_url
     try:
         response = requests.post(URL, json={"block_num_or_id": testblock})

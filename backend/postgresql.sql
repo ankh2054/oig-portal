@@ -31,7 +31,7 @@ CREATE TABLE oig.nodes (
 );
 
 /* Unique index to cover two culumns*/
-CREATE UNIQUE INDEX idx_nodes_type ON oig.nodes(owner_name, node_type, features);
+CREATE UNIQUE INDEX idx_nodes_type ON oig.nodes(owner_name, node_type,http_node_url );
 
 
 CREATE TABLE oig.results (
