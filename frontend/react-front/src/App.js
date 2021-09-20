@@ -192,7 +192,8 @@ const App = (props) => {
                   <Router>
                     <Route path="/latestresults" component={() => <MonthlyResults
                       results={latestresults}
-                      activeGuilds={rawProducers.filter(producer => producer.active === true).map(producer => producer.owner_name)}
+                      activeGuilds={producers.map(producer => producer.owner_name)}
+                      top21Guilds={rawProducers.filter(producer => producer.top21 === true).map(producer => producer.owner_name)}
                     />} exact />
                     <Route exact path="/snapshot" component={() => <SnapshotResults
                       /*results={latestresults}*/
