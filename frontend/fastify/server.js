@@ -39,6 +39,8 @@ fastify.get('/api/snapshottechresults', db.getSnapshotResults)
 fastify.get('/api/results/:owner', db.getResultsbyOwner)
 // Paginated results by owner (requires index & limit in body)
 fastify.get('/api/paginatedresults/:owner', db.getPaginatedResultsByOwner)
+// Monthly average results
+fastify.get('/api/monthlyaverageresults/:owner', db.getAverageMonthlyResult)
 fastify.get('/api/snapshotlatestresults', db.getLatestSnapshotResults)
 // Admin panel related items: snapshot settings (including snapshot date), and point system
 fastify.get('/api/snapshotsettings', db.getSnapshotSettings)

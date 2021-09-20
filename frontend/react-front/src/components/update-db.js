@@ -106,15 +106,15 @@ const updateDb = (operation, type, payload, tableTitle, pointSystem) => {
                 });
         } else if (tableTitle === "Tech Snapshot" || tableTitle === "Snapshot Tech Results") {
             const {
-                owner_name, date_check, comments
+                owner_name, date_check, comments, score
             } = payload;
             axios
                 .post(api_base + "/api/snapshotResultCommentUpdate", {
-                    owner_name, date_check, comments
+                    owner_name, date_check, comments, score: parseFloat(score)
                 })
                 .then(() => {
                     console.log(
-                        `Comments on tech result for ${owner_name} updated! Reload to confirm.`
+                        `Comments and/or score on tech result for ${owner_name} updated! Reload to confirm.`
                     );
                 });
         } else if (tableTitle === "Point System") {

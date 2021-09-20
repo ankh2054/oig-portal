@@ -47,6 +47,9 @@ const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
   },
+  top21: {
+    boxShadow: "0 0 15px 0 rgb(255 220 81) inset"
+  },
   paper: {
     padding: theme.spacing(2),
     backgroundColor: theme.palette.text.primary,
@@ -116,7 +119,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ResultTables({ passedResults, hideOwnerName, loadMoreResults, activeGuilds }) {
+export default function ResultTables({ passedResults, hideOwnerName, loadMoreResults, activeGuilds, top21Guilds }) {
   // Basic paginaton frontend setup - 21 results
   const initialIndex = 21;
   const [results, setResults] = useState(passedResults);
@@ -224,7 +227,7 @@ export default function ResultTables({ passedResults, hideOwnerName, loadMoreRes
           </TableHead>
           <TableBody>
             {resultSlice.map((result) => {
-              return !hideOwnerName && activeGuilds && activeGuilds.indexOf(result.owner_name) === -1 ? null : <StyledTableRow key={result.key}>
+              return !hideOwnerName && activeGuilds && activeGuilds.indexOf(result.owner_name) === -1 ? null : <StyledTableRow key={result.key} className={(top21Guilds && top21Guilds.indexOf(result.owner_name) !== -1 ? classes.top21 : "")}>
                 {hideOwnerName === true ? null : <StyledTableCell className={classes.ownerName}><a className={classes.waxButton} href={`/guilds/${result.owner_name}`}>{result.owner_name}</a></StyledTableCell>}
                 <StyledTableCell>{iconResult(result.chains_json)}</StyledTableCell>
                 <StyledTableCell>{iconResult(result.wax_json)}</StyledTableCell>

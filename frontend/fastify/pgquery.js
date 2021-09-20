@@ -218,6 +218,49 @@ const getPaginatedResultsByOwner = (request, reply) => {
   })
 }
 
+const getAverageMonthlyResult = (request, reply) => {
+  const { owner } = request.params;
+  const { month, year } = request.query;
+  const vMonth = !!month ? parseInt(month) : 'extract(month FROM current_date)';
+  const vYear = !!year ? parseInt(year) : 'extract(year FROM current_date)';
+  client.query(`select 
+  COUNT(*) FILTER (WHERE chains_json = TRUE) AS chains_json_count, 
+  COUNT(*) FILTER (WHERE wax_json = TRUE) AS wax_json_count, 
+  COUNT(*) FILTER (WHERE api_node = TRUE) AS api_node_count, 
+  COUNT(*) FILTER (WHERE seed_node = TRUE) AS http_check_count, 
+  COUNT(*) FILTER (WHERE https_check = TRUE) AS https_check_count,
+  COUNT(*) FILTER (WHERE tls_check = 'TLS v1.2') AS tls_ver_count,
+  COUNT(*) FILTER (WHERE http2_check = TRUE) AS http2_check_count,
+  COUNT(*) FILTER (WHERE full_history = TRUE) AS history_v1_count,
+  COUNT(*) FILTER (WHERE hyperion_v2 = TRUE) AS hyperion_v2_count,
+  COUNT(*) FILTER (WHERE atomic_api = TRUE) AS atomic_api_count,
+  COUNT(*) FILTER (WHERE cors_check = TRUE) AS cors_check_count,
+  COUNT(*) FILTER (WHERE oracle_feed = TRUE) AS oracle_feed_count,
+  COUNT(*) FILTER (WHERE snapshots = TRUE) AS snapshots_count,
+  AVG(cpu_avg) AS cpu_avg,
+  AVG(score) AS score_avg,
+  COUNT(*) as total 
+  from oig.results
+  where owner_name = $1 
+  and extract(month FROM date_check) = ${vMonth}
+  and extract(year FROM date_check) = ${vYear}`, [owner], (error, results) => {
+    if (error) {
+      throw error
+    }
+    const row = results.rows[0];
+    let pcts = {};
+    const { total } = row;
+    Object.keys(row).forEach(key => {
+      if (key.indexOf("_count")) {
+        const newKey = key.replace("_count", "_pct");
+        pcts[newKey] = (row[key] / total);
+      }
+    })
+    const vResults = {...row, ...pcts};
+    reply.status(200).send(vResults);
+  })
+}
+
 const getTruncatedPaginatedResults = (request, reply)  => {
   const { owner } = request.params;
   const { index, limit } = request.query;
@@ -314,16 +357,16 @@ const mothlyUpdate = (request, reply) => {
 // Add comments to tech result
 // OIG admin page
 const snapshotResultCommentUpdate = (request, reply) => {
-  const { owner_name, date_check, comments } = request.body
+  const { owner_name, date_check, comments, score } = request.body
   const utcDate = moment.utc(date_check).subtract(1, "minutes");
   client.query(
-    'UPDATE oig.results SET comments=($1) WHERE ctid IN (SELECT ctid FROM oig.results WHERE owner_name=($2) AND date_check > ($3) LIMIT 1 FOR UPDATE)',
-    [comments, owner_name, utcDate],
+    'UPDATE oig.results SET comments=($1), score=($4) WHERE ctid IN (SELECT ctid FROM oig.results WHERE owner_name=($2) AND date_check > ($3) LIMIT 1 FOR UPDATE)',
+    [comments, owner_name, utcDate, score],
     (error, results) => {
       if (error) {
         throw error
       }
-      reply.status(200).send(`${owner_name}'s result for ${date_check} updated with comments "${comments}"`);
+      reply.status(200).send(`${owner_name}'s result for ${date_check} updated with comments "${comments}" and score ${score}`);
     })
 }
 
@@ -445,4 +488,4 @@ const addNewGuild = (request, reply) => {
     })
 }
 
-module.exports = { deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner, addNewGuild, getTruncatedPaginatedResults, setAccountName, updateProducer, getAdminSettings, updateAdminSettings };
+module.exports = { deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner, addNewGuild, getTruncatedPaginatedResults, setAccountName, updateProducer, getAdminSettings, updateAdminSettings, getAverageMonthlyResult };

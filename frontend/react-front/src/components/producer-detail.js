@@ -246,6 +246,7 @@ const generateServicesProvided = (results, classes) => {
 const App = ({ producer, latestresults, producerLogos, producerDomainMap, activeUser }) => {
   const classes = useStyles();
   const [results, setResults] = useState([]);
+  const [avgResult, setAvgResult] = useState([]);
 
   const preload = 60; // Number of results to preload (21 for 1 page, 42 for 2)
 
@@ -253,6 +254,10 @@ const App = ({ producer, latestresults, producerLogos, producerDomainMap, active
     if (producer) {
       axios.get(api_base + `/api/truncatedPaginatedResults/${producer.owner_name}?index=0&limit=${preload - 1}`).then((response) => {
         setResults(response.data)
+      })
+      // Future-proof: add ?month=x, ?year=y to show results for a particular month
+      axios.get(api_base + `/api/monthlyaverageresults/${producer.owner_name}`).then((response) => {
+        setAvgResult(response.data)
       })
     }
   }, [producer]);
@@ -296,6 +301,7 @@ const App = ({ producer, latestresults, producerLogos, producerDomainMap, active
         <p>{cpuSummary({ results: results.slice(0, 7), latestresults })}</p>
       </Paper> : null}
       {results.length >= 1 ? <h2>Latest Results</h2> : null}
+      {JSON.stringify(avgResult)}
       {results.length >= 1 ? <TechresultTables
         passedResults={results}
         hideOwnerName={true}
