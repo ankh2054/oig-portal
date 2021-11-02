@@ -13,7 +13,7 @@ import Testform from './components/monthly-updates'
 import AdminPanel from './components/admin'
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { api_base } from './config'
+import { api_base, admin_override } from './config'
 // import {addScoreToItem} from './functions/scoring'
 
 //import 'fontsource-roboto';
@@ -51,7 +51,7 @@ const App = (props) => {
     "sentnlagents"
   ]
 
-  const adminOverride = false;
+  const adminOverride = admin_override; // Whether to require wallet authentication to access admin features.
 
   const classes = useStyles();
   // const [rawResults, setRawResults] = useState([])
