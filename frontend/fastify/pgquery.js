@@ -224,10 +224,12 @@ const getAverageMonthlyResult = (request, reply) => {
   const vMonth = !!month ? parseInt(month) : 'extract(month FROM current_date)';
   const vYear = !!year ? parseInt(year) : 'extract(year FROM current_date)';
   client.query(`select 
+  COUNT(*) as total_count,
   COUNT(*) FILTER (WHERE chains_json = TRUE) AS chains_json_count, 
   COUNT(*) FILTER (WHERE wax_json = TRUE) AS wax_json_count, 
   COUNT(*) FILTER (WHERE api_node = TRUE) AS api_node_count, 
-  COUNT(*) FILTER (WHERE seed_node = TRUE) AS http_check_count, 
+  COUNT(*) FILTER (WHERE seed_node = TRUE) AS seed_node_count, 
+  COUNT(*) FILTER (WHERE http_check = TRUE) AS http_check_count, 
   COUNT(*) FILTER (WHERE https_check = TRUE) AS https_check_count,
   COUNT(*) FILTER (WHERE tls_check = 'TLS v1.2') AS tls_ver_count,
   COUNT(*) FILTER (WHERE http2_check = TRUE) AS http2_check_count,
@@ -238,8 +240,7 @@ const getAverageMonthlyResult = (request, reply) => {
   COUNT(*) FILTER (WHERE oracle_feed = TRUE) AS oracle_feed_count,
   COUNT(*) FILTER (WHERE snapshots = TRUE) AS snapshots_count,
   AVG(cpu_avg) AS cpu_avg,
-  AVG(score) AS score_avg,
-  COUNT(*) as total 
+  AVG(score) AS score_avg 
   from oig.results
   where owner_name = $1 
   and extract(month FROM date_check) = ${vMonth}
@@ -249,14 +250,14 @@ const getAverageMonthlyResult = (request, reply) => {
     }
     const row = results.rows[0];
     let pcts = {};
-    const { total } = row;
+    const { total_count } = row;
     Object.keys(row).forEach(key => {
-      if (key.indexOf("_count")) {
+      if (key.indexOf("_count") !== -1) {
         const newKey = key.replace("_count", "_pct");
-        pcts[newKey] = (row[key] / total);
+        pcts[newKey] = `${parseInt((row[key] / total_count)*10000)/100}%`;
       }
     })
-    const vResults = {...row, ...pcts};
+    const vResults = {...row, ...pcts, month, year};
     reply.status(200).send(vResults);
   })
 }

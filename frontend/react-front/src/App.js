@@ -170,6 +170,8 @@ const App = (props) => {
           producerLogos={producerLogos}
           producerDomainMap={producerDomainMap}
           activeUser={props.ual.activeUser}
+          //metaSnapshotDate={{month: 9, year: 2021, short: 'Sep/21'}}
+          openTimeMachine={() => {alert("Open Time Machine")}}
         />
       </>
     );
