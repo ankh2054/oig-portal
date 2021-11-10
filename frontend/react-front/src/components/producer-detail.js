@@ -256,11 +256,11 @@ const App = ({ producer, latestresults, producerLogos, producerDomainMap, active
         setResults(response.data)
       })
       // Future-proof: add ?month=x, ?year=y to show results for a particular month
-      axios.get(api_base + `/api/monthlyaverageresults/${producer.owner_name}${metaSnapshotDate ? `?month=${metaSnapshotDate.month}&year=${metaSnapshotDate.year}` : ''}`).then((response) => {
+      axios.get(api_base + `/api/monthlyaverageresults/${producer.owner_name}${!!metaSnapshotDate ? `?month=${metaSnapshotDate.month}&year=${metaSnapshotDate.year}` : ''}`).then((response) => {
         setAvgResult(response.data)
       })
     }
-  }, [producer]);
+  }, [producer, metaSnapshotDate]);
 
 
   const loadMoreResults = async (index, limit) => {

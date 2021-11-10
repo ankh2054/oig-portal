@@ -95,8 +95,8 @@ const App = (props) => {
     const month = date.substring(5, 7);
     const day = date.substring(8, 10);
     const short = `${monthMap[month]}/${year.substring(2, 4)}`;
-    alert("Meta-snapshot options: " + availableMetaSnapshots.join(", "));
-    //setMetaSnapshotDate({year, month, day, short})
+    console.log("Meta-snapshot options: " + availableMetaSnapshots.join(", "));
+    setMetaSnapshotDate({year, month, day, short, date})
   }
 
   const openTimeMachine = () => {
@@ -248,6 +248,7 @@ const App = (props) => {
                       producerLogos={producerLogos}
                       producerDomainMap={producerDomainMap}
                       activeGuilds={rawProducers.filter(producer => producer.active === true).map(producer => producer.owner_name)}
+                      metaSnapshotDate={metaSnapshotDate}
                     />} />
                     <Route exact path="/" component={() =>
                       <ProducerCards results={latestresults}
@@ -261,7 +262,7 @@ const App = (props) => {
                       />} />
                     <Route exact path='/guilds/:ownername' component={BPwithownername} />
                     <Route exact path='/form' component={() => <Testform producers={producers} isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} />} />
-                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} producers={rawProducers} pointSystem={rawPointSystem} isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} minimumTechScore={minimumTechScore} />} />
+                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} producers={rawProducers} pointSystem={rawPointSystem} isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} minimumTechScore={minimumTechScore} metaSnapshotDate={metaSnapshotDate} />} />
                   </Router>
                 </Paper>
               </Grid>

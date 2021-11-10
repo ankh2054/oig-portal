@@ -120,7 +120,7 @@ const updatePointSystem = (request, reply) => {
   const toUpdate = (multiplier ? "multiplier=" + multiplier : "") + (points && multiplier ? ", " : "") + (points ? "points=" + points : "");
 
   client.query(
-    `UPDATE oig.pointsystem SET ${toUpdate} WHERE points_type= $1`,
+    `UPDATE oig.pointsystem SET ${toUpdate} WHERE points_type= $1 AND metasnapshot_date IS NULL`,
     [points_type],
     (error, results) => {
       if (error) {
@@ -331,7 +331,7 @@ const updateProducer = (request, reply) => {
   const owner = request.params.owner
   const { account_name, active } = request.body
 
-  client.query('UPDATE oig.producer SET "active" = $1, "account_name" = $2 WHERE "owner_name" = $3', [active, account_name, owner], (error, results) => {
+  client.query('UPDATE oig.producer SET "active" = $1, "account_name" = $2 WHERE "owner_name" = $3 AND metasnapshot_date IS NULL', [active, account_name, owner], (error, results) => {
     if (error) {
       throw error
     }

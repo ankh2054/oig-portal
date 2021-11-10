@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimumTechScore }) => {
+const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimumTechScore, metaSnapshotDate }) => {
     const classes = useStyles();
     const [snapshotDate, updateSnapshotDate] = useState(null);
     const [passedScore, updatePassedScore] = useState(120)
@@ -45,6 +45,14 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
 
     const handleTechScoreChange = (event) => {
         updateMinTechScore(event.target.value)
+    }
+
+    const triggerMetaSnapshot = () => {
+        axios.post(api_base + "/api/addMetaSnapshot").then((response) => {
+            alert(response.data)
+        }).catch(err => {
+            alert(err.response.data)
+        })
     }
 
     const handleSaveTechScoreChange = () => {
@@ -67,7 +75,8 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
             return {
                 guild_name: producer.owner_name,
                 account_name: producer.account_name,
-                active: producer.active === true ? "true" : producer.active === false ? "false" : ""
+                active: producer.active === true ? "true" : producer.active === false ? "false" : "",
+                metasnapshot_date: producer.metasnapshot_date
             }
         } else {
             return null
@@ -80,6 +89,13 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
         } else {
             setCurrentTable("pointSystem")
         }
+    }
+
+    const filterMetaSnapshots = (rows) => {
+        if (!!metaSnapshotDate) {
+            return rows.filter(row => row.metasnapshot_date && row.metasnapshot_date.substring(0, 10) === metaSnapshotDate.date)
+        }
+        return rows.filter(row => row.metasnapshot_date === null || row.metasnapshot_date === undefined)
     }
 
     return isAdmin ? <div className={classes.root}>
@@ -95,6 +111,15 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
         >
             Save
         </Button> : null}
+        <br></br><br></br>
+        <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            onClick={triggerMetaSnapshot}
+        >
+            Trigger Meta Snapshot
+        </Button>
         <br></br><br></br>
         {snapshotDate ? <MuiPickersUtilsProvider utils={MomentUtils}>
             <KeyboardDateTimePicker
@@ -122,14 +147,14 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
         <br></br><br></br>
         <div className={currentTable === "guildSettings" ? classes.hidden : null}>
             <TableDataGrid
-                tableData={pointSystem}
+                tableData={filterMetaSnapshots(pointSystem)}
                 tableTitle="Point System"
                 isAdmin={isAdmin}
             />
         </div>
         <div className={currentTable === "pointSystem" ? classes.hidden : null}>
             <TableDataGrid
-                tableData={guildSettings}
+                tableData={filterMetaSnapshots(guildSettings)}
                 tableTitle="Guild Settings"
                 isAdmin={isAdmin}
             />

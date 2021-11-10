@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import moment from 'moment'
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
-import {SnapshotScoring} from './snapshot-scoring'
+import { SnapshotScoring } from './snapshot-scoring'
 import IntegratedScores from './integrated-snapshot-scores'
 
 const useStyles = makeStyles((theme) => ({
@@ -14,9 +14,9 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const App = ({ /*results, */ producers, products, bizdevs, community, snapresults, pointSystem, isAdmin, producerLogos, producerDomainMap, activeGuilds }) => {
+const App = ({ /*results, */ producers, products, bizdevs, community, snapresults, pointSystem, isAdmin, producerLogos, producerDomainMap, activeGuilds, metaSnapshotDate }) => {
   const classes = useStyles();
-  
+
   const [viewType, setViewType] = useState('integrated')
   const lastfetched = !!snapresults && !!snapresults[0] && !!snapresults[0].snapshot_date ? moment(snapresults[0].snapshot_date).fromNow() : 'never';
 
@@ -28,14 +28,21 @@ const App = ({ /*results, */ producers, products, bizdevs, community, snapresult
     }
   }
 
+  const filterMetaSnapshots = (rows) => {
+    if (!!metaSnapshotDate) {
+      return rows.filter(row => row.metasnapshot_date && row.metasnapshot_date.substring(0, 10) === metaSnapshotDate.date)
+    }
+    return rows.filter(row => row.metasnapshot_date === null || row.metasnapshot_date === undefined)
+  }
+
   const loadView = () => {
     if (viewType === 'individual') {
       return <SnapshotScoring
-        results={snapresults}
-        producers={producers}
-        products={products}
-        bizdevs={bizdevs}
-        community={community}
+        results={filterMetaSnapshots(snapresults)}
+        producers={filterMetaSnapshots(producers)}
+        products={filterMetaSnapshots(products)}
+        bizdevs={filterMetaSnapshots(bizdevs)}
+        community={filterMetaSnapshots(community)}
         pointSystem={pointSystem}
         isAdmin={isAdmin}
         producerLogos={producerLogos}
@@ -44,11 +51,11 @@ const App = ({ /*results, */ producers, products, bizdevs, community, snapresult
     }
     if (viewType === 'integrated') {
       return <IntegratedScores
-        results={snapresults}
-        producers={producers}
-        products={products}
-        bizdevs={bizdevs}
-        community={community}
+        results={filterMetaSnapshots(snapresults)}
+        producers={filterMetaSnapshots(producers)}
+        products={filterMetaSnapshots(products)}
+        bizdevs={filterMetaSnapshots(bizdevs)}
+        community={filterMetaSnapshots(community)}
         pointSystem={pointSystem}
         isAdmin={isAdmin}
         producerLogos={producerLogos}
