@@ -71,7 +71,41 @@ const App = (props) => {
   const [snapshotSettings, setSnapshotSettings] = useState([])
   const [rawPointSystem, setRawPointSystem] = useState([])
   const [pointSystem, setPointSystem] = useState([])
-  const [minimumTechScore, setMinimumTechScore] = useState([]);
+  const [minimumTechScore, setMinimumTechScore] = useState(999);
+  const [metaSnapshotDate, setMetaSnapshotDate] = useState(null);
+  const [availableMetaSnapshots, setAvailableMetaSnapshots] = useState([])
+
+  const monthMap = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec"
+  ]
+
+  const updateMetaSnapshotDate = (date) => {
+    const year = date.substring(0, 4);
+    const month = date.substring(5, 7);
+    const day = date.substring(8, 10);
+    const short = `${monthMap[month]}/${year.substring(2, 4)}`;
+    alert("Meta-snapshot options: " + availableMetaSnapshots.join(", "));
+    //setMetaSnapshotDate({year, month, day, short})
+  }
+
+  const openTimeMachine = () => {
+    if (availableMetaSnapshots.length >= 1) {
+      updateMetaSnapshotDate(availableMetaSnapshots[0])
+    } else {
+      alert("Loading meta-snapshots... please wait.")
+    }
+  }
 
   useEffect(() => {
     // Load data and set hooks. A future implementation could use axios.all
@@ -118,6 +152,9 @@ const App = (props) => {
     })
     axios.get(api_base + '/api/getAdminSettings').then((response) => {
       const data = response.data;
+      const availableMetaSnapshots = data.filter(row => !!row.metasnapshot_date).map(row => row.metasnapshot_date.substring(0, 10));
+      setAvailableMetaSnapshots(availableMetaSnapshots);
+      console.log("Set available meta-snapshots")
       const minScore = data && data[0] && data[0].minimum_tech_score ? data[0].minimum_tech_score : 999;
       setMinimumTechScore(minScore)
     });
@@ -170,8 +207,8 @@ const App = (props) => {
           producerLogos={producerLogos}
           producerDomainMap={producerDomainMap}
           activeUser={props.ual.activeUser}
-          //metaSnapshotDate={{month: 9, year: 2021, short: 'Sep/21'}}
-          openTimeMachine={() => {alert("Open Time Machine")}}
+          metaSnapshotDate={metaSnapshotDate}
+          openTimeMachine={openTimeMachine}
         />
       </>
     );
@@ -187,6 +224,8 @@ const App = (props) => {
               activeUser={props.ual.activeUser}
               loginModal={props.ual.showModal}
               logOut={props.ual.logout}
+              metaSnapshotDate={metaSnapshotDate}
+              openTimeMachine={openTimeMachine}
               isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} />
             <Grid container spacing={3}>
               <Grid item xs={12}>

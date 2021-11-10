@@ -287,7 +287,7 @@ export default function ResultTables({ passedResults, avgResult, metaSnapshotDat
               </HtmlTooltip>
               <StyledTableCell className={classes.avgResultCell}><span>{parseInt(avgResult.cpu_avg*100)/100}</span></StyledTableCell>
               <StyledTableCell className={classes.avgResultCell}><span>{parseInt(avgResult.score_avg)}</span></StyledTableCell>
-              <StyledTableCell className={classes.ownerName}><button className={classes.waxButton} onClick={openTimeMachine}>{metaSnapshotDate ? metaSnapshotDate.short : "Latest"}</button></StyledTableCell>
+              <StyledTableCell className={classes.ownerName}><button className={classes.waxButton} onClick={openTimeMachine}>{metaSnapshotDate ? metaSnapshotDate.short : "Time Machine"}</button></StyledTableCell>
             </StyledTableRow>}
             {resultSlice.map((result) => {
               return !hideOwnerName && activeGuilds && activeGuilds.indexOf(result.owner_name) === -1 ? null : <StyledTableRow key={result.key} className={(top21Guilds && top21Guilds.indexOf(result.owner_name) !== -1 ? classes.top21 : "")}>
