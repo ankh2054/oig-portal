@@ -49,7 +49,7 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
   }
 
   const isEditable = (key, columnObj) => {
-    if (!isAdmin) {
+    if (!isAdmin || columnObj['metasnapshot_date'] !== null) {
       return 'never'
     }
     if (!!columnObj['date_check']) {
@@ -83,7 +83,7 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
         field: key,
         align: 'left',
         // Hide owner_name
-        hidden: key === "owner_name" || (key === "comments" && !isAdmin),
+        hidden: key === "owner_name" || (key === "comments" && !isAdmin) || key === "metasnapshot_date",
         // Make certain fields uneditable
         editable: (isEditable(key, columnObj)),
         // Highlight comments
@@ -110,23 +110,23 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
           ],
           padding: 'dense'
         }}
-        actions={isAdmin && type !== 'unknownType' && tableTitle !== 'Point System' ? [
+        actions={!tableState[0].metasnapshot_date && isAdmin && type !== 'unknownType' && tableTitle !== 'Point System' ? [
           { // Only show recalc points for product, biz, and comm - though we may want to add this to tech results?
             icon: 'refresh',
             tooltip: 'Recalculate Score',
             onClick: (event, currentRow) => tryUpdateTable('recalc', currentRow, tableTitle, tableState, setTableState, type, pointSystem)
           }
-        ] : isAdmin && tableTitle === 'Guild Settings' ? [
+        ] : !tableState[0].metasnapshot_date && isAdmin && tableTitle === 'Guild Settings' ? [
           {
             icon: 'visibility',
             tooltip: 'Set Active/Inactive',
             onClick: (event, currentRow) => tryUpdateTable('toggleActive', currentRow, tableTitle, tableState, setTableState)
           }
         ] : null}
-        editable={isAdmin && type !== 'unknownType' ? { // Show only for admins
+        editable={!tableState[0].metasnapshot_date && isAdmin && type !== 'unknownType' ? { // Show only for admins
           onRowUpdate: (newRow, currentRow) => tryUpdateTable('update', currentRow, tableTitle, tableState, setTableState, type, pointSystem, newRow),
           onRowDelete: (currentRow) => tryUpdateTable('delete', currentRow, tableTitle, tableState, setTableState, type),
-        } : isAdmin ? { // No delete for snapshot tech results or point system
+        } : !tableState[0].metasnapshot_date && isAdmin ? { // No delete for snapshot tech results or point system
           onRowUpdate: (newRow, currentRow) => tryUpdateTable('update', currentRow, tableTitle, tableState, setTableState, type, pointSystem, newRow)
         } : false}
         // The below code is terrible, but it has to be this way: https://github.com/mbrn/material-table/issues/1900

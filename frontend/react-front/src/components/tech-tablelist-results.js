@@ -89,6 +89,8 @@ const useStyles = makeStyles((theme) => ({
   waxButton: {
     textDecoration: 'none',
     color: '#332b1f',
+    border: 'none',
+    cursor: 'pointer',
     borderRadius: '100px',
     fontWeight: 'bold',
     padding: '15px 20px',
@@ -117,9 +119,23 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.getContrastText(green[500]),
     backgroundColor: green[500],
   },
+  avgResultCell: {
+    padding: '2px !important',
+    background: 'linear-gradient(90.08deg, rgb(247, 142, 30), rgb(255, 220, 81) 236.03%)',
+    borderLeft: 'rgb(247, 142, 30) !important',
+    borderBottom: 'rgb(255, 220, 81)',
+    '& span': {
+      fontWeight: 'bold',
+      color: '#332b1f',
+      //borderRadius: '100%',
+      display: 'inline-block',
+      padding: '10px 5px',
+      minWidth: '30px'
+    }
+  }
 }));
 
-export default function ResultTables({ passedResults, hideOwnerName, loadMoreResults, activeGuilds, top21Guilds }) {
+export default function ResultTables({ passedResults, avgResult, metaSnapshotDate, hideOwnerName, loadMoreResults, activeGuilds, top21Guilds, openTimeMachine }) {
   // Basic paginaton frontend setup - 21 results
   const initialIndex = 21;
   const [results, setResults] = useState(passedResults);
@@ -226,6 +242,53 @@ export default function ResultTables({ passedResults, hideOwnerName, loadMoreRes
             </TableRow>
           </TableHead>
           <TableBody>
+          {hideOwnerName !== true || !avgResult ? null : <StyledTableRow>
+              <HtmlTooltip title={`${avgResult.chains_json_count}/${avgResult.total_count}`} aria-label="chains_json_count" placement="top">
+                <StyledTableCell className={classes.avgResultCell}><span>{avgResult.chains_json_pct}</span></StyledTableCell>
+              </HtmlTooltip>
+              <HtmlTooltip title={`${avgResult.wax_json_count}/${avgResult.total_count}`} aria-label="wax_json_count" placement="top">
+                <StyledTableCell className={classes.avgResultCell}><span>{avgResult.wax_json_pct}</span></StyledTableCell>
+              </HtmlTooltip>
+              <HtmlTooltip title={`${avgResult.api_node_count}/${avgResult.total_count}`} aria-label="api_node_count" placement="top">
+                <StyledTableCell className={classes.avgResultCell}><span>{avgResult.api_node_pct}</span></StyledTableCell>
+              </HtmlTooltip>
+              <HtmlTooltip title={`${avgResult.seed_node_count}/${avgResult.total_count}`} aria-label="seed_node_count" placement="top">
+                <StyledTableCell className={classes.avgResultCell}><span>{avgResult.seed_node_pct}</span></StyledTableCell>
+              </HtmlTooltip>
+              <HtmlTooltip title={`${avgResult.http_check_count}/${avgResult.total_count}`} aria-label="http_check_count" placement="top">
+                <StyledTableCell className={classes.avgResultCell}><span>{avgResult.http_check_pct}</span></StyledTableCell>
+              </HtmlTooltip>
+              <HtmlTooltip title={`${avgResult.https_check_count}/${avgResult.total_count}`} aria-label="https_check_count" placement="top">
+                <StyledTableCell className={classes.avgResultCell}><span>{avgResult.https_check_pct}</span></StyledTableCell>
+              </HtmlTooltip>
+              <HtmlTooltip title={`${avgResult.tls_ver_count}/${avgResult.total_count}`} aria-label="tls_ver_count" placement="top">
+                <StyledTableCell className={classes.avgResultCell}><span>{avgResult.tls_ver_pct}</span></StyledTableCell>
+              </HtmlTooltip>
+              <HtmlTooltip title={`${avgResult.http2_check_count}/${avgResult.total_count}`} aria-label="http2_check_count" placement="top">
+                <StyledTableCell className={classes.avgResultCell}><span>{avgResult.http2_check_pct}</span></StyledTableCell>
+              </HtmlTooltip>
+              <HtmlTooltip title={`${avgResult.history_v1_count}/${avgResult.total_count}`} aria-label="history_v1_count" placement="top">
+                <StyledTableCell className={classes.avgResultCell}><span>{avgResult.history_v1_pct}</span></StyledTableCell>
+              </HtmlTooltip>
+              <HtmlTooltip title={`${avgResult.hyperion_v2_count}/${avgResult.total_count}`} aria-label="hyperion_v2_count" placement="top">
+                <StyledTableCell className={classes.avgResultCell}><span>{avgResult.hyperion_v2_pct}</span></StyledTableCell>
+              </HtmlTooltip>
+              <HtmlTooltip title={`${avgResult.atomic_api_count}/${avgResult.total_count}`} aria-label="atomic_api_count" placement="top">
+                <StyledTableCell className={classes.avgResultCell}><span>{avgResult.atomic_api_pct}</span></StyledTableCell>
+              </HtmlTooltip>
+              <HtmlTooltip title={`${avgResult.cors_check_count}/${avgResult.total_count}`} aria-label="cors_check_count" placement="top">
+                <StyledTableCell className={classes.avgResultCell}><span>{avgResult.cors_check_pct}</span></StyledTableCell>
+              </HtmlTooltip>
+              <HtmlTooltip title={`${avgResult.oracle_feed_count}/${avgResult.total_count}`} aria-label="oracle_feed_count" placement="top">
+                <StyledTableCell className={classes.avgResultCell}><span>{avgResult.oracle_feed_pct}</span></StyledTableCell>
+              </HtmlTooltip>
+              <HtmlTooltip title={`${avgResult.snapshots_count}/${avgResult.total_count}`} aria-label="snapshots_count" placement="top">
+                <StyledTableCell className={classes.avgResultCell}><span>{avgResult.snapshots_pct}</span></StyledTableCell>
+              </HtmlTooltip>
+              <StyledTableCell className={classes.avgResultCell}><span>{parseInt(avgResult.cpu_avg*100)/100}</span></StyledTableCell>
+              <StyledTableCell className={classes.avgResultCell}><span>{parseInt(avgResult.score_avg)}</span></StyledTableCell>
+              <StyledTableCell className={classes.ownerName}><button className={classes.waxButton} onClick={openTimeMachine}>{metaSnapshotDate ? metaSnapshotDate.short : "Time Machine"}</button></StyledTableCell>
+            </StyledTableRow>}
             {resultSlice.map((result) => {
               return !hideOwnerName && activeGuilds && activeGuilds.indexOf(result.owner_name) === -1 ? null : <StyledTableRow key={result.key} className={(top21Guilds && top21Guilds.indexOf(result.owner_name) !== -1 ? classes.top21 : "")}>
                 {hideOwnerName === true ? null : <StyledTableCell className={classes.ownerName}><a className={classes.waxButton} href={`/guilds/${result.owner_name}`}>{result.owner_name}</a></StyledTableCell>}
