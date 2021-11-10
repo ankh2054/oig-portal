@@ -77,6 +77,7 @@ fastify.get('/api/truncatedPaginatedResults/:owner', db.getTruncatedPaginatedRes
 // Admin settings - just minimum tech score for now
 fastify.get('/api/getAdminSettings', db.getAdminSettings)
 fastify.post('/api/updateAdminSettings', db.updateAdminSettings)
+fastify.post('/api/addMetaSnapshot', db.addMetaSnapshot)
 
 // Starts the Fastify Server //
 const start = async () => {

@@ -254,15 +254,15 @@ const getAverageMonthlyResult = (request, reply) => {
     Object.keys(row).forEach(key => {
       if (key.indexOf("_count") !== -1) {
         const newKey = key.replace("_count", "_pct");
-        pcts[newKey] = `${parseInt((row[key] / total_count)*10000)/100}%`;
+        pcts[newKey] = `${parseInt((row[key] / total_count) * 10000) / 100}%`;
       }
     })
-    const vResults = {...row, ...pcts, month, year};
+    const vResults = { ...row, ...pcts, month, year };
     reply.status(200).send(vResults);
   })
 }
 
-const getTruncatedPaginatedResults = (request, reply)  => {
+const getTruncatedPaginatedResults = (request, reply) => {
   const { owner } = request.params;
   const { index, limit } = request.query;
   const start = index ? +index + 1 : 1;
@@ -489,4 +489,28 @@ const addNewGuild = (request, reply) => {
     })
 }
 
-module.exports = { deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner, addNewGuild, getTruncatedPaginatedResults, setAccountName, updateProducer, getAdminSettings, updateAdminSettings, getAverageMonthlyResult };
+/* To wipe all meta snapshots:
+
+DELETE FROM oig.adminsettings WHERE metasnapshot_date IS NOT NULL;
+DELETE FROM oig.bizdev WHERE metasnapshot_date IS NOT NULL;
+DELETE FROM oig.community WHERE metasnapshot_date IS NOT NULL;
+DELETE FROM oig.pointsystem WHERE metasnapshot_date IS NOT NULL;
+DELETE FROM oig.producer WHERE metasnapshot_date IS NOT NULL;
+DELETE FROM oig.products WHERE metasnapshot_date IS NOT NULL;
+DELETE FROM oig.results WHERE metasnapshot_date IS NOT NULL;
+
+*/
+
+const addMetaSnapshot = (request, reply) => {
+  client.query('INSERT INTO oig.adminsettings (minimum_tech_score, metasnapshot_date) SELECT minimum_tech_score, CURRENT_DATE FROM oig.adminsettings WHERE metasnapshot_date IS NULL; INSERT INTO oig.bizdev (owner_name, name, description, stage, analytics_url, spec_url, score, date_updated, points, comments, metasnapshot_date) SELECT owner_name, name, description, stage, analytics_url, spec_url, score, date_updated, points, comments, CURRENT_DATE FROM oig.bizdev WHERE metasnapshot_date IS NULL; INSERT INTO oig.community (owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated, comments, metasnapshot_date) SELECT owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated, comments, CURRENT_DATE FROM oig.community WHERE metasnapshot_date IS NULL; INSERT INTO oig.pointsystem (points_type, points, multiplier, min_requirements, metasnapshot_date) SELECT points_type, points, multiplier, min_requirements, CURRENT_DATE FROM oig.pointsystem WHERE metasnapshot_date IS NULL; INSERT INTO oig.producer (owner_name, candidate, url, jsonurl, chainsurl, active, logo_svg, top21, country_code, account_name, metasnapshot_date) SELECT owner_name, candidate, url, jsonurl, chainsurl, active, logo_svg, top21, country_code, account_name, CURRENT_DATE FROM oig.producer WHERE metasnapshot_date IS NULL; INSERT INTO oig.products (owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, date_updated, points, comments, metasnapshot_date) SELECT owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, date_updated, points, comments, CURRENT_DATE FROM oig.products WHERE metasnapshot_date IS NULL; INSERT INTO oig.results (owner_name, cors_check, cors_check_error, http_check, http_check_error, https_check, https_check_error, http2_check, http2_check_error, full_history, full_history_error, snapshots, snapshots_error, seed_node, seed_node_error, api_node, api_node_error, oracle_feed, oracle_feed_error, wax_json, chains_json, cpu_time, date_check, score, tls_check, tls_check_error, cpu_avg, snapshot_date, hyperion_v2, hyperion_v2_error, producer_api_error, producer_api_check, net_api_check, net_api_error, dbsize_api_check, dbsize_api_error, comments, atomic_api, atomic_api_error, metasnapshot_date) SELECT DISTINCT ON (owner_name) owner_name, cors_check, cors_check_error, http_check, http_check_error, https_check, https_check_error, http2_check, http2_check_error, full_history, full_history_error, snapshots, snapshots_error, seed_node, seed_node_error, api_node, api_node_error, oracle_feed, oracle_feed_error, wax_json, chains_json, cpu_time, date_check, score, tls_check, tls_check_error, cpu_avg, snapshot_date, hyperion_v2, hyperion_v2_error, producer_api_error, producer_api_check, net_api_check, net_api_error, dbsize_api_check, dbsize_api_error, comments, atomic_api, atomic_api_error, CURRENT_DATE FROM oig.results WHERE snapshot_date IS NOT NULL AND metasnapshot_date IS NULL ORDER BY owner_name, snapshot_date DESC;', (err, res) => {
+    if (err && err.message.indexOf("duplicate") !== -1) {
+      reply.status(400).send("Metasnapshot already made (" + err.message + ")");
+    } else if (err) {
+      reply.status(500).send(err.message);
+    } else {
+      reply.status(200).send('Made metasnapshot!');
+    }
+  })
+}
+
+module.exports = { addMetaSnapshot, deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner, addNewGuild, getTruncatedPaginatedResults, setAccountName, updateProducer, getAdminSettings, updateAdminSettings, getAverageMonthlyResult };
