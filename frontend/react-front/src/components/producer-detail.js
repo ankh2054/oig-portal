@@ -243,7 +243,7 @@ const generateServicesProvided = (results, classes) => {
   return jsx
 }
 
-const App = ({ producer, latestresults, producerLogos, producerDomainMap, activeUser }) => {
+const App = ({ producer, latestresults, producerLogos, producerDomainMap, activeUser, metaSnapshotDate, openTimeMachine }) => {
   const classes = useStyles();
   const [results, setResults] = useState([]);
   const [avgResult, setAvgResult] = useState([]);
@@ -256,11 +256,11 @@ const App = ({ producer, latestresults, producerLogos, producerDomainMap, active
         setResults(response.data)
       })
       // Future-proof: add ?month=x, ?year=y to show results for a particular month
-      axios.get(api_base + `/api/monthlyaverageresults/${producer.owner_name}`).then((response) => {
+      axios.get(api_base + `/api/monthlyaverageresults/${producer.owner_name}${!!metaSnapshotDate ? `?month=${metaSnapshotDate.month}&year=${metaSnapshotDate.year}` : ''}`).then((response) => {
         setAvgResult(response.data)
       })
     }
-  }, [producer]);
+  }, [producer, metaSnapshotDate]);
 
 
   const loadMoreResults = async (index, limit) => {
@@ -301,9 +301,11 @@ const App = ({ producer, latestresults, producerLogos, producerDomainMap, active
         <p>{cpuSummary({ results: results.slice(0, 7), latestresults })}</p>
       </Paper> : null}
       {results.length >= 1 ? <h2>Latest Results</h2> : null}
-      {JSON.stringify(avgResult)}
       {results.length >= 1 ? <TechresultTables
         passedResults={results}
+        avgResult={avgResult}
+        metaSnapshotDate={metaSnapshotDate}
+        openTimeMachine={openTimeMachine}
         hideOwnerName={true}
         loadMoreResults={loadMoreResults}
       /> : null}

@@ -120,7 +120,7 @@ const updatePointSystem = (request, reply) => {
   const toUpdate = (multiplier ? "multiplier=" + multiplier : "") + (points && multiplier ? ", " : "") + (points ? "points=" + points : "");
 
   client.query(
-    `UPDATE oig.pointsystem SET ${toUpdate} WHERE points_type= $1`,
+    `UPDATE oig.pointsystem SET ${toUpdate} WHERE points_type= $1 AND metasnapshot_date IS NULL`,
     [points_type],
     (error, results) => {
       if (error) {
@@ -224,10 +224,12 @@ const getAverageMonthlyResult = (request, reply) => {
   const vMonth = !!month ? parseInt(month) : 'extract(month FROM current_date)';
   const vYear = !!year ? parseInt(year) : 'extract(year FROM current_date)';
   client.query(`select 
+  COUNT(*) as total_count,
   COUNT(*) FILTER (WHERE chains_json = TRUE) AS chains_json_count, 
   COUNT(*) FILTER (WHERE wax_json = TRUE) AS wax_json_count, 
   COUNT(*) FILTER (WHERE api_node = TRUE) AS api_node_count, 
-  COUNT(*) FILTER (WHERE seed_node = TRUE) AS http_check_count, 
+  COUNT(*) FILTER (WHERE seed_node = TRUE) AS seed_node_count, 
+  COUNT(*) FILTER (WHERE http_check = TRUE) AS http_check_count, 
   COUNT(*) FILTER (WHERE https_check = TRUE) AS https_check_count,
   COUNT(*) FILTER (WHERE tls_check = 'TLS v1.2') AS tls_ver_count,
   COUNT(*) FILTER (WHERE http2_check = TRUE) AS http2_check_count,
@@ -238,8 +240,7 @@ const getAverageMonthlyResult = (request, reply) => {
   COUNT(*) FILTER (WHERE oracle_feed = TRUE) AS oracle_feed_count,
   COUNT(*) FILTER (WHERE snapshots = TRUE) AS snapshots_count,
   AVG(cpu_avg) AS cpu_avg,
-  AVG(score) AS score_avg,
-  COUNT(*) as total 
+  AVG(score) AS score_avg 
   from oig.results
   where owner_name = $1 
   and extract(month FROM date_check) = ${vMonth}
@@ -249,19 +250,19 @@ const getAverageMonthlyResult = (request, reply) => {
     }
     const row = results.rows[0];
     let pcts = {};
-    const { total } = row;
+    const { total_count } = row;
     Object.keys(row).forEach(key => {
-      if (key.indexOf("_count")) {
+      if (key.indexOf("_count") !== -1) {
         const newKey = key.replace("_count", "_pct");
-        pcts[newKey] = (row[key] / total);
+        pcts[newKey] = `${parseInt((row[key] / total_count) * 10000) / 100}%`;
       }
     })
-    const vResults = {...row, ...pcts};
+    const vResults = { ...row, ...pcts, month, year };
     reply.status(200).send(vResults);
   })
 }
 
-const getTruncatedPaginatedResults = (request, reply)  => {
+const getTruncatedPaginatedResults = (request, reply) => {
   const { owner } = request.params;
   const { index, limit } = request.query;
   const start = index ? +index + 1 : 1;
@@ -330,7 +331,7 @@ const updateProducer = (request, reply) => {
   const owner = request.params.owner
   const { account_name, active } = request.body
 
-  client.query('UPDATE oig.producer SET "active" = $1, "account_name" = $2 WHERE "owner_name" = $3', [active, account_name, owner], (error, results) => {
+  client.query('UPDATE oig.producer SET "active" = $1, "account_name" = $2 WHERE "owner_name" = $3 AND metasnapshot_date IS NULL', [active, account_name, owner], (error, results) => {
     if (error) {
       throw error
     }
@@ -488,4 +489,28 @@ const addNewGuild = (request, reply) => {
     })
 }
 
-module.exports = { deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner, addNewGuild, getTruncatedPaginatedResults, setAccountName, updateProducer, getAdminSettings, updateAdminSettings, getAverageMonthlyResult };
+/* To wipe all meta snapshots:
+
+DELETE FROM oig.adminsettings WHERE metasnapshot_date IS NOT NULL;
+DELETE FROM oig.bizdev WHERE metasnapshot_date IS NOT NULL;
+DELETE FROM oig.community WHERE metasnapshot_date IS NOT NULL;
+DELETE FROM oig.pointsystem WHERE metasnapshot_date IS NOT NULL;
+DELETE FROM oig.producer WHERE metasnapshot_date IS NOT NULL;
+DELETE FROM oig.products WHERE metasnapshot_date IS NOT NULL;
+DELETE FROM oig.results WHERE metasnapshot_date IS NOT NULL;
+
+*/
+
+const addMetaSnapshot = (request, reply) => {
+  client.query('INSERT INTO oig.adminsettings (minimum_tech_score, metasnapshot_date) SELECT minimum_tech_score, CURRENT_DATE FROM oig.adminsettings WHERE metasnapshot_date IS NULL; INSERT INTO oig.bizdev (owner_name, name, description, stage, analytics_url, spec_url, score, date_updated, points, comments, metasnapshot_date) SELECT owner_name, name, description, stage, analytics_url, spec_url, score, date_updated, points, comments, CURRENT_DATE FROM oig.bizdev WHERE metasnapshot_date IS NULL; INSERT INTO oig.community (owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated, comments, metasnapshot_date) SELECT owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated, comments, CURRENT_DATE FROM oig.community WHERE metasnapshot_date IS NULL; INSERT INTO oig.pointsystem (points_type, points, multiplier, min_requirements, metasnapshot_date) SELECT points_type, points, multiplier, min_requirements, CURRENT_DATE FROM oig.pointsystem WHERE metasnapshot_date IS NULL; INSERT INTO oig.producer (owner_name, candidate, url, jsonurl, chainsurl, active, logo_svg, top21, country_code, account_name, metasnapshot_date) SELECT owner_name, candidate, url, jsonurl, chainsurl, active, logo_svg, top21, country_code, account_name, CURRENT_DATE FROM oig.producer WHERE metasnapshot_date IS NULL; INSERT INTO oig.products (owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, date_updated, points, comments, metasnapshot_date) SELECT owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, date_updated, points, comments, CURRENT_DATE FROM oig.products WHERE metasnapshot_date IS NULL; INSERT INTO oig.results (owner_name, cors_check, cors_check_error, http_check, http_check_error, https_check, https_check_error, http2_check, http2_check_error, full_history, full_history_error, snapshots, snapshots_error, seed_node, seed_node_error, api_node, api_node_error, oracle_feed, oracle_feed_error, wax_json, chains_json, cpu_time, date_check, score, tls_check, tls_check_error, cpu_avg, snapshot_date, hyperion_v2, hyperion_v2_error, producer_api_error, producer_api_check, net_api_check, net_api_error, dbsize_api_check, dbsize_api_error, comments, atomic_api, atomic_api_error, metasnapshot_date) SELECT DISTINCT ON (owner_name) owner_name, cors_check, cors_check_error, http_check, http_check_error, https_check, https_check_error, http2_check, http2_check_error, full_history, full_history_error, snapshots, snapshots_error, seed_node, seed_node_error, api_node, api_node_error, oracle_feed, oracle_feed_error, wax_json, chains_json, cpu_time, date_check, score, tls_check, tls_check_error, cpu_avg, snapshot_date, hyperion_v2, hyperion_v2_error, producer_api_error, producer_api_check, net_api_check, net_api_error, dbsize_api_check, dbsize_api_error, comments, atomic_api, atomic_api_error, CURRENT_DATE FROM oig.results WHERE snapshot_date IS NOT NULL AND metasnapshot_date IS NULL ORDER BY owner_name, snapshot_date DESC;', (err, res) => {
+    if (err && err.message.indexOf("duplicate") !== -1) {
+      reply.status(400).send("Metasnapshot already made (" + err.message + ")");
+    } else if (err) {
+      reply.status(500).send(err.message);
+    } else {
+      reply.status(200).send('Made metasnapshot!');
+    }
+  })
+}
+
+module.exports = { addMetaSnapshot, deleteItem, IsProducerActive, bizdevUpdate, communityUpdate, getBizdevs, getCommunity, getLatestResults, getLatestSnapshotResults, getPointSystem, updatePointSystem, getProducers, getProducts, getResults, getResultsbyOwner, getSnapshotResults, getSnapshotSettings, getUpdatesbyOwner, mothlyUpdate, productUpdate, setSnapshotResults, updateSnapshotDate, snapshotResultCommentUpdate, getPaginatedResultsByOwner, addNewGuild, getTruncatedPaginatedResults, setAccountName, updateProducer, getAdminSettings, updateAdminSettings, getAverageMonthlyResult };

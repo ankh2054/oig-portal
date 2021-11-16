@@ -13,7 +13,7 @@ import Testform from './components/monthly-updates'
 import AdminPanel from './components/admin'
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { api_base } from './config'
+import { api_base, admin_override } from './config'
 // import {addScoreToItem} from './functions/scoring'
 
 //import 'fontsource-roboto';
@@ -51,7 +51,7 @@ const App = (props) => {
     "sentnlagents"
   ]
 
-  const adminOverride = false;
+  const adminOverride = admin_override; // Whether to require wallet authentication to access admin features.
 
   const classes = useStyles();
   // const [rawResults, setRawResults] = useState([])
@@ -71,7 +71,41 @@ const App = (props) => {
   const [snapshotSettings, setSnapshotSettings] = useState([])
   const [rawPointSystem, setRawPointSystem] = useState([])
   const [pointSystem, setPointSystem] = useState([])
-  const [minimumTechScore, setMinimumTechScore] = useState([]);
+  const [minimumTechScore, setMinimumTechScore] = useState(999);
+  const [metaSnapshotDate, setMetaSnapshotDate] = useState(null);
+  const [availableMetaSnapshots, setAvailableMetaSnapshots] = useState([])
+
+  const monthMap = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec"
+  ]
+
+  const updateMetaSnapshotDate = (date) => {
+    const year = date.substring(0, 4);
+    const month = date.substring(5, 7);
+    const day = date.substring(8, 10);
+    const short = `${monthMap[month]}/${year.substring(2, 4)}`;
+    console.log("Meta-snapshot options: " + availableMetaSnapshots.join(", "));
+    setMetaSnapshotDate({year, month, day, short, date})
+  }
+
+  const openTimeMachine = () => {
+    if (availableMetaSnapshots.length >= 1) {
+      updateMetaSnapshotDate(availableMetaSnapshots[0])
+    } else {
+      alert("Loading meta-snapshots... please wait.")
+    }
+  }
 
   useEffect(() => {
     // Load data and set hooks. A future implementation could use axios.all
@@ -118,6 +152,9 @@ const App = (props) => {
     })
     axios.get(api_base + '/api/getAdminSettings').then((response) => {
       const data = response.data;
+      const availableMetaSnapshots = data.filter(row => !!row.metasnapshot_date).map(row => row.metasnapshot_date.substring(0, 10));
+      setAvailableMetaSnapshots(availableMetaSnapshots);
+      console.log("Set available meta-snapshots")
       const minScore = data && data[0] && data[0].minimum_tech_score ? data[0].minimum_tech_score : 999;
       setMinimumTechScore(minScore)
     });
@@ -170,6 +207,8 @@ const App = (props) => {
           producerLogos={producerLogos}
           producerDomainMap={producerDomainMap}
           activeUser={props.ual.activeUser}
+          metaSnapshotDate={metaSnapshotDate}
+          openTimeMachine={openTimeMachine}
         />
       </>
     );
@@ -185,6 +224,8 @@ const App = (props) => {
               activeUser={props.ual.activeUser}
               loginModal={props.ual.showModal}
               logOut={props.ual.logout}
+              metaSnapshotDate={metaSnapshotDate}
+              openTimeMachine={openTimeMachine}
               isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} />
             <Grid container spacing={3}>
               <Grid item xs={12}>
@@ -207,6 +248,7 @@ const App = (props) => {
                       producerLogos={producerLogos}
                       producerDomainMap={producerDomainMap}
                       activeGuilds={rawProducers.filter(producer => producer.active === true).map(producer => producer.owner_name)}
+                      metaSnapshotDate={metaSnapshotDate}
                     />} />
                     <Route exact path="/" component={() =>
                       <ProducerCards results={latestresults}
@@ -220,7 +262,7 @@ const App = (props) => {
                       />} />
                     <Route exact path='/guilds/:ownername' component={BPwithownername} />
                     <Route exact path='/form' component={() => <Testform producers={producers} isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} />} />
-                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} producers={rawProducers} pointSystem={rawPointSystem} isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} minimumTechScore={minimumTechScore} />} />
+                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} producers={rawProducers} pointSystem={rawPointSystem} isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} minimumTechScore={minimumTechScore} metaSnapshotDate={metaSnapshotDate} />} />
                   </Router>
                 </Paper>
               </Grid>
