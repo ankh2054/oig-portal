@@ -52,7 +52,7 @@ def getFullnodes():
     nodes = db_connect.getFullnodes()
     if not nodes:
         # If no nodes in DB, return single node
-        nodelist = [{'Node': 'https://wax.eosrio.io'}]
+        nodelist = [{'Node': 'https://hyperion.sentnl.io'}]
     #Else get all healthy hyperion nodes
     else:
         api_url = str(Api_Calls('v2', 'health'))
@@ -69,8 +69,8 @@ def getFullnodes():
             # check wheteher 200 is returned
             if response.status_code == requests.codes.ok:
                 responsetimes = response.elapsed.total_seconds()*1000
-                jsonres = response.json()
                 try:
+                    jsonres = response.json()
                     rpcstatus = jsonres.get('health')[1].get('status')
                 except:
                     continue
@@ -91,9 +91,10 @@ def getrandomNode(nodelist):
 # Gives you a list of available APIs on a node
 
 # Mainnet V2,V1 END POINT
-nodelist = getFullnodes()
+#nodelist = getFullnodes()
 #hyperion_Node = getrandomNode(nodelist)
 hyperion_Node = 'https://hyperion.sentnl.io'
+hyperion_Node2 = 'http://wax.blokcrafters.io' 
 
 # Testnet V2 END point
 API_ENDPOINT2_TESTNET = 'https://testnet.waxsweden.org'
@@ -277,7 +278,7 @@ def get_stuff(payload,chain,type):
             URL = API_ENDPOINT_TESTNET + api_url
         else:
             # Obtain new random node from list
-            NODE = getrandomNode(nodelist)
+            NODE = hyperion_Node2 #getrandomNode(nodelist)
             URL = NODE + api_url
         response = requests.get(URL, params=payload)
         response_json = json.loads(response.text)

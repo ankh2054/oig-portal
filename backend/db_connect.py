@@ -65,9 +65,29 @@ def dbSelect(query):
             connection.close()
             print("PostgreSQL connection is closed")
 
+def dbSelect2(query,var):
+    try:
+        # Create connection to DB
+        connection = db_connection()
+        # Open cursor to DB
+        cursor = connection.cursor()
+        cursor.execute(query,var)
+        records = cursor.fetchall()
+        return records
+    except (Exception, psycopg2.Error) as error:
+        print("Error fetching data from PostgreSQL table", error)
+    finally:
+        # closing database connection.
+        if (connection):
+            cursor.close()
+            connection.close()
+            print("PostgreSQL connection is closed")          
+
 # Select producers that are acive only
+metasnapshot_date = '1980-01-01 00:00:00'
 def getProducers():
-    query = "SELECT * FROM oig.producer WHERE active"
+    #query = "SELECT * FROM oig.producer WHERE active"
+    query = "SELECT * FROM oig.producer WHERE active AND metasnapshot_date = timestamp '1980-01-01 00:00:00'"
     return dbSelect(query)
 
 
@@ -93,14 +113,18 @@ def getSnapshottakendate():
 
 # DB Inserts
 def producerInsert(records):
-    query = """ INSERT INTO oig.producer (owner_name, candidate, url, jsonurl, chainsurl, logo_svg, top21, country_code) 
-                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
-                           ON CONFLICT (owner_name) DO UPDATE SET candidate = EXCLUDED.candidate, url = EXCLUDED.url, 
+    query = """ INSERT INTO oig.producer (owner_name,metasnapshot_date ,candidate, url, jsonurl, chainsurl, logo_svg, top21, country_code, active) 
+                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                           ON CONFLICT (owner_name,metasnapshot_date) DO UPDATE SET candidate = EXCLUDED.candidate, url = EXCLUDED.url, 
                            jsonurl = EXCLUDED.jsonurl, chainsurl = EXCLUDED.chainsurl, 
-                           logo_svg = EXCLUDED.logo_svg, top21 = EXCLUDED.top21, country_code = EXCLUDED.country_code;
+                           logo_svg = EXCLUDED.logo_svg, top21 = EXCLUDED.top21, country_code = EXCLUDED.country_code, active = EXCLUDED.active;
                            """
     # Call DB insert function
     dbInsertMany(records, query)
+
+
+#records = [('blacklusionx', '1980-01-01 00:00:00', 'Blacklusion', 'https://blacklusion.io', 'https://blacklusion.io/wax.json', 'https://blacklusion.io/chains.json', 'https://blacklusion.io/resources/blacklusion_logo_256.png', False, 'DE', True)]
+# producerInsert(records)
 
 def nodesInsert(records):
     query = """ INSERT INTO oig.nodes (owner_name, node_type, https_node_url, http_node_url, p2p_url, features) 
@@ -113,7 +137,7 @@ def nodesInsert(records):
 def resultsInsert(records):
     query = """ INSERT INTO oig.results (owner_name, cors_check, cors_check_error, http_check, http_check_error, https_check, https_check_error, tls_check, tls_check_error, producer_api_check, producer_api_error, net_api_check, net_api_error, dbsize_api_check,  dbsize_api_error, http2_check, http2_check_error, full_history, full_history_error, hyperion_v2, hyperion_v2_error, atomic_api, atomic_api_error, snapshots, seed_node, seed_node_error, api_node, api_node_error, oracle_feed, oracle_feed_error, wax_json, chains_json, cpu_time, cpu_avg, date_check, score) 
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                ON CONFLICT (owner_name,date_check) DO UPDATE SET 
+                ON CONFLICT (owner_name,date_check,metasnapshot_date) DO UPDATE SET 
                 cors_check= EXCLUDED.cors_check, cors_check_error= EXCLUDED.cors_check_error, 
                 http_check = EXCLUDED.http_check, http_check_error = EXCLUDED.http_check_error,
                 https_check = EXCLUDED.https_check, https_check_error = EXCLUDED.https_check_error,

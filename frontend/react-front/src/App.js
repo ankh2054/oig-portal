@@ -259,6 +259,7 @@ const App = (props) => {
                         producerLogos={producerLogos}
                         producerDomainMap={producerDomainMap}
                         minimumTechScore={minimumTechScore}
+                        metaSnapshotDate={metaSnapshotDate}
                       />} />
                     <Route exact path='/guilds/:ownername' component={BPwithownername} />
                     <Route exact path='/form' component={() => <Testform producers={producers} isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} />} />

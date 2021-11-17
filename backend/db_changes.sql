@@ -28,7 +28,7 @@ drop index if exists oig.idx_nodes_type;
 drop index if exists oig.idx_nodes_types;
 CREATE UNIQUE INDEX idx_nodes_type ON oig.nodes(owner_name, node_type, http_node_url );
 
-
+--- METASNAPSHOTS UPDATE
 -- Add metasnapshot_date column
 ALTER TABLE oig.adminsettings ADD COLUMN metasnapshot_date timestamp with time zone;
 ALTER TABLE oig.bizdev ADD COLUMN metasnapshot_date timestamp with time zone;
