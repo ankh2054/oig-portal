@@ -628,8 +628,10 @@ def getcpustats():
         new = proddict.copy()
         # Construct dict from TRX variable and assign to ID key
         payload = dict(id=trx)
+        print(payload)
         # Pass TRX ID and get all TRX information]
         fulltrx = eosio.get_stuff(payload,chain,'trx')
+        print(fulltrx)
         # Extract producer from TRX
         producer = fulltrx['actions'][0]['producer']
         # Extract cpu stats
@@ -768,7 +770,9 @@ def finalresults():
     producersdb = db_connect.getProducers()
     # Get CPU stats for top21 producers
     producercpu = getcpustats()
+    print(producercpu)
     # Get points system
+    print('get pointsystem')
     pointsystem =  db_connect.getPoints()
     # Get list of delphioracles and store for use
     producersoracle = delphioracle_actors()
@@ -954,6 +958,7 @@ if __name__ == "__main__":
    
    #print(check_atomic_assets('ledgerwiseio','atomic-assets-api'))
    main()
+   #getcpustats()
    #producerlist()
    #print(node_list())
 
