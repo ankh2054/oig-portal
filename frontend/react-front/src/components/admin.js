@@ -90,6 +90,7 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
             setCurrentTable("pointSystem")
         }
     }
+    const defaultdate = '1980-01-01 00:00:00'
 
     const filterMetaSnapshots = (rows) => {
         if (!!metaSnapshotDate) {

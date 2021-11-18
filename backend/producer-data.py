@@ -67,8 +67,8 @@ def concatenate(**kwargs):
         result += arg
     return result
 
-
-
+# Default metasnapshot_date 
+metasnapshot_date  = datetime.strptime('1980-01-01', "%Y-%d-%m")
 
 
 """
@@ -111,9 +111,11 @@ def producer_chain_list():
             # If the response was successful, no Exception will be raised
             response.raise_for_status()
         except HTTPError as http_err:
-            print(f'HTTP error occurred: {http_err}')  
+            print(f'HTTP error occurred: {http_err}')
+            continue  
         except Exception as err:
             print(f'Other error occurred: {err}')  
+            continue
         else:
             try:
                 json_response = response.json()
@@ -123,13 +125,17 @@ def producer_chain_list():
             except JSONDecodeError:
                 print('JSON parsing error')
                 waxjson = ""
+            except HTTPError as http_err:
+                print(f'HTTP error occurred: {http_err}')
+                continue  
+            except Exception as err:
+                print(f'Other error occurred: {err}')  
+                continue
             else:
-                # new = proddict.copy()
-                # Now get new JSON file
-                response = requests.get(url=guildurl+"/"+waxjson)
-                #response = requests.get(url=i['url']+"/"+waxjson)
+                #response = requests.get(url=guildurl+"/"+waxjson)
                 try:
                     # Get response data in JSON
+                    response = requests.get(url=guildurl+"/"+waxjson)
                     json_response = response.json()
                     # Extract org candidate name
                     candidate_name = json_response['org']['candidate_name']
@@ -143,10 +149,12 @@ def producer_chain_list():
                         logo_256 = None
                 except JSONDecodeError:
                     print('JSON parsing error')
+                    continue
                 else:
                     # is producer currently in top21
                     top21 = i[0] in top21producers
-                    thistuple = (i[0], candidate_name, guildurl, guildurl + '/'+waxjson, guildurl + '/chains.json', logo_256, top21, country_code)
+                    active = True
+                    thistuple = (i[0], metasnapshot_date ,candidate_name, guildurl, guildurl + '/'+waxjson, guildurl + '/chains.json', logo_256, top21, country_code, active)
                     producer_final.append(thistuple)
     return producer_final
 
@@ -186,8 +194,10 @@ def node_list():
             response.raise_for_status()
         except HTTPError as http_err:
             print(f'HTTP error occurred: {http_err}')  # Python 3.6
+            continue
         except Exception as err:
             print(f'Other error occurred: {err}')  # Python 3.6
+            continue
         else:
             json_response = response.json()
             owner_name = nodes[0]
@@ -928,7 +938,7 @@ def main():
     results = finalresults()
     db_connect.resultsInsert(results)
     # Take snapshot
-    # takeSnapshot(now)
+    takeSnapshot(now)
 
 
 #print(check_full_node('sentnlagents','history-v1'))
@@ -944,3 +954,6 @@ if __name__ == "__main__":
    
    #print(check_atomic_assets('ledgerwiseio','atomic-assets-api'))
    main()
+   #producerlist()
+   #print(node_list())
+
