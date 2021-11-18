@@ -23,6 +23,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-hook-form": "^6.8.1",
+    "react-hot-toast": "^2.1.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.3",
     "recharts": "^2.0.8",
