@@ -7,6 +7,7 @@ import { Button, TextField } from '@material-ui/core';
 import TableDataGrid from './table-datagrid'
 import moment from 'moment-timezone'
 import MomentUtils from '@date-io/moment'
+import Notification from './Notification.js'
 
 moment.tz.setDefault('Europe/London')
 
@@ -31,6 +32,7 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
     const [passedScore, updatePassedScore] = useState(120)
     const [minTechScore, updateMinTechScore] = useState(minimumTechScore);
     const [currentTable, setCurrentTable] = useState('pointSystem')
+    const [toastNotification, setToastNotification] = useState({displayFlag: false, msg: ''})
 
     const handleDateChange = (dateChange) => {
         axios.post(api_base + "/api/updateSnapshotDate", {
@@ -49,9 +51,11 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
 
     const triggerMetaSnapshot = () => {
         axios.post(api_base + "/api/addMetaSnapshot").then((response) => {
-            alert(response.data)
+            // alert(response.data)
+            setToastNotification({displayFlag: true, msg: "meta-snapshot made."})
         }).catch(err => {
-            alert(err.response.data)
+            // alert(err.response.data)
+            setToastNotification({displayFlag: true, msg: "meta-snapshot already created today."})
         })
     }
 
@@ -90,7 +94,6 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
             setCurrentTable("pointSystem")
         }
     }
-    const defaultdate = '1980-01-01 00:00:00'
 
     const filterMetaSnapshots = (rows) => {
         if (!!metaSnapshotDate) {
@@ -121,6 +124,8 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
         >
             Trigger Meta Snapshot
         </Button>
+        <Notification toastNotification={toastNotification} />
+        
         <br></br><br></br>
         {snapshotDate ? <MuiPickersUtilsProvider utils={MomentUtils}>
             <KeyboardDateTimePicker
