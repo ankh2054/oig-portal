@@ -143,7 +143,7 @@ def headblock(type):
             URL = API_ENDPOINT_TESTNET + api_url
         else:
             # Obtain new random node from list
-            NODE = getrandomNode(nodelist)
+            NODE = hyperion_Node2 #getrandomNode(nodelist)
             URL = NODE  + api_url 
         response = requests.get(URL)
         response_json = json.loads(response.text)
@@ -175,7 +175,7 @@ def getEOStable(table_info):
         rows = response_json['rows']
     except Exception as err:
         print(err, 'Node could not provide information failed trying a new node')
-        NODE = getrandomNode(nodelist)
+        NODE = hyperion_Node2 #getrandomNode(nodelist)
         URL = NODE  + api_url
         response = requests.post(URL, json=table_info)
         response_json = json.loads(response.text)
@@ -198,7 +198,7 @@ def producerSCHED():
         producers = response_json['active_schedule']['producers']
     except Exception as err:
         print(err, 'Node could not provide information failed trying a new node')
-        NODE = getrandomNode(nodelist)
+        NODE = hyperion_Node2 #getrandomNode(nodelist)
         URL = NODE + api_url 
         response = requests.post(URL, json=BLOCK_HEADER_DATA)
         response_json = json.loads(response.text)
@@ -225,7 +225,7 @@ def randomTransaction():
         transactions = response_json['transactions']
     except Exception as err:
         print(err, 'Node could not provide information failed trying a new node')
-        NODE = getrandomNode(nodelist)
+        NODE = hyperion_Node2 #getrandomNode(nodelist)
         URL = NODE + api_url
         response = requests.post(URL, json={"block_num_or_id": testblock})
         response_json = json.loads(response.text)

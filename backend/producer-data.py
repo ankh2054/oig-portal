@@ -150,6 +150,12 @@ def producer_chain_list():
                 except JSONDecodeError:
                     print('JSON parsing error')
                     continue
+                except HTTPError as http_err:
+                    print(f'HTTP error occurred: {http_err}')
+                    continue  
+                except Exception as err:
+                    print(f'Other error occurred: {err}')  
+                    continue
                 else:
                     # is producer currently in top21
                     top21 = i[0] in top21producers
@@ -681,7 +687,21 @@ def cpuAverage(producer):
         return 0
 
    
-
+def lastCheck(now):
+    lastcheck = db_connect.getLastcheck() #2021-11-19 07:25:24.11084+00
+    # Set now date
+    now = now
+    # Convert todays date to string to remove offset aware datetime issues 
+    today = now.strftime("%m/%d/%Y %H:%M")
+    # Convert DB date to string to remove offset aware datetime issues
+    lastcheck_oig = lastcheck[0][0].strftime("%m/%d/%Y %H:%M")
+    # Convert them both back to datetime objects for comparison
+    today_date_object = datetime.strptime(today, "%m/%d/%Y %H:%M")
+    lastcheck_date_object = datetime.strptime(lastcheck_oig, "%m/%d/%Y %H:%M") + timedelta(hours=2)
+    if today_date_object > lastcheck_date_object:
+        return True
+    else:
+        return False
 
 # Looks at snapshot date as specified by OIG and if today is that day, create snapshot
 # Also look at last snapshot date, if within 24 hours of last snapshot taken dont snapshot. That prevents if from taking multiple snapshots
@@ -929,36 +949,28 @@ def finalresults():
 def main():
     # Get Todays date minus 1 minutes - see db_connect.createSnapshot for reasoning
     now = datetime.now() - timedelta(minutes=1)
-    # Get list of producers
-    print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",core.bcolors.ENDC)
-    producers = producer_chain_list()
-    # Update producers to DB
-    db_connect.producerInsert(producers)
-    # Add nodes to DB
-    print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of nodes from JSON files ",core.bcolors.ENDC)
-    nodes = node_list()
-    db_connect.nodesInsert(nodes)
-    # Get all results and save to DB
-    results = finalresults()
-    db_connect.resultsInsert(results)
-    # Take snapshot
-    takeSnapshot(now)
+    # If last runtime was within 2 hours, skip running process.
+    if lastCheck(now):
+        # Get list of producers
+        print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",core.bcolors.ENDC)
+        producers = producer_chain_list()
+        # Update producers to DB
+        db_connect.producerInsert(producers)
+        # Add nodes to DB
+        print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of nodes from JSON files ",core.bcolors.ENDC)
+        nodes = node_list()
+        db_connect.nodesInsert(nodes)
+        # Get all results and save to DB
+        results = finalresults()
+        db_connect.resultsInsert(results)
+        # Take snapshot
+        takeSnapshot(now)
+    else:
+        print("Not running as ran withtin last 2 hours")
 
 
 #print(check_full_node('sentnlagents','history-v1'))
 if __name__ == "__main__":
-   #trxlist = get_random_trx()
-   #producersdb = db_connect.getProducers()
-   #for producer in producersdb:
-   #     producer = producer[0]
-   #     hyperion_v2 = check_history_v1(producer,'hyperion-v2')
-   #     print('')
-   #     printOuput(hyperion_v2,"Running a v2 Hyperion node: ")
-   ##     print(producer)
-   
-   #print(check_atomic_assets('ledgerwiseio','atomic-assets-api'))
    main()
-   #getcpustats()
-   #producerlist()
-   #print(node_list())
+
 

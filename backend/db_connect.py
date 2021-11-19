@@ -95,6 +95,10 @@ def getPoints():
     query = "SELECT * FROM oig.pointsystem WHERE points IS NOT NULL"
     return dbSelect(query)
 
+def getLastcheck():
+    query = "SELECT date_check FROM oig.results ORDER BY date_check DESC LIMIT 1"
+    return dbSelect(query)
+
 
 def getFullnodes():
     query =  """ 

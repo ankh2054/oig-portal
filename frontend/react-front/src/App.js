@@ -45,9 +45,9 @@ const {producerLogos, producerDomainMap} = importAll(require.context('./assets/l
 const App = (props) => {
   const admins = [
     "oigservicesx",
-    "ben.hive",
+    "rakeden.oig",
     "ig.kaefer",
-    "waxoigadminp",
+    "wjosep.oig",
     "sentnlagents"
   ]
 
