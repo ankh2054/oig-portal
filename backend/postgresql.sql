@@ -8,7 +8,7 @@ CREATE SCHEMA oig;
 
 
 CREATE TABLE oig.producer (
-	owner_name VARCHAR ( 12 ) PRIMARY KEY,
+	owner_name VARCHAR ( 12 ),
 	candidate VARCHAR ( 40 ) NOT NULL,
 	url VARCHAR ( 50 ) NOT NULL,
 	jsonurl VARCHAR ( 50 ) NOT NULL,
@@ -17,8 +17,10 @@ CREATE TABLE oig.producer (
     logo_svg VARCHAR ( 100 ), /*Can be Null as sometimes people dont have a logo */
     country_code VARCHAR ( 100 ), /*Can be Null as sometimes people dont have a country specified */
     top21 BOOLEAN NOT NULL,
-    account_name VARCHAR ( 12 ) /* Used for login */
+    account_name VARCHAR ( 12 ), /* Used for login */
+    metasnapshot_date timestamp with time zone
 );
+CREATE UNIQUE INDEX producer_idx ON oig.producer(owner_name,metasnapshot_date);
 
 
 CREATE TABLE oig.nodes (
@@ -73,18 +75,22 @@ CREATE TABLE oig.results (
     date_check TIMESTAMPTZ NOT NULL,
     score DECIMAL NOT NULL,
     snapshot_date TIMESTAMPTZ,
-    comments VARCHAR ( 1000 )
+    comments VARCHAR ( 1000 ),
+    metasnapshot_date timestamp with time zone
+    
 );
 /* Unique index to cover two culumns*/
-CREATE UNIQUE INDEX idx_results_type ON oig.results(owner_name, date_check);
+CREATE UNIQUE INDEX results_idx ON oig.results(owner_name,date_check,metasnapshot_date);
 
 
 CREATE TABLE oig.pointsystem (
-	points_type VARCHAR ( 50 ) PRIMARY KEY,
+	points_type VARCHAR ( 50 ),
 	points SMALLINT,
     multiplier DECIMAL NOT NULL,
-    min_requirements BOOLEAN 
+    min_requirements BOOLEAN,
+    metasnapshot_date timestamp with time zone 
 );
+CREATE UNIQUE INDEX pointsystem_idx ON oig.pointsystem(points_type,metasnapshot_date);
 
 CREATE TABLE oig.products (
 	owner_name VARCHAR ( 12 ),
@@ -97,9 +103,10 @@ CREATE TABLE oig.products (
     points SMALLINT NOT NULL,
     score DECIMAL NOT NULL,
     date_updated TIMESTAMPTZ NOT NULL,
-    comments VARCHAR ( 1000 )
+    comments VARCHAR ( 1000 ),
+    metasnapshot_date timestamp with time zone
 );
-CREATE UNIQUE INDEX idx_products_type ON oig.products(owner_name, name);
+CREATE UNIQUE INDEX product_idx ON oig.products(owner_name,name,metasnapshot_date);
 
 CREATE TABLE oig.bizdev (
 	owner_name VARCHAR ( 12 ),
@@ -111,12 +118,13 @@ CREATE TABLE oig.bizdev (
     points SMALLINT NOT NULL,
     score DECIMAL NOT NULL,
     date_updated TIMESTAMPTZ NOT NULL,
-    comments VARCHAR ( 1000 )
+    comments VARCHAR ( 1000 ),
+    metasnapshot_date timestamp with time zone
 );
-CREATE UNIQUE INDEX idx_bizdev_type ON oig.bizdev(owner_name, name);
+CREATE UNIQUE INDEX bizdev_idx ON oig.bizdev(owner_name,name,metasnapshot_date);
 
 CREATE TABLE oig.community (
-	owner_name VARCHAR ( 12 ) PRIMARY KEY,
+	owner_name VARCHAR ( 12 ),
 	origcontentpoints SMALLINT NOT NULL,
     transcontentpoints SMALLINT NOT NULL,
     eventpoints SMALLINT NOT NULL,
@@ -124,16 +132,21 @@ CREATE TABLE oig.community (
     outstandingpoints SMALLINT NOT NULL,
     score DECIMAL NOT NULL,
     date_updated TIMESTAMPTZ NOT NULL,
-    comments VARCHAR ( 1000 )
+    comments VARCHAR ( 1000 ),
+    metasnapshot_date timestamp with time zone
 );
+CREATE UNIQUE INDEX community_idx ON oig.community(owner_name,metasnapshot_date);
 
 CREATE TABLE oig.snapshotsettings (
     snapshot_date TIMESTAMPTZ 
 );
 
 CREATE TABLE oig.adminsettings (
-    minimum_tech_score SMALLINT NOT NULL 
+    minimum_tech_score SMALLINT NOT NULL, 
+    metasnapshot_date timestamp with time zone
 );
+CREATE UNIQUE INDEX adminsettings_idx ON oig.adminsettings(metasnapshot_date);
+INSERT INTO oig.adminsettings(minimum_tech_score) VALUES(120);
 
 CREATE TABLE oig.updates (
 	owner_name VARCHAR ( 12 ),
@@ -144,6 +157,43 @@ CREATE TABLE oig.updates (
     date_update TIMESTAMPTZ NOT NULL 
 );
 CREATE UNIQUE INDEX idx_updatess_type ON oig.updates(owner_name, date_update);
+
+-- Create seed metasnapshot data - minimum tech score
+INSERT INTO oig.adminsettings (minimum_tech_score, metasnapshot_date)
+SELECT minimum_tech_score, CURRENT_DATE
+FROM oig.adminsettings WHERE metasnapshot_date IS NULL;
+
+-- Create seed metasnapshot data - bizdevs (primarily used to freeze comments)
+INSERT INTO oig.bizdev (owner_name, name, description, stage, analytics_url, spec_url, score, date_updated, points, comments, metasnapshot_date)
+SELECT owner_name, name, description, stage, analytics_url, spec_url, score, date_updated, points, comments, CURRENT_DATE
+FROM oig.bizdev WHERE metasnapshot_date IS NULL;
+
+-- Create seed metasnapshot data - community (primarily used to freeze comments)
+INSERT INTO oig.community (owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated, comments, metasnapshot_date)
+SELECT owner_name, origcontentpoints, transcontentpoints, eventpoints, managementpoints, outstandingpoints, score, date_updated, comments, CURRENT_DATE
+FROM oig.community WHERE metasnapshot_date IS NULL;
+
+-- Create seed metasnapshot data - pointsystem (used to reference old scoring criteria)
+INSERT INTO oig.pointsystem (points_type, points, multiplier, min_requirements, metasnapshot_date)
+SELECT points_type, points, multiplier, min_requirements, CURRENT_DATE
+FROM oig.pointsystem WHERE metasnapshot_date IS NULL;
+
+-- Create seed metasnapshot data - producer (used to reference historical top21 guilds)
+INSERT INTO oig.producer (owner_name, candidate, url, jsonurl, chainsurl, active, logo_svg, top21, country_code, account_name, metasnapshot_date)
+SELECT owner_name, candidate, url, jsonurl, chainsurl, active, logo_svg, top21, country_code, account_name, CURRENT_DATE
+FROM oig.producer WHERE metasnapshot_date IS NULL;
+
+-- Create seed metasnapshot data - products (primarily used to freeze comments)
+INSERT INTO oig.products (owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, date_updated, points, comments, metasnapshot_date)
+SELECT owner_name, name, description, stage, analytics_url, spec_url, code_repo, score, date_updated, points, comments, CURRENT_DATE
+FROM oig.products WHERE metasnapshot_date IS NULL;
+
+-- Create seed metasnapshot data - tech results (primarily used to freeze comments)
+INSERT INTO oig.results (owner_name, cors_check, cors_check_error, http_check, http_check_error, https_check, https_check_error, http2_check, http2_check_error, full_history, full_history_error, snapshots, snapshots_error, seed_node, seed_node_error, api_node, api_node_error, oracle_feed, oracle_feed_error, wax_json, chains_json, cpu_time, date_check, score, tls_check, tls_check_error, cpu_avg, snapshot_date, hyperion_v2, hyperion_v2_error, producer_api_error, producer_api_check, net_api_check, net_api_error, dbsize_api_check, dbsize_api_error, comments, atomic_api, atomic_api_error, metasnapshot_date)
+SELECT DISTINCT ON (owner_name) owner_name, cors_check, cors_check_error, http_check, http_check_error, https_check, https_check_error, http2_check, http2_check_error, full_history, full_history_error, snapshots, snapshots_error, seed_node, seed_node_error, api_node, api_node_error, oracle_feed, oracle_feed_error, wax_json, chains_json, cpu_time, date_check, score, tls_check, tls_check_error, cpu_avg, snapshot_date, hyperion_v2, hyperion_v2_error, producer_api_error, producer_api_check, net_api_check, net_api_error, dbsize_api_check, dbsize_api_error, comments, atomic_api, atomic_api_error, CURRENT_DATE 
+FROM oig.results WHERE snapshot_date IS NOT NULL AND metasnapshot_date IS NULL ORDER BY owner_name, snapshot_date DESC;
+
+
 
 CREATE USER oiguser WITH ENCRYPTED PASSWORD 'nightshade900';
 GRANT ALL PRIVILEGES ON DATABASE oig TO oiguser ;

@@ -38,6 +38,8 @@ ALTER TABLE oig.producer ADD COLUMN metasnapshot_date timestamp with time zone;
 ALTER TABLE oig.products ADD COLUMN metasnapshot_date timestamp with time zone;
 ALTER TABLE oig.results ADD COLUMN metasnapshot_date timestamp with time zone;
 
+
+--- START HRE WITH DB UPDATES
 -- Drop all current indexes and primary keys that do not use metasnapshot dates
 DROP INDEX oig.idx_bizdevs_type;
 ALTER TABLE oig.community DROP CONSTRAINT community_pkey;
