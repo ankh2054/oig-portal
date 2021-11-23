@@ -787,7 +787,7 @@ def printOuput(results,description):
 
 def finalresults():
     # Get list of registered active producers
-    producersdb = db_connect.getProducers()
+    producersdb = ('eosarabianet', '1') #db_connect.getProducers()
     # Get CPU stats for top21 producers
     producercpu = getcpustats()
     print(producercpu)
@@ -798,7 +798,6 @@ def finalresults():
     producersoracle = delphioracle_actors()
     # Create empty list
     finaltuple = []
-    
     for producer in producersdb:
         #Obtain producer from sql tuple
         producer = producer[0]
