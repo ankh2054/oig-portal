@@ -74,6 +74,7 @@ const App = (props) => {
   const [minimumTechScore, setMinimumTechScore] = useState(999);
   const [metaSnapshotDate, setMetaSnapshotDate] = useState(null);
   const [availableMetaSnapshots, setAvailableMetaSnapshots] = useState([])
+  const [defaultMetaSnapshotDate, setDefaultMetaSnapshotDate] = useState('1980-01-01T00:00:00.000Z');
 
   const monthMap = [
     "Jan",
@@ -263,7 +264,7 @@ const App = (props) => {
                       />} />
                     <Route exact path='/guilds/:ownername' component={BPwithownername} />
                     <Route exact path='/form' component={() => <Testform producers={producers} isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} />} />
-                    <Route exact path='/admin' component={() => <AdminPanel snapshotSettings={snapshotSettings} producers={rawProducers} pointSystem={rawPointSystem} isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} minimumTechScore={minimumTechScore} metaSnapshotDate={metaSnapshotDate} />} />
+                    <Route exact path='/admin' component={() => <AdminPanel defaultMetaSnapshotDate={defaultMetaSnapshotDate} snapshotSettings={snapshotSettings} producers={rawProducers} pointSystem={rawPointSystem} isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} minimumTechScore={minimumTechScore} metaSnapshotDate={metaSnapshotDate} />} />
                   </Router>
                 </Paper>
               </Grid>

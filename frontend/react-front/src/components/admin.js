@@ -26,7 +26,8 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimumTechScore, metaSnapshotDate }) => {
+const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimumTechScore, metaSnapshotDate, defaultMetaSnapshotDate
+}) => {
     const classes = useStyles();
     const [snapshotDate, updateSnapshotDate] = useState(null);
     const [passedScore, updatePassedScore] = useState(120)
@@ -99,7 +100,8 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
         if (!!metaSnapshotDate) {
             return rows.filter(row => row.metasnapshot_date && row.metasnapshot_date.substring(0, 10) === metaSnapshotDate.date)
         }
-        return rows.filter(row => row.metasnapshot_date === null || row.metasnapshot_date === undefined)
+        return rows.filter(row => row.metasnapshot_date === defaultMetaSnapshotDate || row.metasnapshot_date === undefined)
+
     }
 
     return isAdmin ? <div className={classes.root}>
