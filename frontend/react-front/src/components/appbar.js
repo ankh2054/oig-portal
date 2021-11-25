@@ -1,6 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import Link from '@material-ui/core/Link';
+// import Link from '@material-ui/core/Link';
+import {Link} from 'react-router-dom';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -33,20 +34,21 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   link: {
-    margin: theme.spacing(0, 1.5),
-    [theme.breakpoints.down("sm")]: {
-      fontSize: '0.8rem',
-      margin: theme.spacing(0, 0.8),
-    },
-    [theme.breakpoints.down("xs")]: {
-      fontSize: '0.6rem',
-      margin: theme.spacing(0, 0.6),
-    }
+    fontSize: '0.875rem',
+    fontFamily:  '"Helvetica", "Roboto", "Arial", sans-serif',
+    fontWeight: '500',
+    lineHeight: '1.75',
+    letterSpacing: '0.02857em',
+    textTransform: 'uppercase',
+    color: 'white',
+    textDecoration: 'none',
+    margin: '12px'
   },
   title: {
+    position: 'absolute',
     flexGrow: 1,
     padding: 0,
-    marginLeft: '80px',
+    marginLeft: '90px',
     [theme.breakpoints.down("sm")]: {
       display: 'none'
     },
@@ -80,11 +82,13 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: '40px'
   },
   waxButton: {
+    fontSize: '1rem',
     color: '#332b1f',
     borderRadius: '100px',
     fontWeight: 'bold',
     padding: '15px 20px',
     textDecoration: 'none',
+    marginRight: '5px',
     background: 'linear-gradient(90.08deg, rgb(247, 142, 30), rgb(255, 220, 81) 236.03%)',
     '&:hover': {
       textDecoration: 'none',
@@ -114,31 +118,31 @@ export default function ButtonAppBar({ activeUser, loginModal, logOut, isAdmin, 
             OIG Portal
           </Typography>
           <nav className={classes.linkContainer}>
-            <Link variant="button" color="inherit" href="#" onClick={openTimeMachine} className={[classes.link, classes.waxButton]}>
+            <Link variant="button" color="inherit" to="#" onClick={openTimeMachine} className={classes.waxButton}>
               {metaSnapshotDate ? metaSnapshotDate.short : "Time Machine"}
             </Link>
-            <Link underline="none" variant="button" color="inherit" href="/" className={classes.link}>
+            <Link color="inherit" to="/" className={classes.link}>
               Home
             </Link>
-            <Link underline="none" variant="button" color="inherit" href="/latestresults" className={classes.link}>
+            <Link to="/latestresults" className={classes.link}>
               Latest Results
             </Link>
-            <Link underline="none" variant="button" color="inherit" href="/snapshot" className={classes.link}>
+            <Link to="/snapshot" className={classes.link}>
               Scores
             </Link>
             {isAdmin ?
-              <Link underline="none" variant="button" color="inherit" href="/form" className={classes.link}>
+              <Link to="/form" className={classes.link}>
                 Submit Update
               </Link> : null}
             {isAdmin ?
-              <Link variant="button" color="inherit" href="/admin" className={classes.link}>
+              <Link to="/admin" className={classes.link}>
                 Admin
               </Link> : null}
             {activeUser ?
-              <Link variant="button" color="inherit" href={`/guilds/${activeUser.accountName}`} className={classes.link}>
+              <Link to={`/guilds/${activeUser.accountName}`} className={classes.link}>
                 Profile
               </Link> : null}
-            <Link variant="button" color="inherit" href="#" onClick={activeUser ? logOut : loginModal} className={[classes.link, classes.waxButton]}>
+            <Link  to="#" onClick={activeUser ? logOut : loginModal} className={classes.waxButton}>
               {activeUser ? "Log out " + activeUser.accountName : "Log In"}
             </Link>
           </nav>
