@@ -6,7 +6,7 @@ const App = ({ results, producers, products, bizdevs, community, producerLogos, 
   
   return (
     <div>
-      <h1>Guild Results {metaSnapshotDate ? metaSnapshotDate.short : "No Time Machine date chosen"}</h1>
+      <h1>Guild Results {metaSnapshotDate ? metaSnapshotDate.short : <span style={{fontSize: '16px', fontWeight: 'bolder'}}>(No Time Machine date chosen)</span>}</h1>
       <ProducerResults
             results={ results }
             producers={ producers }
