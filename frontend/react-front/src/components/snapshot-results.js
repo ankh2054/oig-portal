@@ -68,7 +68,7 @@ const App = ({ /*results, */ producers, products, bizdevs, community, snapresult
 
   return (
     <div>
-      <h1>Scores</h1>
+      <h1>Scores {metaSnapshotDate ? metaSnapshotDate.short : <span style={{fontSize: '16px', fontWeight: 'bolder'}}>(No Time Machine date chosen)</span>}</h1>
       {/* We can select the date from the first entry of snapresults (usually aikon) 
           because all snapshots are done at the same time. If we ever 
           change fastify /api/snapshotlatestresults to include a universal

@@ -105,7 +105,7 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
     }
 
     return isAdmin ? <div className={classes.root}>
-        <h1>Admin Panel</h1>
+        <h1>Admin Panel {metaSnapshotDate ? metaSnapshotDate.short : <span style={{fontSize: '16px', fontWeight: 'bolder'}}>(No Time Machine date chosen)</span>}</h1>
         {minTechScore ? <TextField value={minTechScore} className={classes.techScore} fullWidth="true" onChange={handleTechScoreChange} label="Minimum Tech Score"></TextField> : null }
         <br></br><br></br>
         {minTechScore ? <Button
