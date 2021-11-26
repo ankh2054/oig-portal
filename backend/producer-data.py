@@ -284,11 +284,15 @@ def check_api(producer,checktype):
                 return False, error
         # Checks for Access-Control-Allow-Origin = *
         elif checktype == "corschk":
-            headers = response.headers['Access-Control-Allow-Origin']
-            if headers == "*":
-                return True, 'ok'
-            else:
-                return False, str(headers)
+            try:
+                headers = response.headers['Access-Control-Allow-Origin']
+                if headers == "*":
+                    return True, 'ok'
+                else:
+                    return False, str(headers)
+            except Exception as err:
+                print(f'Other error occurred: {err}')
+                return False, str(err)
 
 def check_atomic_assets(producer,feature):
     info = str(eosio.Api_Calls('', 'health')) 
@@ -784,13 +788,18 @@ def printOuput(results,description):
         colorstart = core.bcolors.WARNING
     return  print(description,colorstart,result,core.bcolors.ENDC)
     
+# Change to allow args or kwargs, so yuo can pass in single BP name as test
+#def finalresults(*args):
+#    if not args:
+#        producersdb = db_connect.getProducers()
+#    else:
+#        producersdb = args
 
 def finalresults():
     # Get list of registered active producers
-    producersdb = ('eosarabianet', '1') #db_connect.getProducers()
+    producersdb = db_connect.getProducers()
     # Get CPU stats for top21 producers
     producercpu = getcpustats()
-    print(producercpu)
     # Get points system
     print('get pointsystem')
     pointsystem =  db_connect.getPoints()

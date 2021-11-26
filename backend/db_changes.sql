@@ -94,5 +94,7 @@ SELECT DISTINCT ON (owner_name) owner_name, cors_check, cors_check_error, http_c
 FROM oig.results WHERE snapshot_date IS NOT NULL AND metasnapshot_date IS NULL ORDER BY owner_name, snapshot_date DESC;
 
 
+
+--NEW--
 -- Update poinstsyetem table
 update oig.pointsystem set metasnapshot_date = timestamp '1980-01-01 00:00:00' where metasnapshot_date = null;
