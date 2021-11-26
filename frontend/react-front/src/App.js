@@ -264,6 +264,7 @@ const App = (props) => {
                       logOut={props.ual.logout}
                       metaSnapshotDate={metaSnapshotDate}
                       openTimeMachine={openTimeMachine}
+                      setMetaSnapshotDate={setMetaSnapshotDate}
                       isAdmin={
                         adminOverride ||
                         (props.ual.activeUser &&

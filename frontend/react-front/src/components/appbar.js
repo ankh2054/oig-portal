@@ -99,7 +99,7 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-export default function ButtonAppBar({ activeUser, loginModal, logOut, isAdmin, metaSnapshotDate, openTimeMachine }) {
+export default function ButtonAppBar({ activeUser, loginModal, logOut, isAdmin, metaSnapshotDate, openTimeMachine, setMetaSnapshotDate }) {
   const classes = useStyles();
 
   return (
@@ -118,6 +118,9 @@ export default function ButtonAppBar({ activeUser, loginModal, logOut, isAdmin, 
             OIG Portal
           </Typography>
           <nav className={classes.linkContainer}>
+            {metaSnapshotDate && (<Link variant="button" color="inherit" to="#" onClick={() => setMetaSnapshotDate(null)} className={classes.waxButton}>
+              None
+            </Link>)}
             <Link variant="button" color="inherit" to="#" onClick={openTimeMachine} className={classes.waxButton}>
               {metaSnapshotDate ? metaSnapshotDate.short : "Time Machine"}
             </Link>
