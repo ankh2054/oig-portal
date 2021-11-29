@@ -39,7 +39,7 @@ const App = ({ /*results, */ producers, products, bizdevs, community, snapresult
     if (viewType === 'individual') {
       return <SnapshotScoring
         results={filterMetaSnapshots(snapresults)}
-        producers={filterMetaSnapshots(producers)}
+        producers={producers}
         products={filterMetaSnapshots(products)}
         bizdevs={filterMetaSnapshots(bizdevs)}
         community={filterMetaSnapshots(community)}
@@ -52,7 +52,7 @@ const App = ({ /*results, */ producers, products, bizdevs, community, snapresult
     if (viewType === 'integrated') {
       return <IntegratedScores
         results={filterMetaSnapshots(snapresults)}
-        producers={filterMetaSnapshots(producers)}
+        producers={producers}
         products={filterMetaSnapshots(products)}
         bizdevs={filterMetaSnapshots(bizdevs)}
         community={filterMetaSnapshots(community)}
