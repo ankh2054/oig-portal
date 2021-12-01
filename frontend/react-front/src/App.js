@@ -107,7 +107,7 @@ const App = (props) => {
     const year = date.substring(0, 4);
     const month = date.substring(5, 7);
     const day = date.substring(8, 10);
-    const short = `${monthMap[month-1]}/${year.substring(2, 4)}`;
+    const short = `${monthMap[month - 1]}/${year.substring(2, 4)}`;
     console.log("Meta-snapshot options: " + availableMetaSnapshots.join(", "));
     setMetaSnapshotDate({ year, month, day, short, date });
   };
@@ -264,6 +264,7 @@ const App = (props) => {
                       logOut={props.ual.logout}
                       metaSnapshotDate={metaSnapshotDate}
                       openTimeMachine={openTimeMachine}
+                      setMetaSnapshotDate={setMetaSnapshotDate}
                       isAdmin={
                         adminOverride ||
                         (props.ual.activeUser &&
