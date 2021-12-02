@@ -479,11 +479,11 @@ const addNewGuild = (request, reply) => {
   const { owner_name, url, account_name } = request.body
   const active = true;
   client.query(
-    `INSERT INTO "oig"."producer"("owner_name", "candidate", "url", "jsonurl", "chainsurl", "active", "account_name") VALUES($1, ' ', $2, ' ', ' ', $3, $4)`,
+    `INSERT INTO "oig"."producer"("owner_name", "candidate", "url", "jsonurl", "chainsurl", "active", "account_name", "metasnapshot_date") VALUES($1, ' ', $2, ' ', ' ', $3, $4, timestamp '1980-01-01 00:00:00')`,
     [owner_name, url, active, account_name],
     (error, results) => {
       if (error) {
-        throw error
+        reply.status(500).send('Failed: ' + error.message);
       }
       reply.status(200).send(`Guild created! ${owner_name}`);
     })
