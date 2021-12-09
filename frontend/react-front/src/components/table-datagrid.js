@@ -34,7 +34,9 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
   const typeMap = {
     "Products": "product",
     "Bizdevs": "bizdev",
-    "Community": "community"
+    "Community": "community",
+    "Guild Settings": "producer",
+    "Point System": "pointSystem"
   }
   const type = typeMap[tableTitle] ? typeMap[tableTitle] : "unknownType";
 
@@ -116,14 +118,14 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
             tooltip: 'Recalculate Score',
             onClick: (event, currentRow) => tryUpdateTable('recalc', currentRow, tableTitle, tableState, setTableState, type, pointSystem)
           }
-        ] : !tableState[0].metasnapshot_date && isAdmin && tableTitle === 'Guild Settings' ? [
+        ] : tableState[0].metasnapshot_date && isAdmin && tableTitle === 'Guild Settings' ? [
           {
             icon: 'visibility',
             tooltip: 'Set Active/Inactive',
             onClick: (event, currentRow) => tryUpdateTable('toggleActive', currentRow, tableTitle, tableState, setTableState)
           }
         ] : null}
-        editable={!tableState[0].metasnapshot_date && isAdmin && type !== 'unknownType' ? { // Show only for admins
+        editable={tableState[0].metasnapshot_date && isAdmin && type !== 'unknownType' ? { // Show only for admins
           onRowUpdate: (newRow, currentRow) => tryUpdateTable('update', currentRow, tableTitle, tableState, setTableState, type, pointSystem, newRow),
           onRowDelete: (currentRow) => tryUpdateTable('delete', currentRow, tableTitle, tableState, setTableState, type),
         } : !tableState[0].metasnapshot_date && isAdmin ? { // No delete for snapshot tech results or point system

@@ -328,12 +328,12 @@ const setAccountName = (request, reply) => {
 
 // Set producer account_name
 const updateProducer = (request, reply) => {
-  const owner = request.params.owner
+  const owner = request.params.owner 
   const { account_name, active } = request.body
-
-  client.query('UPDATE oig.producer SET "active" = $1, "account_name" = $2 WHERE "owner_name" = $3 AND metasnapshot_date IS NULL', [active, account_name, owner], (error, results) => {
+ 
+  client.query(`UPDATE oig.producer SET "active" = $1, "account_name" = $2 WHERE "owner_name" = $3 AND metasnapshot_date = timestamp '1980-01-01 00:00:00'`, [active, account_name, owner], (error, results) => {
     if (error) {
-      throw error
+      console.log('There was an error with this Update operation', error.message) 
     }
     reply.status(200).send(`Account name for ${owner} set to ${account_name}, active state set to ${active}`);
   })
@@ -458,7 +458,7 @@ const deleteItem = (request, reply) => {
     reply.status(400).send('Please include owner');
   }
 
-  if (type !== 'community' && !name) {
+  if ((type !== 'community' && type !== 'producer') && !name) {
     reply.status(400).send('Please include name');
   }
 
@@ -467,7 +467,7 @@ const deleteItem = (request, reply) => {
     `AND "name"='${name}'`
   ]
 
-  client.query((type === 'community' ? query[0] : query.join(' ')), [], (error, results) => {
+  client.query(((type === 'community' || type === 'producer') ? query[0] : query.join(' ')), [], (error, results) => {
     if (error) {
       reply.status(500).send('Failed: ' + error.message);
     }
@@ -479,11 +479,11 @@ const addNewGuild = (request, reply) => {
   const { owner_name, url, account_name } = request.body
   const active = true;
   client.query(
-    `INSERT INTO "oig"."producer"("owner_name", "candidate", "url", "jsonurl", "chainsurl", "active", "account_name") VALUES($1, ' ', $2, ' ', ' ', $3, $4)`,
+    `INSERT INTO "oig"."producer"("owner_name", "candidate", "url", "jsonurl", "chainsurl", "active", "account_name", "metasnapshot_date") VALUES($1, ' ', $2, ' ', ' ', $3, $4, timestamp '1980-01-01 00:00:00')`,
     [owner_name, url, active, account_name],
     (error, results) => {
       if (error) {
-        throw error
+        reply.status(500).send('Failed: ' + error.message);
       }
       reply.status(200).send(`Guild created! ${owner_name}`);
     })

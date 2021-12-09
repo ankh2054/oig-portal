@@ -4,7 +4,11 @@ import { getItemScore } from '../functions/scoring'
 
 // Update row in database - now generic
 const updateDb = (operation, type, payload, tableTitle, pointSystem) => {
+ 
     if (operation === 'delete') {
+        if(tableTitle === 'Guild Settings'){
+            payload.owner_name = payload.guild_name;  // guild_name is the same as owner_name.
+        } 
         const { owner_name, name } = payload;
         axios
             .post(api_base + "/api/deleteItem", {
