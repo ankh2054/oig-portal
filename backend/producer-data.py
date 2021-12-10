@@ -16,6 +16,14 @@ import backendconfig as cfg
 import statistics
 
 
+def auth_provider(req):
+    global requests_count
+    requests_count += 1
+    req.headers['X-Seq-Count'] = requests_count
+    print('requests_count:', requests_count)
+    time.sleep(1)
+    return req
+
 # Disable SSL warnings
 urllib3.disable_warnings()
 
@@ -69,6 +77,7 @@ def concatenate(**kwargs):
 
 # Default metasnapshot_date 
 metasnapshot_date  = datetime.strptime('1980-01-01', "%Y-%d-%m")
+
 
 
 """
@@ -245,6 +254,7 @@ def node_list():
     return node_list
 
 def check_api(producer,checktype):
+   
     if checktype == "httpchk":
         api = db_connect.getQueryNodes(producer,'chain-api','http')
     else:
@@ -258,7 +268,7 @@ def check_api(producer,checktype):
     try:
         headers = {'Content-Type': 'application/json'} # only for curl request
         curlreq = core.curl_request(api[0]+info,'GET',headers,False)
-        response = requests.get(api[0]+info, timeout=defaulttimeout, verify=False)
+        response = requests.get(api[0]+info, timeout=defaulttimeout, verify=False,auth=auth_provider)
         responsetimes = response.elapsed.total_seconds()*1000
         # If the response was successful, no Exception will be raised
         response.raise_for_status()
@@ -307,7 +317,7 @@ def check_atomic_assets(producer,feature):
         headers = {'Content-Type': 'application/json'}
         payloads = {}
         curlreq = core.curl_request(api+info,'GET',headers, payloads)
-        response = requests.get(api+info, headers=headers, timeout=defaulttimeout)
+        response = requests.get(api+info, headers=headers, timeout=defaulttimeout,auth=auth_provider)
         # If the response was successful, no Exception will be raised
         response.raise_for_status()
     except HTTPError as http_err:
@@ -391,7 +401,7 @@ def check_hyperion(producer,feature):
     ### Check hyperion last indexed action
     history_url = str(eosio.Api_Calls('v2-history', 'get_actions?limit=1')) #'/v2/history/get_actions?limit=1'
     try:
-        response = requests.get(api+history_url, timeout=defaulttimeout)
+        response = requests.get(api+history_url, timeout=defaulttimeout,auth=auth_provider)
         # If the response was successful, no Exception will be raised
         response.raise_for_status()
     # If returns codes are 500 OR 404
@@ -438,7 +448,7 @@ def check_history_v1(producer,feature):
     info = str(eosio.Api_Calls('v1-history', 'get_actions'))
     curlreq = core.curl_request(api+info,'POST',headers,payload)
     try:
-        response = requests.post(api+info, headers=headers, json=payload, timeout=defaulttimeout)
+        response = requests.post(api+info, headers=headers, json=payload, timeout=defaulttimeout,auth=auth_provider)
         response.raise_for_status()
     # If returns codes are 500 OR 404
     except HTTPError as http_err:
@@ -484,7 +494,7 @@ def check_https(producer,checktype):
         info = str(eosio.Api_Calls('v1', 'get_info'))
     try:
         curlreq = core.curl_request(api[0]+info,'GET',headers,False)
-        response = requests.get(api[0]+info, timeout=defaulttimeout)
+        response = requests.get(api[0]+info, timeout=defaulttimeout,auth=auth_provider)
         # If the response was successful, no Exception will be raised
         response.raise_for_status()
     except HTTPError as http_err:
@@ -546,7 +556,7 @@ def api_security(producer,features,sectype):
         try:
             headers = {'Content-Type': 'application/json'} # only for curl request
             curlreq = core.curl_request(api+info,'POST',headers,False)
-            response = requests.get(api+info, timeout=defaulttimeout, verify=False)
+            response = requests.get(api+info, timeout=defaulttimeout, verify=False, auth=auth_provider)
             # If the response was successful, no Exception will be raised
             response.raise_for_status()
         except HTTPError as http_err:
@@ -638,10 +648,8 @@ def getcpustats():
         new = proddict.copy()
         # Construct dict from TRX variable and assign to ID key
         payload = dict(id=trx)
-        print(payload)
         # Pass TRX ID and get all TRX information]
         fulltrx = eosio.get_stuff(payload,chain,'trx')
-        print(fulltrx)
         # Extract producer from TRX
         producer = fulltrx['actions'][0]['producer']
         # Extract cpu stats
@@ -808,6 +816,10 @@ def finalresults():
     # Create empty list
     finaltuple = []
     for producer in producersdb:
+        global requests_count 
+        requests_count = 0
+        s = requests.Session()
+        s.auth = auth_provider
         #Obtain producer from sql tuple
         producer = producer[0]
         print(core.bcolors.OKBLUE,f"{'='*100}\nResults for ",producer,core.bcolors.ENDC)
@@ -958,23 +970,26 @@ def main():
     # Get Todays date minus 1 minutes - see db_connect.createSnapshot for reasoning
     now = datetime.now() - timedelta(minutes=1)
     # If last runtime was within 2 hours, skip running process.
-    if lastCheck(now):
-        # Get list of producers
-        print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",core.bcolors.ENDC)
-        producers = producer_chain_list()
-        # Update producers to DB
-        db_connect.producerInsert(producers)
-        # Add nodes to DB
-        print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of nodes from JSON files ",core.bcolors.ENDC)
-        nodes = node_list()
-        db_connect.nodesInsert(nodes)
-        # Get all results and save to DB
-        results = finalresults()
-        db_connect.resultsInsert(results)
-        # Take snapshot
-        takeSnapshot(now)
-    else:
-        print("Not running as ran withtin last 2 hours")
+    #if lastCheck(now):
+    # Get list of producers
+    print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",core.bcolors.ENDC)
+    producers = producer_chain_list()
+    # Update producers to DB
+    db_connect.producerInsert(producers)
+    # Delete all nodes from table
+    print(core.bcolors.OKYELLOW,f"{'='*100}\nRemoving existing nodes from DB ",core.bcolors.ENDC)
+    db_connect.nodesDelete()
+    # Add nodes to DB
+    print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of nodes from JSON files ",core.bcolors.ENDC)
+    nodes = node_list()
+    db_connect.nodesInsert(nodes)
+    # Get all results and save to DB
+    results = finalresults()
+    db_connect.resultsInsert(results)
+    # Take snapshot
+    takeSnapshot(now)
+    #else:
+    #    print("Not running as ran withtin last 2 hours")
 
 
 #print(check_full_node('sentnlagents','history-v1'))
