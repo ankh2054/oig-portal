@@ -158,6 +158,7 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
                 tableData={filterMetaSnapshots(pointSystem)}
                 tableTitle="Point System"
                 isAdmin={isAdmin}
+                defaultMetaSnapshotDate={defaultMetaSnapshotDate}
             />
         </div>
         <div className={currentTable === "pointSystem" ? classes.hidden : null}>
@@ -165,6 +166,7 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
                 tableData={filterMetaSnapshots(guildSettings)}
                 tableTitle="Guild Settings"
                 isAdmin={isAdmin}
+                defaultMetaSnapshotDate={defaultMetaSnapshotDate}
             />
         </div>
     </div> : null
