@@ -115,12 +115,10 @@ const getPointSystem = (request, reply) => {
 
 // Update point system
 const updatePointSystem = (request, reply) => {
-  const { points_type, points, multiplier } = request.body
-
-  const toUpdate = (multiplier ? "multiplier=" + multiplier : "") + (points && multiplier ? ", " : "") + (points ? "points=" + points : "");
-
+  const { points_type, points, multiplier, min_requirements } = request.body
+  const toUpdate = (multiplier ? "multiplier=" + multiplier : "") + (points && multiplier ? ", " : "") + (points ? "points=" + points : "") + (min_requirements ? ", min_requirements=" + min_requirements : "");
   client.query(
-    `UPDATE oig.pointsystem SET ${toUpdate} WHERE points_type= $1 AND metasnapshot_date IS NULL`,
+    `UPDATE oig.pointsystem SET ${toUpdate} WHERE points_type= $1 AND metasnapshot_date = timestamp '1980-01-01 00:00:00' `,
     [points_type],
     (error, results) => {
       if (error) {
@@ -131,7 +129,7 @@ const updatePointSystem = (request, reply) => {
 }
 
 const getAdminSettings = (request, reply) => {
-  console.log(pguser, pgport, pgpassword, pgdb, pghost)
+  // console.log(pguser, pgport, pgpassword, pgdb, pghost)
   client.query('SELECT * FROM oig.adminsettings', (error, results) => {
     if (error) {
       throw error
