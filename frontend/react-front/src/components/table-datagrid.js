@@ -51,7 +51,7 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
   }
 
   const isEditable = (key, columnObj) => {
-    if (!isAdmin || columnObj['metasnapshot_date'] !== null) {
+    if (!isAdmin || columnObj['metasnapshot_date'] !== '1980-01-01T00:00:00.000Z') {
       return 'never'
     }
     if (!!columnObj['date_check']) {
