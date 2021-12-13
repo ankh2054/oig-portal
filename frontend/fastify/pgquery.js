@@ -115,23 +115,21 @@ const getPointSystem = (request, reply) => {
 
 // Update point system
 const updatePointSystem = (request, reply) => {
-  const { points_type, points, multiplier } = request.body
-
-  const toUpdate = (multiplier ? "multiplier=" + multiplier : "") + (points && multiplier ? ", " : "") + (points ? "points=" + points : "");
-
+  const { points_type, points, multiplier, min_requirements } = request.body
+  const toUpdate = (multiplier ? "multiplier=" + multiplier : "") + (points && multiplier ? ", " : "") + (points ? "points=" + points : "") + (min_requirements ? ", min_requirements=" + min_requirements : "");
   client.query(
-    `UPDATE oig.pointsystem SET ${toUpdate} WHERE points_type= $1 AND metasnapshot_date IS NULL`,
+    `UPDATE oig.pointsystem SET ${toUpdate} WHERE points_type= $1 AND metasnapshot_date = timestamp '1980-01-01 00:00:00' `,
     [points_type],
     (error, results) => {
       if (error) {
-        throw error
+        console.log('There was an error with this operation', error.message) 
       }
       reply.status(200).send(`Points/multiplier for ${points_type} updated: ${points} * ${multiplier}`);
     })
 }
 
 const getAdminSettings = (request, reply) => {
-  console.log(pguser, pgport, pgpassword, pgdb, pghost)
+  // console.log(pguser, pgport, pgpassword, pgdb, pghost)
   client.query('SELECT * FROM oig.adminsettings', (error, results) => {
     if (error) {
       throw error
@@ -328,12 +326,12 @@ const setAccountName = (request, reply) => {
 
 // Set producer account_name
 const updateProducer = (request, reply) => {
-  const owner = request.params.owner
+  const owner = request.params.owner 
   const { account_name, active } = request.body
-
-  client.query('UPDATE oig.producer SET "active" = $1, "account_name" = $2 WHERE "owner_name" = $3 AND metasnapshot_date IS NULL', [active, account_name, owner], (error, results) => {
+ 
+  client.query(`UPDATE oig.producer SET "active" = $1, "account_name" = $2 WHERE "owner_name" = $3 AND metasnapshot_date = timestamp '1980-01-01 00:00:00'`, [active, account_name, owner], (error, results) => {
     if (error) {
-      throw error
+      console.log('There was an error with this Update operation', error.message) 
     }
     reply.status(200).send(`Account name for ${owner} set to ${account_name}, active state set to ${active}`);
   })
@@ -458,7 +456,7 @@ const deleteItem = (request, reply) => {
     reply.status(400).send('Please include owner');
   }
 
-  if (type !== 'community' && !name) {
+  if ((type !== 'community' && type !== 'producer') && !name) {
     reply.status(400).send('Please include name');
   }
 
@@ -467,7 +465,7 @@ const deleteItem = (request, reply) => {
     `AND "name"='${name}'`
   ]
 
-  client.query((type === 'community' ? query[0] : query.join(' ')), [], (error, results) => {
+  client.query(((type === 'community' || type === 'producer') ? query[0] : query.join(' ')), [], (error, results) => {
     if (error) {
       reply.status(500).send('Failed: ' + error.message);
     }

@@ -15,7 +15,7 @@ const tryUpdateTable = (operation, currentRow, tableTitle, tableState, setTableS
       console.log("Row spliced from table state!");
       resolve(currentRow);
     }).then((currentRow) => {
-      updateDb('delete', type, currentRow);
+      updateDb('delete', type, currentRow, tableTitle);
     });
   }
   // Else, construct a payload
