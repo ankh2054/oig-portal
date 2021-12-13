@@ -122,7 +122,7 @@ const updatePointSystem = (request, reply) => {
     [points_type],
     (error, results) => {
       if (error) {
-        throw error
+        console.log('There was an error with this operation', error.message) 
       }
       reply.status(200).send(`Points/multiplier for ${points_type} updated: ${points} * ${multiplier}`);
     })
