@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, pointSystem }) {
+export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, pointSystem, defaultMetaSnapshotDate }) {
   const classes = useStyles();
   const [tableState, setTableState] = useState(tableData);
 
@@ -51,7 +51,7 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
   }
 
   const isEditable = (key, columnObj) => {
-    if (!isAdmin || columnObj['metasnapshot_date'] !== '1980-01-01T00:00:00.000Z') {
+    if (!isAdmin || columnObj['metasnapshot_date'] !== defaultMetaSnapshotDate) {
       return 'never'
     }
     if (!!columnObj['date_check']) {
