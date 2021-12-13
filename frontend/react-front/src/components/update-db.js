@@ -123,11 +123,11 @@ const updateDb = (operation, type, payload, tableTitle, pointSystem) => {
                 });
         } else if (tableTitle === "Point System") {
             const {
-                points_type, points, multiplier
+                points_type, points, multiplier, min_requirements
             } = payload;
             axios
                 .post(api_base + "/api/updatePointSystem", {
-                    points_type, points, multiplier
+                    points_type, points, multiplier, min_requirements
                 })
                 .then(() => {
                     console.log(
