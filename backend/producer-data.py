@@ -970,26 +970,26 @@ def main():
     # Get Todays date minus 1 minutes - see db_connect.createSnapshot for reasoning
     now = datetime.now() - timedelta(minutes=1)
     # If last runtime was within 2 hours, skip running process.
-    #if lastCheck(now):
-    # Get list of producers
-    print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",core.bcolors.ENDC)
-    producers = producer_chain_list()
-    # Update producers to DB
-    db_connect.producerInsert(producers)
-    # Delete all nodes from table
-    print(core.bcolors.OKYELLOW,f"{'='*100}\nRemoving existing nodes from DB ",core.bcolors.ENDC)
-    db_connect.nodesDelete()
-    # Add nodes to DB
-    print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of nodes from JSON files ",core.bcolors.ENDC)
-    nodes = node_list()
-    db_connect.nodesInsert(nodes)
-    # Get all results and save to DB
-    results = finalresults()
-    db_connect.resultsInsert(results)
-    # Take snapshot
-    takeSnapshot(now)
-    #else:
-    #    print("Not running as ran withtin last 2 hours")
+    if lastCheck(now):
+        # Get list of producers
+        print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",core.bcolors.ENDC)
+        producers = producer_chain_list()
+        # Update producers to DB
+        db_connect.producerInsert(producers)
+        # Delete all nodes from table
+        print(core.bcolors.OKYELLOW,f"{'='*100}\nRemoving existing nodes from DB ",core.bcolors.ENDC)
+        db_connect.nodesDelete()
+        # Add nodes to DB
+        print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of nodes from JSON files ",core.bcolors.ENDC)
+        nodes = node_list()
+        db_connect.nodesInsert(nodes)
+        # Get all results and save to DB
+        results = finalresults()
+        db_connect.resultsInsert(results)
+        # Take snapshot
+        takeSnapshot(now)
+    else:
+        print("Not running as ran withtin last 2 hours")
 
 
 #print(check_full_node('sentnlagents','history-v1'))
