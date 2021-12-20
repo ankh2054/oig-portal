@@ -408,10 +408,10 @@ const App = ({
   };
 
   const updateAverageDays = (e) => {
-    if(e.target.value < 10000){
+    if(e.target.value < 1000){
       setNumberOfAverageDays(e.target.value)
     }else{
-      setToastNotification({displayFlag: true, msg: "Number of Average days must not exceed 10000"})
+      setToastNotification({displayFlag: true, msg: "Number of Average days must not exceed 1000"})
     }
     
   }
