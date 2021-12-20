@@ -411,14 +411,13 @@ const App = ({
     if(e.target.value < 1000){
       setNumberOfAverageDays(e.target.value)
     }else{
-      setToastNotification({displayFlag: true, msg: "Number of Average days must not exceed 1000"})
+      alert("Number of Average days must not exceed 1000")
     }
     
   }
 
   return (
     <div className={classes.root}>
-      <Notification toastNotification={toastNotification} />
       {producer ? (
         <h1>
           {producer.candidate} <small>{producer.owner_name}</small>
