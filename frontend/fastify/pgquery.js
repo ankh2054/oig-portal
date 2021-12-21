@@ -218,31 +218,40 @@ const getPaginatedResultsByOwner = (request, reply) => {
 
 const getAverageMonthlyResult = (request, reply) => {
   const { owner } = request.params;
-  const { month, year } = request.query;
-  const vMonth = !!month ? parseInt(month) : 'extract(month FROM current_date)';
-  const vYear = !!year ? parseInt(year) : 'extract(year FROM current_date)';
-  client.query(`select 
-  COUNT(*) as total_count,
-  COUNT(*) FILTER (WHERE chains_json = TRUE) AS chains_json_count, 
-  COUNT(*) FILTER (WHERE wax_json = TRUE) AS wax_json_count, 
-  COUNT(*) FILTER (WHERE api_node = TRUE) AS api_node_count, 
-  COUNT(*) FILTER (WHERE seed_node = TRUE) AS seed_node_count, 
-  COUNT(*) FILTER (WHERE http_check = TRUE) AS http_check_count, 
-  COUNT(*) FILTER (WHERE https_check = TRUE) AS https_check_count,
-  COUNT(*) FILTER (WHERE tls_check = 'TLS v1.2') AS tls_ver_count,
-  COUNT(*) FILTER (WHERE http2_check = TRUE) AS http2_check_count,
-  COUNT(*) FILTER (WHERE full_history = TRUE) AS history_v1_count,
-  COUNT(*) FILTER (WHERE hyperion_v2 = TRUE) AS hyperion_v2_count,
-  COUNT(*) FILTER (WHERE atomic_api = TRUE) AS atomic_api_count,
-  COUNT(*) FILTER (WHERE cors_check = TRUE) AS cors_check_count,
-  COUNT(*) FILTER (WHERE oracle_feed = TRUE) AS oracle_feed_count,
-  COUNT(*) FILTER (WHERE snapshots = TRUE) AS snapshots_count,
-  AVG(cpu_avg) AS cpu_avg,
-  AVG(score) AS score_avg 
-  from oig.results
-  where owner_name = $1 
-  and extract(month FROM date_check) = ${vMonth}
-  and extract(year FROM date_check) = ${vYear}`, [owner], (error, results) => {
+  const { month, year, days } = request.query;
+  let qry = `select 
+    COUNT(*) as total_count,
+    COUNT(*) FILTER (WHERE chains_json = TRUE) AS chains_json_count, 
+    COUNT(*) FILTER (WHERE wax_json = TRUE) AS wax_json_count, 
+    COUNT(*) FILTER (WHERE api_node = TRUE) AS api_node_count, 
+    COUNT(*) FILTER (WHERE seed_node = TRUE) AS seed_node_count, 
+    COUNT(*) FILTER (WHERE http_check = TRUE) AS http_check_count, 
+    COUNT(*) FILTER (WHERE https_check = TRUE) AS https_check_count,
+    COUNT(*) FILTER (WHERE tls_check = 'TLS v1.2') AS tls_ver_count,
+    COUNT(*) FILTER (WHERE http2_check = TRUE) AS http2_check_count,
+    COUNT(*) FILTER (WHERE full_history = TRUE) AS history_v1_count,
+    COUNT(*) FILTER (WHERE hyperion_v2 = TRUE) AS hyperion_v2_count,
+    COUNT(*) FILTER (WHERE atomic_api = TRUE) AS atomic_api_count,
+    COUNT(*) FILTER (WHERE cors_check = TRUE) AS cors_check_count,
+    COUNT(*) FILTER (WHERE oracle_feed = TRUE) AS oracle_feed_count,
+    COUNT(*) FILTER (WHERE snapshots = TRUE) AS snapshots_count,
+    AVG(cpu_avg) AS cpu_avg,
+    AVG(score) AS score_avg 
+    from oig.results
+    where owner_name = $1
+    `   
+    
+    if(month || year){
+      const vMonth = !!month ? parseInt(month) : 'extract(month FROM current_date)';
+      const vYear = !!year ? parseInt(year) : 'extract(year FROM current_date)';
+      qry = qry + `and extract(month FROM date_check) = ${vMonth}
+      and extract(year FROM date_check) = ${vYear}`    
+    } else if(days) {
+    const vDays = parseInt(days);
+    qry = qry + `and date_check > current_date - interval '${vDays}' day`
+  }  
+  
+  client.query(qry, [owner], (error, results) => {
     if (error) {
       throw error
     }
