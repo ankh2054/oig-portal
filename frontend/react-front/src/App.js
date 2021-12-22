@@ -144,10 +144,7 @@ const App = (props) => {
       // setRawCommunity(response.data)
       setCommunity(response.data);
     });
-    axios.get(api_base + "/api/latestresults").then((response) => {
-      // setRawLatestResults(response.data)
-      setLatestResults(response.data);
-    });
+    
     axios.get(api_base + "/api/snapshotlatestresults").then((response) => {
       // setRawSnapshotLatestResults(response.data)
       setSnapshotLatestResults(response.data);
@@ -179,6 +176,13 @@ const App = (props) => {
       setMinimumTechScore(minScore);
     });
   }, []);
+
+  useEffect(() => {
+    axios.get(api_base + `/api/latestresults/${metaSnapshotDate ? metaSnapshotDate.date : defaultMetaSnapshotDate}`).then((response) => {
+      // setRawLatestResults(response.data)
+      setLatestResults(response.data);
+    });
+  }, [metaSnapshotDate])
 
   /* Calculate scores if formatted point system exists, and raw data (to be scored) exists
   // This gets called twice (as do many functions). it appears to be due to React.StrictMode
