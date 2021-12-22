@@ -80,7 +80,6 @@ metasnapshot_date  = datetime.strptime('1980-01-01', "%Y-%d-%m")
 
 
 
-"""
 def producerlist():
     prod_table = get_table_data("eosio","producers","eosio","100")
     producers = eosio.getEOStable(prod_table)
@@ -100,12 +99,14 @@ def producerlist():
             # Append new dict to top21list
             producer_final.append(new)
     return producer_final
-"""
+
 
 ## Get list of producers and produce tuple
 def producer_chain_list():
     # Get list of current active producers from DB - these are set by OIG
-    producers = db_connect.getProducers() 
+    producers = producerlist() #db_connect.getProducers() 
+    # Delete old producer table
+    db_connect.nodesDelete('oig.producer')
     # Create empty list
     top21producers = eosio.producerSCHED()
     producer_final = []
@@ -114,7 +115,8 @@ def producer_chain_list():
     for i in producers:
         try:
             # Set guild default website URL from tuple obtained from DB
-            guildurl = i[2]
+            guildurl = i['url']
+            print(guildurl)
             response = requests.get(url=guildurl + '/chains.json')
             #response = requests.get(url=i['url'] + '/chains.json')
             # If the response was successful, no Exception will be raised
@@ -167,9 +169,10 @@ def producer_chain_list():
                     continue
                 else:
                     # is producer currently in top21
-                    top21 = i[0] in top21producers
+                    guild = i['owner']
+                    top21 = guild in top21producers
                     active = True
-                    thistuple = (i[0], metasnapshot_date ,candidate_name, guildurl, guildurl + '/'+waxjson, guildurl + '/chains.json', logo_256, top21, country_code, active)
+                    thistuple = (guild, metasnapshot_date ,candidate_name, guildurl, guildurl + '/'+waxjson, guildurl + '/chains.json', logo_256, top21, country_code, active)
                     producer_final.append(thistuple)
     return producer_final
 
@@ -978,7 +981,7 @@ def main():
         db_connect.producerInsert(producers)
         # Delete all nodes from table
         print(core.bcolors.OKYELLOW,f"{'='*100}\nRemoving existing nodes from DB ",core.bcolors.ENDC)
-        db_connect.nodesDelete()
+        db_connect.nodesDelete('oig.nodes')
         # Add nodes to DB
         print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of nodes from JSON files ",core.bcolors.ENDC)
         nodes = node_list()
