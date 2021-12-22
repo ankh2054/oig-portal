@@ -66,7 +66,8 @@ const getCommunity = (request, reply) => {
 
 //Get latest results
 const getLatestResults = (request, reply) => {
-  client.query('SELECT DISTINCT ON (owner_name) * FROM oig.results ORDER BY owner_name, date_check DESC', (error, results) => {
+  const { metasnapshot_date } = request.params 
+  client.query(`SELECT DISTINCT ON (owner_name) * FROM oig.results WHERE metasnapshot_date = timestamp '${metasnapshot_date ? metasnapshot_date : '1980-01-01 00:00:00'}' ORDER BY owner_name, date_check DESC`, (error, results) => {
     if (error) {
       throw error
     }
