@@ -106,7 +106,6 @@ def producer_chain_list():
     # Get list of current active producers from DB - these are set by OIG
     producers = producerlist() #db_connect.getProducers() 
     # Delete old producer table
-    db_connect.nodesDelete('oig.producer')
     # Create empty list
     top21producers = eosio.producerSCHED()
     producer_final = []
