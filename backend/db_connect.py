@@ -1,5 +1,6 @@
 import psycopg2
 from psycopg2 import Error
+from psycopg2.extensions import AsIs
 import backendconfig as cfg
 import time
 from datetime import datetime

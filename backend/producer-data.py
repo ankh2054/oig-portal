@@ -116,7 +116,6 @@ def producer_chain_list():
         try:
             # Set guild default website URL from tuple obtained from DB
             guildurl = i['url']
-            print(guildurl)
             response = requests.get(url=guildurl + '/chains.json')
             #response = requests.get(url=i['url'] + '/chains.json')
             # If the response was successful, no Exception will be raised
