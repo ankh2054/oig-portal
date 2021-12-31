@@ -99,4 +99,6 @@ FROM oig.results WHERE snapshot_date IS NOT NULL AND metasnapshot_date IS NULL O
 -- Update poinstsyetem table
 update oig.pointsystem set metasnapshot_date = timestamp '1980-01-01 00:00:00' where metasnapshot_date is NULL;
 
+
+-- filter-homepage-results-by-metasnapshotdate
 UPDATE oig.results set metasnapshot_date = timestamp '1980-01-01 00:00:00' where metasnapshot_date IS NULL
