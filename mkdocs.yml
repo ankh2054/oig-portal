@@ -3,4 +3,7 @@ theme:
   name: material
 nav:
     - Home: index.md
+    - Latest Results: latestresults.md
+    - Scores: score.md
     - Admin: admin.md
+
