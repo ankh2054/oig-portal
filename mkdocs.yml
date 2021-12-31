@@ -1,3 +1,6 @@
 site_name: OIG Portal Docs
 theme:
   name: material
+nav:
+    - Home: index.md
+    - Admin: admin.md
