@@ -2,6 +2,7 @@ site_name: OIG Portal Docs
 theme:
   name: material
   logo: assets/logo.png
+  favicon: assets/favicon.ico
 plugins:
   - search
 nav:
@@ -9,4 +10,5 @@ nav:
   - Latest Results: latestresults.md
   - Scores: score.md
   - Admin: admin.md
+  - Guilds: guild.md
 
