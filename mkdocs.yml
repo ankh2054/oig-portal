@@ -1,9 +1,12 @@
 site_name: OIG Portal Docs
 theme:
   name: material
+  logo: assets/logo.png
+plugins:
+  - search
 nav:
-    - Home: index.md
-    - Latest Results: latestresults.md
-    - Scores: score.md
-    - Admin: admin.md
+  - Home: index.md
+  - Latest Results: latestresults.md
+  - Scores: score.md
+  - Admin: admin.md
 
