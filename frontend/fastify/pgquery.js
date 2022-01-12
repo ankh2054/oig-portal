@@ -502,8 +502,8 @@ DELETE FROM oig.adminsettings WHERE metasnapshot_date IS NOT NULL;
 DELETE FROM oig.bizdev WHERE metasnapshot_date IS NOT NULL;
 DELETE FROM oig.community WHERE metasnapshot_date IS NOT NULL;
 DELETE FROM oig.products WHERE metasnapshot_date IS NOT NULL;
-DELETE FROM oig.pointsystem WHERE metasnapshot_date IS NOT NULL;
-DELETE FROM oig.results WHERE metasnapshot_date IS NOT NULL;
+DELETE FROM oig.pointsystem WHERE metasnapshot_date != timestamp '1980-01-01 00:00:00';
+DELETE FROM oig.results WHERE metasnapshot_date != timestamp '1980-01-01 00:00:00';
 DELETE FROM oig.producer WHERE metasnapshot_date != timestamp '1980-01-01 00:00:00';
 
 */
