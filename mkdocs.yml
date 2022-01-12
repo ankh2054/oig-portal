@@ -1,4 +1,5 @@
 site_name: OIG Portal Docs
+site_url: https://docs.sentnl.io
 theme:
   name: material
   logo: assets/logo.png
