@@ -13,7 +13,7 @@
 * Technical checks - Every 2 hours the python backend runs all the technical checks as required by the OIG and scores accordingly. 
 * Technical scores - The scores assigned to each technical check can be configured in admin panel. 
 * Minimum requirement score - The minimum score requirement is configured in admin panel.
-* Technical score minimum requirements - Each technical check can be configured as a minimum requirement, so that if a guild fails that checks 1000 points is automatiaclly dedicated from the final score ensuring that the Guild fails.
+* Technical score minimum requirements - Each technical check can be configured as a minimum requirement, so that if a guild fails that checks 1000 points is automatically dedicated from the final score ensuring that the Guild fails.
 * Metasnapshots - Metasnapshots take a snapshot of the database as it currently is on the date of the snapshot. Current Guilds, current technical snapshot score, product data etc...
 * Technical snapshots - Allows saving the state of technical checks of a specific date, which acts as a input for the metasnapshots. The technical snapshot is also what the score paged is based on to allow the OIG to edit technical scores before saving a metasnapshot, without having it overwritten by the 2 hourly technical checks.  are also the ones 
 * Scores
