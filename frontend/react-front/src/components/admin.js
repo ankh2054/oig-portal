@@ -104,8 +104,16 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
 
     }
 
+    const formatDate = (dateString) => {
+        if(!dateString){
+            return
+        } 
+        const options = { year: "numeric", month: "long", day: "numeric" }
+        return new Date(dateString).toLocaleDateString(undefined, options)
+    }
+
     return isAdmin ? <div className={classes.root}>
-        <h1>Admin Panel {metaSnapshotDate ? metaSnapshotDate.short : <span style={{fontSize: '16px', fontWeight: 'bolder'}}>(No Time Machine date chosen)</span>}</h1>
+        <h1>Admin Panel {(metaSnapshotDate && metaSnapshotDate !== 'None') ? formatDate(metaSnapshotDate) : <span style={{fontSize: '16px', fontWeight: 'bolder'}}>(No Time Machine date chosen)</span>}</h1>
         {minTechScore ? <TextField value={minTechScore} className={classes.techScore} fullWidth="true" onChange={handleTechScoreChange} label="Minimum Tech Score"></TextField> : null }
         <br></br><br></br>
         {minTechScore ? <Button
