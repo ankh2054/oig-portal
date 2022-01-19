@@ -112,6 +112,10 @@ const useStyles = makeStyles((theme) => ({
         "linear-gradient(275.91deg, rgb(247, 142, 30) 8.43%, rgb(255, 220, 81) 174.56%)",
     },
   },
+  formContainer: {
+    position: "relative",
+    right: "2rem",
+  }
 }));
 
 export default function ButtonAppBar({
@@ -125,7 +129,6 @@ export default function ButtonAppBar({
   availableMetaSnapshots
 }) {
   const classes = useStyles();
-  const [displayDropdown, setDisplayDropdown] = useState(false);
 
   const handleMetaDropDownChange = (event) => {
     event.target.value ? setMetaSnapshotDate(event.target.value) : setMetaSnapshotDate(null);
@@ -170,7 +173,7 @@ export default function ButtonAppBar({
               style={{ display: !metaSnapshotDate ? "none" : "" }}
             >
               {metaSnapshotDate ? (
-                <form>
+                <form className={classes.formContainer}>
                   <select
                     className={classes.selectDropdown}
                     id="fav"
