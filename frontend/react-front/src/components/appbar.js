@@ -122,15 +122,15 @@ export default function ButtonAppBar({
   metaSnapshotDate,
   openTimeMachine,
   setMetaSnapshotDate,
+  availableMetaSnapshots
 }) {
   const classes = useStyles();
   const [displayDropdown, setDisplayDropdown] = useState(false);
 
   const handleMetaDropDownChange = (event) => {
-    event.target.value === "null"
-      ? setMetaSnapshotDate(null)
-      : setMetaSnapshotDate(metaSnapshotDate);
+    event.target.value ? setMetaSnapshotDate(event.target.value) : setMetaSnapshotDate(null);
   };
+  // console.log('available snapshot dates are **', availableMetaSnapshots)
 
   return (
     <>
@@ -176,10 +176,18 @@ export default function ButtonAppBar({
                     id="fav"
                     onChange={handleMetaDropDownChange}
                   >
-                    <option value={metaSnapshotDate}>
-                      {metaSnapshotDate.short}
+                    {/* <option value="null">None</option> */}
+                    {
+                      availableMetaSnapshots.sort().map(item => (
+                        <option value={item || null}>
+                      {item || 'None'}
                     </option>
-                    <option value="null">None</option>
+                      ))
+                    }
+                    {/* <option value={metaSnapshotDate}>
+                      {metaSnapshotDate.date}
+                    </option> */}
+                    
                   </select>
                 </form>
               ) : (
