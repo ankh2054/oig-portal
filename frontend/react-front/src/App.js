@@ -104,12 +104,12 @@ const App = (props) => {
   ];
 
   const updateMetaSnapshotDate = (date) => {
-    const year = date.substring(0, 4);
-    const month = date.substring(5, 7);
-    const day = date.substring(8, 10);
-    const short = `${monthMap[month - 1]}/${year.substring(2, 4)}`;
-    console.log("Meta-snapshot options: " + availableMetaSnapshots.join(", "));
-    setMetaSnapshotDate({ year, month, day, short, date });
+    // const year = date.substring(0, 4);
+    // const month = date.substring(5, 7);
+    // const day = date.substring(8, 10);
+    // const short = `${monthMap[month - 1]}/${year.substring(2, 4)}`;
+    // console.log("Meta-snapshot options: " + availableMetaSnapshots.join(", "));
+    setMetaSnapshotDate(date);
   };
 
   const openTimeMachine = () => {
@@ -166,7 +166,8 @@ const App = (props) => {
       const data = response.data;
       const availableMetaSnapshots = data
         .filter((row) => !!row.metasnapshot_date)
-        .map((row) => row.metasnapshot_date.substring(0, 10));
+        .map((row) => row.metasnapshot_date.substring(0, 10));        
+      availableMetaSnapshots[0] = 'None';
       setAvailableMetaSnapshots(availableMetaSnapshots);
       console.log("Set available meta-snapshots");
       const minScore =
@@ -178,7 +179,7 @@ const App = (props) => {
   }, []);
 
   useEffect(() => {
-    axios.get(api_base + `/api/latestresults/${metaSnapshotDate ? metaSnapshotDate.date : defaultMetaSnapshotDate}`).then((response) => {
+    axios.get(api_base + `/api/latestresults/${metaSnapshotDate ? metaSnapshotDate : defaultMetaSnapshotDate}`).then((response) => {
       // setRawLatestResults(response.data)
       setLatestResults(response.data);
     });
@@ -269,6 +270,7 @@ const App = (props) => {
                       metaSnapshotDate={metaSnapshotDate}
                       openTimeMachine={openTimeMachine}
                       setMetaSnapshotDate={setMetaSnapshotDate}
+                      availableMetaSnapshots={availableMetaSnapshots}
                       isAdmin={
                         adminOverride ||
                         (props.ual.activeUser &&
