@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const App = ({ /*results, */ producers, products, bizdevs, community, snapresults, pointSystem, isAdmin, producerLogos, producerDomainMap, activeGuilds, metaSnapshotDate }) => {
+const App = ({ /*results, */ producers, products, bizdevs, community, snapresults, pointSystem, isAdmin, producerLogos, producerDomainMap, activeGuilds, metaSnapshotDate, formatDate }) => {
   const classes = useStyles();
 
   const [viewType, setViewType] = useState('integrated')
@@ -68,7 +68,7 @@ const App = ({ /*results, */ producers, products, bizdevs, community, snapresult
 
   return (
     <div>
-      <h1>Scores {(metaSnapshotDate && metaSnapshotDate !== 'null') ? metaSnapshotDate : <span style={{fontSize: '16px', fontWeight: 'bolder'}}>(No Time Machine date chosen)</span>}</h1>
+      <h1>Scores {(metaSnapshotDate && metaSnapshotDate !== 'None') ? <span style={{fontSize: '16px', fontWeight: 'bolder'}}>{formatDate(metaSnapshotDate) }</span>: <span style={{fontSize: '16px', fontWeight: 'bolder'}}>(No Time Machine date chosen)</span>}</h1>
       {/* We can select the date from the first entry of snapresults (usually aikon) 
           because all snapshots are done at the same time. If we ever 
           change fastify /api/snapshotlatestresults to include a universal
