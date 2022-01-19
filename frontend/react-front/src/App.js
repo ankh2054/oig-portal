@@ -120,6 +120,14 @@ const App = (props) => {
     }
   };
 
+  const formatDate = (dateString) => {
+    if(!dateString){
+        return
+    } 
+    const options = { year: "numeric", month: "long", day: "numeric" }
+    return new Date(dateString).toLocaleDateString(undefined, options)
+}
+
   useEffect(() => {
     // Load data and set hooks. A future implementation could use axios.all
     /* axios.get(api_base + '/api/results').then((response) => {
@@ -185,41 +193,7 @@ const App = (props) => {
     });
   }, [metaSnapshotDate])
 
-  /* Calculate scores if formatted point system exists, and raw data (to be scored) exists
-  // This gets called twice (as do many functions). it appears to be due to React.StrictMode
-  // Fixing this would result in a lot of speed increases, I would guess.
-  if (Object.keys(pointSystem).length >= 1) {
-    if (results.length === 0 && rawResults.length >= 1) {
-      // This is bound to use up a lot of memory when adding scores - it's an array of 2.3k items.
-      //const formattedResults = rawResults.map((item) => addScoreToItem(item, pointSystem));
-      setResults(rawResults);
-    }
-
-    if (products.length === 0 && rawProducts.length >= 1) {
-      const formattedProducts = rawProducts.map((item) => addScoreToItem(item, pointSystem, 'product'));
-      setProducts(formattedProducts);
-    }
-
-    if (bizdevs.length === 0 && rawBizdevs.length >= 1) {
-      const formattedBizdevs = rawBizdevs.map((item) => addScoreToItem(item, pointSystem, 'bizdev'));
-      setBizdevs(formattedBizdevs);
-    }
-
-    if (community.length === 0 && rawCommunity.length >= 1) {
-      const formattedCommunity = rawCommunity.map((item) => addScoreToItem(item, pointSystem, 'community'));
-      setCommunity(formattedCommunity);
-    }
-
-    if (latestresults.length === 0 && rawLatestResults.length >= 1) {
-      const formattedLatestResults = rawLatestResults.map((item) => addScoreToItem(item, pointSystem));
-      setLatestResults(formattedLatestResults);
-    }
-
-    if (snapshotlatestresults.length === 0 && rawSnapshotLatestResults.length >= 1) {
-      const formattedLatestSnapshotResults = rawSnapshotLatestResults.map((item) => addScoreToItem(item, pointSystem));
-      setSnapshotLatestResults(formattedLatestSnapshotResults);
-    }
-  }*/
+  
 
   const BPwithownername = () => {
     let params = useParams();
@@ -318,6 +292,7 @@ const App = (props) => {
                             .filter((producer) => producer.active === true)
                             .map((producer) => producer.owner_name)}
                           metaSnapshotDate={metaSnapshotDate}
+                          formatDate={formatDate}
                         />
                       )}
                     />
@@ -335,6 +310,7 @@ const App = (props) => {
                           producerDomainMap={producerDomainMap}
                           minimumTechScore={minimumTechScore}
                           metaSnapshotDate={metaSnapshotDate}
+                          formatDate={formatDate}
                         />
                       )}
                     />
@@ -377,6 +353,7 @@ const App = (props) => {
                           }
                           minimumTechScore={minimumTechScore}
                           metaSnapshotDate={metaSnapshotDate}
+                          formatDate={formatDate}
                         />
                       )}
                     />
