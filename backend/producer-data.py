@@ -115,6 +115,7 @@ def producer_chain_list():
         try:
             # Set guild default website URL from tuple obtained from DB
             guildurl = i['url']
+            guildurl = guildurl.rstrip('/')
             response = requests.get(url=guildurl + '/chains.json')
             #response = requests.get(url=i['url'] + '/chains.json')
             # If the response was successful, no Exception will be raised
@@ -286,8 +287,9 @@ def check_api(producer,checktype):
         if checktype == "apichk" or checktype == 'httpchk':
             try:
                 jsonres = response.json()
-            except ValueError:
-                return False, ValueError
+            except Exception as err:
+                error = 'not providing JSON: '+str(err)
+                return False, error
             chainid = jsonres.get('chain_id')
             if chainid == chain_id:
                 resptime = round(responsetimes,2)
@@ -330,8 +332,9 @@ def check_atomic_assets(producer,feature):
         if response.status_code == 500:
             try:
                 jsonres = response.json()
-            except ValueError:
-                error = ValueError
+            except Exception as err:
+                error = 'not providing JSON: '+str(err)
+                return False, error
             try:
                 error = curlreq+'\nError: '+str(jsonres.get('error').get('what'))
             except:
@@ -976,6 +979,7 @@ def finalresults():
 def main():
     # Get Todays date minus 1 minutes - see db_connect.createSnapshot for reasoning
     now = datetime.now() - timedelta(minutes=1)
+    print(core.bcolors.OKYELLOW,f"{'='*100}\nTime: ",now,core.bcolors.ENDC)
     # If last runtime was within 2 hours, skip running process.
     if lastCheck(now):
         # Get list of producers
