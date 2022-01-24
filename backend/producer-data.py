@@ -1,7 +1,7 @@
 import core
 import eosio
 import requests
-import simplejson
+#import simplejson
 import humanize
 import socket
 import json
@@ -284,7 +284,10 @@ def check_api(producer,checktype):
     else:
         # Check if API contains WAX chain ID - verifies its alive
         if checktype == "apichk" or checktype == 'httpchk':
-            jsonres = response.json()
+            try:
+                jsonres = response.json()
+            except ValueError:
+                return False, ValueError
             chainid = jsonres.get('chain_id')
             if chainid == chain_id:
                 resptime = round(responsetimes,2)
@@ -325,7 +328,10 @@ def check_atomic_assets(producer,feature):
         print(f'HTTP error occurred: {http_err}')  # Python 3.6
         # also return http_err
         if response.status_code == 500:
-            jsonres = response.json()
+            try:
+                jsonres = response.json()
+            except ValueError:
+                error = ValueError
             try:
                 error = curlreq+'\nError: '+str(jsonres.get('error').get('what'))
             except:
