@@ -84,6 +84,8 @@ def dbSelect2(query,var):
             connection.close()
             print("PostgreSQL connection is closed")          
 
+
+
 # Select producers that are acive only
 metasnapshot_date = '1980-01-01 00:00:00'
 def getProducers():
@@ -130,6 +132,7 @@ def producerInsert(records):
 
 #records = [('blacklusionx', '1980-01-01 00:00:00', 'Blacklusion', 'https://blacklusion.io', 'https://blacklusion.io/wax.json', 'https://blacklusion.io/chains.json', 'https://blacklusion.io/resources/blacklusion_logo_256.png', False, 'DE', True)]
 # producerInsert(records)
+
 
 def nodesDelete(table):
     try:

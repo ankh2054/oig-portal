@@ -52,7 +52,7 @@ def getFullnodes():
     nodes = db_connect.getFullnodes()
     if not nodes:
         # If no nodes in DB, return single node
-        nodelist = [{'Node': 'https://hyperion.sentnl.io'}]
+        nodelist = [{'Node': 'https://hyperion2.sentnl.io'}]
     #Else get all healthy hyperion nodes
     else:
         api_url = str(Api_Calls('v2', 'health'))
@@ -93,7 +93,7 @@ def getrandomNode(nodelist):
 # Mainnet V2,V1 END POINT
 #nodelist = getFullnodes()
 #hyperion_Node = getrandomNode(nodelist)
-hyperion_Node = 'https://hyperion.sentnl.io'
+hyperion_Node = 'https://hyperion2.sentnl.io'
 hyperion_Node2 = 'http://wax.blokcrafters.io' 
 
 # Testnet V2 END point

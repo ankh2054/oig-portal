@@ -112,10 +112,10 @@ def producer_chain_list():
     # Create emtpy dictinary
     # proddict = {}
     for i in producers:
+        print(i)
         try:
             # Set guild default website URL from tuple obtained from DB
             guildurl = i[2]
-            print(guildurl)
             response = requests.get(url=guildurl + '/chains.json')
             #response = requests.get(url=i['url'] + '/chains.json')
             # If the response was successful, no Exception will be raised
@@ -168,7 +168,7 @@ def producer_chain_list():
                     continue
                 else:
                     # is producer currently in top21
-                    guild = i[1]
+                    guild = i[0]
                     top21 = guild in top21producers
                     active = True
                     thistuple = (guild, metasnapshot_date ,candidate_name, guildurl, guildurl + '/'+waxjson, guildurl + '/chains.json', logo_256, top21, country_code, active)
@@ -262,9 +262,9 @@ def check_api(producer,checktype):
     else:
         api = db_connect.getQueryNodes(producer,'chain-api','api')
     # If there is no API or Full node in DB return False
-    #if None in api:
     if api == None:
-        return False, 'No API node available in JSON'
+        error = "No API node found in JSON file"
+        return False, error
     else:
         info = str(eosio.Api_Calls('v1', 'get_info'))
     try:
@@ -971,6 +971,7 @@ def finalresults():
 def main():
     # Get Todays date minus 1 minutes - see db_connect.createSnapshot for reasoning
     now = datetime.now() - timedelta(minutes=1)
+    print(core.bcolors.OKYELLOW,f"{'='*100}\nTime: ",now,core.bcolors.ENDC)
     # If last runtime was within 2 hours, skip running process.
     if lastCheck(now):
         # Get list of producers
