@@ -116,6 +116,7 @@ def producer_chain_list():
         try:
             # Set guild default website URL from tuple obtained from DB
             guildurl = i[2]
+            guildurl = guildurl.rstrip('/')
             response = requests.get(url=guildurl + '/chains.json')
             #response = requests.get(url=i['url'] + '/chains.json')
             # If the response was successful, no Exception will be raised
@@ -285,7 +286,11 @@ def check_api(producer,checktype):
     else:
         # Check if API contains WAX chain ID - verifies its alive
         if checktype == "apichk" or checktype == 'httpchk':
-            jsonres = response.json()
+            try:
+                jsonres = response.json()
+            except Exception as err:
+                error = 'not providing JSON: '+str(err)
+                return False, error
             chainid = jsonres.get('chain_id')
             if chainid == chain_id:
                 resptime = round(responsetimes,2)
@@ -326,7 +331,11 @@ def check_atomic_assets(producer,feature):
         print(f'HTTP error occurred: {http_err}')  # Python 3.6
         # also return http_err
         if response.status_code == 500:
-            jsonres = response.json()
+            try:
+                jsonres = response.json()
+            except Exception as err:
+                error = 'not providing JSON: '+str(err)
+                return False, error
             try:
                 error = curlreq+'\nError: '+str(jsonres.get('error').get('what'))
             except:
