@@ -148,6 +148,26 @@ def nodesDelete(table):
             cursor.close()
             connection.close()
 
+
+# Get the active status of producer
+def getProducerStatus(producer):
+    try:
+        # Create connection to DB
+        connection = db_connection()
+        # Open cursor to DB
+        cursor = connection.cursor()
+        cursor.execute("SELECT active FROM oig.producer WHERE metasnapshot_date = '1980-01-01 00:00:00' AND owner_name =  %(producer)s", {"producer": producer})
+        records = cursor.fetchall()
+        return records
+    except (Exception, psycopg2.Error) as error:
+        print("Error getting producer status", error)
+
+    finally:
+        # closing database connection
+        if (connection):
+            cursor.close()
+            connection.close()
+
 def nodesInsert(records):
     query = """ INSERT INTO oig.nodes (owner_name, node_type, https_node_url, http_node_url, p2p_url, features) 
                 VALUES (%s,%s,%s,%s,%s,%s)

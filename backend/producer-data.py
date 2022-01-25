@@ -101,11 +101,12 @@ def producerlist():
     return producer_final
 
 
+
+
+
 ## Get list of producers and produce tuple
 def producer_chain_list():
-    # Get list of current active producers from DB - these are set by OIG
-    producers = producerlist() #db_connect.getProducers() 
-    # Delete old producer table
+    producers = producerlist() #
     # Create empty list
     top21producers = eosio.producerSCHED()
     producer_final = []
@@ -170,8 +171,15 @@ def producer_chain_list():
                     # is producer currently in top21
                     guild = i['owner']
                     top21 = guild in top21producers
-                    active = True
+                    # Get current active status from DB if it exists.
+                    try:
+                        active = db_connect.getProducerStatus(guild)[0][0]
+                    # If not means Guild is new so set to active.
+                    except:
+                        active = True
+                        print("Guild not in DB setting active to True")
                     thistuple = (guild, metasnapshot_date ,candidate_name, guildurl, guildurl + '/'+waxjson, guildurl + '/chains.json', logo_256, top21, country_code, active)
+                    print(thistuple)
                     producer_final.append(thistuple)
     return producer_final
 
