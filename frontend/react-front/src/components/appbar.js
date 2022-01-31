@@ -179,7 +179,7 @@ export default function ButtonAppBar({
                     id="fav"
                     onChange={handleMetaDropDownChange}
                   >
-                    {/* <option value="null">None</option> */}
+                    <option value={null}>None</option>
                     {
                       availableMetaSnapshots.sort().map(item => (
                         <option value={item || null}>

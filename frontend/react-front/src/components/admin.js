@@ -98,7 +98,7 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
 
     const filterMetaSnapshots = (rows) => {
         if (!!metaSnapshotDate) {
-            return rows.filter(row => row.metasnapshot_date && row.metasnapshot_date.substring(0, 10) === metaSnapshotDate.date)
+            return rows.filter(row => row.metasnapshot_date && row.metasnapshot_date.substring(0, 10) === metaSnapshotDate)
         }
         return rows.filter(row => row.metasnapshot_date === defaultMetaSnapshotDate || row.metasnapshot_date === undefined)
 
