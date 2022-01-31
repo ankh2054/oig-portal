@@ -67,7 +67,7 @@ const getCommunity = (request, reply) => {
 //Get latest results
 const getLatestResults = (request, reply) => {
   const { metasnapshot_date } = request.params 
-  client.query(`SELECT DISTINCT ON (owner_name) * FROM oig.results WHERE metasnapshot_date = timestamp '${metasnapshot_date && metasnapshot_date !== 'None' ? metasnapshot_date : '1980-01-01 00:00:00'}' ORDER BY owner_name, date_check DESC`, (error, results) => {
+  client.query(`SELECT DISTINCT ON (owner_name) * FROM oig.results WHERE metasnapshot_date = timestamp '${metasnapshot_date && metasnapshot_date !== 'None' && metasnapshot_date !== 'null' ? metasnapshot_date : '1980-01-01 00:00:00'}' ORDER BY owner_name, date_check DESC`, (error, results) => {
     if (error) {
       throw error
     }
@@ -143,7 +143,13 @@ const getAdminSettings = (request, reply) => {
 const updateAdminSettings = (request, reply) => {
   const { minimum_tech_score } = request.body
 
-  const toUpdate = (minimum_tech_score ? "minimum_tech_score=" + minimum_tech_score : "");
+  // const toUpdate = (minimum_tech_score ? "minimum_tech_score=" + minimum_tech_score : "");
+  const toUpdate = (minimum_tech_score ? `minimum_tech_score=${minimum_tech_score} WHERE metasnapshot_date = timestamp '1980-01-01'` : "");
+  const qry = `UPDATE oig.adminsettings SET ${toUpdate}`;
+  console.log('*****************************')
+  console.log('Query is', qry);
+  console.log('*****************************')
+
 
   if (toUpdate === "") {
     reply.status(400).send(`No updates sent`);
