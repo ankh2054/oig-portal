@@ -207,11 +207,11 @@ export default function ButtonAppBar({
             <Link to="/snapshot" className={classes.link}>
               Scores
             </Link>
-            {isAdmin ? (
+            {/* {isAdmin ? (
               <Link to="/form" className={classes.link}>
                 Submit Update
               </Link>
-            ) : null}
+            ) : null} */}
             {isAdmin ? (
               <Link to="/admin" className={classes.link}>
                 Admin
