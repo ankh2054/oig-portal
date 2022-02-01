@@ -112,6 +112,10 @@ const useStyles = makeStyles((theme) => ({
         "linear-gradient(275.91deg, rgb(247, 142, 30) 8.43%, rgb(255, 220, 81) 174.56%)",
     },
   },
+  formContainer: {
+    position: "relative",
+    right: "2rem",
+  }
 }));
 
 export default function ButtonAppBar({
@@ -122,15 +126,14 @@ export default function ButtonAppBar({
   metaSnapshotDate,
   openTimeMachine,
   setMetaSnapshotDate,
+  availableMetaSnapshots
 }) {
   const classes = useStyles();
-  const [displayDropdown, setDisplayDropdown] = useState(false);
 
   const handleMetaDropDownChange = (event) => {
-    event.target.value === "null"
-      ? setMetaSnapshotDate(null)
-      : setMetaSnapshotDate(metaSnapshotDate);
+    event.target.value ? setMetaSnapshotDate(event.target.value) : setMetaSnapshotDate(null);
   };
+  // console.log('available snapshot dates are **', availableMetaSnapshots)
 
   return (
     <>
@@ -170,16 +173,24 @@ export default function ButtonAppBar({
               style={{ display: !metaSnapshotDate ? "none" : "" }}
             >
               {metaSnapshotDate ? (
-                <form>
+                <form className={classes.formContainer}>
                   <select
                     className={classes.selectDropdown}
                     id="fav"
                     onChange={handleMetaDropDownChange}
                   >
-                    <option value={metaSnapshotDate}>
-                      {metaSnapshotDate.short}
+                    <option value={null}>None</option>
+                    {
+                      availableMetaSnapshots.sort().map(item => (
+                        <option value={item || null}>
+                      {item || 'None'}
                     </option>
-                    <option value="null">None</option>
+                      ))
+                    }
+                    {/* <option value={metaSnapshotDate}>
+                      {metaSnapshotDate.date}
+                    </option> */}
+                    
                   </select>
                 </form>
               ) : (
@@ -196,11 +207,11 @@ export default function ButtonAppBar({
             <Link to="/snapshot" className={classes.link}>
               Scores
             </Link>
-            {isAdmin ? (
+            {/* {isAdmin ? (
               <Link to="/form" className={classes.link}>
                 Submit Update
               </Link>
-            ) : null}
+            ) : null} */}
             {isAdmin ? (
               <Link to="/admin" className={classes.link}>
                 Admin

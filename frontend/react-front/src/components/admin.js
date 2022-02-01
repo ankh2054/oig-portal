@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimumTechScore, metaSnapshotDate, defaultMetaSnapshotDate
+const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimumTechScore, metaSnapshotDate, defaultMetaSnapshotDate, formatDate
 }) => {
     const classes = useStyles();
     const [snapshotDate, updateSnapshotDate] = useState(null);
@@ -98,14 +98,22 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
 
     const filterMetaSnapshots = (rows) => {
         if (!!metaSnapshotDate) {
-            return rows.filter(row => row.metasnapshot_date && row.metasnapshot_date.substring(0, 10) === metaSnapshotDate.date)
+            return rows.filter(row => row.metasnapshot_date && row.metasnapshot_date.substring(0, 10) === metaSnapshotDate)
         }
         return rows.filter(row => row.metasnapshot_date === defaultMetaSnapshotDate || row.metasnapshot_date === undefined)
 
     }
 
+    // const formatDate = (dateString) => {
+    //     if(!dateString){
+    //         return
+    //     } 
+    //     const options = { year: "numeric", month: "long", day: "numeric" }
+    //     return new Date(dateString).toLocaleDateString(undefined, options)
+    // }
+
     return isAdmin ? <div className={classes.root}>
-        <h1>Admin Panel {metaSnapshotDate ? metaSnapshotDate.short : <span style={{fontSize: '16px', fontWeight: 'bolder'}}>(No Time Machine date chosen)</span>}</h1>
+        <h1>Admin Panel {(metaSnapshotDate && metaSnapshotDate !== 'None') ? <span style={{fontSize: '16px', fontWeight: 'bolder'}}>{formatDate(metaSnapshotDate)} </span>: <span style={{fontSize: '16px', fontWeight: 'bolder'}}>(No Time Machine date chosen)</span>}</h1>
         {minTechScore ? <TextField value={minTechScore} className={classes.techScore} fullWidth="true" onChange={handleTechScoreChange} label="Minimum Tech Score"></TextField> : null }
         <br></br><br></br>
         {minTechScore ? <Button

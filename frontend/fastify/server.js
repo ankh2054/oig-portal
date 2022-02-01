@@ -33,7 +33,7 @@ fastify.get('/api/results', db.getResults)
 fastify.get('/api/products', db.getProducts)
 fastify.get('/api/bizdevs', db.getBizdevs)
 fastify.get('/api/community', db.getCommunity)
-fastify.get('/api/latestresults', db.getLatestResults)
+fastify.get('/api/latestresults/:metasnapshot_date', db.getLatestResults)
 // Get latest tech results based on snapshot date
 fastify.get('/api/snapshottechresults', db.getSnapshotResults)
 fastify.get('/api/results/:owner', db.getResultsbyOwner)

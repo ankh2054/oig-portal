@@ -104,12 +104,12 @@ const App = (props) => {
   ];
 
   const updateMetaSnapshotDate = (date) => {
-    const year = date.substring(0, 4);
-    const month = date.substring(5, 7);
-    const day = date.substring(8, 10);
-    const short = `${monthMap[month - 1]}/${year.substring(2, 4)}`;
-    console.log("Meta-snapshot options: " + availableMetaSnapshots.join(", "));
-    setMetaSnapshotDate({ year, month, day, short, date });
+    // const year = date.substring(0, 4);
+    // const month = date.substring(5, 7);
+    // const day = date.substring(8, 10);
+    // const short = `${monthMap[month - 1]}/${year.substring(2, 4)}`;
+    // console.log("Meta-snapshot options: " + availableMetaSnapshots.join(", "));
+    setMetaSnapshotDate(date);
   };
 
   const openTimeMachine = () => {
@@ -119,6 +119,14 @@ const App = (props) => {
       alert("Loading meta-snapshots... please wait.");
     }
   };
+
+  const formatDate = (dateString) => {
+    if(!dateString){
+        return
+    } 
+    const options = { year: "numeric", month: "long", day: "numeric" }
+    return new Date(dateString).toLocaleDateString(undefined, options)
+}
 
   useEffect(() => {
     // Load data and set hooks. A future implementation could use axios.all
@@ -144,10 +152,7 @@ const App = (props) => {
       // setRawCommunity(response.data)
       setCommunity(response.data);
     });
-    axios.get(api_base + "/api/latestresults").then((response) => {
-      // setRawLatestResults(response.data)
-      setLatestResults(response.data);
-    });
+    
     axios.get(api_base + "/api/snapshotlatestresults").then((response) => {
       // setRawSnapshotLatestResults(response.data)
       setSnapshotLatestResults(response.data);
@@ -169,52 +174,31 @@ const App = (props) => {
       const data = response.data;
       const availableMetaSnapshots = data
         .filter((row) => !!row.metasnapshot_date)
-        .map((row) => row.metasnapshot_date.substring(0, 10));
+        .map((row) => row.metasnapshot_date.substring(0, 10));        
+      // availableMetaSnapshots[0] = 'None';
       setAvailableMetaSnapshots(availableMetaSnapshots);
       console.log("Set available meta-snapshots");
       const minScore =
         data && data[0] && data[0].minimum_tech_score
           ? data[0].minimum_tech_score
           : 999;
+      // const minScoreArray = data.filter(row => row.metasnapshot_date === defaultMetaSnapshotDate)
+      // const minScoreRec = minScoreArray && minScoreArray[0] && minScoreArray[0].minimum_tech_score
+      // ? minScoreArray[0].minimum_tech_score
+      // : 999;
+      // console.log('TTTT>>>>>>>', minScoreRec);
       setMinimumTechScore(minScore);
     });
   }, []);
 
-  /* Calculate scores if formatted point system exists, and raw data (to be scored) exists
-  // This gets called twice (as do many functions). it appears to be due to React.StrictMode
-  // Fixing this would result in a lot of speed increases, I would guess.
-  if (Object.keys(pointSystem).length >= 1) {
-    if (results.length === 0 && rawResults.length >= 1) {
-      // This is bound to use up a lot of memory when adding scores - it's an array of 2.3k items.
-      //const formattedResults = rawResults.map((item) => addScoreToItem(item, pointSystem));
-      setResults(rawResults);
-    }
+  useEffect(() => {
+    axios.get(api_base + `/api/latestresults/${metaSnapshotDate ? metaSnapshotDate : defaultMetaSnapshotDate}`).then((response) => {
+      // setRawLatestResults(response.data)
+      setLatestResults(response.data);
+    });
+  }, [metaSnapshotDate])
 
-    if (products.length === 0 && rawProducts.length >= 1) {
-      const formattedProducts = rawProducts.map((item) => addScoreToItem(item, pointSystem, 'product'));
-      setProducts(formattedProducts);
-    }
 
-    if (bizdevs.length === 0 && rawBizdevs.length >= 1) {
-      const formattedBizdevs = rawBizdevs.map((item) => addScoreToItem(item, pointSystem, 'bizdev'));
-      setBizdevs(formattedBizdevs);
-    }
-
-    if (community.length === 0 && rawCommunity.length >= 1) {
-      const formattedCommunity = rawCommunity.map((item) => addScoreToItem(item, pointSystem, 'community'));
-      setCommunity(formattedCommunity);
-    }
-
-    if (latestresults.length === 0 && rawLatestResults.length >= 1) {
-      const formattedLatestResults = rawLatestResults.map((item) => addScoreToItem(item, pointSystem));
-      setLatestResults(formattedLatestResults);
-    }
-
-    if (snapshotlatestresults.length === 0 && rawSnapshotLatestResults.length >= 1) {
-      const formattedLatestSnapshotResults = rawSnapshotLatestResults.map((item) => addScoreToItem(item, pointSystem));
-      setSnapshotLatestResults(formattedLatestSnapshotResults);
-    }
-  }*/
 
   const BPwithownername = () => {
     let params = useParams();
@@ -265,6 +249,7 @@ const App = (props) => {
                       metaSnapshotDate={metaSnapshotDate}
                       openTimeMachine={openTimeMachine}
                       setMetaSnapshotDate={setMetaSnapshotDate}
+                      availableMetaSnapshots={availableMetaSnapshots}
                       isAdmin={
                         adminOverride ||
                         (props.ual.activeUser &&
@@ -312,6 +297,8 @@ const App = (props) => {
                             .filter((producer) => producer.active === true)
                             .map((producer) => producer.owner_name)}
                           metaSnapshotDate={metaSnapshotDate}
+                          formatDate={formatDate}
+                          defaultMetaSnapshotDate={defaultMetaSnapshotDate}
                         />
                       )}
                     />
@@ -329,6 +316,7 @@ const App = (props) => {
                           producerDomainMap={producerDomainMap}
                           minimumTechScore={minimumTechScore}
                           metaSnapshotDate={metaSnapshotDate}
+                          formatDate={formatDate}
                         />
                       )}
                     />
@@ -371,6 +359,7 @@ const App = (props) => {
                           }
                           minimumTechScore={minimumTechScore}
                           metaSnapshotDate={metaSnapshotDate}
+                          formatDate={formatDate}
                         />
                       )}
                     />
