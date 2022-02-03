@@ -12,7 +12,7 @@ function getGuildLogoURL(guild, producers, producerLogos, producerDomainMap) {
   return getCachedImage(logosvg_url, producerLogos, producerDomainMap)
 }
 
-const App = ({ results, producers, products, bizdevs, community, isAdmin, pointSystem, producerLogos, producerDomainMap, activeGuilds }) => {
+const IntegratedScores = ({ results, producers, products, bizdevs, community, isAdmin, pointSystem, producerLogos, producerDomainMap, activeGuilds }) => {
   function format(array) {
     // Any manipulations of initially loaded data can be done here
     if (array.length >= 1) {
@@ -58,4 +58,4 @@ const App = ({ results, producers, products, bizdevs, community, isAdmin, pointS
   );
 }
 
-export default App
+export default IntegratedScores
