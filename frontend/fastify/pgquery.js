@@ -87,11 +87,22 @@ const getSnapshotResults = (request, reply) => {
 
 //Get latest Snapshot results
 const getLatestSnapshotResults = (request, reply) => {
-  client.query('SELECT DISTINCT ON (owner_name) * FROM oig.results WHERE snapshot_date IS NOT  NULL ORDER BY owner_name, snapshot_date DESC', (error, results) => {
+  let query;
+  const { metasnapshot_date } = request.params   
+  if(metasnapshot_date && metasnapshot_date !== 'None'){
+    query = `SELECT DISTINCT ON (owner_name) * FROM oig.results WHERE metasnapshot_date = timestamp '${metasnapshot_date}' ORDER BY owner_name, snapshot_date DESC`
+  }else{
+    query = 'SELECT DISTINCT ON (owner_name) * FROM oig.results WHERE snapshot_date IS NOT NULL ORDER BY owner_name, snapshot_date DESC'
+  }
+  // console.log('******************')
+  // console.log('Metasnpshot date is', metasnapshot_date)  
+  // console.log('******************') 
+  // console.log('query is', query)
+  client.query(query, (error, results) => {
     if (error) {
-      throw error
+      console.log('There was an errro with this operation', error)
     }
-    reply.status(200).send(results.rows);
+    reply.status(200).send(results.rows); 
   })
 }
 
@@ -99,7 +110,7 @@ const getLatestSnapshotResults = (request, reply) => {
 const getSnapshotSettings = (request, reply) => {
   client.query('SELECT * FROM oig.snapshotsettings', (error, results) => {
     if (error) {
-      throw error
+      console.log('There was an errro with this operation', error)
     }
     reply.status(200).send(results.rows);
   })
@@ -108,7 +119,7 @@ const getSnapshotSettings = (request, reply) => {
 const getPointSystem = (request, reply) => {
   client.query('SELECT * FROM oig.pointsystem', (error, results) => {
     if (error) {
-      throw error
+      console.log('There was an errro with this operation', error)
     }
     reply.status(200).send(results.rows);
   })
@@ -143,13 +154,8 @@ const getAdminSettings = (request, reply) => {
 const updateAdminSettings = (request, reply) => {
   const { minimum_tech_score } = request.body
 
-  // const toUpdate = (minimum_tech_score ? "minimum_tech_score=" + minimum_tech_score : "");
   const toUpdate = (minimum_tech_score ? `minimum_tech_score=${minimum_tech_score} WHERE metasnapshot_date = timestamp '1980-01-01'` : "");
   const qry = `UPDATE oig.adminsettings SET ${toUpdate}`;
-  console.log('*****************************')
-  console.log('Query is', qry);
-  console.log('*****************************')
-
 
   if (toUpdate === "") {
     reply.status(400).send(`No updates sent`);
@@ -256,7 +262,7 @@ const getAverageMonthlyResult = (request, reply) => {
     } else if(days) {
     const vDays = parseInt(days);
     qry = qry + `and date_check > current_date - interval '${vDays}' day`
-  }  
+  }   
   
   client.query(qry, [owner], (error, results) => {
     if (error) {
