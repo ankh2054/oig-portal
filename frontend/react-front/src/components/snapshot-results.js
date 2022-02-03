@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const App = ({ /*results, */ producers, products, bizdevs, community, snapresults, pointSystem, isAdmin, producerLogos, producerDomainMap, activeGuilds, metaSnapshotDate, formatDate }) => {
+const SnapshotResults = ({ /*results, */ producers, products, bizdevs, community, snapresults, pointSystem, isAdmin, producerLogos, producerDomainMap, activeGuilds, metaSnapshotDate, formatDate, defaultMetaSnapshotDate }) => {
   const classes = useStyles();
 
   const [viewType, setViewType] = useState('integrated')
@@ -30,9 +30,16 @@ const App = ({ /*results, */ producers, products, bizdevs, community, snapresult
 
   const filterMetaSnapshots = (rows) => {
     if (!!metaSnapshotDate) {
-      return rows.filter(row => row.metasnapshot_date && row.metasnapshot_date.substring(0, 10) === metaSnapshotDate.date)
+      return rows.filter(row => row.metasnapshot_date && row.metasnapshot_date.substring(0, 10) === metaSnapshotDate)
     }
-    return rows.filter(row => row.metasnapshot_date === null || row.metasnapshot_date === undefined)
+    return rows.filter(row => row.metasnapshot_date === defaultMetaSnapshotDate || row.metasnapshot_date === null)
+  }
+
+  const filterMetaSnapshots2 = (rows) => {
+    if (!!metaSnapshotDate) {
+      return rows.filter(row => row.metasnapshot_date && row.metasnapshot_date.substring(0, 10) === metaSnapshotDate)
+    }
+    return rows
   }
 
   const loadView = () => {
@@ -51,7 +58,7 @@ const App = ({ /*results, */ producers, products, bizdevs, community, snapresult
     }
     if (viewType === 'integrated') {
       return <IntegratedScores
-        results={filterMetaSnapshots(snapresults)}
+        results={(snapresults)}
         producers={producers}
         products={filterMetaSnapshots(products)}
         bizdevs={filterMetaSnapshots(bizdevs)}
@@ -91,4 +98,4 @@ const App = ({ /*results, */ producers, products, bizdevs, community, snapresult
   )
 
 }
-export default App
+export default SnapshotResults
