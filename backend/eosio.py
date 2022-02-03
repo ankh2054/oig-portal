@@ -116,8 +116,11 @@ def hyperionindexedBlocks(host):
         service_data = health_info[2]['service_data']
     except:
         return False, 'Hyperion last indexed does not match total indexed with range of 10'
-    last_indexed = int(service_data['last_indexed_block'])
-    total_indexed = int(service_data['total_indexed_blocks'])
+    try:
+        last_indexed = int(service_data['last_indexed_block'])
+        total_indexed = int(service_data['total_indexed_blocks'])
+    except:
+        return False, 'Hyperion last indexed does not match total indexed with range of 10'
     # Check if total index is between total_index-10 and last_index+1, as they wont always exactly match.
     if last_indexed in range(last_indexed-10, total_indexed+1):
         return True, 'Hyperion Total blocks matches last indexed'

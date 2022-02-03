@@ -1,7 +1,7 @@
 import core
 import eosio
 import requests
-import simplejson
+#import simplejson
 import humanize
 import socket
 import json
@@ -79,7 +79,7 @@ def concatenate(**kwargs):
 metasnapshot_date  = datetime.strptime('1980-01-01', "%Y-%d-%m")
 
 
-"""
+
 def producerlist():
     prod_table = get_table_data("eosio","producers","eosio","100")
     producers = eosio.getEOStable(prod_table)
@@ -99,23 +99,23 @@ def producerlist():
             # Append new dict to top21list
             producer_final.append(new)
     return producer_final
-"""
+
+
+
 
 
 ## Get list of producers and produce tuple
 def producer_chain_list():
-    # Get list of current active producers from DB - these are set by OIG
-    producers = db_connect.getProducers() 
+    producers = producerlist() #
     # Create empty list
     top21producers = eosio.producerSCHED()
     producer_final = []
     # Create emtpy dictinary
     # proddict = {}
     for i in producers:
-        print(i)
         try:
             # Set guild default website URL from tuple obtained from DB
-            guildurl = i[2]
+            guildurl = i['url']
             guildurl = guildurl.rstrip('/')
             response = requests.get(url=guildurl + '/chains.json')
             #response = requests.get(url=i['url'] + '/chains.json')
@@ -169,10 +169,17 @@ def producer_chain_list():
                     continue
                 else:
                     # is producer currently in top21
-                    guild = i[0]
+                    guild = i['owner']
                     top21 = guild in top21producers
-                    active = True
+                    # Get current active status from DB if it exists.
+                    try:
+                        active = db_connect.getProducerStatus(guild)[0][0]
+                    # If not means Guild is new so set to active.
+                    except:
+                        active = True
+                        print("Guild not in DB setting active to True")
                     thistuple = (guild, metasnapshot_date ,candidate_name, guildurl, guildurl + '/'+waxjson, guildurl + '/chains.json', logo_256, top21, country_code, active)
+                    print(thistuple)
                     producer_final.append(thistuple)
     return producer_final
 
@@ -263,9 +270,9 @@ def check_api(producer,checktype):
     else:
         api = db_connect.getQueryNodes(producer,'chain-api','api')
     # If there is no API or Full node in DB return False
+    #if None in api:
     if api == None:
-        error = "No API node found in JSON file"
-        return False, error
+        return False, 'No API node available in JSON'
     else:
         info = str(eosio.Api_Calls('v1', 'get_info'))
     try:
