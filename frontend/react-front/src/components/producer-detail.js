@@ -382,7 +382,9 @@ const App = ({
 
       let queryString;
       if(!!metaSnapshotDate){
-        queryString = `/api/monthlyaverageresults/${producer.owner_name}?month=${metaSnapshotDate.month}&year=${metaSnapshotDate.year}`; 
+        const year = metaSnapshotDate.substring(0, 4);
+        const month = metaSnapshotDate.substring(5, 7);
+        queryString = `/api/monthlyaverageresults/${producer.owner_name}?month=${month}&year=${year}`; 
       }else{
         queryString = `/api/monthlyaverageresults/${producer.owner_name}?days=${numberOfAverageDays}`; 
       }
