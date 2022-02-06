@@ -94,10 +94,10 @@ const getLatestSnapshotResults = (request, reply) => {
   }else{
     query = 'SELECT DISTINCT ON (owner_name) * FROM oig.results WHERE snapshot_date IS NOT NULL ORDER BY owner_name, snapshot_date DESC'
   }
-  // console.log('******************')
-  // console.log('Metasnpshot date is', metasnapshot_date)  
-  // console.log('******************') 
-  // console.log('query is', query)
+  console.log('******************')
+  console.log('Metasnpshot date is', metasnapshot_date)  
+  console.log('******************')  
+  console.log('query is', query)
   client.query(query, (error, results) => {
     if (error) {
       console.log('There was an errro with this operation', error)
@@ -105,6 +105,7 @@ const getLatestSnapshotResults = (request, reply) => {
     reply.status(200).send(results.rows); 
   })
 }
+
 
 // Get snapshot settings (just date for now)
 const getSnapshotSettings = (request, reply) => {
