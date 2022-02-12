@@ -32,5 +32,7 @@ Please see the [Set the date for technical snapshots](admin.md) for further deta
 Metasnapshots which is manually triggered by the OIG within the [admin panel](admin.md) take a snapshot of the database as it currently stands. The idea behind this function is to allow the OIG to adjust the scoring for each Guild and once satisfied with the results, save these results. Each metasnapshot that is created can be accessed, re-edited and re-saved to account for any appeals that occur before the final score is published.
 
 
+### Video test
 
+![type:video](https://www.youtube.com/watch?v=cds4P8bcnsE)
 

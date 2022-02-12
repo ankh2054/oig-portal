@@ -6,6 +6,7 @@ theme:
   favicon: assets/favicon.ico
 plugins:
   - search
+  - mkdocs-video
 nav:
   - Home: index.md
   - Latest Results: latestresults.md
