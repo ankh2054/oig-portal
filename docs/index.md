@@ -35,5 +35,4 @@ Metasnapshots which is manually triggered by the OIG within the [admin panel](ad
 ### Video test
 dd
 
-![type:video](https://www.youtube.com/watch?v=cds4P8bcnsE)
-
+![type:video](https://www.youtube.com/embed/cds4P8bcnsE)
