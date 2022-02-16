@@ -94,10 +94,10 @@ const getLatestSnapshotResults = (request, reply) => {
   }else{
     query = 'SELECT DISTINCT ON (owner_name) * FROM oig.results WHERE snapshot_date IS NOT NULL ORDER BY owner_name, snapshot_date DESC'
   }
-  console.log('******************')
-  console.log('Metasnpshot date is', metasnapshot_date)  
-  console.log('******************')  
-  console.log('query is', query)
+  // console.log('******************')
+  // console.log('Metasnpshot date is', metasnapshot_date)  
+  // console.log('******************')  
+  // console.log('query is', query)
   client.query(query, (error, results) => {
     if (error) {
       console.log('There was an errro with this operation', error)
@@ -255,14 +255,18 @@ const getAverageMonthlyResult = (request, reply) => {
     where owner_name = $1
     `   
     
-    if(month || year){
+    if(!!month && year !== 'None'){
       const vMonth = !!month ? parseInt(month) : 'extract(month FROM current_date)';
       const vYear = !!year ? parseInt(year) : 'extract(year FROM current_date)';
       qry = qry + `and extract(month FROM date_check) = ${vMonth}
       and extract(year FROM date_check) = ${vYear}`    
     } else if(days) {
+      // console.log('******************')
+      // console.log('GOT HERE')
+      
     const vDays = parseInt(days);
-    qry = qry + `and date_check > current_date - interval '${vDays}' day`
+    qry = qry + `and date_check > current_date - interval '${vDays}' day`;
+    // console.log('QUERY IS', qry);
   }   
   
   client.query(qry, [owner], (error, results) => {

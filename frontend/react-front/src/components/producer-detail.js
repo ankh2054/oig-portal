@@ -381,7 +381,7 @@ const App = ({
 
 
       let queryString;
-      if(!!metaSnapshotDate){
+      if(!!metaSnapshotDate && metaSnapshotDate !== 'None'){
         const year = metaSnapshotDate.substring(0, 4);
         const month = metaSnapshotDate.substring(5, 7);
         queryString = `/api/monthlyaverageresults/${producer.owner_name}?month=${month}&year=${year}`; 
