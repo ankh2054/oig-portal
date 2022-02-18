@@ -173,17 +173,16 @@ const App = (props) => {
         .map((row) => row.metasnapshot_date.substring(0, 10));        
       // availableMetaSnapshots[0] = 'None';
       setAvailableMetaSnapshots(availableMetaSnapshots);
-      console.log("Set available meta-snapshots");
-      const minScore =
-        data && data[0] && data[0].minimum_tech_score
-          ? data[0].minimum_tech_score
-          : 999;
-      // const minScoreArray = data.filter(row => row.metasnapshot_date === defaultMetaSnapshotDate)
-      // const minScoreRec = minScoreArray && minScoreArray[0] && minScoreArray[0].minimum_tech_score
-      // ? minScoreArray[0].minimum_tech_score
-      // : 999;
-      // console.log('TTTT>>>>>>>', minScoreRec);
-      setMinimumTechScore(minScore);
+      // console.log("Set available meta-snapshots");
+      // const minScore =
+      //   data && data[0] && data[0].minimum_tech_score
+      //     ? data[0].minimum_tech_score
+      //     : 999;
+      const minScoreArray = data.filter(row => row.metasnapshot_date === defaultMetaSnapshotDate)
+      const minScoreRec = minScoreArray && minScoreArray[0] && minScoreArray[0].minimum_tech_score
+      ? minScoreArray[0].minimum_tech_score
+      : 999;
+      setMinimumTechScore(minScoreRec);
     });
   }, []);
 

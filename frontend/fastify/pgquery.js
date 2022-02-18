@@ -260,13 +260,9 @@ const getAverageMonthlyResult = (request, reply) => {
       const vYear = !!year ? parseInt(year) : 'extract(year FROM current_date)';
       qry = qry + `and extract(month FROM date_check) = ${vMonth}
       and extract(year FROM date_check) = ${vYear}`    
-    } else if(days) {
-      // console.log('******************')
-      // console.log('GOT HERE')
-      
+    } else if(days) {   
     const vDays = parseInt(days);
     qry = qry + `and date_check > current_date - interval '${vDays}' day`;
-    // console.log('QUERY IS', qry);
   }   
   
   client.query(qry, [owner], (error, results) => {
