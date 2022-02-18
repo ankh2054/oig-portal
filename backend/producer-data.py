@@ -16,6 +16,7 @@ import backendconfig as cfg
 import statistics
 
 
+# Passes into requests auth param, so each request adds time.sleep(1)
 def auth_provider(req):
     global requests_count
     requests_count += 1
