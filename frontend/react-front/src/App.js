@@ -151,13 +151,9 @@ const App = (props) => {
     axios.get(api_base + "/api/community").then((response) => {
       // setRawCommunity(response.data)
       setCommunity(response.data);
-    });
+    });    
     
-    axios.get(api_base + "/api/snapshotlatestresults").then((response) => {
-      // setRawSnapshotLatestResults(response.data)
-      setSnapshotLatestResults(response.data);
-    });
-    axios.get(api_base + "/api/snapshotsettings").then((response) => {
+    axios.get(api_base + "/api/snapshotsettings/").then((response) => {
       setSnapshotSettings(response.data);
     });
     axios.get(api_base + "/api/pointsystem").then((response) => {
@@ -177,28 +173,27 @@ const App = (props) => {
         .map((row) => row.metasnapshot_date.substring(0, 10));        
       // availableMetaSnapshots[0] = 'None';
       setAvailableMetaSnapshots(availableMetaSnapshots);
-      console.log("Set available meta-snapshots");
-      const minScore =
-        data && data[0] && data[0].minimum_tech_score
-          ? data[0].minimum_tech_score
-          : 999;
-      // const minScoreArray = data.filter(row => row.metasnapshot_date === defaultMetaSnapshotDate)
-      // const minScoreRec = minScoreArray && minScoreArray[0] && minScoreArray[0].minimum_tech_score
-      // ? minScoreArray[0].minimum_tech_score
-      // : 999;
-      // console.log('TTTT>>>>>>>', minScoreRec);
-      setMinimumTechScore(minScore);
+      // console.log("Set available meta-snapshots");
+      // const minScore =
+      //   data && data[0] && data[0].minimum_tech_score
+      //     ? data[0].minimum_tech_score
+      //     : 999;
+      const minScoreArray = data.filter(row => row.metasnapshot_date === defaultMetaSnapshotDate)
+      const minScoreRec = minScoreArray && minScoreArray[0] && minScoreArray[0].minimum_tech_score
+      ? minScoreArray[0].minimum_tech_score
+      : 999;
+      setMinimumTechScore(minScoreRec);
     });
   }, []);
 
   useEffect(() => {
     axios.get(api_base + `/api/latestresults/${metaSnapshotDate ? metaSnapshotDate : defaultMetaSnapshotDate}`).then((response) => {
-      // setRawLatestResults(response.data)
       setLatestResults(response.data);
     });
-  }, [metaSnapshotDate])
-
-
+    axios.get(api_base + `/api/snapshotlatestresults/${metaSnapshotDate ? metaSnapshotDate : ''}`).then((response) => {
+      setSnapshotLatestResults(response.data);
+    });
+  }, [metaSnapshotDate]) 
 
   const BPwithownername = () => {
     let params = useParams();
