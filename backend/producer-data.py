@@ -1,7 +1,6 @@
 import core
 import eosio
 import requests
-#import simplejson
 import humanize
 import socket
 import json
@@ -15,7 +14,6 @@ import urllib3
 import backendconfig as cfg
 import statistics
 
-
 # Passes into requests auth param, so each request adds time.sleep(1)
 def auth_provider(req):
     global requests_count
@@ -28,7 +26,7 @@ def auth_provider(req):
 # Disable SSL warnings
 urllib3.disable_warnings()
 
-# Default timeout for connectoins
+# Default timeout for connections
 defaulttimeout = (3, 7)
 
 # Better JSON errors
@@ -79,7 +77,7 @@ def concatenate(**kwargs):
 # Default metasnapshot_date 
 metasnapshot_date  = datetime.strptime('1980-01-01', "%Y-%d-%m")
 
-
+  
 
 def producerlist():
     prod_table = get_table_data("eosio","producers","eosio","100")
@@ -118,7 +116,7 @@ def producer_chain_list():
             # Set guild default website URL from tuple obtained from DB
             guildurl = i['url']
             guildurl = guildurl.rstrip('/')
-            response = requests.get(url=guildurl + '/chains.json')
+            response = requests.get(url=guildurl + '/chains.json', timeout=defaulttimeout)
             #response = requests.get(url=i['url'] + '/chains.json')
             # If the response was successful, no Exception will be raised
             response.raise_for_status()
@@ -180,7 +178,6 @@ def producer_chain_list():
                         active = True
                         print("Guild not in DB setting active to True")
                     thistuple = (guild, metasnapshot_date ,candidate_name, guildurl, guildurl + '/'+waxjson, guildurl + '/chains.json', logo_256, top21, country_code, active)
-                    print(thistuple)
                     producer_final.append(thistuple)
     return producer_final
 
@@ -215,7 +212,7 @@ def node_list():
     node_list = []
     for nodes in producers:
         try:
-            response = requests.get(url=nodes[3])
+            response = requests.get(url=nodes[3], timeout=defaulttimeout)
             # If the response was successful, no Exception will be raised
             response.raise_for_status()
         except HTTPError as http_err:
@@ -990,30 +987,28 @@ def main():
     now = datetime.now() - timedelta(minutes=1)
     print(core.bcolors.OKYELLOW,f"{'='*100}\nTime: ",now,core.bcolors.ENDC)
     # If last runtime was within 2 hours, skip running process.
-    if lastCheck(now):
-        # Get list of producers
-        print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",core.bcolors.ENDC)
-        producers = producer_chain_list()
-        # Update producers to DB
-        db_connect.producerInsert(producers)
-        # Delete all nodes from table
-        print(core.bcolors.OKYELLOW,f"{'='*100}\nRemoving existing nodes from DB ",core.bcolors.ENDC)
-        db_connect.nodesDelete('oig.nodes')
-        # Add nodes to DB
-        print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of nodes from JSON files ",core.bcolors.ENDC)
-        nodes = node_list()
-        db_connect.nodesInsert(nodes)
-        # Get all results and save to DB
-        results = finalresults()
-        db_connect.resultsInsert(results)
-        # Take snapshot
-        takeSnapshot(now)
-    else:
-        print("Not running as ran withtin last 2 hours")
+    # Get list of producers
+    print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",core.bcolors.ENDC)
+    producers = producer_chain_list()
+    # Update producers to DB
+    db_connect.producerInsert(producers)
+    # Delete all nodes from table
+    print(core.bcolors.OKYELLOW,f"{'='*100}\nRemoving existing nodes from DB ",core.bcolors.ENDC)
+    db_connect.nodesDelete('oig.nodes')
+    # Add nodes to DB
+    print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of nodes from JSON files ",core.bcolors.ENDC)
+    nodes = node_list()
+    db_connect.nodesInsert(nodes)
+    # Get all results and save to DB
+    results = finalresults()
+    db_connect.resultsInsert(results)
+    # Take snapshot
+    takeSnapshot(now)
 
-
-#print(check_full_node('sentnlagents','history-v1'))
 if __name__ == "__main__":
-   main()
-
-
+    now = datetime.now() - timedelta(minutes=1)
+    # If lastcheck is False
+    if not lastCheck(now):
+        print("Not running as ran withtin last 2 hours")
+    else:
+        main()
