@@ -62,6 +62,8 @@ const updateDb = (operation, type, payload, tableTitle, pointSystem) => {
                 name,
                 description,
                 stage,
+                analytics_url,
+                spec_url,
                 points,
                 comments
             } = payload;
@@ -73,6 +75,8 @@ const updateDb = (operation, type, payload, tableTitle, pointSystem) => {
                     stage,
                     score,
                     points: +points,
+                    analytics_url,
+                    spec_url,
                     date_updated,
                     comments
                 })
