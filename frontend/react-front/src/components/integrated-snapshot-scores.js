@@ -23,7 +23,7 @@ const IntegratedScores = ({ results, producers, products, bizdevs, community, is
           ...item
         }
         return reArrangeTableHeaders(itemWithGuildLogo)
-      }).filter(result => activeGuilds.indexOf(result.owner_name) !== -1)
+      })//.filter(result => activeGuilds.indexOf(result.owner_name) !== -1)
     }
     return array
   }
