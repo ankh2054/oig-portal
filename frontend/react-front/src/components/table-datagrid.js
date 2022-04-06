@@ -51,7 +51,8 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
   }
 
   const isEditable = (key, columnObj) => {
-    if (!isAdmin || columnObj['metasnapshot_date'] !== defaultMetaSnapshotDate) {
+    // if (!isAdmin || columnObj['metasnapshot_date'] !== defaultMetaSnapshotDate) {
+    if (!isAdmin) {
       return 'never'
     }
     if (!!columnObj['date_check']) {
@@ -112,7 +113,7 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
           ],
           padding: 'dense'
         }}
-        actions={!tableState[0].metasnapshot_date && isAdmin && type !== 'unknownType' && tableTitle !== 'Point System' ? [
+        actions={!tableState[0].metasnapshot_date && isAdmin && type !== 'unknownType' && tableTitle !== 'Point System' && tableTitle !== 'Bizdevs' ? [
           { // Only show recalc points for product, biz, and comm - though we may want to add this to tech results?
             icon: 'refresh',
             tooltip: 'Recalculate Score',
@@ -125,8 +126,9 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
             onClick: (event, currentRow) => tryUpdateTable('toggleActive', currentRow, tableTitle, tableState, setTableState)
           }
         ] : null}
-        editable={tableState[0].metasnapshot_date && isAdmin && type !== 'unknownType' ? { // Show only for admins
-          onRowUpdate: (newRow, currentRow) => tryUpdateTable('update', currentRow, tableTitle, tableState, setTableState, type, pointSystem, newRow),
+        //editable={tableState[0].metasnapshot_date &&  isAdmin && type !== 'unknownType' ? { // Show only for admins
+        editable={isAdmin && type !== 'unknownType' ? {  // Show only for admins 
+        onRowUpdate: (newRow, currentRow) => tryUpdateTable('update', currentRow, tableTitle, tableState, setTableState, type, pointSystem, newRow),
           onRowDelete: (currentRow) => tryUpdateTable('delete', currentRow, tableTitle, tableState, setTableState, type),
         } : !tableState[0].metasnapshot_date && isAdmin ? { // No delete for snapshot tech results or point system
           onRowUpdate: (newRow, currentRow) => tryUpdateTable('update', currentRow, tableTitle, tableState, setTableState, type, pointSystem, newRow)

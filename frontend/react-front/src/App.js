@@ -59,6 +59,8 @@ const App = (props) => {
     "ig.kaefer",
     "wjosep.oig",
     "sentnlagents",
+    "uz.j2.wam",
+    
   ];
 
   const adminOverride = admin_override; // Whether to require wallet authentication to access admin features.
