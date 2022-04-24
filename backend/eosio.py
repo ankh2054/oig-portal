@@ -7,6 +7,15 @@ import db_connect
 import core
 
 
+headers = {
+    'Content-Type': 'application/json',
+    'User-Agent': 'curl/7.77.0'
+    }
+
+s = requests.Session()
+s.headers.update(headers)
+
+
 # API calls Class
 class Api_Calls:
     def __init__(self, version, call):
@@ -107,7 +116,7 @@ API_ENDPOINT_TESTNET = 'https://wax-testnet.dapplica.io'
 def hyperionindexedBlocks(host):
     try:
         url = host + str(Api_Calls('v2', 'health'))
-        response = requests.get(url, verify=False)
+        response = s.get(url, verify=False)
         jsonres = response.json()
     except:
         return False, 'Could not connect to Hyperion'

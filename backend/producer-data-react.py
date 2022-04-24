@@ -1019,8 +1019,6 @@ def finalresults(cpu):
         print("Final Tech points:",core.bcolors.OKGREEN,score,core.bcolors.ENDC)
         # Add final sore to list
         resultslist.append(score)
-        # Add metansnapshot_date to final tuple
-        resultslist.append(metasnapshot_date)
         # Turn list into tuple read for Postgres
         resultstuple = tuple(resultslist)
         finaltuple.append(resultstuple)
@@ -1049,7 +1047,7 @@ def main():
     testnet_nodes = node_list(testnet=True)
     db_connect.nodesInsert(testnet_nodes)
     # Get all results and save to DB
-    results = finalresults(False) # Set True to check CPU , False to ignore
+    results = finalresults(True) # Set True to check CPU , False to ignore
     db_connect.resultsInsert(results)
     # Take snapshot
     takeSnapshot(now)
