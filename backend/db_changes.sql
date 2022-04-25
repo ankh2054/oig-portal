@@ -26,7 +26,7 @@ INSERT INTO oig.adminsettings(minimum_tech_score) VALUES(120);
 
 drop index if exists oig.idx_nodes_type;
 drop index if exists oig.idx_nodes_types;
-CREATE UNIQUE INDEX idx_nodes_type ON oig.nodes(owner_name, node_type, http_node_url );
+CREATE UNIQUE INDEX idx_nodes_type ON oig.nodes(owner_name, node_type, http_node_url,features);
 
 --- METASNAPSHOTS UPDATE
 -- Add metasnapshot_date column
@@ -99,10 +99,10 @@ FROM oig.results WHERE snapshot_date IS NOT NULL AND metasnapshot_date = timesta
 -- Update poinstsyetem table
 update oig.pointsystem set metasnapshot_date = timestamp '1980-01-01 00:00:00' where metasnapshot_date is NULL;
 
---NEW--
--- Update poinstsyetem table
-UPDATE oig.results set metasnapshot_date = timestamp '1980-01-01 00:00:00' where metasnapshot_date IS NULL
-
---Update adminsettings
--- Update poinstsyetem table
-UPDATE oig.adminsettings set metasnapshot_date = timestamp '1980-01-01 00:00:00' where metasnapshot_date IS NULL
+-- WAXTESNET Checks
+update oig.results set metasnapshot_date = timestamp '1980-01-01 00:00:00' where metasnapshot_date is NULL;
+alter table oig.producer add jsontestneturl varchar(100);
+alter table oig.nodes add net VARCHAR ( 20 ) NOT NULL;
+insert into oig.pointsystem (points_type, points, multiplier, min_requirements, metasnapshot_date) VALUES ('hyperion_v2_testnet', '11','2', False, timestamp '1980-01-01 00:00:00' );
+alter table oig.results add hyperion_v2_testnet boolean;
+alter table oig.results add hyperion_v2_testnet_error varchar(1000);

@@ -232,6 +232,7 @@ export default function ResultTables({ passedResults, avgResult, metaSnapshotDat
               <StyledTableCell><span>http2_check</span></StyledTableCell>
               <StyledTableCell><span>history_v1</span></StyledTableCell>
               <StyledTableCell><span>hyperion_v2</span></StyledTableCell>
+              <StyledTableCell><span>hyperion_testnet</span></StyledTableCell>
               <StyledTableCell><span>atomic_api</span></StyledTableCell>
               <StyledTableCell><span>cors_check</span></StyledTableCell>
               <StyledTableCell><span>oracle_feed</span></StyledTableCell>
@@ -272,6 +273,9 @@ export default function ResultTables({ passedResults, avgResult, metaSnapshotDat
               </HtmlTooltip>
               <HtmlTooltip title={`${avgResult.hyperion_v2_count}/${avgResult.total_count}`} aria-label="hyperion_v2_count" placement="top">
                 <StyledTableCell className={classes.avgResultCell}><span>{avgResult.hyperion_v2_pct}</span></StyledTableCell>
+              </HtmlTooltip>
+              <HtmlTooltip title={`${avgResult.hyperion_v2_testnet_count}/${avgResult.total_count}`} aria-label="hyperion_v2_testnet_count" placement="top">
+                <StyledTableCell className={classes.avgResultCell}><span>{avgResult.hyperion_v2_testnet_pct}</span></StyledTableCell>
               </HtmlTooltip>
               <HtmlTooltip title={`${avgResult.atomic_api_count}/${avgResult.total_count}`} aria-label="atomic_api_count" placement="top">
                 <StyledTableCell className={classes.avgResultCell}><span>{avgResult.atomic_api_pct}</span></StyledTableCell>
@@ -317,6 +321,9 @@ export default function ResultTables({ passedResults, avgResult, metaSnapshotDat
                 </HtmlTooltip>
                 <HtmlTooltip title={result.hyperion_v2_error} aria-label="hyperion_v2_error" placement="top">
                   <StyledTableCell>{iconResult(result.hyperion_v2)}</StyledTableCell>
+                </HtmlTooltip>
+                <HtmlTooltip title={result.hyperion_v2_testnet_error} aria-label="hyperion_v2_error" placement="top">
+                  <StyledTableCell>{iconResult(result.hyperion_v2_testnet)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.atomic_api_error} aria-label="atomic_api_error" placement="top">
                   <StyledTableCell>{iconResult(result.atomic_api)}</StyledTableCell>

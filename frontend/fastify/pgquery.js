@@ -245,6 +245,7 @@ const getAverageMonthlyResult = (request, reply) => {
     COUNT(*) FILTER (WHERE http2_check = TRUE) AS http2_check_count,
     COUNT(*) FILTER (WHERE full_history = TRUE) AS history_v1_count,
     COUNT(*) FILTER (WHERE hyperion_v2 = TRUE) AS hyperion_v2_count,
+    COUNT(*) FILTER (WHERE hyperion_v2_testnet = TRUE) AS hyperion_v2_testnet_count,
     COUNT(*) FILTER (WHERE atomic_api = TRUE) AS atomic_api_count,
     COUNT(*) FILTER (WHERE cors_check = TRUE) AS cors_check_count,
     COUNT(*) FILTER (WHERE oracle_feed = TRUE) AS oracle_feed_count,

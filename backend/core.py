@@ -23,8 +23,11 @@ class bcolors:
 
 
 # Python to curl request
-def curl_request(url,method,headers,payloads):
+def curl_request(url,method,payloads):
     # construct the curl command from request
+    headers = {
+    'Content-Type': 'application/json'
+    }
     command = "curl -v -H {headers} {data} -X {method} {uri}"
     data = "" 
     if payloads:

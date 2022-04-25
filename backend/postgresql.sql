@@ -11,7 +11,8 @@ CREATE TABLE oig.producer (
 	owner_name VARCHAR ( 12 ),
 	candidate VARCHAR ( 40 ) NOT NULL,
 	url VARCHAR ( 50 ) NOT NULL,
-	jsonurl VARCHAR ( 50 ) NOT NULL,
+	jsonurl VARCHAR ( 100 ) NOT NULL,
+    jsontestneturl VARCHAR ( 100 ),
     chainsurl VARCHAR ( 50 ) NOT NULL,
     active BOOLEAN NOT NULL,
     logo_svg VARCHAR ( 100 ), /*Can be Null as sometimes people dont have a logo */
@@ -26,6 +27,7 @@ CREATE UNIQUE INDEX producer_idx ON oig.producer(owner_name,metasnapshot_date);
 CREATE TABLE oig.nodes (
 	owner_name VARCHAR ( 12 ) ,
 	node_type VARCHAR ( 20 ) NOT NULL,
+    net VARCHAR ( 20 ) NOT NULL,
 	http_node_url VARCHAR ( 50 ) ,
     https_node_url VARCHAR ( 50 ) ,
     p2p_url VARCHAR ( 50 ) ,
@@ -33,7 +35,7 @@ CREATE TABLE oig.nodes (
 );
 
 /* Unique index to cover two culumns*/
-CREATE UNIQUE INDEX idx_nodes_type ON oig.nodes(owner_name, node_type,http_node_url );
+CREATE UNIQUE INDEX idx_nodes_type ON oig.nodes(owner_name, node_type, http_node_url,features);
 
 
 CREATE TABLE oig.results (
@@ -56,8 +58,10 @@ CREATE TABLE oig.results (
     dbsize_api_error VARCHAR ( 1000 ),
     full_history BOOLEAN NOT NULL,
     full_history_error VARCHAR ( 1000 ),
-    v2_history BOOLEAN NOT NULL,
-    v2_history_error VARCHAR ( 1000 ),
+    hyperion_v2 BOOLEAN NOT NULL,
+    hyperion_v2_error VARCHAR ( 1000 ),
+    hyperion_v2_testnet BOOLEAN NOT NULL,
+    hyperion_v2_testnet_error VARCHAR ( 1000 ),
     atomic_api BOOLEAN NOT NULL,
     atomic_api_error VARCHAR ( 1000 ),
     snapshots BOOLEAN NOT NULL,
