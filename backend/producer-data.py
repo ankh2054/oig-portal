@@ -1049,7 +1049,7 @@ def main():
     testnet_nodes = node_list(testnet=True)
     db_connect.nodesInsert(testnet_nodes)
     # Get all results and save to DB
-    results = finalresults(False) # Set True to check CPU , False to ignore
+    results = finalresults(True) # Set True to check CPU , False to ignore
     db_connect.resultsInsert(results)
     # Take snapshot
     takeSnapshot(now)

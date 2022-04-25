@@ -100,6 +100,7 @@ FROM oig.results WHERE snapshot_date IS NOT NULL AND metasnapshot_date = timesta
 update oig.pointsystem set metasnapshot_date = timestamp '1980-01-01 00:00:00' where metasnapshot_date is NULL;
 
 -- WAXTESNET Checks
+update oig.producer set metasnapshot_date = timestamp '1980-01-01 00:00:00' where metasnapshot_date is NULL;
 update oig.results set metasnapshot_date = timestamp '1980-01-01 00:00:00' where metasnapshot_date is NULL;
 alter table oig.producer add jsontestneturl varchar(100);
 alter table oig.nodes add net VARCHAR ( 20 ) NOT NULL;
