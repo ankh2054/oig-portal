@@ -1,11 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import App from './App.jsx';
 import * as serviceWorker from './serviceWorker';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { Anchor } from 'ual-anchor';
 import { Wax } from '@eosdacio/ual-wax';
+import Sidebar from "./components/sidebar/Sidebar";
 
 import { UALProvider, withUAL } from 'ual-reactjs-renderer';
 
@@ -27,7 +28,10 @@ const waxcloud = new Wax([waxChain], { appName: appName });
 ReactDOM.render(
    <UALProvider chains={[waxChain]} authenticators={[waxcloud, anchor ]} appName={appName}>
      <Router>
-        <AppWithUAL />
+       <div> 
+          {/* <div style={{flex: 1, maxWidth: '250px'}}><Sidebar /></div> */}
+          <div><AppWithUAL /></div>
+       </div>
      </Router>,
    </UALProvider>,
  document.getElementById('root')
