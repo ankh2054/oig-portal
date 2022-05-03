@@ -37,7 +37,7 @@ const SnapshotResults = ({snapresults}) => {
 
   return (
     <Box sx={{ maxWidth: 400 }}>
-      <CardHeader title="New Invoice" sx={{ mb: 3 }} />
+      <CardHeader title="Snapshot Results" sx={{ mb: 3 }} />
       <Scrollbar>
         <TableContainer style={{ maxWidth: '500px', maxHeight:'350px' }}>
           <Table>
