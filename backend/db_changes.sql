@@ -107,3 +107,11 @@ alter table oig.nodes add net VARCHAR ( 20 ) NOT NULL;
 insert into oig.pointsystem (points_type, points, multiplier, min_requirements, metasnapshot_date) VALUES ('hyperion_v2_testnet', '11','2', False, timestamp '1980-01-01 00:00:00' );
 alter table oig.results add hyperion_v2_testnet boolean;
 alter table oig.results add hyperion_v2_testnet_error varchar(1000);
+
+-- Full hyperion checks
+INSERT INTO oig.pointsystem (points_type, points, multiplier, min_requirements, metasnapshot_date) VALUES ('hyperion_v2_testnet_full', 1, 11, false, '1980-01-01 00:00:00.000000');
+INSERT INTO oig.pointsystem (points_type, points, multiplier, min_requirements, metasnapshot_date) VALUES ('hyperion_v2_full', 1, 11, false, '1980-01-01 00:00:00.000000');
+alter table oig.results add hyperion_v2_full boolean;
+alter table oig.results add hyperion_v2_full_error varchar(1000);
+alter table oig.results add hyperion_v2_testnet_full boolean;
+alter table oig.results add hyperion_v2_testnet_full_error varchar(1000);

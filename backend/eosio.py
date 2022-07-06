@@ -221,16 +221,16 @@ def producerSCHED():
         top21_producer_list.append(i['producer_name'])
     return top21_producer_list
 
-# Get all transaction numbers from latest block
-def randomTransaction():
+# Get all transaction numbers from a block
+def randomTransaction(backtrack,chain):
     api_url = str(Api_Calls('v1', 'get_block'))
-    # Generate random number 
-    #r1 = random.randint(0, 420)
-    # Create Block header json payload
-    curheadblock = headblock("mainnet")
-    # block to test is headblock minus 420
-    testblock = curheadblock-420
-    URL = hyperion_Node + api_url
+    if chain == 'testnet':
+        URL = API_ENDPOINT2_TESTNET + api_url
+        curheadblock = headblock("testnet")
+    else:
+        URL = hyperion_Node + api_url
+        curheadblock = headblock("mainnet")
+    testblock = curheadblock-backtrack
     try:
         response = requests.post(URL, json={"block_num_or_id": testblock})
         response_json = json.loads(response.text)
@@ -258,6 +258,7 @@ def randomTransaction():
     return trxlist
 
 
+
 def get_http_version(url,version):
     if version == "v1":
         info = str(Api_Calls('v1', 'get_info')) 
@@ -268,12 +269,11 @@ def get_http_version(url,version):
 
 
 # Get actions OR transaction data from hyperion
-def get_stuff(payload,chain,type):
+def get_stuff(apiNode,payload,chain,type):
     if chain == 'testnet':
         URL = API_ENDPOINT2_TESTNET 
     else:
-        # Extract a random node
-        URL = hyperion_Node 
+        URL = apiNode 
     # get transaction from Hyperion node
     if type == 'trx':
         api_url = str(Api_Calls('v2-history', 'get_transaction'))

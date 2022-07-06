@@ -91,6 +91,7 @@ def concatenate(**kwargs):
 
 # Default metasnapshot_date 
 metasnapshot_date  = datetime.strptime('1980-01-01', "%Y-%d-%m")
+sentnlNode = eosio.hyperion_Node
 
   
 
@@ -414,13 +415,13 @@ def check_atomic_assets(producer,feature):
                 return True,'All Atomic services are working'
 
 
-def get_random_trx():
+def get_random_trx(backtrack,chain):
     trxlist = []
-    transactions = eosio.randomTransaction()
+    transactions = eosio.randomTransaction(backtrack,chain)
     # if transaction list is empty sleep for 1 second
     while not transactions:
         time.sleep(1)
-        transactions = eosio.randomTransaction()
+        transactions = eosio.randomTransaction(backtrack,chain)
     trx = transactions[0]
     try:
         trx2 = transactions[1]
@@ -428,10 +429,11 @@ def get_random_trx():
         trx2 = trx
     trxlist.append(trx)
     trxlist.append(trx2)
-    return(trxlist)
+    return trxlist 
 
 
-def check_hyperion(producer,feature,testnet=False):
+
+def check_hyperion(producer,feature,partialtest=False,testnet=False):
     ### Check Hyperion exists in DB 
     try:
         api = db_connect.getQueryNodes(producer,feature,'api',testnet)[0]
@@ -445,12 +447,30 @@ def check_hyperion(producer,feature,testnet=False):
         return False, hyperionresult[1]
     else:
         pass
+    # Set chain type for full and partial checks
+    if testnet:
+        chain = 'testnet'
+    else:
+        chain = 'mainnet'
+    # Test for full or partial
+    if partialtest:
+        # block to test is headblock minus 20 weeks 1 day back. 2 blocks per second.
+        fourweeksOnedayinSeconds = 12096000+86400
+        # Get random transaction
+        fulltrx = get_random_trx(fourweeksOnedayinSeconds,chain)
+        #Create payload for request to hyperion
+        payload = dict(id=fulltrx[0])
+    ## Perform normal hyperion tests for mainnet and testnet
+    else:
     ### Check hyperion last indexed action
-    history_url = str(eosio.Api_Calls('v2-history', 'get_actions?limit=1')) #'/v2/history/get_actions?limit=1'
+        url = str(eosio.Api_Calls('v2-history', 'get_actions?limit=1')) #'/v2/history/get_actions?limit=1'
     try:
-        response = s.get(api+history_url, timeout=defaulttimeout)
+        if partialtest:
+            response = eosio.get_stuff(api,payload,chain,'trx')
+        else:
+            response = s.get(api+url, timeout=defaulttimeout)
         # If the response was successful, no Exception will be raised
-        response.raise_for_status()
+            response.raise_for_status()
     # If returns codes are 500 OR 404
     except HTTPError as http_err:
         if response.status_code == 500:
@@ -464,21 +484,34 @@ def check_hyperion(producer,feature,testnet=False):
             return False, error
     except Exception as err:
         print(f'Other error occurred: {err}')  # Python 3.6
-         # also return err
+        # also return err
         error = str(err)
         return False, error
     else:
-        jsonres = response.json()
-        last_action_date = dateutil.parser.parse(
-                jsonres['actions'][0]['@timestamp']).replace(tzinfo=None)
-        diff_secs = (datetime.utcnow() -
-                         last_action_date).total_seconds()
-        if diff_secs > 600:
-                msg = 'Hyperion Last action {} ago'.format(
-                    humanize.naturaldelta(diff_secs))
+        if partialtest:
+            trxExecuted = response['executed']
+            trx_id = response['trx_id']
+            msg = f"Hyperion is missing transaction: {trx_id}."
+            if trxExecuted:
+                return True, 'ok'
+            else:
                 return False, msg
         else:
-            return True, 'ok'
+            jsonres = response.json()
+            try:
+                last_action_date = dateutil.parser.parse(
+                    jsonres['actions'][0]['@timestamp']).replace(tzinfo=None)
+            except:
+                   msg = 'Other error occured'
+                   return False, msg
+            diff_secs = (datetime.utcnow() -
+                            last_action_date).total_seconds()
+            if diff_secs > 600:
+                    msg = 'Hyperion Last action {} ago'.format(
+                        humanize.naturaldelta(diff_secs))
+                    return False, msg
+            else:
+                return True, 'ok'
 
 
 # History nodes type checks
@@ -653,16 +686,24 @@ def delphioracle_actors():
     chain = "mainnet"
     #Get list of guilds posting to delphioracle looking at actions, save last 100 actions.
     delphi_actions = get_actions_data("delphioracle","100")
-    actions = eosio.get_stuff(delphi_actions,chain,'action')
+    actions = eosio.get_stuff(sentnlNode,delphi_actions,chain,'action')
+    #print(actions)
     guilds = actions['simple_actions']
     # Create empty list
     producer_final = []
+    # Create emtpy dictinary
+    proddict = {}
     for i in guilds:
-        producer_final.append(i['data']['owner'])
-        producer_final = list(dict.fromkeys(producer_final))
+        # create copy of dict and call it new
+        new = proddict.copy()
+        if len(i['data']['quotes']) < 3:
+            continue
+        else:
+            producer_final.append(i['data']['owner'])
+            producer_final = list(dict.fromkeys(producer_final))
     # Returns list of guilds with duplicates removed   
     return producer_final
-  
+
 
 
 # Returns tuple list with producers in delphioracle True or False
@@ -671,8 +712,9 @@ def delphiresults(producer,oracledata):
      if producer in producersoracle:
         return True, 'ok'
      else:
-        return False ,'No actions associated with your BP name in Delphioracle'
+        return False ,'No actions associated with your BP name in Delphioracle Or less than 3 feeds'
 
+        
 
 
 def getcpustats():
@@ -681,7 +723,7 @@ def getcpustats():
     chain = "mainnet"
     eosmech_actions = get_actions_data("eosmechanics","120")
     #query = ['simple_actions']
-    actions = eosio.get_stuff(eosmech_actions,chain,'actions')
+    actions = eosio.get_stuff(sentnlNode,eosmech_actions,chain,'actions')
     trxs = actions['simple_actions']
     # Create empty list
     producer_final = []
@@ -697,7 +739,7 @@ def getcpustats():
         # Construct dict from TRX variable and assign to ID key
         payload = dict(id=trx)
         # Pass TRX ID and get all TRX information]
-        fulltrx = eosio.get_stuff(payload,chain,'trx')
+        fulltrx = eosio.get_stuff(sentnlNode,payload,chain,'trx')
         # Extract producer from TRX
         producer = fulltrx['actions'][0]['producer']
         # Extract cpu stats
@@ -938,9 +980,17 @@ def finalresults(cpu):
         hyperion_v2 = check_hyperion(producer,'hyperion-v2')
         printOuput(hyperion_v2,"Running a v2 Hyperion node: ")
 
+        # v2 Hyperion mainnet Full/Partial check
+        hyperion_v2_full = check_hyperion(producer,'hyperion-v2',partialtest=True)
+        printOuput( hyperion_v2_full,"Running a v2 Hyperion Full node: ")
+
         # v2 Hyperion testnet check
         hyperion_v2_testnet = check_hyperion(producer,'hyperion-v2',testnet=True)
-        printOuput(hyperion_v2,"Running a v2 Hyperion testnet node: ")
+        printOuput(hyperion_v2_testnet,"Running a v2 Hyperion testnet node: ")
+
+        # v2 Hyperion testnet Full/Partial check
+        hyperion_v2_testnet_full = check_hyperion(producer,'hyperion-v2',testnet=True,partialtest=True)
+        printOuput(hyperion_v2_testnet_full,"Running a v2 Hyperion Full testnet node: ")
 
         # Atomic Assets API
         atomic_api = check_atomic_assets(producer,'atomic-assets-api')
@@ -966,7 +1016,9 @@ def finalresults(cpu):
             'http2_check': http2_check[0],
             'full_history': full_history[0],
             'hyperion_v2': hyperion_v2[0],
+            'hyperion_v2_full': hyperion_v2_full[0],
             'hyperion_v2_testnet': hyperion_v2_testnet[0],
+            'hyperion_v2_testnet_full': hyperion_v2_testnet_full[0],
             'atomic_api':atomic_api[0],
             'snapshots': snapshots[0],
             'seed_node': seed_node[0],
@@ -998,8 +1050,12 @@ def finalresults(cpu):
             full_history[1],
             hyperion_v2[0],
             hyperion_v2[1],
+            hyperion_v2_full[0],
+            hyperion_v2_full[1],
             hyperion_v2_testnet[0],
             hyperion_v2_testnet[1],
+            hyperion_v2_testnet_full[0],
+            hyperion_v2_testnet_full[1],
             atomic_api[0],
             atomic_api[1],
             snapshots[0], 
@@ -1046,7 +1102,7 @@ def main():
     mainnet_nodes = node_list()
     db_connect.nodesInsert(mainnet_nodes)
     print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of testnet nodes from JSON files ",core.bcolors.ENDC)
-    testnet_nodes = node_list(testnet=True)
+    testnet_nodes = node_list(testnet=True) # Tesnet = True so collect testnet nodes from json files
     db_connect.nodesInsert(testnet_nodes)
     # Get all results and save to DB
     results = finalresults(True) # Set True to check CPU , False to ignore
@@ -1055,11 +1111,11 @@ def main():
     takeSnapshot(now)
 
 if __name__ == "__main__":
-    #print(check_hyperion('eosauthority','hyperion-v2'))
     now = datetime.now() - timedelta(minutes=1)
     # If lastcheck is False
     if not lastCheck(now):
         print("Not running as ran withtin last 2 hours")
     else:
         pass
+    #print(check_hyperion('sentnlagents','hyperion-v2',partialtest=True))
     main()
