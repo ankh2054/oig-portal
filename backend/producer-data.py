@@ -13,6 +13,7 @@ import db_connect
 import urllib3
 import backendconfig as cfg
 import statistics
+import argparse
 
 # Passes into requests auth param, so each request adds time.sleep(1)
 def auth_provider(req):
@@ -442,11 +443,12 @@ def check_hyperion(producer,feature,partialtest=False,testnet=False):
         return False, 'No ' + feature + ' in JSON'
 
     #  Check Hyperion last indexed equals total indexed blocks - this also accounts for all other services being ok
+    # This also takes in account hyperions that don't have all blocks.
     hyperionresult = eosio.hyperionindexedBlocks(api)
     if hyperionresult[0] == False:
         return False, hyperionresult[1]
     else:
-        pass
+        pass  
     # Set chain type for full and partial checks
     if testnet:
         chain = 'testnet'
@@ -466,7 +468,7 @@ def check_hyperion(producer,feature,partialtest=False,testnet=False):
         url = str(eosio.Api_Calls('v2-history', 'get_actions?limit=1')) #'/v2/history/get_actions?limit=1'
     try:
         if partialtest:
-            response = eosio.get_stuff(api,payload,chain,'trx')
+            response = eosio.get_stuff(api,payload,'trx')
         else:
             response = s.get(api+url, timeout=defaulttimeout)
         # If the response was successful, no Exception will be raised
@@ -489,9 +491,12 @@ def check_hyperion(producer,feature,partialtest=False,testnet=False):
         return False, error
     else:
         if partialtest:
-            trxExecuted = response['executed']
-            trx_id = response['trx_id']
-            msg = f"Hyperion is missing transaction: {trx_id}."
+            try:
+                trxExecuted = response['executed']
+                trx_id = response['trx_id']
+                msg = f"Hyperion is missing transaction: {trx_id}. HTML Response {response}"
+            except:
+                return False, 'Some other error occured'
             if trxExecuted:
                 return True, 'ok'
             else:
@@ -686,8 +691,7 @@ def delphioracle_actors():
     chain = "mainnet"
     #Get list of guilds posting to delphioracle looking at actions, save last 100 actions.
     delphi_actions = get_actions_data("delphioracle","100")
-    actions = eosio.get_stuff(sentnlNode,delphi_actions,chain,'action')
-    #print(actions)
+    actions = eosio.get_stuff(sentnlNode,delphi_actions,'action')
     guilds = actions['simple_actions']
     # Create empty list
     producer_final = []
@@ -723,7 +727,7 @@ def getcpustats():
     chain = "mainnet"
     eosmech_actions = get_actions_data("eosmechanics","120")
     #query = ['simple_actions']
-    actions = eosio.get_stuff(sentnlNode,eosmech_actions,chain,'actions')
+    actions = eosio.get_stuff(sentnlNode,eosmech_actions,'actions')
     trxs = actions['simple_actions']
     # Create empty list
     producer_final = []
@@ -739,7 +743,7 @@ def getcpustats():
         # Construct dict from TRX variable and assign to ID key
         payload = dict(id=trx)
         # Pass TRX ID and get all TRX information]
-        fulltrx = eosio.get_stuff(sentnlNode,payload,chain,'trx')
+        fulltrx = eosio.get_stuff(sentnlNode,payload,'trx')
         # Extract producer from TRX
         producer = fulltrx['actions'][0]['producer']
         # Extract cpu stats
@@ -789,7 +793,7 @@ def cpuAverage(producer):
         return 0
 
    
-def lastCheck(now):
+def lastCheck(now,ignorelastcheck):
     lastcheck = db_connect.getLastcheck() #2021-11-19 07:25:24.11084+00
     # Set now date
     now = now
@@ -801,6 +805,8 @@ def lastCheck(now):
     today_date_object = datetime.strptime(today, "%m/%d/%Y %H:%M")
     lastcheck_date_object = datetime.strptime(lastcheck_oig, "%m/%d/%Y %H:%M") + timedelta(hours=2)
     if today_date_object > lastcheck_date_object:
+        return True
+    elif ignorelastcheck:
         return True
     else:
         return False
@@ -894,11 +900,12 @@ def printOuput(results,description):
 #        producersdb = args
 
 def finalresults(cpu):
-    
     ## Testing a single BP on  all tests, just change the BP name
-    #producersdb = [('liquidstudio', 'LiquidStudios', 'https://liquidstudios.io', 'https://liquidstudios.io/wax.json', 'https://liquidstudios.io/chains.json', True, 'https://liquidstudios.io/wp-content/uploads/2021/04/logo_small_icon_only-1.png', True, 'MU', None)]
+    if singlebp:
+        producersdb = [(singlebp, 'LiquidStudios', 'https://liquidstudios.io', 'https://liquidstudios.io/wax.json', 'https://liquidstudios.io/chains.json', True, 'https://liquidstudios.io/wp-content/uploads/2021/04/logo_small_icon_only-1.png', True, 'MU', None)]
     # Get list of registered active producers
-    producersdb = db_connect.getProducers()
+    else:
+        producersdb = db_connect.getProducers()
     # Get CPU stats for top21 producers unless false then we pass
     if not cpu:
         pass
@@ -1084,7 +1091,11 @@ def finalresults(cpu):
 
 
 
-def main():
+def main(cpucheck):
+    if cpucheck:
+        print(core.bcolors.OKYELLOW,f"{'='*100}\nCPU is being checked ",core.bcolors.ENDC)
+    else:
+        print(core.bcolors.OKYELLOW,f"{'='*100}\nCPU is not being checked ",core.bcolors.ENDC)
     # Get Todays date minus 1 minutes - see db_connect.createSnapshot for reasoning
     now = datetime.now() - timedelta(minutes=1)
     print(core.bcolors.OKYELLOW,f"{'='*100}\nTime: ",now,core.bcolors.ENDC)
@@ -1105,17 +1116,27 @@ def main():
     testnet_nodes = node_list(testnet=True) # Tesnet = True so collect testnet nodes from json files
     db_connect.nodesInsert(testnet_nodes)
     # Get all results and save to DB
-    results = finalresults(True) # Set True to check CPU , False to ignore
+    results = finalresults(cpucheck) # Set True to check CPU , False to ignore
     db_connect.resultsInsert(results)
     # Take snapshot
     takeSnapshot(now)
 
 if __name__ == "__main__":
+    my_parser = argparse.ArgumentParser()
+    my_parser.add_argument('--ignorecpucheck', default=True, action="store_false")
+    my_parser.add_argument('--ignorelastcheck',default=False, action="store_true")
+    my_parser.add_argument('--bp', action="store")
+    args = my_parser.parse_args()
+    cpucheck = args.ignorecpucheck
+    ignorelastcheck = args.ignorelastcheck
+    singlebp = args.bp
     now = datetime.now() - timedelta(minutes=1)
     # If lastcheck is False
-    if not lastCheck(now):
+    if not lastCheck(now,ignorelastcheck):
         print("Not running as ran withtin last 2 hours")
     else:
-        pass
-    #print(check_hyperion('sentnlagents','hyperion-v2',partialtest=True))
-    main()
+        main(cpucheck)
+        #print(check_https('sentnlagents','http2chk'))
+
+## Invdividual BP check (ignoring both CPU checks an lastcheck )
+# python3 producer-data.py --ignorelastcheck --ignorecpucheck --bp eosriobrazil

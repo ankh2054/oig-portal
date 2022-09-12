@@ -276,13 +276,13 @@ export default function ResultTables({ passedResults, avgResult, metaSnapshotDat
               <HtmlTooltip title={`${avgResult.hyperion_v2_count}/${avgResult.total_count}`} aria-label="hyperion_v2_count" placement="top">
                 <StyledTableCell className={classes.avgResultCell}><span>{avgResult.hyperion_v2_pct}</span></StyledTableCell>
               </HtmlTooltip>
-              <HtmlTooltip title={`${avgResult.hyperion_v2_full_count}/${avgResult.total_count}`} aria-label="hyperion_v2_count" placement="top">
+              <HtmlTooltip title={`${avgResult.hyperion_v2_full_count}/${avgResult.total_count}`} aria-label="hyperion_v2_full_count" placement="top">
                 <StyledTableCell className={classes.avgResultCell}><span>{avgResult.hyperion_v2_full_pct}</span></StyledTableCell>
               </HtmlTooltip>
               <HtmlTooltip title={`${avgResult.hyperion_v2_testnet_count}/${avgResult.total_count}`} aria-label="hyperion_v2_testnet_count" placement="top">
                 <StyledTableCell className={classes.avgResultCell}><span>{avgResult.hyperion_v2_testnet_pct}</span></StyledTableCell>
               </HtmlTooltip>
-              <HtmlTooltip title={`${avgResult.hyperion_v2_testnet_full_count}/${avgResult.total_count}`} aria-label="hyperion_v2_testnet_count" placement="top">
+              <HtmlTooltip title={`${avgResult.hyperion_v2_testnet_full_count}/${avgResult.total_count}`} aria-label="hyperion_v2_testnet_full_count" placement="top">
                 <StyledTableCell className={classes.avgResultCell}><span>{avgResult.hyperion_v2_testnet_full_pct}</span></StyledTableCell>
               </HtmlTooltip>
               <HtmlTooltip title={`${avgResult.atomic_api_count}/${avgResult.total_count}`} aria-label="atomic_api_count" placement="top">
@@ -330,13 +330,13 @@ export default function ResultTables({ passedResults, avgResult, metaSnapshotDat
                 <HtmlTooltip title={result.hyperion_v2_error} aria-label="hyperion_v2_error" placement="top">
                   <StyledTableCell>{iconResult(result.hyperion_v2)}</StyledTableCell>
                 </HtmlTooltip>
-                <HtmlTooltip title={result.hyperion_v2_full_error} aria-label="hyperion_v2_error" placement="top">
+                <HtmlTooltip title={result.hyperion_v2_full_error} aria-label="hyperion_v2_full_error" placement="top">
                   <StyledTableCell>{iconResult(result.hyperion_v2_full)}</StyledTableCell>
                 </HtmlTooltip>
-                <HtmlTooltip title={result.hyperion_v2_testnet_error} aria-label="hyperion_v2_error" placement="top">
+                <HtmlTooltip title={result.hyperion_v2_testnet_error} aria-label="hyperion_v2_testnet_error" placement="top">
                   <StyledTableCell>{iconResult(result.hyperion_v2_testnet)}</StyledTableCell>
                 </HtmlTooltip>
-                <HtmlTooltip title={result.hyperion_v2_testnet_full_error} aria-label="hyperion_v2_error" placement="top">
+                <HtmlTooltip title={result.hyperion_v2_testnet_full_error} aria-label="hyperion_v2_testnet_full_error" placement="top">
                   <StyledTableCell>{iconResult(result.hyperion_v2_testnet_full)}</StyledTableCell>
                 </HtmlTooltip>
                 <HtmlTooltip title={result.atomic_api_error} aria-label="atomic_api_error" placement="top">

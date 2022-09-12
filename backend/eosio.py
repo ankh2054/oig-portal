@@ -102,7 +102,7 @@ def getrandomNode(nodelist):
 # Mainnet V2,V1 END POINT
 #nodelist = getFullnodes()
 #hyperion_Node = getrandomNode(nodelist)
-hyperion_Node = 'https://hyperion3.sentnl.io'
+hyperion_Node = 'http://172.16.0.80:7000'
 hyperion_Node2 = 'http://wax.blokcrafters.io' 
 
 # Testnet V2 END point
@@ -130,7 +130,21 @@ def hyperionindexedBlocks(host):
         total_indexed = int(service_data['total_indexed_blocks'])
     except:
         return False, 'Hyperion last indexed does not match total indexed with range of 10'
-    # Check if total index is between total_index-10 and last_index+1, as they wont always exactly match.
+    try:
+        first_indexed_block = int(service_data['first_indexed_block'])
+        print(f' First indexed: {first_indexed_block}')
+        missing_blocks = int(service_data['missing_blocks'])
+        print(f' Missing blocks: {missing_blocks}')
+        #if last_indexed-first_indexed_block in range(last_indexed-10, total_indexed+1):
+        if missing_blocks > 5:
+            return False, f'Hyperion last indexed does not match total indexed, missing blocks {missing_blocks}'
+        else:
+            return True, f'Hyperion Total blocks matches last indexed, missing blocks {missing_blocks}' 
+    except:
+        # We pass since not all hyperions will have this.
+       pass
+    
+    #Check if total index is between total_index-10 and last_index+1, as they wont always exactly match.
     if last_indexed in range(last_indexed-10, total_indexed+1):
         return True, 'Hyperion Total blocks matches last indexed'
     else:
@@ -224,12 +238,11 @@ def producerSCHED():
 # Get all transaction numbers from a block
 def randomTransaction(backtrack,chain):
     api_url = str(Api_Calls('v1', 'get_block'))
+    curheadblock = headblock(chain)
     if chain == 'testnet':
         URL = API_ENDPOINT2_TESTNET + api_url
-        curheadblock = headblock("testnet")
     else:
         URL = hyperion_Node + api_url
-        curheadblock = headblock("mainnet")
     testblock = curheadblock-backtrack
     try:
         response = requests.post(URL, json={"block_num_or_id": testblock})
@@ -269,31 +282,24 @@ def get_http_version(url,version):
 
 
 # Get actions OR transaction data from hyperion
-def get_stuff(apiNode,payload,chain,type):
-    if chain == 'testnet':
-        URL = API_ENDPOINT2_TESTNET 
-    else:
-        URL = apiNode 
+def get_stuff(apiNode,payload,type):
     # get transaction from Hyperion node
     if type == 'trx':
         api_url = str(Api_Calls('v2-history', 'get_transaction'))
     # get action from Hyperion node
     else:
         api_url = str(Api_Calls('v2-history', 'get_actions'))
-    URL = URL + api_url
+    URL = apiNode + api_url
     try:
         response = requests.get(URL, params=payload,timeout=60)
         response_json = json.loads(response.text)
+        print(response)
     except Exception as err:
-        print(err, 'Node could not provide information failed trying a new node')
-        if type == 'testnet':
-            URL = API_ENDPOINT_TESTNET + api_url
-        else:
-            # Obtain new random node from list
-            NODE = hyperion_Node2 #getrandomNode(nodelist)
-            URL = NODE + api_url
+        # Try again
+        URL = apiNode + api_url
         response = requests.get(URL, params=payload)
         response_json = json.loads(response.text)
+        print(response)
     return response_json
 
 
