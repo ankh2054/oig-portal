@@ -90,15 +90,17 @@ def concatenate(**kwargs):
         result += arg
     return result
 
+
+mainnet_id = '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4'
+testnet_id = 'f16b1833c747c43682f4386fca9cbb327929334a762755ebec17f6f23c9b8a12'
 # Default metasnapshot_date 
 metasnapshot_date  = datetime.strptime('1980-01-01', "%Y-%d-%m")
-sentnlNode = eosio.hyperion_Node
+sentnlNode = eosio.HyperionNodeMainnet
 
   
-
-def producerlist():
+def producerlist(chain):
     prod_table = get_table_data("eosio","producers","eosio","200")
-    producers = eosio.getEOStable(prod_table)
+    producers = eosio.getEOStable(prod_table,chain)
     # Remove WAX guilds and guilds with no website
     prodremove = ['https://wax.io', '', 'https://bp.eosnewyork.io', 'https://bp.nebulaprotocol.com', 'https://wax.infinitybloc.io', 'https://blockmatrix.network', 'https://hyperblocks.pro/', 'https://strongblock.io/', 'https://waxux.com', 'https://skinminerswax.com', 'https://sheos.org','https://teloscentral.com','https://eossweden.eu','https://dmail.co', 'https://maltablock.org', 'https://wax.csx.io', 'https://xpoblocks.com']
     # Create empty list
@@ -116,11 +118,15 @@ def producerlist():
             producer_final.append(new)
     return producer_final
 
-
+def get_testnetJSON(producer):
+    producers = producerlist('testnet')
+    for guild in producers:
+        if guild['owner'] == producer:
+            return guild['url']
 
 ## Get list of producers and produce tuple
 def producer_chain_list():
-    producers = producerlist() #
+    producers = producerlist('mainnet') #
     # Create empty list
     top21producers = eosio.producerSCHED()
     producer_final = []
@@ -132,9 +138,11 @@ def producer_chain_list():
             guildurl = i['url']
             guildurl = guildurl.rstrip('/')
             response = r.get(url=guildurl + '/chains.json', timeout=defaulttimeout)
-            #response = requests.get(url=i['url'] + '/chains.json')
             # If the response was successful, no Exception will be raised
             response.raise_for_status()
+        except TimeoutError as err:
+            print(f'Timeout error occurred: {err}')
+            continue
         except HTTPError as http_err:
             print(f'HTTP error occurred: {http_err}')
             continue  
@@ -144,14 +152,29 @@ def producer_chain_list():
         else:
             try:
                 json_response = response.json()
-                waxjson = json_response['chains']['1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4']
+                waxjson = json_response['chains'][mainnet_id]
                 try:
-                    waxtestjson = json_response['chains']['f16b1833c747c43682f4386fca9cbb327929334a762755ebec17f6f23c9b8a12']
+                    print(f'Looking for testnet chains json on mainnet URL')
+                    waxtestjson = json_response['chains'][testnet_id ]
                     waxtestjson = waxtestjson.lstrip('/')
                     waxtestjson = guildurl + '/'+waxtestjson
-                except Exception as err:
-                    waxtestjson = ""
-                    pass
+                except:
+                    print(f'Looking for testnet chains json on testnet URL')
+                    try:
+                        guildtesturl = get_testnetJSON(i['owner'])
+                        guildtesturl = guildtesturl.rstrip('/')
+                        response = r.get(url=guildtesturl + '/chains.json', timeout=defaulttimeout)
+                        json_response = response.json()
+                        waxtestjson = json_response['chains'][testnet_id]
+                        waxtestjson = waxtestjson.lstrip('/')
+                        waxtestjson = guildtesturl + '/'+waxtestjson
+                    except Exception as err:
+                        print(f'Could not find testnet JSON')
+                        waxtestjson = ""
+                        pass
+                #except Exception as err:
+                #    waxtestjson = ""
+                #    pass
                 # Strip the leading "/" if exists due to Producers not following standard
                 waxjson = waxjson.lstrip('/')
             except JSONDecodeError:
@@ -159,14 +182,14 @@ def producer_chain_list():
                 waxjson = ""
             except HTTPError as http_err:
                 print(f'HTTP error occurred: {http_err}')
-                continue  
+                continue
             except Exception as err:
                 print(f'Other error occurred: {err}')  
                 continue
             else:
                 try:
                     # Get response data in JSON
-                    response = requests.get(url=guildurl+"/"+waxjson)
+                    response = r.get(url=guildurl+"/"+waxjson)
                     json_response = response.json()
                     # Extract org candidate name
                     candidate_name = json_response['org']['candidate_name']
@@ -200,6 +223,7 @@ def producer_chain_list():
                         print("Guild not in DB setting active to True")
                     thistuple = (guild, metasnapshot_date ,candidate_name, guildurl, guildurl + '/'+waxjson, waxtestjson, guildurl + '/chains.json', logo_256, top21, country_code, active)
                     producer_final.append(thistuple)
+    print(producer_final)
     return producer_final
 
 
@@ -431,7 +455,6 @@ def get_random_trx(backtrack,chain):
     trxlist.append(trx)
     trxlist.append(trx2)
     return trxlist 
-
 
 
 def check_hyperion(producer,feature,partialtest=False,testnet=False):
@@ -761,17 +784,6 @@ def cpuresults(producer,producercpu):
     # If producer is not in that list  means producer is not in top21, so we need testnet data.
     if not cpu:
         return int(1.0)
-        # Removed testnet data for now and only return 1
-        '''
-        # Iterate backwards from current)_headblock until you find a block produced by producer and that contains transactions
-        # We only go back as far as 500 blocks, if not found then return False.
-        cpu = eosio.get_testnetproducer_cpustats(producer)
-        if cpu == None:
-            return int(1.0)
-        else: 
-            stat = round(cpu/1000,2)
-            return stat
-        '''
     else:
         stat = round((sum(cpu) / len(cpu))/1000,2)
         return stat
@@ -1136,7 +1148,7 @@ if __name__ == "__main__":
         print("Not running as ran withtin last 2 hours")
     else:
         main(cpucheck)
-        #print(check_https('sentnlagents','http2chk'))
+        
 
 ## Invdividual BP check (ignoring both CPU checks an lastcheck )
 # python3 producer-data.py --ignorelastcheck --ignorecpucheck --bp eosriobrazil

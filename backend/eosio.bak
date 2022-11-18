@@ -57,14 +57,12 @@ class Api_Calls:
 HyperionNodeMainnet = 'http://172.16.0.80:7000'
 HyperionNodeMainnet2 ='http://wax.blokcrafters.io' 
 HyperionNodeTesnet = 'https://wax-testnet.dapplica.io' #'https://testnet.waxsweden.org'
-bad_node_list = [ 'http://wax.eu.eosamsterdam.net','https://api.wax.greeneosio.com' ]
 
-def chainType(chain,api_url):
-    if chain == 'testnet':
-        URL = HyperionNodeTesnet + api_url
-    else:
-        URL = HyperionNodeMainnet + api_url
-    return URL
+
+
+bad_node_list = [ 'http://wax.eu.eosamsterdam.net','https://api.wax.greeneosio.com' ]
+# Obtain a reliable list of working hyperion nodes for V1 and V2 checks
+
 
 class getJSON():
     def __init__(self,testType,chain,api_url):
@@ -72,73 +70,19 @@ class getJSON():
         self.chain = chain
         self.api_url = api_url
 
-    # Get random node for testnet or mainnet
-    def getRandomNode(self,err):
+    def getJSON(self,url,json):
+        try:
+            self.response = requests.post(url, json=json)
+            self.response_json = json.loads(self.response.text)
+        except Exception as err:
+            print(err, f'{url} node could not {self.testType}, trying a new node {url}')
             if self.chain == 'testnet':
-                self.url = getrandomNode(TestNodes) + self.api_url 
-            elif self.chain == 'mainnet':
-                self.url = getrandomNode(MainNodes) + self.api_url 
-            # if testing single guild we don't want to try a random node
-            else: 
-                self.url = self.url
-            print(f'Error: {err}. Node could not {self.testType}, trying a new node {self.url}')
-            return self.url
+                url = getrandomNode(TestNodes) + self.api_url 
+            else:
+                url = getrandomNode(MainNodes) + self.api_url 
+            self.response = requests.get(url)
+            
 
-    def reqPost(self,url,payload,retValue):
-        self.retValue = retValue
-        self.payload = payload
-        # Set post Request as variable
-        self.postRequest = requests.post(url,json=payload)
-        try:
-            self.response = self.postRequest
-            self.response_json = json.loads(self.response.text)
-            self.json = self.response_json[self.retValue]
-        except Exception as err:
-            url = self.getRandomNode(err)
-            self.response = self.postRequest
-            if len(self.retValue) == 1:
-                self.json = self.response_json[self.retValue]
-            elif len(self.retValue) == 2:
-                self.json = self.response_json[self.retValue[0]][self.retValue[1]]
-        return self.json
-    
-    def reqPostSimple(self,url,payload=None):
-        # Set get Request as variable
-        self.postRequest = requests.post(url,json=payload,timeout=60)
-        try:
-            self.response = self.postRequest
-            self.response_json = json.loads(self.response.text)
-        except Exception as err:
-            url = self.getRandomNode(err)
-            self.response = self.postRequest
-        return self.response_json
-    
-    def reqGet(self,url,retValue,payload=None):
-        self.getRequest = requests.get(url,params=payload,timeout=60)
-        self.retValue = retValue
-        try:
-            self.response = self.getRequest
-            self.response_json = json.loads(self.response.text)
-            self.json = self.response_json[self.retValue]
-        except Exception as err:
-            url = self.getRandomNode(err)
-            self.response = self.getRequest
-            self.json = self.response_json[self.retValue]
-        return self.json
-    
-    def reqGetSimple(self,url,payload=None):
-        self.getRequest = requests.get(url,params=payload,timeout=60)
-        try:
-            self.response = self.getRequest
-            self.response_json = json.loads(self.response.text)
-        except Exception as err:
-            url = self.getRandomNode(err)
-            self.response = self.getRequest
-        return self.response_json
-    
- 
-
-# Obtain a reliable list of working hyperion nodes for V1 and V2 checks
 def getFullnodes(testnet=False):
     if testnet:
         net = True
@@ -229,52 +173,120 @@ def hyperionindexedBlocks(host):
 
 def headblock(chain):
     testType = 'get Headblock'
+    # Build URL from Api_call class
     api_url = str(Api_Calls('v1', 'get_info'))
-    URL = chainType(chain,api_url) 
-    reqJSON = getJSON(testType,chain,api_url)
-    return reqJSON.reqGet(URL,'head_block_num')
+    # If testnet chain use different API
+    if chain== 'testnet':
+        URL = HyperionNodeTesnet + api_url
+    else:
+        URL = HyperionNodeMainnet + api_url
+    try:
+        response = requests.get(URL)
+        response_json = json.loads(response.text)
+        HEADBLOCK = response_json['head_block_num']
+    except Exception as err:
+        print(err, f'{URL} node could not {testType}, trying a new node {URL}')
+        if chain == 'testnet':
+            URL = getrandomNode(TestNodes) + api_url 
+        else:
+            # Obtain new random node from list
+            URL = getrandomNode(MainNodes) + api_url 
+        response = requests.get(URL)
+        response_json = json.loads(response.text)
+        HEADBLOCK = response_json['head_block_num']
+    return HEADBLOCK
 
 # Only used for testnet
 def getblockTestnet(block):
-    testType = 'get block from testnet'
     # Build URL from Api_call class
     api_url = str(Api_Calls('v1', 'get_block'))
-    URL = HyperionNodeTesnet + api_url
-    reqJSON = getJSON(testType,'testnet',api_url)
-    return reqJSON.reqPostSimple(URL,{"block_num_or_id": block})
-
+    try:
+        URL = HyperionNodeTesnet + api_url
+        response = requests.post(URL, json={"block_num_or_id": block})
+        response_json = json.loads(response.text)
+    except:
+        URL = getrandomNode(TestNodes) + api_url
+        response = requests.post(URL, json={"block_num_or_id": block})
+        response_json = json.loads(response.text)
+    return response_json
 
 def getEOStable(table_info,chain='mainnet'):
     testType = 'Get table'
+    # Build URL from Api_call class
     api_url = str(Api_Calls('v1', 'get_table_rows'))
-    URL = chainType(chain,api_url) 
-    reqJSON = getJSON(testType,chain,api_url)
-    return reqJSON.reqPost(URL,table_info,'rows')
+    if chain == 'testnet':
+        URL = HyperionNodeTesnet + api_url
+    else:
+        URL = HyperionNodeMainnet + api_url
+    try:
+        response = requests.post(URL, json=table_info)
+        response_json = json.loads(response.text)
+        # Get table rows
+        rows = response_json['rows']
+    except Exception as err:
+        print(err, f'{URL} node could not {testType}, trying a new node {URL}')
+        if chain == 'testnet':
+            URL = getrandomNode(TestNodes) + api_url
+        else:
+            URL = getrandomNode(MainNodes) + api_url
+        response = requests.post(URL, json=table_info)
+        response_json = json.loads(response.text)
+        # Get table rows
+        rows = response_json['rows']
+    return rows
 
 # Returns list of producers in top21
-def producerSCHED(chain='mainnet'):
+def producerSCHED():
     testType = 'get Producer Schedule'
     # Build URL from Api_call class
     api_url = str(Api_Calls('v1', 'get_block_header_state'))
-    URL = chainType(chain,api_url) 
-    reqJSON = getJSON(testType,chain,api_url)
-    producers =  reqJSON.reqPost(URL,{"block_num_or_id": headblock("mainnet") } ,('active_schedule','producers'))
+    # Create Block header json payload
+    BLOCK_HEADER_DATA = {"block_num_or_id": headblock("mainnet") } 
+    # Get producer schedule using block info
+    try:
+        URL = HyperionNodeMainnet + api_url 
+        response = requests.post(URL, json=BLOCK_HEADER_DATA)
+        response_json = json.loads(response.text)
+        # Extract list of producer details
+        producers = response_json['active_schedule']['producers']
+    except Exception as err:
+        print(err, f'{URL} node could not {testType}, trying a new node {URL}')
+        URL = getrandomNode(MainNodes) + api_url
+        response = requests.post(URL, json=BLOCK_HEADER_DATA)
+        response_json = json.loads(response.text)
+        # Extract list of producer details
+        producers = response_json['active_schedule']['producers']
     top21_producer_list = []
     for i in producers:
         top21_producer_list.append(i['producer_name'])
     return top21_producer_list
-
-print(producerSCHED(chain='mainnet'))
 
 # Get all transaction numbers from a block
 def randomTransaction(backtrack,chain):
     testType = 'get Random transaction'
     api_url = str(Api_Calls('v1', 'get_block'))
     curheadblock = headblock(chain)
-    URL = chainType(chain,api_url) 
+    if chain == 'testnet':
+        URL = HyperionNodeTesnet + api_url
+    else:
+        URL = HyperionNodeMainnet + api_url
     testblock = curheadblock-backtrack
-    reqJSON = getJSON(testType,chain,api_url)
-    transactions =  reqJSON.reqPost(URL,{"block_num_or_id": testblock} ,'transactions')
+    try:
+        response = requests.post(URL, json={"block_num_or_id": testblock})
+        response_json = json.loads(response.text)
+        transactions = response_json['transactions']
+    except Exception as err:
+        print(err, f'{URL} node could not {testType}, trying a new node {URL}')
+        if chain == 'testnet':
+            URL = getrandomNode(TestNodes) + api_url
+        else:
+            URL = getrandomNode(MainNodes) + api_url
+        
+        response = requests.post(URL, json={"block_num_or_id": testblock})
+        response_json = json.loads(response.text)
+        # Get all transactions
+        transactions = response_json['transactions']
+        
     # Extract all transaction IDs
     trxlist = []
     for trx in transactions:
@@ -289,19 +301,18 @@ def randomTransaction(backtrack,chain):
     return trxlist
 
 
+
 def get_http_version(url,version):
     if version == "v1":
         info = str(Api_Calls('v1', 'get_info')) 
     else:
         info = str(Api_Calls('v2', 'health'))
-    url = url + info
     response = requests.get(url+info, timeout=60, verify=False)
     return response.raw.version
 
+
 # Get actions OR transaction data from hyperion
 def get_stuff(apiNode,payload,type):
-    testType = f'get {type} from Hyperion'
-    chain = 'guild'
     # get transaction from Hyperion node
     if type == 'trx':
         api_url = str(Api_Calls('v2-history', 'get_transaction'))
@@ -309,8 +320,18 @@ def get_stuff(apiNode,payload,type):
     else:
         api_url = str(Api_Calls('v2-history', 'get_actions'))
     URL = apiNode + api_url
-    reqJSON = getJSON(testType,chain,api_url)
-    return reqJSON.reqGetSimple(URL,payload)
+    try:
+        response = requests.get(URL, params=payload,timeout=60)
+        response_json = json.loads(response.text)
+        print(response)
+    except Exception as err:
+        # Try again
+        URL = apiNode + api_url
+        response = requests.get(URL, params=payload)
+        response_json = json.loads(response.text)
+        print(response)
+    return response_json
+
 
 # Performs a get info and looks for producer name, if found returns head_block num.
 def get_testnetproducer_cpustats(producer):

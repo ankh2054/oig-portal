@@ -6,11 +6,11 @@ import time
 from datetime import datetime
 
 
-
 # todays\'s epoch
 tday = time.time()
 file_size = [] #just to keep track of the total savings in storage size
 net = 'mainnet' # passes in the default chain to queries if required
+metasnapshot_date = '1980-01-01 00:00:00' 
 
 
 user = cfg.db["user"]
@@ -18,6 +18,11 @@ password = cfg.db["password"]
 host = cfg.db["host"]
 port = cfg.db["port"]
 database = cfg.db["database"]
+
+
+##########################
+# DB core functions ######
+##########################
 
 def db_connection():
     connection = psycopg2.connect(
@@ -28,97 +33,127 @@ def db_connection():
         database = database)
     return connection
 
-# Core DB function Insert 
-def dbInsertMany(records, query):
-    try:
-        # Create connection to DB
-        connection = db_connection()
-        # Open cursor to DB
-        cursor = connection.cursor()
-        sql_insert_query = query
-        result = cursor.executemany(sql_insert_query, records)
-        connection.commit()
-        print(cursor.rowcount, "Record inserted successfully")
-    except (Exception, psycopg2.Error) as error:
-        print("Failed inserting records {}".format(error))
-    finally:
-        # closing database connection.
-        if (connection):
-            cursor.close()
-            connection.close()
-            print("PostgreSQL connection is closed")
+class MyDB():
+    def __init__(self):
+        self.conn = psycopg2.connect(
+        user = user,
+        password = password,
+        host = host,
+        port = port,
+        database = database)
+        self.cur = self.conn.cursor()
 
-# Core DB function Select
-def dbSelect(query):
-    try:
-        # Create connection to DB
-        connection = db_connection()
-        # Open cursor to DB
-        cursor = connection.cursor()
-        cursor.execute(query)
-        records = cursor.fetchall()
-        return records
-    except (Exception, psycopg2.Error) as error:
-        print("Error fetching data from PostgreSQL table", error)
-    finally:
-        # closing database connection.
-        if (connection):
-            cursor.close()
-            connection.close()
-            print("PostgreSQL connection is closed")
+    def close(self):
+        self.cur.close()
+        self.conn.close()
 
-def dbSelect2(query,var):
-    try:
-        # Create connection to DB
-        connection = db_connection()
-        # Open cursor to DB
-        cursor = connection.cursor()
-        cursor.execute(query,var)
-        records = cursor.fetchall()
-        return records
-    except (Exception, psycopg2.Error) as error:
-        print("Error fetching data from PostgreSQL table", error)
-    finally:
-        # closing database connection.
-        if (connection):
-            cursor.close()
-            connection.close()
-            print("PostgreSQL connection is closed")          
+    def dbSelect(self, *args):
+        self.lenArgs = len(args)
+        if self.lenArgs <= 1:
+             self.cur.execute(args[0])
+        # Else we need to pass first tuple item as the query to be executed, follow by the variables minus 
+        # the first tuple item which is the query 
+        else:
+            # Create a list from args tuple and remove first item, re-tuple
+            self.l1=list(args)
+            self.l1.pop(0)
+            self.vars=tuple(self.l1)
+            self.cur.execute(args[0], (self.vars,))
+        self.records = self.cur.fetchall()
+        self.close()
+        return self.records
+    
+    def dbInsertMany(self,records, query):
+        self.cur.executemany(query,records)
+        self.conn.commit()
+        self.close()
 
-# Select producers that are acive only
-metasnapshot_date = '1980-01-01 00:00:00'
+    def dbExec(self, *args):
+        self.lenArgs = len(args)
+        if self.lenArgs <= 1:
+             self.cur.execute(args[0])
+        # Else we need to pass first tuple item as the query to be executed, follow by the variables minus 
+        # the first tuple item which is the query 
+        else:
+            # Create a list from args tuple and remove first item, re-tuple
+            self.l1=list(args)
+            self.l1.pop(0)
+            self.vars=tuple(self.l1)
+            self.cur.execute(args[0], (self.vars,))
+        self.conn.commit()
+        self.close()
+
+
+
+##########################
+# DB queries #############
+##########################
+
 def getProducers():
-    #query = "SELECT * FROM oig.producer WHERE active"
-    query = "SELECT * FROM oig.producer WHERE active AND metasnapshot_date = timestamp '1980-01-01 00:00:00'"
-    return dbSelect(query)
-
+    db = MyDB()
+    query = db.dbSelect("SELECT * FROM oig.producer WHERE active AND metasnapshot_date = timestamp '1980-01-01 00:00:00'")
+    return query
 
 def getPoints():
-    query = "SELECT * FROM oig.pointsystem WHERE points IS NOT NULL"
-    return dbSelect(query)
+    db = MyDB()
+    query = db.dbSelect("SELECT * FROM oig.pointsystem WHERE points IS NOT NULL")
+    return query
 
 def getLastcheck():
-    query = "SELECT date_check FROM oig.results ORDER BY date_check DESC LIMIT 1"
-    return dbSelect(query)
+    db = MyDB()
+    query = db.dbSelect("SELECT date_check FROM oig.results ORDER BY date_check DESC LIMIT 1")
+    return query
 
+def getFullnodes(testnet=False):
+    if testnet:
+        net = 'testnet'
+    else:
+        net = 'mainnet'
+    db = MyDB()
+    query = db.dbSelect("SELECT COALESCE(http_node_url,https_node_url) FROM oig.nodes WHERE features @> ARRAY['hyperion-v2']::text[] AND net = %s",net)
+    return query
 
-def getFullnodes():
-    query =  """ 
-        SELECT COALESCE(http_node_url,https_node_url) FROM oig.nodes WHERE features @> ARRAY['hyperion-v2']::text[];
-        """
-    return dbSelect(query)
+def getProducerStatus(producer):
+    db = MyDB()
+    query = db.dbSelect("SELECT active FROM oig.producer WHERE metasnapshot_date = '1980-01-01 00:00:00' AND owner_name =  %s",producer)
+    return query
 
 def getSnapshotdate():
-    query = "SELECT snapshot_date FROM oig.snapshotsettings"
-    return dbSelect(query)
-
+    db = MyDB()
+    query = db.dbSelect("SELECT snapshot_date FROM oig.snapshotsettings")
+    return query
 
 def getSnapshottakendate():
-    query = "SELECT DISTINCT ON (snapshot_date) snapshot_date FROM oig.results WHERE owner_name = 'sentnlagents' ORDER BY snapshot_date DESC"
-    return dbSelect(query)
+    db = MyDB()
+    query = db.dbSelect("SELECT DISTINCT ON (snapshot_date) snapshot_date FROM oig.results WHERE owner_name = 'sentnlagents' ORDER BY snapshot_date DESC")
+    return query
 
-# DB Inserts
+def getProducerUrl(producer):
+    db = MyDB()
+    query = db.dbSelect("SELECT * FROM oig.producer WHERE owner_name = %s",producer)
+    for row in query:
+            jsonurl = row[3]
+            return jsonurl
+
+def getCPU(producer):
+    db = MyDB()
+    query = db.dbSelect("SELECT cpu_time FROM oig.results WHERE owner_name = %s AND date_check > current_date - interval '90' day", producer)
+    return query
+
+##########################
+# DB Delete #############
+##########################
+
+def nodesDelete2(table):
+    db = MyDB()
+    db.dbExec("DELETE FROM %(table)s", {"table": AsIs(table)})
+    
+##########################
+# DB Inserts #############
+##########################
+
 def producerInsert(records):
+    db = MyDB()
     query = """ INSERT INTO oig.producer (owner_name,metasnapshot_date ,candidate, url, jsonurl, jsontestneturl, chainsurl, logo_svg, top21, country_code, active) 
                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                            ON CONFLICT (owner_name,metasnapshot_date) DO UPDATE SET candidate = EXCLUDED.candidate, url = EXCLUDED.url, 
@@ -126,58 +161,19 @@ def producerInsert(records):
                            logo_svg = EXCLUDED.logo_svg, top21 = EXCLUDED.top21, country_code = EXCLUDED.country_code, active = EXCLUDED.active;
                            """
     # Call DB insert function
-    dbInsertMany(records, query)
-
-
-#records = [('blacklusionx', '1980-01-01 00:00:00', 'Blacklusion', 'https://blacklusion.io', 'https://blacklusion.io/wax.json', 'https://blacklusion.io/chains.json', 'https://blacklusion.io/resources/blacklusion_logo_256.png', False, 'DE', True)]
-# producerInsert(records)
-
-def nodesDelete(table):
-    try:
-        # Create connection to DB
-        connection = db_connection()
-        # Open cursor to DB
-        cursor = connection.cursor()
-        cursor.execute("DELETE FROM %(table)s", {"table": AsIs(table)})
-        connection.commit()
-    except (Exception, psycopg2.Error) as error:
-        print("Error deleting rows from nodes table", error)
-
-    finally:
-        # closing database connection
-        if (connection):
-            cursor.close()
-            connection.close()
-
-
-# Get the active status of producer
-def getProducerStatus(producer):
-    try:
-        # Create connection to DB
-        connection = db_connection()
-        # Open cursor to DB
-        cursor = connection.cursor()
-        cursor.execute("SELECT active FROM oig.producer WHERE metasnapshot_date = '1980-01-01 00:00:00' AND owner_name =  %(producer)s", {"producer": producer})
-        records = cursor.fetchall()
-        return records
-    except (Exception, psycopg2.Error) as error:
-        print("Error getting producer status", error)
-
-    finally:
-        # closing database connection
-        if (connection):
-            cursor.close()
-            connection.close()
+    db.dbInsertMany(records, query)
+    #dbInsertMany(records, query)
 
 def nodesInsert(records):
+    db = MyDB()
     query = """ INSERT INTO oig.nodes (owner_name, node_type, net, https_node_url, http_node_url, p2p_url, features) 
                 VALUES (%s,%s,%s,%s,%s,%s,%s)
                 ON CONFLICT (owner_name,node_type,http_node_url,features) DO UPDATE SET http_node_url = EXCLUDED.http_node_url, https_node_url = EXCLUDED.https_node_url, p2p_url = EXCLUDED.p2p_url 
             """
-    dbInsertMany(records, query)
-
+    db.dbInsertMany(records, query)
 
 def resultsInsert(records):
+    db = MyDB()
     query = """ INSERT INTO oig.results (owner_name, cors_check, cors_check_error, http_check, http_check_error, https_check, https_check_error, tls_check, tls_check_error, producer_api_check, producer_api_error, net_api_check, net_api_error, dbsize_api_check,  dbsize_api_error, http2_check, http2_check_error, full_history, full_history_error, hyperion_v2, hyperion_v2_error,  hyperion_v2_full, hyperion_v2_full_error, hyperion_v2_testnet,  hyperion_v2_testnet_error, hyperion_v2_testnet_full,  hyperion_v2_testnet_full_error, atomic_api, atomic_api_error, snapshots, seed_node, seed_node_error, api_node, api_node_error, oracle_feed, oracle_feed_error, wax_json, chains_json, cpu_time, cpu_avg, date_check, score,metasnapshot_date) 
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 ON CONFLICT (owner_name,date_check,metasnapshot_date) DO UPDATE SET 
@@ -203,12 +199,28 @@ def resultsInsert(records):
                 chains_json= EXCLUDED.chains_json, cpu_time= EXCLUDED.cpu_time, cpu_avg= EXCLUDED.cpu_avg,
                 date_check= EXCLUDED.date_check, score= EXCLUDED.score;
             """
-    dbInsertMany(records, query)
+    db.dbInsertMany(records, query)
 
-#Set a snapshot for latest results where results is less than 1 minutes based on date_check timestamp of latest results.
-#UPDATE oig.results SET snaphot_date = $2 WHERE owner_name = $1 AND date_check > NOW() - INTERVAL '15 minutes'
-#update oig.results set snapshot_date = '2020-09-11 17:18:04.825519' where owner_name = 'eos42freedom' and date_check > timestamp '2020-10-23 17:31:22' - INTERVAL '1 minute';
-#date_check > TIMESTAMP '2020-10-23T17:31:22.494Z' - INTERVAL '1 minute'
+
+def nodesDelete(table):
+    try:
+        # Create connection to DB
+        connection = db_connection()
+        # Open cursor to DB
+        cursor = connection.cursor()
+        cursor.execute("DELETE FROM %(table)s", {"table": AsIs(table)})
+        connection.commit()
+    except (Exception, psycopg2.Error) as error:
+        print("Error deleting rows from nodes table", error)
+
+    finally:
+        # closing database connection
+        if (connection):
+            cursor.close()
+            connection.close()
+
+#print(nodesDelete2('oig.nodes'))
+
 def createSnapshot(snapshot_date,producer,now):
     try:
         # Create connection to DB
@@ -227,11 +239,7 @@ def createSnapshot(snapshot_date,producer,now):
             cursor.close()
             connection.close()
 
-#createSnapshot('2021-03-07 12:29:48.930000+00:00', 'sentnlagents', '2021-02-05 19:52:45.608381')
 
-
-#records_insert = [('blokcrafters', 'seed', None, None, 'wax-seed1.blokcrafters.io:9876', None)]
-#nodesInsert(records_insert)
 
 # Get query type nodes that contain features. By default mainnet is passed.
 def getQueryNodes(producer,feature,type,testnet=False):
@@ -275,62 +283,4 @@ def getQueryNodes(producer,feature,type,testnet=False):
             cursor.close()
             connection.close()
 
-
-def getProducerUrl(owner_name):
-    try:
-         # Create connection to DB
-        connection = db_connection()
-        # Open cursor to DB
-        cursor = connection.cursor()
-        postgreSQL_select_Query = "select * from oig.producer where owner_name = %s"
-
-        cursor.execute(postgreSQL_select_Query, (owner_name,))
-        producer_records = cursor.fetchall()
-        for row in producer_records:
-            jsonurl = row[3]
-            return jsonurl
-
-    except (Exception, psycopg2.Error) as error:
-        print("Error fetching data from PostgreSQL table", error)
-
-    finally:
-        # closing database connection
-        if (connection):
-            cursor.close()
-            connection.close()
-
-# Get past 30 days worth of CPU stats for producer
-def getCPU(producer):
-    try:
-        # Create connection to DB
-        connection = db_connection()
-        # Open cursor to DB
-        cursor = connection.cursor()
-        pg_select = """ 
-        SELECT cpu_time FROM oig.results WHERE owner_name = %s AND date_check > current_date - interval '90' day;
-        """
-        # date_check > current_date - interval '10' day;
-        # date_check >= date_trunc('month', CURRENT_DATE);  
-     
-        cursor.execute(pg_select, (producer, ))
-        cpu_stats = cursor.fetchall()
-        return cpu_stats
-
-    except (Exception, psycopg2.Error) as error:
-        print("Error fetching data from PostgreSQL table", error)
-
-    finally:
-        # closing database connection
-        if (connection):
-            cursor.close()
-            connection.close()
-
-#v = getCPU('sentnlagents')
-#print(type(v))
-#print(v[0][0])
-
-#cpu = float(2.654)
-#dt = datetime.utcnow()
-#records_insert = [('blacklusionx', True, True, True, True, True, True ,True, True, True,True, cpu, dt)]
-#resultsInsert(records_insert)
 
