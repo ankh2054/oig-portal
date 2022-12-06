@@ -11,11 +11,16 @@ from datetime import datetime
 from requests.exceptions import HTTPError
 import db_connect
 import urllib3
-import backendconfig as cfg
+import config.backendconfig as cfg
 import statistics
 import argparse
+import services.atomic as atomic
+import services.producers as get_producers
+import utils.requests as requestscnt
+
 
 # Passes into requests auth param, so each request adds time.sleep(1)
+
 def auth_provider(req):
     global requests_count
     requests_count += 1
@@ -28,7 +33,7 @@ def auth_provider(req):
 urllib3.disable_warnings()
 
 # Default timeout for connections
-defaulttimeout = (3, 7)
+defaulttimeout = (3, 20)
 
 # Better JSON errors
 try:
@@ -47,6 +52,7 @@ headers = {
     'Content-Type': 'application/json',
     'User-Agent': 'curl/7.77.0'
     }
+
 # For service check sessions
 s = requests.Session()
 requests_count = 0
@@ -83,6 +89,18 @@ def get_actions_data(account,limit):
     }
     return actions_dict
 
+
+def get_base_json_dict(collection_name):
+    json_dict = {
+        'collection_name': collection_name,
+        'page': 1,
+        'limit': 1,
+        'order': 'desc',
+        'sort': 'created'
+    }
+    return json_dict
+
+
 def concatenate(**kwargs):
     result = ""
     # Iterating over the keys of the Python kwargs dictionary
@@ -97,24 +115,102 @@ testnet_id = 'f16b1833c747c43682f4386fca9cbb327929334a762755ebec17f6f23c9b8a12'
 metasnapshot_date  = datetime.strptime('1980-01-01', "%Y-%d-%m")
 sentnlNode = eosio.HyperionNodeMainnet
 
-  
+""""
+class getJSON():
+    def __init__(self):
+        self.defaulttimeout = (3, 7)
+        self.headers = {
+            'Content-Type': 'application/json',
+            'User-Agent': 'curl/7.77.0'
+            }
+    
+    def tryContinue(self,err,trydo='continue'):
+         self.trydo = trydo
+         self.err = err
+         if self.trydo == 'continue':
+            while True:
+                if err:
+                    break
+                else:
+                    continue
+         elif self.trydo == 'return':
+            return False, self.err
+
+    def getRequest(self,url,trydo='continue',payload=None):
+        self.trydo = trydo
+        try:
+            self.curlreq = core.curl_request(url,'GET',False)
+            self.response = requests.get(url, payload,timeout=self.defaulttimeout, verify=False, headers=self.headers)
+            self.responsetimes = self.response.elapsed.total_seconds()*1000
+        except TimeoutError as err:
+            print(f'Timeout error occurred: {err}')
+            self.tryContinue(err,trydo)
+        except HTTPError as err:
+            if self.response.status_code == 500:
+                try:
+                    self.jsonres = self.response.json()
+                except Exception as err:
+                    err = f'JSON response: {self.jsonres}.\n Error:{err}'
+                    self.tryContinue(err,trydo)
+                self.tryContinue(err,trydo)
+            elif self.response.status_code == 404:
+                err = f'{self.curlreq}\n Error: File not found: {err}'
+                self.tryContinue(err,trydo)
+            else:
+                err = f'{self.curlreq}\n {err}'
+                self.tryContinue(err,trydo)
+        except JSONDecodeError as err:
+                print(f'JSON parsing error: {err}')
+                self.tryContinue(err,trydo)
+        except Exception as err:
+                print(f'Other error occurred: {err}')  
+                self.tryContinue(err,trydo)
+        else:
+            return self.response
+
+    def getJson(self,url,response,jsonfield,trydo='continue'):
+        self.response = response
+        self.jsonfield = jsonfield
+        self.trydo = trydo
+        try:
+            self.curlreq = core.curl_request(url,'GET',False)
+            self.jsonres = self.response.json()
+            self.jsonReturn = self.jsonres[self.jsonfield]
+        except JSONDecodeError as err:
+                print(f'JSON parsing error: {err}')
+                self.tryContinue(err,trydo)
+        except HTTPError as err:
+            if self.response.status_code == 500:
+                try:
+                    self.jsonres = self.response.json()
+                except Exception as err:
+                    err = f'JSON response: {self.jsonres}.\n Error:{err}'
+                    self.tryContinue(err,trydo)
+                self.tryContinue(err,trydo)
+            elif self.response.status_code == 404:
+                err = f'{self.curlreq}\n Error: File not found: {err}'
+                self.tryContinue(err,trydo)
+            else:
+                err = f'{self.curlreq}\n {err}'
+                self.tryContinue(err,trydo) 
+        except Exception as err:
+                print(f'Other error occurred: {err}')  
+                self.tryContinue(err,trydo)
+        else:
+            return self.jsonReturn
+"""
+"""
 def producerlist(chain):
     prod_table = get_table_data("eosio","producers","eosio","200")
     producers = eosio.getEOStable(prod_table,chain)
     # Remove WAX guilds and guilds with no website
     prodremove = ['https://wax.io', '', 'https://bp.eosnewyork.io', 'https://bp.nebulaprotocol.com', 'https://wax.infinitybloc.io', 'https://blockmatrix.network', 'https://hyperblocks.pro/', 'https://strongblock.io/', 'https://waxux.com', 'https://skinminerswax.com', 'https://sheos.org','https://teloscentral.com','https://eossweden.eu','https://dmail.co', 'https://maltablock.org', 'https://wax.csx.io', 'https://xpoblocks.com']
-    # Create empty list
     producer_final = []
-    # Create emtpy dictinary
     proddict = {}
     for i in producers:
         if i['url'] not in prodremove:
-            # create copy of dict and call it new
             new = proddict.copy()
-            #time.sleep(10)
-            # Update new dict
             new.update({'owner': i['owner'],'url': i['url'] })
-            # Append new dict to top21list
             producer_final.append(new)
     return producer_final
 
@@ -130,34 +226,19 @@ def producer_chain_list():
     # Create empty list
     top21producers = eosio.producerSCHED()
     producer_final = []
-    # Create emtpy dictinary
-    # proddict = {}
     for i in producers:
+        url = i['url']
+        url = url.rstrip('/')+'/chains.json'
+        reqJSON = requestscnt.getJSON()
+        response = reqJSON.getRequest(url,trydo='continue')
         try:
-            # Set guild default website URL from tuple obtained from DB
-            guildurl = i['url']
-            guildurl = guildurl.rstrip('/')
-            response = r.get(url=guildurl + '/chains.json', timeout=defaulttimeout)
-            # If the response was successful, no Exception will be raised
-            response.raise_for_status()
-        except TimeoutError as err:
-            print(f'Timeout error occurred: {err}')
-            continue
-        except HTTPError as http_err:
-            print(f'HTTP error occurred: {http_err}')
-            continue  
-        except Exception as err:
-            print(f'Other error occurred: {err}')  
-            continue
-        else:
-            try:
                 json_response = response.json()
                 waxjson = json_response['chains'][mainnet_id]
                 try:
                     print(f'Looking for testnet chains json on mainnet URL')
                     waxtestjson = json_response['chains'][testnet_id ]
                     waxtestjson = waxtestjson.lstrip('/')
-                    waxtestjson = guildurl + '/'+waxtestjson
+                    waxtestjson = url + '/'+waxtestjson
                 except:
                     print(f'Looking for testnet chains json on testnet URL')
                     try:
@@ -172,24 +253,20 @@ def producer_chain_list():
                         print(f'Could not find testnet JSON')
                         waxtestjson = ""
                         pass
-                #except Exception as err:
-                #    waxtestjson = ""
-                #    pass
-                # Strip the leading "/" if exists due to Producers not following standard
                 waxjson = waxjson.lstrip('/')
-            except JSONDecodeError:
+        except JSONDecodeError:
                 print('JSON parsing error')
                 waxjson = ""
-            except HTTPError as http_err:
+        except HTTPError as http_err:
                 print(f'HTTP error occurred: {http_err}')
                 continue
-            except Exception as err:
+        except Exception as err:
                 print(f'Other error occurred: {err}')  
                 continue
-            else:
+        else:
                 try:
                     # Get response data in JSON
-                    response = r.get(url=guildurl+"/"+waxjson)
+                    response = r.get(url=url+"/"+waxjson)
                     json_response = response.json()
                     # Extract org candidate name
                     candidate_name = json_response['org']['candidate_name']
@@ -221,12 +298,11 @@ def producer_chain_list():
                     except:
                         active = True
                         print("Guild not in DB setting active to True")
-                    thistuple = (guild, metasnapshot_date ,candidate_name, guildurl, guildurl + '/'+waxjson, waxtestjson, guildurl + '/chains.json', logo_256, top21, country_code, active)
+                    thistuple = (guild, metasnapshot_date ,candidate_name, url, url + '/'+waxjson, waxtestjson, url + '/chains.json', logo_256, top21, country_code, active)
                     producer_final.append(thistuple)
-    print(producer_final)
     return producer_final
 
-
+"""
 # Iterate over all different types of possible URLs and features
 def node_types(type, node, owner_name,net):
     # Set node type
@@ -261,30 +337,14 @@ def node_list(testnet=False):
     node_list = []
     for nodes in producers:
         if net == "mainnet":
-            jsonurl = nodes[3]
+            url = nodes[3]
         if net == "testnet":
-            jsonurl = nodes[11]
-        try:
-            response = r.get(url=jsonurl, timeout=defaulttimeout)
-            # If the response was successful, no Exception will be raised
-            response.raise_for_status()
-        except HTTPError as http_err:
-            print(f'HTTP error occurred: {http_err}')  # Python 3.6
-            continue
-        except Exception as err:
-            print(f'Other error occurred: {err}')  # Python 3.6
-            continue
-        else:
-            try:
-                json_response = response.json()
-                owner_name = nodes[0]
-                nodes = json_response['nodes']
-            except HTTPError as http_err:
-                print(f'HTTP error occurred: {http_err}')  # Python 3.6
-                continue
-            except Exception as err:
-                print(f'Other error occurred: {err}')  # Python 3.6
-                continue
+            url = nodes[11]
+        owner_name = nodes[0]
+        reqJSON = requestscnt.getJSON()
+        response = reqJSON.getRequest(url,trydo='continue')
+        nodes = reqJSON.getJson(url,response,'nodes')
+        if nodes:
             for node in nodes:
                 # We dont care about producer nodes
                 if node.get('node_type') == 'producer':
@@ -319,6 +379,8 @@ def node_list(testnet=False):
                 if "history" in node_type:
                     thistuple = node_types("history", node, owner_name,net)
                     node_list.append(thistuple)
+        else:
+            continue
     return node_list
 
 def check_api(producer,checktype):
@@ -375,69 +437,6 @@ def check_api(producer,checktype):
             except Exception as err:
                 print(f'Other error occurred: {err}')
                 return False, str(err)
-
-def check_atomic_assets(producer,feature):
-    info = str(eosio.Api_Calls('', 'health')) 
-    # Query nodes in DB and try and obtain API node
-    try:
-        api = db_connect.getQueryNodes(producer,feature,'api')[0]
-        api = format(api.rstrip('/')) 
-    # If there is no v1_history or hyperion node in DB return False
-    except:
-        return False, 'No ' + feature + ' in JSON'
-    try:
-        payloads = {}
-        curlreq = core.curl_request(api+info,'GET', payloads)
-        response = s.get(api+info, timeout=defaulttimeout)
-        # If the response was successful, no Exception will be raised
-        response.raise_for_status()
-    except HTTPError as http_err:
-        print(f'HTTP error occurred: {http_err}')  # Python 3.6
-        # also return http_err
-        if response.status_code == 500:
-            try:
-                jsonres = response.json()
-            except Exception as err:
-                error = 'not providing JSON: '+str(err)
-                return False, error
-            try:
-                error = curlreq+'\nError: '+str(jsonres.get('error').get('what'))
-            except:
-                error = "something else weird has happened"
-            return False, error
-        elif response.status_code == 404:
-            error = curlreq+'\nError: Server not a Atomic Assets Api '
-            return False, error
-        else:
-            error = curlreq+'\n'+str(http_err)
-            return False, error
-    except Exception as err:
-        print(f'Other error occurred: {err}')  # Python 3.6
-         # also return err
-        error = curlreq+'\n'+str(err)
-        return False, error
-    else:
-        jsonres = response.json()
-        services = jsonres['data']
-        postgres = services['postgres']['status']
-        redis = services['redis']['status']
-        chain = services['chain']['status']
-        head_block = services['chain']['head_block']
-        reader = services['postgres']['readers']
-        last_indexed_block = reader[0]['block_num']
-        if abs(int(last_indexed_block) - int(head_block)) > 100:
-            msg = 'Atomic API last_indexed_block is behind head_block'
-            return(False,msg)
-        else:
-            pass
-        services = dict(postgres=postgres, redis=redis, chain=chain)
-        for k,v in services.items():
-            msg = 'Atomic service {} has status {}'.format(
-                                k, v)
-            if v != 'OK':
-                return False,msg
-            else:
-                return True,'All Atomic services are working'
 
 
 def get_random_trx(backtrack,chain):
@@ -646,6 +645,7 @@ def check_https(producer,checktype):
                 port = "443"
             return core.check_tls(httpsendpoint,port)
 
+
 def api_security(producer,features,sectype):
     # Check through all nodes
     apis = db_connect.getQueryNodes(producer,features,'all_apis')
@@ -714,7 +714,7 @@ def delphioracle_actors():
     chain = "mainnet"
     #Get list of guilds posting to delphioracle looking at actions, save last 100 actions.
     delphi_actions = get_actions_data("delphioracle","100")
-    actions = eosio.get_stuff(sentnlNode,delphi_actions,'action')
+    actions = eosio.get_stuff(sentnlNode,delphi_actions,'action','mainnet')
     guilds = actions['simple_actions']
     # Create empty list
     producer_final = []
@@ -750,7 +750,7 @@ def getcpustats():
     chain = "mainnet"
     eosmech_actions = get_actions_data("eosmechanics","120")
     #query = ['simple_actions']
-    actions = eosio.get_stuff(sentnlNode,eosmech_actions,'actions')
+    actions = eosio.get_stuff(sentnlNode,eosmech_actions,'actions','mainnet')
     trxs = actions['simple_actions']
     # Create empty list
     producer_final = []
@@ -766,7 +766,7 @@ def getcpustats():
         # Construct dict from TRX variable and assign to ID key
         payload = dict(id=trx)
         # Pass TRX ID and get all TRX information]
-        fulltrx = eosio.get_stuff(sentnlNode,payload,'trx')
+        fulltrx = eosio.get_stuff(sentnlNode,payload,'trx','mainnet')
         # Extract producer from TRX
         producer = fulltrx['actions'][0]['producer']
         # Extract cpu stats
@@ -1012,7 +1012,7 @@ def finalresults(cpu):
         printOuput(hyperion_v2_testnet_full,"Running a v2 Hyperion Full testnet node: ")
 
         # Atomic Assets API
-        atomic_api = check_atomic_assets(producer,'atomic-assets-api')
+        atomic_api = atomic.check_atomic_assets(producer,'atomic-assets-api')
         printOuput(atomic_api,"Running a atomic assets Api: ")
 
         # Set snapshots to False until we find a way
@@ -1114,7 +1114,7 @@ def main(cpucheck):
     # If last runtime was within 2 hours, skip running process.
     # Get list of producers
     print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",core.bcolors.ENDC)
-    producers = producer_chain_list()
+    producers = get_producers.producer_chain_list()
     # Update producers to DB
     db_connect.producerInsert(producers)
     # Delete all nodes from table
@@ -1148,6 +1148,11 @@ if __name__ == "__main__":
         print("Not running as ran withtin last 2 hours")
     else:
         main(cpucheck)
+        #print(atomic.check_atomic_assets('dapplica','atomic-assets-api'))
+        #print(atomic.getAtomicTemplates('https://aa.dapplica.io','kogsofficial'))
+        #print(atomic.getAtomicSchema('https://aa.dapplica.io','kogsofficial'))
+        #print(atomic.getAtomicassets('https://aa.dapplica.io'))
+
         
 
 ## Invdividual BP check (ignoring both CPU checks an lastcheck )

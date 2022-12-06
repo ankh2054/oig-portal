@@ -5,7 +5,7 @@ import re
 import random
 import db_connect
 import core
-
+import utils.decorators as decorators
 
 
 headers = {
@@ -20,31 +20,22 @@ s.headers.update(headers)
 # API calls Class
 class Api_Calls:
     def __init__(self, version, call):
-        # V2 or V1 history or Atomic assets
-        if version == 'v2-history':
-            self.url = '/v2/history/'
-        elif version == 'v1':
-            self.url = '/v1/chain/'
-        elif version == 'v1-history':
-            self.url = '/v1/history/'
-        elif version == 'v2':
-            self.url = '/v2/'
-        elif version == 'atomic':
-            self.url = '/atomicassets/v1/'
-        elif version == 'producer':
-            self.url = '/v1/producer/'
-        elif version == 'db_size':
-            self.url = '/v1/db_size/get'
-        elif version == 'net':
-            self.url = '/v1/net/'
-        elif version == '/v2/history/get_transaction':
-            self.url = '/v2/history/get_transaction?'
-        else:
-            self.url ='/'
-
-            
         self.version = version
         self.call = call
+        # V2 or V1 history or Atomic assets
+        URL_MAP = {
+            'v2-history': '/v2/history/',
+            'v1': '/v1/chain/',
+            'v1-history': '/v1/history/',
+            'v2': '/v2/',
+            'atomic': '/atomicassets/v1/',
+            'producer': '/v1/producer/',
+            'db_size': '/v1/db_size/get',
+            'net': '/v1/net/',
+            '/v2/history/get_transaction': '/v2/history/get_transaction?'
+        }
+
+        self.url = URL_MAP.get(version, '/') # / is the value to return if the specified key does not exist.
         
     # Class function - Return the URL by default
     def __str__(self):
@@ -59,12 +50,15 @@ HyperionNodeMainnet2 ='http://wax.blokcrafters.io'
 HyperionNodeTesnet = 'https://wax-testnet.dapplica.io' #'https://testnet.waxsweden.org'
 bad_node_list = [ 'http://wax.eu.eosamsterdam.net','https://api.wax.greeneosio.com' ]
 
-def chainType(chain,api_url):
+def chainType(chain,api_url=''):
     if chain == 'testnet':
         URL = HyperionNodeTesnet + api_url
+        net = True
     else:
-        URL = HyperionNodeMainnet + api_url
-    return URL
+        URL = HyperionNodeMainnet2 + api_url
+        net = False
+    return {'URL':URL,'chain':chain,'net':net}
+
 
 class getJSON():
     def __init__(self,testType,chain,api_url):
@@ -72,82 +66,102 @@ class getJSON():
         self.chain = chain
         self.api_url = api_url
 
-    # Get random node for testnet or mainnet
+   
+
+    ### Internal callable class functions ###
+
+     # Get random node for testnet or mainnet
     def getRandomNode(self,err):
             if self.chain == 'testnet':
                 self.url = getrandomNode(TestNodes) + self.api_url 
             elif self.chain == 'mainnet':
                 self.url = getrandomNode(MainNodes) + self.api_url 
-            # if testing single guild we don't want to try a random node
+            # if testing single guild we don't want to try a random node, hence url = url
             else: 
                 self.url = self.url
             print(f'Error: {err}. Node could not {self.testType}, trying a new node {self.url}')
             return self.url
 
-    def reqPost(self,url,payload,retValue):
+    def getPostData(self,url,payload):
+            self.response  = requests.post(url,json=payload)
+            self.response_json = json.loads(self.response.text)
+            return self.response_json
+            
+    def getData(self,url,retValue,payload):
+            self.response  = requests.get(url,params=payload)
+            self.response_json = json.loads(self.response.text)
+            self.json = self.response_json[retValue]
+            return self.json
+    
+    def getDataSimple(self,url,payload):
+            self.response  = requests.get(url,params=payload,timeout=60)
+            self.response_json = json.loads(self.response.text)
+            return self.response_json
+
+    ### External callable class functions ####
+    def reqPost(self,url,payload,retValue,retCount):
         self.retValue = retValue
         self.payload = payload
-        # Set post Request as variable
-        self.postRequest = requests.post(url,json=payload)
+        self.retCount = retCount
+
+        # Internal function to this function
+        def retCount(retCount,response_json):
+            # If retValue is 1 or 2, this is passed in when reqPost func is called
+            if retCount == 1:
+                json = response_json[retValue]
+            elif retCount == 2:
+                json = response_json[retValue[0]][retValue[1]]
+            return json
+
         try:
-            self.response = self.postRequest
-            self.response_json = json.loads(self.response.text)
-            self.json = self.response_json[self.retValue]
+            self.response_json = self.getPostData(url,payload)
         except Exception as err:
             url = self.getRandomNode(err)
-            self.response = self.postRequest
-            if len(self.retValue) == 1:
-                self.json = self.response_json[self.retValue]
-            elif len(self.retValue) == 2:
-                self.json = self.response_json[self.retValue[0]][self.retValue[1]]
+            self.response_json = self.getPostData(url,payload)
+        # Try accessing the dict key
+        try:
+            self.json = retCount(self.retCount,self.response_json)
+        # Handle accessing dict key
+        except KeyError as err:
+            url = self.getRandomNode(err)
+            self.response_json = self.getPostData(url,payload)
+            self.json = retCount(self.retCount,self.response_json)
         return self.json
     
     def reqPostSimple(self,url,payload=None):
-        # Set get Request as variable
-        self.postRequest = requests.post(url,json=payload,timeout=60)
         try:
-            self.response = self.postRequest
-            self.response_json = json.loads(self.response.text)
+            self.response_json = self.getPostData(url,payload)
         except Exception as err:
             url = self.getRandomNode(err)
-            self.response = self.postRequest
+            self.response_json = self.getPostData(url,payload)
         return self.response_json
-    
+
     def reqGet(self,url,retValue,payload=None):
-        self.getRequest = requests.get(url,params=payload,timeout=60)
-        self.retValue = retValue
         try:
-            self.response = self.getRequest
-            self.response_json = json.loads(self.response.text)
-            self.json = self.response_json[self.retValue]
+            self.json = self.getData(url,retValue,payload)
         except Exception as err:
             url = self.getRandomNode(err)
-            self.response = self.getRequest
-            self.json = self.response_json[self.retValue]
+            self.json = self.getData(url,retValue,payload)
         return self.json
-    
+
     def reqGetSimple(self,url,payload=None):
-        self.getRequest = requests.get(url,params=payload,timeout=60)
         try:
-            self.response = self.getRequest
-            self.response_json = json.loads(self.response.text)
+            self.response_json = self.getDataSimple(url,payload)
         except Exception as err:
             url = self.getRandomNode(err)
-            self.response = self.getRequest
+            self.response_json = self.getDataSimple(url,payload)
         return self.response_json
+
     
  
-
 # Obtain a reliable list of working hyperion nodes for V1 and V2 checks
 def getFullnodes(testnet=False):
     if testnet:
-        net = True
-        chain = 'TestNet'
+        results = chainType('testnet')
     else:
-        net = False
-        chain = 'MainNet'
-    print(core.bcolors.OKYELLOW,f"{'='*100}\nObtaining a reliable list of working Hyperion {chain} nodes ",core.bcolors.ENDC)
-    nodes = db_connect.getFullnodes(net)
+        results = chainType('mainnet')
+    print(core.bcolors.OKYELLOW,f"{'='*100}\nObtaining a reliable list of working Hyperion {results['chain']} nodes ",core.bcolors.ENDC)
+    nodes = db_connect.getFullnodes(results['net'])
     if not nodes:
         # If no nodes in DB, return single node
         nodelist = [{'Node': HyperionNodeMainnet}]
@@ -180,6 +194,7 @@ def getFullnodes(testnet=False):
 #hyperion_Node = getrandomNode(nodelist)
 MainNodes = getFullnodes()
 TestNodes = getFullnodes(testnet=True)
+
 
 # Get random node from list
 def getrandomNode(nodelist):
@@ -230,7 +245,7 @@ def hyperionindexedBlocks(host):
 def headblock(chain):
     testType = 'get Headblock'
     api_url = str(Api_Calls('v1', 'get_info'))
-    URL = chainType(chain,api_url) 
+    URL = chainType(chain,api_url)['URL']
     reqJSON = getJSON(testType,chain,api_url)
     return reqJSON.reqGet(URL,'head_block_num')
 
@@ -247,34 +262,33 @@ def getblockTestnet(block):
 def getEOStable(table_info,chain='mainnet'):
     testType = 'Get table'
     api_url = str(Api_Calls('v1', 'get_table_rows'))
-    URL = chainType(chain,api_url) 
+    URL = chainType(chain,api_url)['URL'] 
     reqJSON = getJSON(testType,chain,api_url)
-    return reqJSON.reqPost(URL,table_info,'rows')
+    return reqJSON.reqPost(URL,table_info,'rows',1)
 
 # Returns list of producers in top21
 def producerSCHED(chain='mainnet'):
     testType = 'get Producer Schedule'
     # Build URL from Api_call class
     api_url = str(Api_Calls('v1', 'get_block_header_state'))
-    URL = chainType(chain,api_url) 
+    URL = chainType(chain,api_url)['URL'] 
     reqJSON = getJSON(testType,chain,api_url)
-    producers =  reqJSON.reqPost(URL,{"block_num_or_id": headblock("mainnet") } ,('active_schedule','producers'))
+    producers =  reqJSON.reqPost(URL,{"block_num_or_id": headblock("mainnet") } ,('active_schedule','producers'),2)
     top21_producer_list = []
     for i in producers:
         top21_producer_list.append(i['producer_name'])
     return top21_producer_list
 
-print(producerSCHED(chain='mainnet'))
 
 # Get all transaction numbers from a block
 def randomTransaction(backtrack,chain):
     testType = 'get Random transaction'
     api_url = str(Api_Calls('v1', 'get_block'))
     curheadblock = headblock(chain)
-    URL = chainType(chain,api_url) 
+    URL = chainType(chain,api_url)['URL'] 
     testblock = curheadblock-backtrack
     reqJSON = getJSON(testType,chain,api_url)
-    transactions =  reqJSON.reqPost(URL,{"block_num_or_id": testblock} ,'transactions')
+    transactions =  reqJSON.reqPost(URL,{"block_num_or_id": testblock} ,'transactions',1)
     # Extract all transaction IDs
     trxlist = []
     for trx in transactions:
@@ -298,10 +312,9 @@ def get_http_version(url,version):
     response = requests.get(url+info, timeout=60, verify=False)
     return response.raw.version
 
-# Get actions OR transaction data from hyperion
-def get_stuff(apiNode,payload,type):
+# Get actions OR transaction data from hyperion. When chain = Guild, random node will not be chosen
+def get_stuff(apiNode,payload,type,chain='guild'):
     testType = f'get {type} from Hyperion'
-    chain = 'guild'
     # get transaction from Hyperion node
     if type == 'trx':
         api_url = str(Api_Calls('v2-history', 'get_transaction'))
@@ -333,10 +346,3 @@ def get_testnetproducer_cpustats(producer):
             return None
     else:
         return currentblock['transactions'][0]['cpu_usage_us']
-
-
-
-
-
-
-
