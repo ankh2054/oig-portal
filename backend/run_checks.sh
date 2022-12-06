@@ -5,4 +5,4 @@
 # You can use command exit status in the shell script to display an error message or take some sort of action.
 
 COMMAND='/usr/bin/python3 /app/oig-portal/backend/producer-data.py'
-ps -aux | grep $COMMAND >/dev/null && echo "Not running as process already running" || /usr/bin/python3 /app/oig-portal/backend/producer-data.py >> /app/python-oig.log 2>&1
+ps -aux | grep $COMMAND >/dev/null && echo "Not running as process already running" || $COMMAND >> /app/python-oig.log 2>&1
