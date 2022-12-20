@@ -10,7 +10,7 @@ def getcpustats():
     chain = "mainnet"
     eosmech_actions = requests.get_actions_data("eosmechanics","120")
     #query = ['simple_actions']
-    actions = eosio.get_stuff(requests.sentnlNode,eosmech_actions,'actions','mainnet')
+    actions = eosio.get_stuff(eosio.HyperionNodeMainnet1,eosmech_actions,'actions','mainnet')
     trxs = actions['simple_actions']
     # Create empty list
     producer_final = []
@@ -26,7 +26,7 @@ def getcpustats():
         # Construct dict from TRX variable and assign to ID key
         payload = dict(id=trx)
         # Pass TRX ID and get all TRX information]
-        fulltrx = eosio.get_stuff(requests.sentnlNode,payload,'trx','mainnet')
+        fulltrx = eosio.get_stuff(eosio.HyperionNodeMainnet1,payload,'trx','mainnet')
         # Extract producer from TRX
         producer = fulltrx['actions'][0]['producer']
         # Extract cpu stats
