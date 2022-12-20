@@ -10,14 +10,15 @@ def getcpustats():
     chain = "mainnet"
     eosmech_actions = requests.get_actions_data("eosmechanics","120")
     #query = ['simple_actions']
-    actions = eosio.get_stuff(eosio.HyperionNodeMainnet1,eosmech_actions,'actions','mainnet')
+    actions = eosio.get_stuff(eosio.HyperionNodeMainnet1,eosmech_actions,'actions',chain)
     trxs = actions['simple_actions']
     # Create empty list
     producer_final = []
     # Create new empty dict
     proddict = {}
     # Set chain from where stats are being pulled
-    chain = 'main'
+    #chain = 'main'
+    node = eosio.HyperionNodeMainnet1
     for i in trxs:
         # Get TRX ID
         trx = i['transaction_id']
@@ -26,11 +27,16 @@ def getcpustats():
         # Construct dict from TRX variable and assign to ID key
         payload = dict(id=trx)
         # Pass TRX ID and get all TRX information]
-        fulltrx = eosio.get_stuff(eosio.HyperionNodeMainnet1,payload,'trx','mainnet')
-        # Extract producer from TRX
-        producer = fulltrx['actions'][0]['producer']
-        # Extract cpu stats
-        cpustats = fulltrx['actions'][0]['cpu_usage_us']
+        node = eosio.getrandomNode(eosio.MainNodes)
+        #fulltrx = eosio.get_stuff(eosio.HyperionNodeMainnet1,payload,'trx',chain)
+        try:
+            fulltrx = eosio.get_stuff(node,payload,'trx',chain)
+            producer = fulltrx['actions'][0]['producer']
+            cpustats = fulltrx['actions'][0]['cpu_usage_us']
+            receiver = fulltrx['actions'][0]['receipts'][0]['receiver']
+            print(cpustats)
+        except:
+            continue
         # Update dict with producer name and cpustats
         new.update({'producer': producer, 'cpustats': cpustats})
         # Add dict to list
