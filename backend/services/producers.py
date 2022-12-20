@@ -1,5 +1,5 @@
 import utils.requests as requests
-import eosio
+import utils.eosio as eosio
 import db_connect
 
 

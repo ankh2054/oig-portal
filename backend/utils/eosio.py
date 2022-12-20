@@ -1,11 +1,19 @@
 import requests
 import json
 import time
-import re
+#import re
 import random
 import db_connect
-import core
-import decorators
+import utils.core as core
+import utils.decorators as decorators
+import config.backendconfig as cfg
+
+
+# Hyperion Endpoints
+HyperionNodeMainnet1 = cfg.nodes["hyperionmainnet1"]
+HyperionNodeMainnet2 = cfg.nodes["hyperionmainnet2"] 
+HyperionNodeTesnet = cfg.nodes["hyperiontestnet"] #'https://testnet.waxsweden.org'
+bad_node_list = [ 'http://wax.eu.eosamsterdam.net','https://api.wax.greeneosio.com' ]
 
 
 headers = {
@@ -20,30 +28,22 @@ s.headers.update(headers)
 # API calls Class
 class Api_Calls:
     def __init__(self, version, call):
-        # V2 or V1 history or Atomic assets
-        if version == 'v2-history':
-            self.url = '/v2/history/'
-        elif version == 'v1':
-            self.url = '/v1/chain/'
-        elif version == 'v1-history':
-            self.url = '/v1/history/'
-        elif version == 'v2':
-            self.url = '/v2/'
-        elif version == 'atomic':
-            self.url = '/atomicassets/v1/'
-        elif version == 'producer':
-            self.url = '/v1/producer/'
-        elif version == 'db_size':
-            self.url = '/v1/db_size/get'
-        elif version == 'net':
-            self.url = '/v1/net/'
-        elif version == '/v2/history/get_transaction':
-            self.url = '/v2/history/get_transaction?'
-        else:
-            self.url ='/'
-            
         self.version = version
         self.call = call
+        # V2 or V1 history or Atomic assets
+        URL_MAP = {
+            'v2-history': '/v2/history/',
+            'v1': '/v1/chain/',
+            'v1-history': '/v1/history/',
+            'v2': '/v2/',
+            'atomic': '/atomicassets/v1/',
+            'producer': '/v1/producer/',
+            'db_size': '/v1/db_size/get',
+            'net': '/v1/net/',
+            '/v2/history/get_transaction': '/v2/history/get_transaction?'
+        }
+
+        self.url = URL_MAP.get(version, '/') # / is the value to return if the specified key does not exist.
         
     # Class function - Return the URL by default
     def __str__(self):
@@ -52,11 +52,7 @@ class Api_Calls:
 #get_info = str(Api_Calls('v1', 'get_info') -  returns /v1/chain/get_info
 
 
-# Hyperion Endpoints
-HyperionNodeMainnet = 'http://172.16.0.80:7000'
-HyperionNodeMainnet2 ='http://wax.blokcrafters.io' 
-HyperionNodeTesnet = 'https://wax-testnet.dapplica.io' #'https://testnet.waxsweden.org'
-bad_node_list = [ 'http://wax.eu.eosamsterdam.net','https://api.wax.greeneosio.com' ]
+
 
 def chainType(chain,api_url=''):
     if chain == 'testnet':
@@ -66,7 +62,6 @@ def chainType(chain,api_url=''):
         URL = HyperionNodeMainnet2 + api_url
         net = False
     return {'URL':URL,'chain':chain,'net':net}
-
 
 
 class getJSON():
@@ -173,7 +168,7 @@ def getFullnodes(testnet=False):
     nodes = db_connect.getFullnodes(results['net'])
     if not nodes:
         # If no nodes in DB, return single node
-        nodelist = [{'Node': HyperionNodeMainnet}]
+        nodelist = [{'Node': HyperionNodeMainnet1}]
     #Else get all healthy hyperion nodes
     else:
         api_url = str(Api_Calls('v2', 'health'))
@@ -310,6 +305,23 @@ def randomTransaction(backtrack,chain):
         if trx != False:
             trxlist.append(trx)
     return trxlist
+
+# Get random TRX from chain
+def get_random_trx(backtrack,chain):
+    trxlist = []
+    transactions = randomTransaction(backtrack,chain)
+    # if transaction list is empty sleep for 1 second
+    while not transactions:
+        time.sleep(1)
+        transactions = randomTransaction(backtrack,chain)
+    trx = transactions[0]
+    try:
+        trx2 = transactions[1]
+    except:
+        trx2 = trx
+    trxlist.append(trx)
+    trxlist.append(trx2)
+    return trxlist 
 
 
 def get_http_version(url,version):

@@ -1,810 +1,21 @@
-import core
-import eosio
+import utils.core as core
 import requests
-import humanize
-import socket
-import json
-import time
-import dateutil.parser
 from datetime import timedelta
 from datetime import datetime
-from requests.exceptions import HTTPError
 import db_connect
-import urllib3
-import config.backendconfig as cfg
-import statistics
 import argparse
 import services.atomic as atomic
-import services.producers as get_producers
-import utils.requests as requestscnt
-
-
-# Passes into requests auth param, so each request adds time.sleep(1)
-
-def auth_provider(req):
-    global requests_count
-    requests_count += 1
-    req.headers['X-Seq-Count'] = requests_count
-    print('requests_count:', requests_count)
-    time.sleep(1)
-    return req
-
-# Disable SSL warnings
-urllib3.disable_warnings()
-
-# Default timeout for connections
-defaulttimeout = (3, 20)
-
-# Better JSON errors
-try:
-    from simplejson.errors import JSONDecodeError
-except ImportError:
-    from json.decoder import JSONDecodeError
-
-
-# Load Settings from config
-chain_id = cfg.chain["chainid"]
-
-
-##  Built request session
-# Headers for curl request creator for get requests
-headers = {
-    'Content-Type': 'application/json',
-    'User-Agent': 'curl/7.77.0'
-    }
-
-# For service check sessions
-s = requests.Session()
-requests_count = 0
-s.auth = auth_provider
-s.headers.update(headers)
-
-# for initial requests
-r = requests.Session()
-requests_count = 0
-r.headers.update(headers)
-
-
-# Get producer table 
-def get_table_data(code,table,scope,limit):
-    table_dict = {
-        "code": code,
-        "table": table,
-        "scope": scope,
-        "json": "true",
-        "limit": limit,
-        "lower_bound": "0"
-    }
-    return table_dict
-
-# Get actions data
-def get_actions_data(account,limit):
-    actions_dict = {
-        'limit': limit,
-        'account': account,
-        'track': 'true',
-        'simple': 'true',
-        'noBinary': 'true',
-        'checkLib': 'false'
-    }
-    return actions_dict
-
-
-def get_base_json_dict(collection_name):
-    json_dict = {
-        'collection_name': collection_name,
-        'page': 1,
-        'limit': 1,
-        'order': 'desc',
-        'sort': 'created'
-    }
-    return json_dict
-
-
-def concatenate(**kwargs):
-    result = ""
-    # Iterating over the keys of the Python kwargs dictionary
-    for arg in kwargs:
-        result += arg
-    return result
-
-
-mainnet_id = '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4'
-testnet_id = 'f16b1833c747c43682f4386fca9cbb327929334a762755ebec17f6f23c9b8a12'
-# Default metasnapshot_date 
-metasnapshot_date  = datetime.strptime('1980-01-01', "%Y-%d-%m")
-sentnlNode = eosio.HyperionNodeMainnet
-
-""""
-class getJSON():
-    def __init__(self):
-        self.defaulttimeout = (3, 7)
-        self.headers = {
-            'Content-Type': 'application/json',
-            'User-Agent': 'curl/7.77.0'
-            }
-    
-    def tryContinue(self,err,trydo='continue'):
-         self.trydo = trydo
-         self.err = err
-         if self.trydo == 'continue':
-            while True:
-                if err:
-                    break
-                else:
-                    continue
-         elif self.trydo == 'return':
-            return False, self.err
-
-    def getRequest(self,url,trydo='continue',payload=None):
-        self.trydo = trydo
-        try:
-            self.curlreq = core.curl_request(url,'GET',False)
-            self.response = requests.get(url, payload,timeout=self.defaulttimeout, verify=False, headers=self.headers)
-            self.responsetimes = self.response.elapsed.total_seconds()*1000
-        except TimeoutError as err:
-            print(f'Timeout error occurred: {err}')
-            self.tryContinue(err,trydo)
-        except HTTPError as err:
-            if self.response.status_code == 500:
-                try:
-                    self.jsonres = self.response.json()
-                except Exception as err:
-                    err = f'JSON response: {self.jsonres}.\n Error:{err}'
-                    self.tryContinue(err,trydo)
-                self.tryContinue(err,trydo)
-            elif self.response.status_code == 404:
-                err = f'{self.curlreq}\n Error: File not found: {err}'
-                self.tryContinue(err,trydo)
-            else:
-                err = f'{self.curlreq}\n {err}'
-                self.tryContinue(err,trydo)
-        except JSONDecodeError as err:
-                print(f'JSON parsing error: {err}')
-                self.tryContinue(err,trydo)
-        except Exception as err:
-                print(f'Other error occurred: {err}')  
-                self.tryContinue(err,trydo)
-        else:
-            return self.response
-
-    def getJson(self,url,response,jsonfield,trydo='continue'):
-        self.response = response
-        self.jsonfield = jsonfield
-        self.trydo = trydo
-        try:
-            self.curlreq = core.curl_request(url,'GET',False)
-            self.jsonres = self.response.json()
-            self.jsonReturn = self.jsonres[self.jsonfield]
-        except JSONDecodeError as err:
-                print(f'JSON parsing error: {err}')
-                self.tryContinue(err,trydo)
-        except HTTPError as err:
-            if self.response.status_code == 500:
-                try:
-                    self.jsonres = self.response.json()
-                except Exception as err:
-                    err = f'JSON response: {self.jsonres}.\n Error:{err}'
-                    self.tryContinue(err,trydo)
-                self.tryContinue(err,trydo)
-            elif self.response.status_code == 404:
-                err = f'{self.curlreq}\n Error: File not found: {err}'
-                self.tryContinue(err,trydo)
-            else:
-                err = f'{self.curlreq}\n {err}'
-                self.tryContinue(err,trydo) 
-        except Exception as err:
-                print(f'Other error occurred: {err}')  
-                self.tryContinue(err,trydo)
-        else:
-            return self.jsonReturn
-"""
-"""
-def producerlist(chain):
-    prod_table = get_table_data("eosio","producers","eosio","200")
-    producers = eosio.getEOStable(prod_table,chain)
-    # Remove WAX guilds and guilds with no website
-    prodremove = ['https://wax.io', '', 'https://bp.eosnewyork.io', 'https://bp.nebulaprotocol.com', 'https://wax.infinitybloc.io', 'https://blockmatrix.network', 'https://hyperblocks.pro/', 'https://strongblock.io/', 'https://waxux.com', 'https://skinminerswax.com', 'https://sheos.org','https://teloscentral.com','https://eossweden.eu','https://dmail.co', 'https://maltablock.org', 'https://wax.csx.io', 'https://xpoblocks.com']
-    producer_final = []
-    proddict = {}
-    for i in producers:
-        if i['url'] not in prodremove:
-            new = proddict.copy()
-            new.update({'owner': i['owner'],'url': i['url'] })
-            producer_final.append(new)
-    return producer_final
-
-def get_testnetJSON(producer):
-    producers = producerlist('testnet')
-    for guild in producers:
-        if guild['owner'] == producer:
-            return guild['url']
-
-## Get list of producers and produce tuple
-def producer_chain_list():
-    producers = producerlist('mainnet') #
-    # Create empty list
-    top21producers = eosio.producerSCHED()
-    producer_final = []
-    for i in producers:
-        url = i['url']
-        url = url.rstrip('/')+'/chains.json'
-        reqJSON = requestscnt.getJSON()
-        response = reqJSON.getRequest(url,trydo='continue')
-        try:
-                json_response = response.json()
-                waxjson = json_response['chains'][mainnet_id]
-                try:
-                    print(f'Looking for testnet chains json on mainnet URL')
-                    waxtestjson = json_response['chains'][testnet_id ]
-                    waxtestjson = waxtestjson.lstrip('/')
-                    waxtestjson = url + '/'+waxtestjson
-                except:
-                    print(f'Looking for testnet chains json on testnet URL')
-                    try:
-                        guildtesturl = get_testnetJSON(i['owner'])
-                        guildtesturl = guildtesturl.rstrip('/')
-                        response = r.get(url=guildtesturl + '/chains.json', timeout=defaulttimeout)
-                        json_response = response.json()
-                        waxtestjson = json_response['chains'][testnet_id]
-                        waxtestjson = waxtestjson.lstrip('/')
-                        waxtestjson = guildtesturl + '/'+waxtestjson
-                    except Exception as err:
-                        print(f'Could not find testnet JSON')
-                        waxtestjson = ""
-                        pass
-                waxjson = waxjson.lstrip('/')
-        except JSONDecodeError:
-                print('JSON parsing error')
-                waxjson = ""
-        except HTTPError as http_err:
-                print(f'HTTP error occurred: {http_err}')
-                continue
-        except Exception as err:
-                print(f'Other error occurred: {err}')  
-                continue
-        else:
-                try:
-                    # Get response data in JSON
-                    response = r.get(url=url+"/"+waxjson)
-                    json_response = response.json()
-                    # Extract org candidate name
-                    candidate_name = json_response['org']['candidate_name']
-                    try:
-                        country_code = json_response['org']['location']['country']
-                    except:
-                        country_code = None
-                    try:
-                        logo_256 = json_response['org']['branding']['logo_256']
-                    except: 
-                        logo_256 = None
-                except JSONDecodeError:
-                    print('JSON parsing error')
-                    continue
-                except HTTPError as http_err:
-                    print(f'HTTP error occurred: {http_err}')
-                    continue  
-                except Exception as err:
-                    print(f'Other error occurred: {err}')  
-                    continue
-                else:
-                    # is producer currently in top21
-                    guild = i['owner']
-                    top21 = guild in top21producers
-                    # Get current active status from DB if it exists.
-                    try:
-                        active = db_connect.getProducerStatus(guild)[0][0]
-                    # If not means Guild is new so set to active.
-                    except:
-                        active = True
-                        print("Guild not in DB setting active to True")
-                    thistuple = (guild, metasnapshot_date ,candidate_name, url, url + '/'+waxjson, waxtestjson, url + '/chains.json', logo_256, top21, country_code, active)
-                    producer_final.append(thistuple)
-    return producer_final
-
-"""
-# Iterate over all different types of possible URLs and features
-def node_types(type, node, owner_name,net):
-    # Set node type
-    node_type = type
-    # List of all possible types
-    nodetypes = ['ssl_endpoint','api_endpoint','p2p_endpoint','features']
-    # List to to pass back to tuple, contains owner_name, node_type, net (mainnet or testnet)
-    finallist = [owner_name, node_type, net]
-    for nodes in nodetypes:
-        # If fields in JSON are empty strings pass NULL to DB
-        if node.get(nodes) == "":
-            nodeurl = None
-        # Else pass in node URL or featurelist
-        else:         
-            nodeurl = node.get(nodes)
-        finallist.append(nodeurl)
-    # Turn list into tuple 
-    thistuple = tuple(finallist)
-    return thistuple
-
-
-## Get list of nodes from each wax.json and produce tuple of all nodes
-## Look for features 
-def node_list(testnet=False):
-    if testnet:
-        net = 'testnet'
-    else:
-        net = 'mainnet'
-    # Get all rows from producer table
-    producers = db_connect.getProducers()
-    # Create empty list
-    node_list = []
-    for nodes in producers:
-        if net == "mainnet":
-            url = nodes[3]
-        if net == "testnet":
-            url = nodes[11]
-        owner_name = nodes[0]
-        reqJSON = requestscnt.getJSON()
-        response = reqJSON.getRequest(url,trydo='continue')
-        nodes = reqJSON.getJson(url,response,'nodes')
-        if nodes:
-            for node in nodes:
-                # We dont care about producer nodes
-                if node.get('node_type') == 'producer':
-                    continue 
-                #Fixes for Dodgy BP json files
-                #HKEOS has complete empty node types that are not producer
-                if node.get('ssl_endpoint') == "" and node.get('api_endpoint') == "" and node.get('p2p_endpoint') == "":
-                    continue
-                #POLAR.WAX states a full node but only has a p2p_endpoint listed
-                if node.get('node_type') == 'full' and node.get('api_endpoint') == None and node.get('ssl_endpoint') == None and node.get('p2p_endpoint') != None:
-                    continue
-                # Get all node types
-                node_type = node.get('node_type')
-                if "query" in node_type:
-                    # Iterate over all types of possible URLs and features for each type of node
-                    thistuple = node_types("query", node, owner_name,net)
-                    node_list.append(thistuple)
-                # Get seed nodes
-                if "seed" in node_type:
-                    thistuple = node_types("seed", node, owner_name,net)
-                    changetuple = list(thistuple)
-                    # P2P endpoints don't have features list in JSON BP standard
-                    # We therefor need to Update last item (feature) in list 
-                    # We update this to p2p_endpoint, so we can ensure duplicates are not added to DB
-                    changetuple[-1] = ['p2p_endpoint']
-                    # Change list back to tuple
-                    thistuple = tuple(changetuple)
-                    node_list.append(thistuple)
-                if "full" in node_type:
-                    thistuple = node_types("full", node, owner_name,net)
-                    node_list.append(thistuple)
-                if "history" in node_type:
-                    thistuple = node_types("history", node, owner_name,net)
-                    node_list.append(thistuple)
-        else:
-            continue
-    return node_list
-
-def check_api(producer,checktype):
-    if checktype == "httpchk":
-        api = db_connect.getQueryNodes(producer,'chain-api','http')
-    else:
-        api = db_connect.getQueryNodes(producer,'chain-api','api')
-    # If there is no API or Full node in DB return False
-    #if None in api:
-    if api == None:
-        return False, 'No API node available in JSON'
-    else:
-        info = str(eosio.Api_Calls('v1', 'get_info'))
-
-    curlreq = core.curl_request(api[0]+info,'GET',False)
-    try:
-        curlreq = core.curl_request(api[0]+info,'GET',False)
-        response = s.get(api[0]+info, timeout=defaulttimeout, verify=False)
-        responsetimes = response.elapsed.total_seconds()*1000
-        # If the response was successful, no Exception will be raised
-        response.raise_for_status()
-    except HTTPError as http_err:
-        print(f'HTTP error occurred: {http_err}')
-        error = curlreq+'\n'+str(http_err)
-        return False, error
-    except Exception as err:
-        print(f'Other error occurred: {err}')
-        error = curlreq+'\n'+str(err)
-        return False, error
-    else:
-        # Check if API contains WAX chain ID - verifies its alive
-        if checktype == "apichk" or checktype == 'httpchk':
-            try:
-                jsonres = response.json()
-            except Exception as err:
-                error = 'not providing JSON: '+str(err)
-                return False, error
-            chainid = jsonres.get('chain_id')
-            if chainid == chain_id:
-                resptime = round(responsetimes,2)
-                print('Response time: ', resptime)
-                return True, 'ok'
-            else:
-                error = curlreq+'\nError: has the wrong chain ID or HTTP is not working'
-                return False, error
-        # Checks for Access-Control-Allow-Origin = *
-        elif checktype == "corschk":
-            try:
-                headers = response.headers['Access-Control-Allow-Origin']
-                if headers == "*":
-                    return True, 'ok'
-                else:
-                    return False, str(headers)
-            except Exception as err:
-                print(f'Other error occurred: {err}')
-                return False, str(err)
-
-
-def get_random_trx(backtrack,chain):
-    trxlist = []
-    transactions = eosio.randomTransaction(backtrack,chain)
-    # if transaction list is empty sleep for 1 second
-    while not transactions:
-        time.sleep(1)
-        transactions = eosio.randomTransaction(backtrack,chain)
-    trx = transactions[0]
-    try:
-        trx2 = transactions[1]
-    except:
-        trx2 = trx
-    trxlist.append(trx)
-    trxlist.append(trx2)
-    return trxlist 
-
-
-def check_hyperion(producer,feature,partialtest=False,testnet=False):
-    ### Check Hyperion exists in DB 
-    try:
-        api = db_connect.getQueryNodes(producer,feature,'api',testnet)[0]
-    # If there is no v1_history or hyperion node in DB return False
-    except:
-        return False, 'No ' + feature + ' in JSON'
-
-    #  Check Hyperion last indexed equals total indexed blocks - this also accounts for all other services being ok
-    # This also takes in account hyperions that don't have all blocks.
-    hyperionresult = eosio.hyperionindexedBlocks(api)
-    if hyperionresult[0] == False:
-        return False, hyperionresult[1]
-    else:
-        pass  
-    # Set chain type for full and partial checks
-    if testnet:
-        chain = 'testnet'
-    else:
-        chain = 'mainnet'
-    # Test for full or partial
-    if partialtest:
-        # block to test is headblock minus 20 weeks 1 day back. 2 blocks per second.
-        fourweeksOnedayinSeconds = 12096000+86400
-        # Get random transaction
-        fulltrx = get_random_trx(fourweeksOnedayinSeconds,chain)
-        #Create payload for request to hyperion
-        payload = dict(id=fulltrx[0])
-    ## Perform normal hyperion tests for mainnet and testnet
-    else:
-    ### Check hyperion last indexed action
-        url = str(eosio.Api_Calls('v2-history', 'get_actions?limit=1')) #'/v2/history/get_actions?limit=1'
-    try:
-        if partialtest:
-            response = eosio.get_stuff(api,payload,'trx')
-        else:
-            response = s.get(api+url, timeout=defaulttimeout)
-        # If the response was successful, no Exception will be raised
-            response.raise_for_status()
-    # If returns codes are 500 OR 404
-    except HTTPError as http_err:
-        if response.status_code == 500:
-            error = "something else weird has happened"
-            return False, error
-        elif response.status_code == 404:
-            error = 'Error: Not a full node'
-            return False, error
-        else:
-            error = str(http_err)
-            return False, error
-    except Exception as err:
-        print(f'Other error occurred: {err}')  # Python 3.6
-        # also return err
-        error = str(err)
-        return False, error
-    else:
-        if partialtest:
-            try:
-                trxExecuted = response['executed']
-                trx_id = response['trx_id']
-                msg = f"Hyperion is missing transaction: {trx_id}. HTML Response {response}"
-            except:
-                return False, 'Some other error occured'
-            if trxExecuted:
-                return True, 'ok'
-            else:
-                return False, msg
-        else:
-            jsonres = response.json()
-            try:
-                last_action_date = dateutil.parser.parse(
-                    jsonres['actions'][0]['@timestamp']).replace(tzinfo=None)
-            except:
-                   msg = 'Other error occured'
-                   return False, msg
-            diff_secs = (datetime.utcnow() -
-                            last_action_date).total_seconds()
-            if diff_secs > 600:
-                    msg = 'Hyperion Last action {} ago'.format(
-                        humanize.naturaldelta(diff_secs))
-                    return False, msg
-            else:
-                return True, 'ok'
-
-
-# History nodes type checks
-def check_history_v1(producer,feature):
-    payload = { "account_name": "eosio", "pos": -1, "offset": -20}
-     # Query nodes in DB and try and obtain API node
-    try:
-        api = db_connect.getQueryNodes(producer,feature,'api')[0]
-        print('Hyperion node: ',api)
-    # If there is no v1_history or hyperion node in DB return False
-    except:
-        return False, 'No ' + feature + ' in JSON'
-    info = str(eosio.Api_Calls('v1-history', 'get_actions'))
-    curlreq = core.curl_request(api+info,'POST',payload)
-    try:
-        response = s.post(api+info, json=payload, timeout=defaulttimeout)
-        response.raise_for_status()
-    # If returns codes are 500 OR 404
-    except HTTPError as http_err:
-        print(f'HTTP error occurred: {http_err}')  # Python 3.6
-        # also return http_err
-        if response.status_code == 500:
-            jsonres = response.json()
-            try:
-                error = curlreq+'\nError: '+str(jsonres.get('error').get('what'))
-            except:
-                error = "something else weird has happened"
-            return False, error
-        elif response.status_code == 404:
-            error = curlreq+'\nError: Not a full node'
-            return False, error
-        else:
-            error = curlreq+' '+str(http_err)
-            return False, error
-    except Exception as err:
-        print(f'Other error occurred: {err}')  # Python 3.6
-         # also return err
-        error = curlreq+'\n'+str(err)
-        return False, error
-    jsonres = response.json()
-    try:
-        #Has trx been executed
-        actions = jsonres['actions']
-    except Exception as err:
-        return False, err
-    if len(actions) == 0:
-            return False, 'No actions returned'
-    else:
-        return True, 'ok'
-
-     
-def check_https(producer,checktype):
-    api = db_connect.getQueryNodes(producer,'chain-api','https')
-    # If there is no API or Full HTTPS node in DB return False
-    if api == None:
-        return False, 'No API node available in JSON'
-     # If the URL contains Hyperion then change URL request string
-    else:
-        info = str(eosio.Api_Calls('v1', 'get_info'))
-    try:
-        curlreq = core.curl_request(api[0]+info,'GET',False)
-        response = s.get(api[0]+info, timeout=defaulttimeout)
-        # If the response was successful, no Exception will be raised
-        response.raise_for_status()
-    except HTTPError as http_err:
-        print(f'HTTP error occurred: {http_err}')  # Python 3.6
-        error = curlreq+'\n'+str(http_err)
-        return False, error
-    except Exception as err:
-        print(f'Other error occurred: {err}')  # Python 3.6
-        error = curlreq+'\n'+str(err)
-        return False, error
-    else:
-        # Check if HTPS API contains WAX chain ID - verifies it's alive
-        if checktype == "httpschk":
-            try:
-                jsonres = response.json()
-                chainid = jsonres.get('chain_id')
-            except:
-                return False, 'none JSON response received'
-            if chainid == chain_id:
-                return True, 'ok'
-            else:
-                error = curlreq+'\nError:Wrong chain ID or HTTPS not working'
-                return False, error
-        elif checktype == "http2chk":
-            httpsendpoint = api[0]
-            # If the URL contains a port number, strip the port and assign to port
-            if core.portRegex(httpsendpoint):
-                portsplit = httpsendpoint.rsplit(':', 1)
-                port = portsplit[1]
-            # If no port number assigned presume port 443, as HTTP2 works with TLS
-            else:
-                port = "443"
-            return core.check_http2(httpsendpoint,port,checktype)
-        elif checktype == "tlschk":
-            httpsendpoint = api[0]
-            # If the URL contains a port number, strip the port and assign to port
-            if core.portRegex(httpsendpoint):
-                portsplit = httpsendpoint.rsplit(':', 1)
-                port = portsplit[1]
-            # If no port number assigned presume port 443, as HTTP2 works with TLS
-            else:
-                port = "443"
-            return core.check_tls(httpsendpoint,port)
-
-
-def api_security(producer,features,sectype):
-    # Check through all nodes
-    apis = db_connect.getQueryNodes(producer,features,'all_apis')
-    # If there is no API or Full node in DB return True, as no security to test
-    if apis == None:
-        return True, 'No APIs to test for', sectype
-    else:
-        if sectype == 'producer_api':
-            info = str(eosio.Api_Calls('producer', 'paused'))
-        elif sectype == 'net_api':
-            info = str(eosio.Api_Calls('net', 'connections'))
-        elif sectype == 'db_size_api':
-            info = str(eosio.Api_Calls('db_size', 'get'))
-    # Empty list for API results
-    apilist = []
-    # Loop over APIs and check security for particular api
-    for api in apis:
-        try:
-            curlreq = core.curl_request(api+info,'POST',False)
-            response = s.get(api+info, timeout=defaulttimeout, verify=False)
-            # If the response was successful, no Exception will be raised
-            response.raise_for_status()
-        except HTTPError as http_err:
-            #print(f'HTTP error occurred: {http_err}')
-            message = True
-        except Exception as err:
-            #print(f'Other error occurred: {err}')
-            message = True
-        # If no error is returned and valid json is returned then API is running
-        else:
-            message = False
-        # API results + api itself
-        apiresult = api,message
-        # Append API + result to apilist
-        apilist.append(apiresult)
-    for api in apilist:
-        if api[1] != True:
-            error = str(sectype) + " is enabled on " + api[0] + " this feature should be disabled: " + str(curlreq)
-            return False, error
-        else:
-           True # Dont return here otherswise loop stops
-    # If not False has been found return True
-    return True, 'ok'
+import services.producers as producers
+import services.nodes as nodes
+import services.api as api
+import services.history as history
+import services.p2p as p2p
+import services.delphi as delphi
+import services.cpu as cpu
+import utils.requests as requests
 
 
 
-def check_P2P(producer,features):
-   # Get P2P host and port
-   p2p = db_connect.getQueryNodes(producer,features,'p2p')
-   if p2p == None:
-       return False, 'No seed node configured in JSON'
-   # Slit host and port
-   hostport = core.split_host_port(p2p[0])
-   s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-   try:
-      s.connect((hostport[0],hostport[1]))
-      s.shutdown(2)
-      return True, 'ok'
-   except:
-      error = hostport[0]+':'+str(hostport[1])+'\nError: Server and or port not responding'
-      return False, error
-
-## Get list of guilds posting to delphioracle and remove duplicates
-def delphioracle_actors():
-    print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting Delpi Oracle Data ",core.bcolors.ENDC)
-    chain = "mainnet"
-    #Get list of guilds posting to delphioracle looking at actions, save last 100 actions.
-    delphi_actions = get_actions_data("delphioracle","100")
-    actions = eosio.get_stuff(sentnlNode,delphi_actions,'action','mainnet')
-    guilds = actions['simple_actions']
-    # Create empty list
-    producer_final = []
-    # Create emtpy dictinary
-    proddict = {}
-    for i in guilds:
-        # create copy of dict and call it new
-        new = proddict.copy()
-        if len(i['data']['quotes']) < 3:
-            continue
-        else:
-            producer_final.append(i['data']['owner'])
-            producer_final = list(dict.fromkeys(producer_final))
-    # Returns list of guilds with duplicates removed   
-    return producer_final
-
-
-
-# Returns tuple list with producers in delphioracle True or False
-def delphiresults(producer,oracledata):
-     producersoracle = oracledata
-     if producer in producersoracle:
-        return True, 'ok'
-     else:
-        return False ,'No actions associated with your BP name in Delphioracle Or less than 3 feeds'
-
-        
-
-
-def getcpustats():
-    print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting CPU Results ",core.bcolors.ENDC)
-    # Pull transactions from eosmechanics and save cpu time 
-    chain = "mainnet"
-    eosmech_actions = get_actions_data("eosmechanics","120")
-    #query = ['simple_actions']
-    actions = eosio.get_stuff(sentnlNode,eosmech_actions,'actions','mainnet')
-    trxs = actions['simple_actions']
-    # Create empty list
-    producer_final = []
-    # Create new empty dict
-    proddict = {}
-    # Set chain from where stats are being pulled
-    chain = 'main'
-    for i in trxs:
-        # Get TRX ID
-        trx = i['transaction_id']
-        # Create copy of dict and call it new
-        new = proddict.copy()
-        # Construct dict from TRX variable and assign to ID key
-        payload = dict(id=trx)
-        # Pass TRX ID and get all TRX information]
-        fulltrx = eosio.get_stuff(sentnlNode,payload,'trx','mainnet')
-        # Extract producer from TRX
-        producer = fulltrx['actions'][0]['producer']
-        # Extract cpu stats
-        cpustats = fulltrx['actions'][0]['cpu_usage_us']
-        # Update dict with producer name and cpustats
-        new.update({'producer': producer, 'cpustats': cpustats})
-        # Add dict to list
-        producer_final.append(new)
-    return producer_final
-
-
-def cpuresults(producer,producercpu):
-    # Get cpustats(key) value for the items in producercpu if the producer passed is in that list.
-    cpu = [item['cpustats'] for item in producercpu if item["producer"] == producer]
-    # If producer is not in that list  means producer is not in top21, so we need testnet data.
-    if not cpu:
-        return int(1.0)
-    else:
-        stat = round((sum(cpu) / len(cpu))/1000,2)
-        return stat
-
-def cpuAverage(producer):
-    try:
-        allcpu = db_connect.getCPU(producer)
-    except:
-        # New Guilds will not have any CPU scores, so set to 0
-        allcpu = 0
-    cpu_final = []
-    for cpu in allcpu:
-        cpu_final.append(cpu[0])
-    try:
-        avg_cpu = statistics.median(cpu_final) 
-        return avg_cpu
-    except:
-        # New Guilds will not have any CPU scores, so set to 0
-        return 0
-
-   
 def lastCheck(now,ignorelastcheck):
     lastcheck = db_connect.getLastcheck() #2021-11-19 07:25:24.11084+00
     # Set now date
@@ -859,11 +70,11 @@ def takeSnapshot(now):
 
     else:
         print("Not a snapshot day today")
-    print("Last snapshot taken: ", latest_snapshot_date)
-    print("OIG DB format date: ", snapshot_oig_date)
-    print("OIG date: ", snapshot_oig)
-    print("Today: ", today_date_object)
-    print("Now: ", now)
+    print(f'Last snapshot taken: {latest_snapshot_date}')
+    print(f'OIG DB format date: {snapshot_oig_date}')
+    print(f'OIG date: {snapshot_oig}')
+    print(f'Today: {today_date_object}')
+    print(f'Now: {now}')
     
 
 # Results are a key value dict with each check as its called in DB, 
@@ -904,14 +115,8 @@ def printOuput(results,description):
         colorstart = core.bcolors.WARNING
     return  print(description,colorstart,result,core.bcolors.ENDC)
     
-# Change to allow args or kwargs, so yuo can pass in single BP name as test
-#def finalresults(*args):
-#    if not args:
-#        producersdb = db_connect.getProducers()
-#    else:
-#        producersdb = args
 
-def finalresults(cpu):
+def finalresults(cpucheck):
     ## Testing a single BP on  all tests, just change the BP name
     if singlebp:
         producersdb = [(singlebp, 'LiquidStudios', 'https://liquidstudios.io', 'https://liquidstudios.io/wax.json', 'https://liquidstudios.io/chains.json', True, 'https://liquidstudios.io/wp-content/uploads/2021/04/logo_small_icon_only-1.png', True, 'MU', None)]
@@ -919,14 +124,14 @@ def finalresults(cpu):
     else:
         producersdb = db_connect.getProducers()
     # Get CPU stats for top21 producers unless false then we pass
-    if not cpu:
+    if not cpucheck:
         pass
     else:
-        producercpu = getcpustats()
+        producercpu = cpu.getcpustats()
     # Get points system
     pointsystem =  db_connect.getPoints()
     # Get list of delphioracles and store for use
-    producersoracle = delphioracle_actors()
+    producersoracle = delphi.delphioracle_actors()
     # Create empty list
     finaltuple = []
     for producer in producersdb:
@@ -936,13 +141,13 @@ def finalresults(cpu):
         producer = producer[0]
         print(core.bcolors.OKBLUE,f"{'='*100}\nResults for ",producer,core.bcolors.ENDC)
 
-        oracle_feed = delphiresults(producer,producersoracle)
+        oracle_feed = delphi.delphiresults(producer,producersoracle)
         printOuput(oracle_feed,"Publishing feed data via an oracle service: ")
 
-        api_node = check_api(producer,'apichk')
+        api_node = api.check_api(producer,'apichk')
         printOuput(api_node,"API node endpoint is publicly available: ")
        
-        http_check = check_api(producer,'httpchk')
+        http_check = api.check_api(producer,'httpchk')
         printOuput(http_check,"HTTP is available on RPC API endpoint: ")
 
         # Website, chains and wax.json checks
@@ -956,59 +161,59 @@ def finalresults(cpu):
         printOuput(wax_json,"wax.json metadata available at regproducer url: ")
 
         # CORS check
-        cors_check = check_api(producer,'corschk')
+        cors_check = api.check_api(producer,'corschk')
         printOuput(cors_check,"CORS is configured on RPC API: ")
 
         # HTTPS check
-        https_check = check_https(producer,'httpschk')
+        https_check = api.check_https(producer,'httpschk')
         printOuput(https_check,"HTTPS is available on RPC API endpoint: ")
    
         # TLS check
-        tlscheck = check_https(producer,'tlschk')
+        tlscheck = api.check_https(producer,'tlschk')
         printOuput(tlscheck,"TLS version available on HTTPS API: ")
 
         # HTTP2 check
-        http2_check = check_https(producer,'http2chk')
+        http2_check = api.check_https(producer,'http2chk')
         printOuput(http2_check,"HTTP2 is enabled on RPC API endpoint: ")
         
         # Producer API check
-        producer_apicheck = api_security(producer,'chain-api','producer_api')
+        producer_apicheck = api.api_security(producer,'chain-api','producer_api')
         printOuput(producer_apicheck,"Producer API is disabled on visible nodes: ")
 
         # Net API check
-        net_apicheck = api_security(producer,'chain-api','net_api')
+        net_apicheck = api.api_security(producer,'chain-api','net_api')
         printOuput(net_apicheck,"net_api API is disabled on visible nodes: ")
 
         # DB size API check
-        dbsize_apicheck = api_security(producer,'chain-api','db_size_api')
+        dbsize_apicheck = api.api_security(producer,'chain-api','db_size_api')
         printOuput(dbsize_apicheck,"db_size API is disabled on visible nodes:")
         #CPU checks
-        if not cpu:
+        if not cpucheck:
             cpu_time = (1.0)
         else: 
-            cpu_time = cpuresults(producer,producercpu)
+            cpu_time = cpu.cpuresults(producer,producercpu)
         print("CPU latency on EOS Mechanics below 2 ms on average:",core.bcolors.OKYELLOW, cpu_time,core.bcolors.ENDC,"ms")
-        cpuavg = cpuAverage(producer)
+        cpuavg = cpu.cpuAverage(producer)
         print("CPU latency average over 30days:",core.bcolors.OKYELLOW, cpuavg,core.bcolors.ENDC,"ms")
         
         # v1 History check
-        full_history = check_history_v1(producer,'history-v1')
+        full_history = history.check_history_v1(producer,'history-v1')
         printOuput(full_history,"Running a v1 History node: ")
 
         # v2 Hyperion mainnet check
-        hyperion_v2 = check_hyperion(producer,'hyperion-v2')
+        hyperion_v2 = history.check_hyperion(producer,'hyperion-v2')
         printOuput(hyperion_v2,"Running a v2 Hyperion node: ")
 
         # v2 Hyperion mainnet Full/Partial check
-        hyperion_v2_full = check_hyperion(producer,'hyperion-v2',partialtest=True)
+        hyperion_v2_full = history.check_hyperion(producer,'hyperion-v2',partialtest=True)
         printOuput( hyperion_v2_full,"Running a v2 Hyperion Full node: ")
 
         # v2 Hyperion testnet check
-        hyperion_v2_testnet = check_hyperion(producer,'hyperion-v2',testnet=True)
+        hyperion_v2_testnet = history.check_hyperion(producer,'hyperion-v2',testnet=True)
         printOuput(hyperion_v2_testnet,"Running a v2 Hyperion testnet node: ")
 
         # v2 Hyperion testnet Full/Partial check
-        hyperion_v2_testnet_full = check_hyperion(producer,'hyperion-v2',testnet=True,partialtest=True)
+        hyperion_v2_testnet_full = history.check_hyperion(producer,'hyperion-v2',testnet=True,partialtest=True)
         printOuput(hyperion_v2_testnet_full,"Running a v2 Hyperion Full testnet node: ")
 
         # Atomic Assets API
@@ -1018,7 +223,7 @@ def finalresults(cpu):
         # Set snapshots to False until we find a way
         snapshots = [False,'oops']
 
-        seed_node = check_P2P(producer,'p2p_endpoint')
+        seed_node = p2p.check_P2P(producer,'p2p_endpoint')
         printOuput(seed_node,"Running a seed node: ")
 
          # Get current UTC timestamp
@@ -1050,40 +255,40 @@ def finalresults(cpu):
         resultslist = [
             producer, 
             cors_check[0], 
-            cors_check[1], 
+            str(cors_check[1]), 
             http_check[0], 
-            http_check[1], 
+            str(http_check[1]), 
             https_check[0], 
-            https_check[1], 
+            str(https_check[1]), 
             tlscheck[0], 
-            tlscheck[1], 
+            str(tlscheck[1]), 
             producer_apicheck[0], 
-            producer_apicheck[1],
+            str(producer_apicheck[1]),
             net_apicheck[0],
-            net_apicheck[1],
+            str(net_apicheck[1]),
             dbsize_apicheck[0],
-            dbsize_apicheck[1],
+            str(dbsize_apicheck[1]),
             http2_check[0],
-            http2_check[1], 
+            str(http2_check[1]), 
             full_history[0], 
-            full_history[1],
+            str(full_history[1]),
             hyperion_v2[0],
-            hyperion_v2[1],
+            str(hyperion_v2[1]),
             hyperion_v2_full[0],
-            hyperion_v2_full[1],
+            str(hyperion_v2_full[1]),
             hyperion_v2_testnet[0],
-            hyperion_v2_testnet[1],
+            str(hyperion_v2_testnet[1]),
             hyperion_v2_testnet_full[0],
-            hyperion_v2_testnet_full[1],
+            str(hyperion_v2_testnet_full[1]),
             atomic_api[0],
-            atomic_api[1],
+            str(atomic_api[1]),
             snapshots[0], 
             seed_node[0], 
-            seed_node[1], 
+            str(seed_node[1]), 
             api_node[0], 
-            api_node[1], 
+            str(api_node[1]), 
             oracle_feed[0], 
-            oracle_feed[1], 
+            str(oracle_feed[1]), 
             wax_json[0], 
             chains_json[0], 
             cpu_time, 
@@ -1095,7 +300,7 @@ def finalresults(cpu):
         # Add final sore to list
         resultslist.append(score)
         # Add metansnapshot_date to final tuple
-        resultslist.append(metasnapshot_date)
+        resultslist.append(requests.metasnapshot_date)
         # Turn list into tuple read for Postgres
         resultstuple = tuple(resultslist)
         finaltuple.append(resultstuple)
@@ -1114,18 +319,18 @@ def main(cpucheck):
     # If last runtime was within 2 hours, skip running process.
     # Get list of producers
     print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",core.bcolors.ENDC)
-    producers = get_producers.producer_chain_list()
+    producersList = producers.producer_chain_list()
     # Update producers to DB
-    db_connect.producerInsert(producers)
+    db_connect.producerInsert(producersList)
     # Delete all nodes from table
     print(core.bcolors.OKYELLOW,f"{'='*100}\nRemoving existing nodes from DB ",core.bcolors.ENDC)
     db_connect.nodesDelete('oig.nodes')
     # Add nodes to DB
     print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of mainnet nodes from JSON files ",core.bcolors.ENDC)
-    mainnet_nodes = node_list()
+    mainnet_nodes = nodes.node_list()
     db_connect.nodesInsert(mainnet_nodes)
     print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of testnet nodes from JSON files ",core.bcolors.ENDC)
-    testnet_nodes = node_list(testnet=True) # Tesnet = True so collect testnet nodes from json files
+    testnet_nodes = nodes.node_list(testnet=True) # Tesnet = True so collect testnet nodes from json files
     db_connect.nodesInsert(testnet_nodes)
     # Get all results and save to DB
     results = finalresults(cpucheck) # Set True to check CPU , False to ignore
@@ -1148,6 +353,7 @@ if __name__ == "__main__":
         print("Not running as ran withtin last 2 hours")
     else:
         main(cpucheck)
+        #print(api.check_api('dapplica','corschk'))
         #print(atomic.check_atomic_assets('dapplica','atomic-assets-api'))
         #print(atomic.getAtomicTemplates('https://aa.dapplica.io','kogsofficial'))
         #print(atomic.getAtomicSchema('https://aa.dapplica.io','kogsofficial'))

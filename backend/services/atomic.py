@@ -1,6 +1,5 @@
-import core
 import utils.requests as requests
-import eosio
+import utils.eosio as eosio
 import db_connect
 
 def check_atomic_assets(producer,feature):
@@ -20,42 +19,45 @@ def check_atomic_assets(producer,feature):
     else:
         return False, response.reason
     if services:
-        postgres = services['postgres']['status']
-        redis = services['redis']['status']
-        chain = services['chain']['status']
-        head_block = services['chain']['head_block']
-        reader = services['postgres']['readers']
-        last_indexed_block = reader[0]['block_num']
-        if abs(int(last_indexed_block) - int(head_block)) > 100:
-            msg = 'Atomic API last_indexed_block is behind head_block'
-            return(False,msg)
-        else:
-            pass
-        services = dict(postgres=postgres, redis=redis, chain=chain)
-        for k,v in services.items():
-            msg = 'Atomic service {} has status {}'.format(
-                                k, v)
-            if v != 'OK':
-                return False,msg
+        try:
+            postgres = services['postgres']['status']
+            redis = services['redis']['status']
+            chain = services['chain']['status']
+            head_block = services['chain']['head_block']
+            reader = services['postgres']['readers']
+            last_indexed_block = reader[0]['block_num']
+            if abs(int(last_indexed_block) - int(head_block)) > 100:
+                msg = 'Atomic API last_indexed_block is behind head_block'
+                return(False,msg)
             else:
-                collection = 'kogsofficial'
-                AtomicCollection = getAtomicCollection(api,collection)
-                AtomicTemplate = getAtomicTemplates(api,collection)
-                Atomicshema = getAtomicSchema(api,collection)
-                AtomicAsset = getAtomicassets(api)
-                if not AtomicCollection or not AtomicTemplate[0] or not Atomicshema[0] or not AtomicAsset[0]:
-                # At least one variable is not True
-                    if not AtomicCollection:
-                        return False,f'Could not find collection kogsofficial, output {AtomicCollection}'
-                    if not AtomicTemplate[0]:
-                        return False,f'Could not find template {AtomicTemplate[1]}, output {AtomicTemplate[0]}'
-                    if not Atomicshema[0]:
-                        return False,f'Could not find schema {Atomicshema[1]}, output {AtomicTemplate[0]}'
-                    if not AtomicAsset[0]:
-                        return False, f'Could not find asset {AtomicAsset[1]}, output {AtomicAsset[0]}'
-                return True,'All Atomic services are working'
-        else:
-            return False, services.reason
+                pass
+            services = dict(postgres=postgres, redis=redis, chain=chain)
+            for k,v in services.items():
+                msg = 'Atomic service {} has status {}'.format(
+                                    k, v)
+                if v != 'OK':
+                    return False,msg
+                else:
+                    collection = 'kogsofficial'
+                    AtomicCollection = getAtomicCollection(api,collection)
+                    AtomicTemplate = getAtomicTemplates(api,collection)
+                    Atomicshema = getAtomicSchema(api,collection)
+                    AtomicAsset = getAtomicassets(api)
+                    if not AtomicCollection or not AtomicTemplate[0] or not Atomicshema[0] or not AtomicAsset[0]:
+                    # At least one variable is not True
+                        if not AtomicCollection:
+                            return False,f'Could not find collection kogsofficial, output {AtomicCollection}'
+                        if not AtomicTemplate[0]:
+                            return False,f'Could not find template {AtomicTemplate[1]}, output {AtomicTemplate[0]}'
+                        if not Atomicshema[0]:
+                            return False,f'Could not find schema {Atomicshema[1]}, output {AtomicTemplate[0]}'
+                        if not AtomicAsset[0]:
+                            return False, f'Could not find asset {AtomicAsset[1]}, output {AtomicAsset[0]}'
+                    return True,'All Atomic services are working'
+        except:
+            return False, str(services)
+    else:
+        return False, str(services)
 
 
 def getAtomicCollection(node,collection):

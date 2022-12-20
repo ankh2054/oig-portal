@@ -1,5 +1,5 @@
-import core
-import eosio
+import utils.core as core
+#import eosio
 import requests
 import time
 from datetime import datetime
@@ -32,8 +32,12 @@ except ImportError:
     from json.decoder import JSONDecodeError
 
 
-# Load Settings from config
-chain_id = cfg.chain["chainid"]
+
+mainnet_id = cfg.chain["mainnet_chainid"]
+testnet_id = cfg.chain["testnet_chainid"]
+# Default metasnapshot_date 
+metasnapshot_date  = datetime.strptime('1980-01-01', "%Y-%d-%m")
+
 
 
 ##  Built request session
@@ -104,10 +108,6 @@ def get_atomic_asset():
     return json_dict
 
 
-    #https://test.wax.api.atomicassets.io/atomicassets/v1/templates?collection_name=kogsofficial&has_assets=true&page=1&limit=1&order=desc&sort=created
-    #https://test.wax.api.atomicassets.io/atomicassets/v1/schemas?collection_name=kogsofficial&page=1&limit=1&order=desc&sort=created
-    #https://test.wax.api.atomicassets.io/atomicassets/v1/assets?page=1&limit=1&order=desc&sort=asset_id
-
 def concatenate(**kwargs):
     result = ""
     # Iterating over the keys of the Python kwargs dictionary
@@ -116,11 +116,7 @@ def concatenate(**kwargs):
     return result
 
 
-mainnet_id = '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4'
-testnet_id = 'f16b1833c747c43682f4386fca9cbb327929334a762755ebec17f6f23c9b8a12'
-# Default metasnapshot_date 
-metasnapshot_date  = datetime.strptime('1980-01-01', "%Y-%d-%m")
-sentnlNode = eosio.HyperionNodeMainnet
+
 
 class getJSON():
     def __init__(self):
@@ -150,30 +146,30 @@ class getJSON():
             self.responsetimes = self.response.elapsed.total_seconds()*1000
         except TimeoutError as err:
             print(f'Timeout error occurred: {err}')
-            self.tryContinue(err,trydo)
+            return self.tryContinue(err,trydo)
         except HTTPError as err:
             if self.response.status_code == 500:
                 try:
                     self.jsonres = self.response.json()
                 except Exception as err:
                     err = f'JSON response: {self.jsonres}.\n Error:{err}'
-                    self.tryContinue(err,trydo)
-                self.tryContinue(err,trydo)
+                    return self.tryContinue(err,trydo)
+                return self.tryContinue(err,trydo)
             elif self.response.status_code == 404:
                 err = f'{self.curlreq}\n Error: File not found: {err}'
-                self.tryContinue(err,trydo)
+                return self.tryContinue(err,trydo)
             elif self.response.status_code == 502:
                 err = f'{self.curlreq}\n Error: Bad Gateway server: {err}'
-                self.tryContinue(err,trydo)
+                return self.tryContinue(err,trydo)
             else:
                 err = f'{self.curlreq}\n {err}'
-                self.tryContinue(err,trydo)
+                return self.tryContinue(err,trydo)
         except JSONDecodeError as err:
                 print(f'JSON parsing error: {err}')
-                self.tryContinue(err,trydo)
+                return self.tryContinue(err,trydo)
         except Exception as err:
                 print(f'Other error occurred: {err}')  
-                self.tryContinue(err,trydo)
+                return self.tryContinue(err,trydo)
         else:
             return self.response
 
@@ -187,23 +183,23 @@ class getJSON():
             self.jsonReturn = self.jsonres[self.jsonfield]
         except JSONDecodeError as err:
                 print(f'JSON parsing error: {err}')
-                self.tryContinue(err,trydo)
+                return self.tryContinue(err,trydo)
         except HTTPError as err:
             if self.response.status_code == 500:
                 try:
                     self.jsonres = self.response.json()
                 except Exception as err:
                     err = f'JSON response: {self.jsonres}.\n Error:{err}'
-                    self.tryContinue(err,trydo)
-                self.tryContinue(err,trydo)
+                    return self.tryContinue(err,trydo)
+                return self.tryContinue(err,trydo)
             elif self.response.status_code == 404:
                 err = f'{self.curlreq}\n Error: File not found: {err}'
-                self.tryContinue(err,trydo)
+                return self.tryContinue(err,trydo)
             else:
                 err = f'{self.curlreq}\n {err}'
-                self.tryContinue(err,trydo) 
+                return self.tryContinue(err,trydo) 
         except Exception as err:
                 print(f'Other error occurred: {err}')  
-                self.tryContinue(err,trydo)
+                return self.tryContinue(err,trydo)
         else:
             return self.jsonReturn
