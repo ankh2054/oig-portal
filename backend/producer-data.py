@@ -352,8 +352,8 @@ if __name__ == "__main__":
     if not lastCheck(now,ignorelastcheck):
         print("Not running as ran withtin last 2 hours")
     else:
-        #main(cpucheck)
-        print(cpu.getcpustats())
+        main(cpucheck)
+        #print(cpu.getcpustats())
         #print(atomic.check_atomic_assets('dapplica','atomic-assets-api'))
         #print(atomic.getAtomicTemplates('https://aa.dapplica.io','kogsofficial'))
         #print(atomic.getAtomicSchema('https://aa.dapplica.io','kogsofficial'))
