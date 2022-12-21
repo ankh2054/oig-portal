@@ -27,7 +27,7 @@ def getcpustats():
         # Construct dict from TRX variable and assign to ID key
         payload = dict(id=trx)
         # Pass TRX ID and get all TRX information]
-        #node = eosio.getrandomNode(eosio.MainNodes)
+        node = eosio.getrandomNode(eosio.MainNodes)
         #fulltrx = eosio.get_stuff(eosio.HyperionNodeMainnet1,payload,'trx',chain)
         try:
             fulltrx = eosio.get_stuff(node,payload,'trx',chain)
