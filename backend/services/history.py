@@ -35,61 +35,40 @@ def check_hyperion(producer,feature,partialtest=False,testnet=False):
         fulltrx = eosio.get_random_trx(fourweeksOnedayinSeconds,chain)
         #Create payload for request to hyperion
         payload = dict(id=fulltrx[0])
+        try:
+            response = eosio.get_stuff(api,payload,'trx')
+            trxExecuted = response['executed']
+            trx_id = response['trx_id']
+            msg = f"Hyperion is missing transaction: {trx_id}. HTML Response {response}"
+        except:
+            return False, 'Some other error occurred'
+        if trxExecuted:
+            return True, 'ok'
+        else:
+            return False, msg   
     ## Perform normal hyperion tests for mainnet and testnet
     else:
     ### Check hyperion last indexed action
         url = str(eosio.Api_Calls('v2-history', 'get_actions?limit=1')) #'/v2/history/get_actions?limit=1'
-    try:
-        if partialtest:
-            response = eosio.get_stuff(api,payload,'trx')
-        else:
-            response = requests.s.get(api+url, timeout=requests.defaulttimeout)
-        # If the response was successful, no Exception will be raised
-            response.raise_for_status()
-    # If returns codes are 500 OR 404
-    except requests.HTTPError as http_err:
-        if response.status_code == 500:
-            error = "something else weird has happened"
-            return False, error
-        elif response.status_code == 404:
-            error = 'Error: Not a full node'
-            return False, error
-        else:
-            error = str(http_err)
-            return False, error
-    except Exception as err:
-        print(f'Other error occurred: {err}')  # Python 3.6
-        # also return err
-        error = str(err)
-        return False, error
-    else:
-        if partialtest:
-            try:
-                trxExecuted = response['executed']
-                trx_id = response['trx_id']
-                msg = f"Hyperion is missing transaction: {trx_id}. HTML Response {response}"
-            except:
-                return False, 'Some other error occured'
-            if trxExecuted:
-                return True, 'ok'
-            else:
-                return False, msg
-        else:
+        reqJSON = requests.getJSON()
+        response = reqJSON.getRequest(api+url,trydo='return')
+        try:
             jsonres = response.json()
-            try:
-                last_action_date = dateutil.parser.parse(
+            last_action_date = dateutil.parser.parse(
                     jsonres['actions'][0]['@timestamp']).replace(tzinfo=None)
-            except:
-                   msg = 'Other error occured'
-                   return False, msg
-            diff_secs = (datetime.utcnow() -
+        except:
+                msg = 'Other error occured'
+                return False, msg
+        diff_secs = (datetime.utcnow() -
                             last_action_date).total_seconds()
-            if diff_secs > 600:
+        if diff_secs > 600:
                     msg = 'Hyperion Last action {} ago'.format(
                         humanize.naturaldelta(diff_secs))
                     return False, msg
-            else:
-                return True, 'ok'
+        else:
+            return True, 'ok'
+
+
 
 
 # History nodes type checks
@@ -103,39 +82,13 @@ def check_history_v1(producer,feature):
     except:
         return False, 'No ' + feature + ' in JSON'
     info = str(eosio.Api_Calls('v1-history', 'get_actions'))
-    curlreq = core.curl_request(api+info,'POST',payload)
     try:
-        response = requests.s.post(api+info, json=payload, timeout=requests.defaulttimeout)
-        response.raise_for_status()
-    # If returns codes are 500 OR 404
-    except requests.HTTPError as http_err:
-        print(f'HTTP error occurred: {http_err}')  # Python 3.6
-        # also return http_err
-        if response.status_code == 500:
-            jsonres = response.json()
-            try:
-                error = curlreq+'\nError: '+str(jsonres.get('error').get('what'))
-            except:
-                error = "something else weird has happened"
-            return False, error
-        elif response.status_code == 404:
-            error = curlreq+'\nError: Not a full node'
-            return False, error
-        else:
-            error = curlreq+' '+str(http_err)
-            return False, error
-    except Exception as err:
-        print(f'Other error occurred: {err}')  # Python 3.6
-         # also return err
-        error = curlreq+'\n'+str(err)
-        return False, error
-    jsonres = response.json()
-    try:
-        #Has trx been executed
-        actions = jsonres['actions']
+        reqJSON = requests.getJSON()
+        response = reqJSON.getRequest(api+info,trydo='return',payload=payload,post=True)
+        actions = reqJSON.getJson(api+info,response,'actions',trydo='return')
     except Exception as err:
         return False, err
     if len(actions) == 0:
-            return False, 'No actions returned'
+        return False, 'No actions returned'
     else:
         return True, 'ok'

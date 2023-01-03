@@ -138,11 +138,14 @@ class getJSON():
          elif self.trydo == 'return':
             return False, self.err
 
-    def getRequest(self,url,trydo='continue',payload=None):
+    def getRequest(self,url,trydo='continue',payload=None,post=False):
         self.trydo = trydo
         try:
             self.curlreq = core.curl_request(url,'GET',False)
-            self.response = requests.get(url, payload,timeout=self.defaulttimeout, verify=False, headers=self.headers)
+            if post:
+                self.response = requests.post(url, payload,timeout=self.defaulttimeout, verify=False, headers=self.headers)
+            else:
+                self.response = requests.get(url, payload,timeout=self.defaulttimeout, verify=False, headers=self.headers)
             self.responsetimes = self.response.elapsed.total_seconds()*1000
         except TimeoutError as err:
             print(f'Timeout error occurred: {err}')
