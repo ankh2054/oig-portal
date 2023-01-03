@@ -78,6 +78,6 @@ sphinx-rtd-theme==0.2.4
 toolz==0.11.1
 transaction==3.0.1
 trie==1.4.0
-urllib3==1.25.10
+urllib3==1.26.5
 z3-solver==4.8.12.0
 zope.interface==5.4.0
