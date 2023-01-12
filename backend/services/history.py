@@ -30,13 +30,15 @@ def check_hyperion(producer,feature,partialtest=False,testnet=False):
     # Test for full or partial
     if partialtest:
         # block to test is headblock minus 20 weeks 1 day back. 2 blocks per second.
-        fourweeksOnedayinSeconds = 12096000+86400
+        fourweeksOnedayinSeconds = 60480000+86400
         # Get random transaction
         fulltrx = eosio.get_random_trx(fourweeksOnedayinSeconds,chain)
         #Create payload for request to hyperion
+        print(fulltrx[0])
         payload = dict(id=fulltrx[0])
         try:
             response = eosio.get_stuff(api,payload,'trx')
+            print(response.json())
             trxExecuted = response['executed']
             trx_id = response['trx_id']
             msg = f"Hyperion is missing transaction: {trx_id}. HTML Response {response}"

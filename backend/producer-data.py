@@ -12,6 +12,7 @@ import services.history as history
 import services.p2p as p2p
 import services.delphi as delphi
 import services.cpu as cpu
+import services.chainjson as chainjson
 import utils.requests as requests
 
 
@@ -358,6 +359,9 @@ if __name__ == "__main__":
         #print(atomic.getAtomicTemplates('https://aa.dapplica.io','kogsofficial'))
         #print(atomic.getAtomicSchema('https://aa.dapplica.io','kogsofficial'))
         #print(atomic.getAtomicassets('https://aa.dapplica.io'))
+        #print(chainjson.getchainsJSON('sentnlagents','mainnet'))
+        #print(chainjson.getwwwJSON('sentnlagents'))
+        #print(chainjson.compareJSON('sentnlagents','mainnet'))
 
         
 

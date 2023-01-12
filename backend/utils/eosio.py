@@ -59,7 +59,7 @@ def chainType(chain,api_url=''):
         URL = HyperionNodeTesnet + api_url
         net = True
     else:
-        URL = HyperionNodeMainnet2 + api_url
+        URL = HyperionNodeMainnet1 + api_url
         net = False
     return {'URL':URL,'chain':chain,'net':net}
 

@@ -31,7 +31,9 @@ def getcpustats():
         #fulltrx = eosio.get_stuff(eosio.HyperionNodeMainnet1,payload,'trx',chain)
         try:
             fulltrx = eosio.get_stuff(node,payload,'trx',chain)
+            print(fulltrx)
             producer = fulltrx['actions'][0]['producer']
+            print(producer)
             cpustats = fulltrx['actions'][0]['cpu_usage_us']
             receiver = fulltrx['actions'][0]['receipts'][0]['receiver']
             print(cpustats)

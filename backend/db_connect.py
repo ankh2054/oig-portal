@@ -94,6 +94,11 @@ def getProducers():
     query = db.dbSelect("SELECT * FROM oig.producer WHERE active AND metasnapshot_date = timestamp '1980-01-01 00:00:00'")
     return query
 
+def getProducer(producer):
+    db = MyDB()
+    query = db.dbSelect("SELECT * FROM oig.producer WHERE active AND metasnapshot_date = timestamp '1980-01-01 00:00:00' AND owner_name =  %s",producer)
+    return query
+
 def getPoints():
     db = MyDB()
     query = db.dbSelect("SELECT * FROM oig.pointsystem WHERE points IS NOT NULL")
