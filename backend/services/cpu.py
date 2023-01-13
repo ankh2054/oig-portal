@@ -31,12 +31,9 @@ def getcpustats():
         #fulltrx = eosio.get_stuff(eosio.HyperionNodeMainnet1,payload,'trx',chain)
         try:
             fulltrx = eosio.get_stuff(node,payload,'trx',chain)
-            print(fulltrx)
             producer = fulltrx['actions'][0]['producer']
-            print(producer)
             cpustats = fulltrx['actions'][0]['cpu_usage_us']
             receiver = fulltrx['actions'][0]['receipts'][0]['receiver']
-            print(cpustats)
         except:
             continue
         # Update dict with producer name and cpustats
@@ -49,6 +46,8 @@ def getcpustats():
 def cpuresults(producer,producercpu):
     # Get cpustats(key) value for the items in producercpu if the producer passed is in that list.
     cpu = [item['cpustats'] for item in producercpu if item["producer"] == producer]
+    print(f'All CPU results {producercpu}')
+    print(f'CPU: {cpu}')
     # If producer is not in that list  means producer is not in top21, so we need testnet data.
     if not cpu:
         return int(1.0)
@@ -63,6 +62,7 @@ def cpuAverage(producer):
         # New Guilds will not have any CPU scores, so set to 0
         allcpu = 0
     cpu_final = []
+    print(allcpu)
     for cpu in allcpu:
         cpu_final.append(cpu[0])
     try:
