@@ -12,6 +12,7 @@ const client = new Client({
   port: pgport
 })
 
+
 client.connect()
 
 // Get all producers
