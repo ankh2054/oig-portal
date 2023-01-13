@@ -355,6 +355,7 @@ if __name__ == "__main__":
     else:
         main(cpucheck)
         #print(cpu.getcpustats())
+        #print(cpu.cpuAverage('eosriobrazil'))
         #print(history.check_hyperion('oneinacilian','hyperion-v2',partialtest=True))
         #print(atomic.getAtomicTemplates('https://aa.dapplica.io','kogsofficial'))
         #print(atomic.getAtomicSchema('https://aa.dapplica.io','kogsofficial'))

@@ -58,6 +58,7 @@ def cpuresults(producer,producercpu):
 def cpuAverage(producer):
     try:
         allcpu = db_connect.getCPU(producer)
+        print(allcpu)
     except:
         # New Guilds will not have any CPU scores, so set to 0
         allcpu = 0

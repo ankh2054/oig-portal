@@ -297,7 +297,7 @@ export default function ResultTables({ passedResults, avgResult, metaSnapshotDat
               <HtmlTooltip title={`${avgResult.snapshots_count}/${avgResult.total_count}`} aria-label="snapshots_count" placement="top">
                 <StyledTableCell className={classes.avgResultCell}><span>{avgResult.snapshots_pct}</span></StyledTableCell>
               </HtmlTooltip>
-              <StyledTableCell className={classes.avgResultCell}><span>{parseInt(avgResult.cpu_avg*100)/100}</span></StyledTableCell>
+              <StyledTableCell className={classes.avgResultCell}><span>{parseInt(avgResult.cpu_time*100)/100}</span></StyledTableCell>
               <StyledTableCell className={classes.avgResultCell}><span>{parseInt(avgResult.score_avg)}</span></StyledTableCell>
               <StyledTableCell className={classes.ownerName}><button className={classes.waxButton} onClick={openTimeMachine}>{metaSnapshotDate ? metaSnapshotDate.short : "Time Machine"}</button></StyledTableCell>
             </StyledTableRow>}
@@ -349,7 +349,7 @@ export default function ResultTables({ passedResults, avgResult, metaSnapshotDat
                   <StyledTableCell>{iconResult(result.oracle_feed)}</StyledTableCell>
                 </HtmlTooltip>
                 <StyledTableCell>{iconResult(result.snapshots)}</StyledTableCell>
-                <StyledTableCell>{result.cpu_avg}</StyledTableCell>
+                <StyledTableCell>{result.cpu_time}</StyledTableCell>
                 <StyledTableCell>{Math.round(result.score) /* !pointSystem ? result.score : getTechScore(result, pointSystem) */}</StyledTableCell>
                 <StyledTableCell>{datec(result.date_check)}</StyledTableCell>
               </StyledTableRow>

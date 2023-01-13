@@ -142,7 +142,7 @@ def getProducerUrl(producer):
 
 def getCPU(producer):
     db = MyDB()
-    query = db.dbSelect("SELECT cpu_time FROM oig.results WHERE owner_name = %s AND date_check > current_date - interval '90' day", producer)
+    query = db.dbSelect("SELECT cpu_time FROM oig.results WHERE owner_name = %s AND date_check > current_date - interval '7' day", producer)
     return query
 
 ##########################

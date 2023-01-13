@@ -252,7 +252,7 @@ const getAverageMonthlyResult = (request, reply) => {
     COUNT(*) FILTER (WHERE cors_check = TRUE) AS cors_check_count,
     COUNT(*) FILTER (WHERE oracle_feed = TRUE) AS oracle_feed_count,
     COUNT(*) FILTER (WHERE snapshots = TRUE) AS snapshots_count,
-    AVG(cpu_avg) AS cpu_avg,
+    AVG(cpu_time) AS cpu_time,
     AVG(score) AS score_avg 
     from oig.results
     where owner_name = $1
