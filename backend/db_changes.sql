@@ -115,3 +115,9 @@ alter table oig.results add hyperion_v2_full boolean;
 alter table oig.results add hyperion_v2_full_error varchar(1000);
 alter table oig.results add hyperion_v2_testnet_full boolean;
 alter table oig.results add hyperion_v2_testnet_full_error varchar(1000);
+
+
+--- Chains JSON check
+alter table results rename column snapshots to wwwjson;
+alter table results rename column snapshots_error to wwwjson_error;
+UPDATE oig.pointsystem SET points_type = 'wwwjson' WHERE points_type = 'snapshots';

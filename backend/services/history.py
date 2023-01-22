@@ -43,9 +43,12 @@ def check_hyperion(producer,feature,partialtest=False,testnet=False):
             trxExecuted = response['executed']
             #print(f'TRXexecued {trxExecuted}')
             trx_id = response['trx_id']
-            msg = f"Hyperion is missing transaction: {trx_id}. HTML Response {response}"
+            msg = f"Not enough data to count as running Full Hyperion. Hyperion is missing transaction: {trx_id}. HTML Response {response}"
         except:
             return False, 'Some other error occurred'
+        if not check_history_v1(producer,feature):
+            print('full history check failing')
+            return False, 'Not running History V1'
         if trxExecuted:
             return True, 'ok'
         else:

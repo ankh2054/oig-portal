@@ -221,8 +221,9 @@ def finalresults(cpucheck):
         atomic_api = atomic.check_atomic_assets(producer,'atomic-assets-api')
         printOuput(atomic_api,"Running a atomic assets Api: ")
 
-        # Set snapshots to False until we find a way
-        snapshots = [False,'oops']
+        # Chains JSON matches WWW JSON
+        wwwjson = chainjson.compareJSON(producer,'mainnet')
+        printOuput(wwwjson,"Does chains json match www json ")
 
         seed_node = p2p.check_P2P(producer,'p2p_endpoint')
         printOuput(seed_node,"Running a seed node: ")
@@ -245,7 +246,7 @@ def finalresults(cpucheck):
             'hyperion_v2_testnet': hyperion_v2_testnet[0],
             'hyperion_v2_testnet_full': hyperion_v2_testnet_full[0],
             'atomic_api':atomic_api[0],
-            'snapshots': snapshots[0],
+            'wwwjson': wwwjson[0],
             'seed_node': seed_node[0],
             'api_node': api_node[0],
             'oracle_feed': oracle_feed[0],
@@ -283,7 +284,8 @@ def finalresults(cpucheck):
             str(hyperion_v2_testnet_full[1]),
             atomic_api[0],
             str(atomic_api[1]),
-            snapshots[0], 
+            wwwjson[0], 
+            str(wwwjson[1]), 
             seed_node[0], 
             str(seed_node[1]), 
             api_node[0], 

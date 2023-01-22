@@ -238,7 +238,7 @@ export default function ResultTables({ passedResults, avgResult, metaSnapshotDat
               <StyledTableCell><span>atomic_api</span></StyledTableCell>
               <StyledTableCell><span>cors_check</span></StyledTableCell>
               <StyledTableCell><span>oracle_feed</span></StyledTableCell>
-              <StyledTableCell><span>snapshots</span></StyledTableCell>
+              <StyledTableCell><span>chains-json</span></StyledTableCell>
               <StyledTableCell><span>cpu</span></StyledTableCell>
               <StyledTableCell><span>score</span></StyledTableCell>
               <StyledTableCell>date (gmt)</StyledTableCell>
@@ -294,8 +294,8 @@ export default function ResultTables({ passedResults, avgResult, metaSnapshotDat
               <HtmlTooltip title={`${avgResult.oracle_feed_count}/${avgResult.total_count}`} aria-label="oracle_feed_count" placement="top">
                 <StyledTableCell className={classes.avgResultCell}><span>{avgResult.oracle_feed_pct}</span></StyledTableCell>
               </HtmlTooltip>
-              <HtmlTooltip title={`${avgResult.snapshots_count}/${avgResult.total_count}`} aria-label="snapshots_count" placement="top">
-                <StyledTableCell className={classes.avgResultCell}><span>{avgResult.snapshots_pct}</span></StyledTableCell>
+              <HtmlTooltip title={`${avgResult.wwwjson_count}/${avgResult.total_count}`} aria-label="wwwjson_count" placement="top">
+                <StyledTableCell className={classes.avgResultCell}><span>{avgResult.wwwjson_pct}</span></StyledTableCell>
               </HtmlTooltip>
               <StyledTableCell className={classes.avgResultCell}><span>{parseInt(avgResult.cpu_time*100)/100}</span></StyledTableCell>
               <StyledTableCell className={classes.avgResultCell}><span>{parseInt(avgResult.score_avg)}</span></StyledTableCell>
@@ -348,7 +348,9 @@ export default function ResultTables({ passedResults, avgResult, metaSnapshotDat
                 <HtmlTooltip title={result.oracle_feed_error} aria-label="oracle_feed_error" placement="top">
                   <StyledTableCell>{iconResult(result.oracle_feed)}</StyledTableCell>
                 </HtmlTooltip>
-                <StyledTableCell>{iconResult(result.snapshots)}</StyledTableCell>
+                <HtmlTooltip title={result.wwwjson_error} aria-label="wwwjson_error" placement="top">
+                  <StyledTableCell>{iconResult(result.wwwjson)}</StyledTableCell>
+                </HtmlTooltip>
                 <StyledTableCell>{result.cpu_time}</StyledTableCell>
                 <StyledTableCell>{Math.round(result.score) /* !pointSystem ? result.score : getTechScore(result, pointSystem) */}</StyledTableCell>
                 <StyledTableCell>{datec(result.date_check)}</StyledTableCell>

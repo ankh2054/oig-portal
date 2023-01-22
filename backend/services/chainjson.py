@@ -1,15 +1,11 @@
 import json
-import difflib
+import jsondiff
 from io import BytesIO
 import db_connect
 import utils.requests as requests
 import utils.eosio as eosio
 
 
-
-# Obtaon wax.json locations from DB
-# Download to memory
-# Connect to producerjson contract and lookup produderjson table
 
 def getchainsJSON(producer,chain):
     producerjson_table = requests.get_table_data("producerjson","producerjson","producerjson","200")
@@ -30,20 +26,18 @@ def getwwwJSON(producer):
     return response.json()
 
 def compareJSON(producer,chain):
-    chainjson = json.dumps(getchainsJSON(producer,chain), 0)
-    print(chainjson)
-    print(type(chainjson))
-    wwwjson = getwwwJSON(producer)
-    print(wwwjson)
-    print(type(wwwjson))
-    '''
-    contents1 = json.load(chainjson)
-    contents2 = json.load(wwwjson)
-    matcher = difflib.SequenceMatcher(lambda x: x in " \t\r\n", json.dumps(contents1, sort_keys=True), json.dumps(contents2, sort_keys=True))
-    if matcher.ratio() == 1.0:
-        print("The files match.")
+    try:
+        chainjson = getchainsJSON(producer,chain)
+        wwwjson = getwwwJSON(producer)
+    except:
+        return False, f'JSON file not posted to chain'
+    diff = jsondiff.diff(json.loads(chainjson), wwwjson)
+    if not diff:
+        return True, 'ok'
     else:
-        print("The files do not match.")
-    '''
+        #print("Mismatches:", diff)
+        return False, f'JSON file on website does not match chain version: {diff}'
+    
+
 
 
