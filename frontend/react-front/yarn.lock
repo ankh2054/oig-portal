@@ -2193,10 +2193,10 @@
   dependencies:
     "@types/istanbul-lib-report" "*"
 
-"@types/json-schema@*", "@types/json-schema@^7.0.3", "@types/json-schema@^7.0.5", "@types/json-schema@^7.0.6":
-  "integrity" "sha512-cxWFQVseBm6O9Gbw1IWb8r6OS4OhSt3hPZLkFApLjM8TEXROBuQGLAH2i2gZpcXdLBIrpXuTDhH7Vbm1iXmNGA=="
-  "resolved" "https://registry.npmjs.org/@types/json-schema/-/json-schema-7.0.7.tgz"
-  "version" "7.0.7"
+"@types/json-schema@*", "@types/json-schema@^7.0.3", "@types/json-schema@^7.0.5", "@types/json-schema@^7.0.6", "@types/json-schema@^7.0.8":
+  "integrity" "sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ=="
+  "resolved" "https://registry.npmjs.org/@types/json-schema/-/json-schema-7.0.11.tgz"
+  "version" "7.0.11"
 
 "@types/json5@^0.0.29":
   "integrity" "sha1-7ihweulOEdK4J7y+UnC86n8+ce4="
@@ -4114,6 +4114,17 @@
   dependencies:
     "mime-db" ">= 1.43.0 < 2"
 
+"compression-webpack-plugin@^6.1.1":
+  "integrity" "sha512-BEHft9M6lwOqVIQFMS/YJGmeCYXVOakC5KzQk05TFpMBlODByh1qNsZCWjUBxCQhUP9x0WfGidxTbGkjbWO/TQ=="
+  "resolved" "https://registry.npmjs.org/compression-webpack-plugin/-/compression-webpack-plugin-6.1.1.tgz"
+  "version" "6.1.1"
+  dependencies:
+    "cacache" "^15.0.5"
+    "find-cache-dir" "^3.3.1"
+    "schema-utils" "^3.0.0"
+    "serialize-javascript" "^5.0.1"
+    "webpack-sources" "^1.4.3"
+
 "compression@^1.7.4":
   "integrity" "sha512-jaSIDzP9pZVS4ZfQ+TzvtiWhdpFhE2RDHz8QJkpX9SIpLq88VueF5jJw6t+6CUQcAoA6t+x89MLrWAqpfDE8iQ=="
   "resolved" "https://registry.npmjs.org/compression/-/compression-1.7.4.tgz"
@@ -6011,9 +6022,9 @@
     "pkg-dir" "^3.0.0"
 
 "find-cache-dir@^3.3.1":
-  "integrity" "sha512-t2GDMt3oGC/v+BMwzmllWDuJF/xcDtE5j/fCGbqDD7OLuJkj0cfh1YSA5VKPvwMeLFLNDBkwOKZ2X85jGLVftQ=="
-  "resolved" "https://registry.npmjs.org/find-cache-dir/-/find-cache-dir-3.3.1.tgz"
-  "version" "3.3.1"
+  "integrity" "sha512-wXZV5emFEjrridIgED11OoUKLxiYjAcqot/NJdAkOhlJ+vGzwhOAfcG5OX1jP+S0PcjEn8bdMJv+g2jwQ3Onig=="
+  "resolved" "https://registry.npmjs.org/find-cache-dir/-/find-cache-dir-3.3.2.tgz"
+  "version" "3.3.2"
   dependencies:
     "commondir" "^1.0.1"
     "make-dir" "^3.0.2"
@@ -8316,14 +8327,7 @@
     "pify" "^4.0.1"
     "semver" "^5.6.0"
 
-"make-dir@^3.0.0":
-  "integrity" "sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw=="
-  "resolved" "https://registry.npmjs.org/make-dir/-/make-dir-3.1.0.tgz"
-  "version" "3.1.0"
-  dependencies:
-    "semver" "^6.0.0"
-
-"make-dir@^3.0.2":
+"make-dir@^3.0.0", "make-dir@^3.0.2":
   "integrity" "sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw=="
   "resolved" "https://registry.npmjs.org/make-dir/-/make-dir-3.1.0.tgz"
   "version" "3.1.0"
@@ -11458,11 +11462,11 @@
     "ajv-keywords" "^3.5.2"
 
 "schema-utils@^3.0.0":
-  "integrity" "sha512-6D82/xSzO094ajanoOSbe4YvXWMfn2A//8Y1+MUqFAJul5Bs+yn36xbK9OtNDcRVSBJ9jjeoXftM6CfztsjOAA=="
-  "resolved" "https://registry.npmjs.org/schema-utils/-/schema-utils-3.0.0.tgz"
-  "version" "3.0.0"
+  "integrity" "sha512-Y5PQxS4ITlC+EahLuXaY86TXfR7Dc5lw294alXOq86JAHCihAIZfqv8nNCWvaEJvaC51uN9hbLGeV0cFBdH+Fw=="
+  "resolved" "https://registry.npmjs.org/schema-utils/-/schema-utils-3.1.1.tgz"
+  "version" "3.1.1"
   dependencies:
-    "@types/json-schema" "^7.0.6"
+    "@types/json-schema" "^7.0.8"
     "ajv" "^6.12.5"
     "ajv-keywords" "^3.5.2"
 

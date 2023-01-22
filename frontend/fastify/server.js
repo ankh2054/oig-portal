@@ -12,6 +12,12 @@ fastify.register(require('fastify-cors'), {
     // put your options here
   })
 
+//Compression
+const fastifyCompress = require('fastify-compress')
+
+fastify.register(fastifyCompress)
+
+
 const db = require('./pgquery')
 
 //Routes/////////
