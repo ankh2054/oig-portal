@@ -13,7 +13,6 @@ import datec from '../functions/date'
 import Tooltip from '@material-ui/core/Tooltip';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
-// import { getTechScore } from '../functions/scoring'
 
 const StyledTableCell = withStyles((theme) => ({
   head: {

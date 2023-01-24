@@ -1,21 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-// import Link from '@material-ui/core/Link';
 import { Link } from "react-router-dom";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-//import IconButton from '@material-ui/core/IconButton';
-//import MenuIcon from '@material-ui/icons/Menu';
-
-//import BOMsvg from '../assets/img/bomlogo'
-//<BOMsvg style={{ fontSize: 50 }} className={classes.bomsvg} />
-
 import WAXsvg from "../assets/img/logo-wax";
-
-//import coreLogo from '../assets/img/logo.svg'
-//<img alt="mainlogo" className={classes.imageIcon} src={coreLogo}/>
-
 import Icon from "@material-ui/core/Icon";
 
 const useStyles = makeStyles((theme) => ({
@@ -89,7 +78,7 @@ const useStyles = makeStyles((theme) => ({
     top: "-14px",
     fontWeight: "700",
     background:
-      "linear-gradient(275.91deg, rgb(247, 142, 30) 8.43%, rgb(255, 220, 81) 174.56%)",
+        "linear-gradient(275.91deg, rgb(247, 142, 30) 8.43%, rgb(255, 220, 81) 174.56%)",
     padding: "15px 15px",
     borderRadius: "100px",
   },
@@ -105,11 +94,11 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: "none",
     marginRight: "5px",
     background:
-      "linear-gradient(90.08deg, rgb(247, 142, 30), rgb(255, 220, 81) 236.03%)",
+        "linear-gradient(90.08deg, rgb(247, 142, 30), rgb(255, 220, 81) 236.03%)",
     "&:hover": {
       textDecoration: "none",
       background:
-        "linear-gradient(275.91deg, rgb(247, 142, 30) 8.43%, rgb(255, 220, 81) 174.56%)",
+          "linear-gradient(275.91deg, rgb(247, 142, 30) 8.43%, rgb(255, 220, 81) 174.56%)",
     },
   },
   formContainer: {
@@ -119,15 +108,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function ButtonAppBar({
-  activeUser,
-  loginModal,
-  logOut,
-  isAdmin,
-  metaSnapshotDate,
-  openTimeMachine,
-  setMetaSnapshotDate,
-  availableMetaSnapshots
-}) {
+                                       activeUser,
+                                       loginModal,
+                                       logOut,
+                                       isAdmin,
+                                       metaSnapshotDate,
+                                       openTimeMachine,
+                                       setMetaSnapshotDate,
+                                       availableMetaSnapshots
+                                     }) {
   const classes = useStyles();
 
   const handleMetaDropDownChange = (event) => {
@@ -136,109 +125,109 @@ export default function ButtonAppBar({
   // console.log('available snapshot dates are **', availableMetaSnapshots)
 
   return (
-    <>
-      <AppBar position="fixed" className={classes.menuwax}>
-        <Toolbar>
-          <Link href="/" className={classes.link}>
-            <Icon classes={{ root: classes.iconRoot }}>
-              <WAXsvg className={classes.logosvg} />
-            </Icon>
-          </Link>
-          <Typography
-            fontWeight="fontWeightBold"
-            variant="h4"
-            className={classes.title}
-            color="inherit"
-          >
-            OIG Portal
-          </Typography>
-          <nav className={classes.linkContainer}>
-            <Link
-              variant="button"
-              color="inherit"
-              to="#"
-              onClick={openTimeMachine}
-              className={classes.waxButton}
-              style={{ display: metaSnapshotDate ? "none" : "" }}
-            >
-              {/* {metaSnapshotDate ? metaSnapshotDate.short : "Time Machine"} */}
-              {"Time Machine"}
+      <>
+        <AppBar position="fixed" className={classes.menuwax}>
+          <Toolbar>
+            <Link href="/" className={classes.link}>
+              <Icon classes={{ root: classes.iconRoot }}>
+                <WAXsvg className={classes.logosvg} />
+              </Icon>
             </Link>
-
-            <Link
-              variant="button"
-              color="inherit"
-              to="#"
-              // className={classes.waxButton}
-              style={{ display: !metaSnapshotDate ? "none" : "" }}
+            <Typography
+                fontWeight="fontWeightBold"
+                variant="h4"
+                className={classes.title}
+                color="inherit"
             >
-              {metaSnapshotDate ? (
-                <form className={classes.formContainer}>
-                  <select
-                    className={classes.selectDropdown}
-                    id="fav"
-                    onChange={handleMetaDropDownChange}
-                  >
-                    <option value={null}>None</option>
-                    {
-                      availableMetaSnapshots.sort().map(item => (
-                        <option value={item || null}>
-                      {item || 'None'}
-                    </option>
-                      ))
-                    }
-                    {/* <option value={metaSnapshotDate}>
+              OIG Portal
+            </Typography>
+            <nav className={classes.linkContainer}>
+              <Link
+                  variant="button"
+                  color="inherit"
+                  to="#"
+                  onClick={openTimeMachine}
+                  className={classes.waxButton}
+                  style={{ display: metaSnapshotDate ? "none" : "" }}
+              >
+                {/* {metaSnapshotDate ? metaSnapshotDate.short : "Time Machine"} */}
+                {"Time Machine"}
+              </Link>
+
+              <Link
+                  variant="button"
+                  color="inherit"
+                  to="#"
+                  // className={classes.waxButton}
+                  style={{ display: !metaSnapshotDate ? "none" : "" }}
+              >
+                {metaSnapshotDate ? (
+                    <form className={classes.formContainer}>
+                      <select
+                          className={classes.selectDropdown}
+                          id="fav"
+                          onChange={handleMetaDropDownChange}
+                      >
+                        <option value={null}>None</option>
+                        {
+                          availableMetaSnapshots.sort().map(item => (
+                              <option value={item || null}>
+                                {item || 'None'}
+                              </option>
+                          ))
+                        }
+                        {/* <option value={metaSnapshotDate}>
                       {metaSnapshotDate.date}
                     </option> */}
-                    
-                  </select>
-                </form>
-              ) : (
-                ""
-              )}
-            </Link>
 
-            <Link color="inherit" to="/" className={classes.link}>
-              Home
-            </Link>
-            <Link to="/latestresults" className={classes.link}>
-              Latest Results
-            </Link>
-            <Link to="/snapshot" className={classes.link}>
-              Scores
-            </Link>
-            {/* {isAdmin ? (
+                      </select>
+                    </form>
+                ) : (
+                    ""
+                )}
+              </Link>
+
+              <Link color="inherit" to="/" className={classes.link}>
+                Home
+              </Link>
+              <Link to="/latestresults" className={classes.link}>
+                Latest Results
+              </Link>
+              <Link to="/snapshot" className={classes.link}>
+                Scores
+              </Link>
+              {/* {isAdmin ? (
               <Link to="/form" className={classes.link}>
                 Submit Update
               </Link>
             ) : null} */}
-            {isAdmin ? (
-              <Link to="/admin" className={classes.link}>
-                Admin
-              </Link>
-            ) : null}
-            {activeUser ? (
+              {isAdmin ? (
+                  <Link to="/admin" className={classes.link}>
+                    Admin
+                  </Link>
+              ) : null}
+              {activeUser ? (
+                  <Link
+                      to={`/guilds/${activeUser.accountName}`}
+                      className={classes.link}
+                  >
+                    Profile
+                  </Link>
+              ) : null}
               <Link
-                to={`/guilds/${activeUser.accountName}`}
-                className={classes.link}
+                  to="#"
+                  onClick={activeUser ? logOut : loginModal}
+                  className={classes.waxButton}
               >
-                Profile
+                {activeUser ? "Log out " + activeUser.accountName : "Log In"}
               </Link>
-            ) : null}
-            <Link
-              to="#"
-              onClick={activeUser ? logOut : loginModal}
-              className={classes.waxButton}
-            >
-              {activeUser ? "Log out " + activeUser.accountName : "Log In"}
-            </Link>
-          </nav>
-        </Toolbar>
-      </AppBar>
-      {/* To prefent items from going missing */}
-      <Toolbar className={classes.toolbar} />
-      {/*<Toolbar />
+            </nav>
+          </Toolbar>
+        </AppBar>
+        {/* To prefent items from going missing */}
+        <Toolbar className={classes.toolbar} />
+        {/*<Toolbar />
       <Toolbar />*/}
-    </>
+      </>
   );
 }

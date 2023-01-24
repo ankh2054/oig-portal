@@ -10,7 +10,6 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import { green, red } from '@material-ui/core/colors';
 import HttpsIcon from '@material-ui/icons/Https';
-//import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Grid from '@material-ui/core/Grid';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -86,7 +85,7 @@ const App = ({ results, producers, products, bizdevs, community, producerLogos, 
     return getCachedImage(logosvg_url, producerLogos, producerDomainMap)
   }
 
-  // Returns score from state 
+  // Returns score from state
   function statescore(owner, state) {
     // Get array from state where owner = owner_name
     let statearray = state.filter((product) => product.owner_name === owner)
@@ -105,15 +104,15 @@ const App = ({ results, producers, products, bizdevs, community, producerLogos, 
     let sum = parseInt(tech) + product + bizdev + community
     if (sum >= pass) {
       return (
-        <Tooltip title="pass" aria-label="pass" placement="top">
-          <Avatar className={classes.green}>{parseInt(sum)}</Avatar>
-        </Tooltip>
+          <Tooltip title="pass" aria-label="pass" placement="top">
+            <Avatar className={classes.green}>{parseInt(sum)}</Avatar>
+          </Tooltip>
       );
     } else {
       return (
-        <Tooltip title="fail" aria-label="fail" placement="top">
-          <Avatar className={classes.red}>{parseInt(sum)}</Avatar>
-        </Tooltip>
+          <Tooltip title="fail" aria-label="fail" placement="top">
+            <Avatar className={classes.red}>{parseInt(sum)}</Avatar>
+          </Tooltip>
 
       );
     }
@@ -123,57 +122,57 @@ const App = ({ results, producers, products, bizdevs, community, producerLogos, 
   const textResult = (result) => {
     if (result === 'TLSv1.3' || result === 'TLSv1.2') {
       return (
-        <Tooltip title={"TLS " + result.slice(4, 7)} aria-label={result.slice(4, 7)} placement="top">
-          <IconButton>
-            <HttpsIcon /* Smart use of `style` */ style={{ color: green[500] }} />
-          </IconButton>
-        </Tooltip>
+          <Tooltip title={"TLS " + result.slice(4, 7)} aria-label={result.slice(4, 7)} placement="top">
+            <IconButton>
+              <HttpsIcon /* Smart use of `style` */ style={{ color: green[500] }} />
+            </IconButton>
+          </Tooltip>
 
 
       );
     } if (result == null) {
       return (
-        <Tooltip title={"TLS " + result.slice(4, 7)} aria-label={result.slice(4, 7)} placement="top">
-          <IconButton>
-            <HttpsIcon /* Smart use of `style` */ style={{ color: green[500] }} />
-          </IconButton>
-        </Tooltip>
+          <Tooltip title={"TLS " + result.slice(4, 7)} aria-label={result.slice(4, 7)} placement="top">
+            <IconButton>
+              <HttpsIcon /* Smart use of `style` */ style={{ color: green[500] }} />
+            </IconButton>
+          </Tooltip>
 
       );
     } else {
       return (
-        <Tooltip title={"TLS " + result.slice(4, 7)} aria-label={result.slice(4, 7)} placement="top">
-          <IconButton>
-            <HttpsIcon /* Smart use of `style` */ style={{ color: red[500] }} />
-          </IconButton>
-        </Tooltip>
+          <Tooltip title={"TLS " + result.slice(4, 7)} aria-label={result.slice(4, 7)} placement="top">
+            <IconButton>
+              <HttpsIcon /* Smart use of `style` */ style={{ color: red[500] }} />
+            </IconButton>
+          </Tooltip>
       );
     }
   }
 
   // Return Top21 boolean
   const top21 = (owner) => {
-    var ownername = producers.find(producer => producer.owner_name === owner)
+    const ownername = producers.find(producer => producer.owner_name === owner);
     // Conditional rendering because if false it becomes undefined
     let top21bol = ownername ? ownername.top21 : false
     return (
-      <>
-        {top21bol
-          // Font-awesome icons
-          //  ? <Avatar className={classes.green}>BP</Avatar>
-          //  : <Avatar className={classes.red}>SB</Avatar>
-          ? <Tooltip title="top21" aria-label="top21" placement="top">
-            <IconButton>
-              <FavoriteIcon /* Smart use of `style` */ style={{ color: green[500] }} />
-            </IconButton>
-          </Tooltip>
-          : <Tooltip title="standby" aria-label="standby" placement="top">
-            <IconButton>
-              <FavoriteIcon /* Smart use of `style` */ style={{ color: red[500] }} />
-            </IconButton>
-          </Tooltip>
-        }
-      </>
+        <>
+          {top21bol
+              // Font-awesome icons
+              //  ? <Avatar className={classes.green}>BP</Avatar>
+              //  : <Avatar className={classes.red}>SB</Avatar>
+              ? <Tooltip title="top21" aria-label="top21" placement="top">
+                <IconButton>
+                  <FavoriteIcon /* Smart use of `style` */ style={{ color: green[500] }} />
+                </IconButton>
+              </Tooltip>
+              : <Tooltip title="standby" aria-label="standby" placement="top">
+                <IconButton>
+                  <FavoriteIcon /* Smart use of `style` */ style={{ color: red[500] }} />
+                </IconButton>
+              </Tooltip>
+          }
+        </>
     );
   }
 
@@ -183,93 +182,93 @@ const App = ({ results, producers, products, bizdevs, community, producerLogos, 
   }
 
   return (
-    <Grid container spacing={4}>
-      {results.map((result) => {
-        return isActive(result.owner_name) === true ? (
-          /* ACTIVE */
-          <Grid item key={result.owner_name} xs={12} sm={6} md={3}>
-            <Card className={classes.root} variant="outlined">
-              <Link className={classes.link} to={`/guilds/${result.owner_name}`}>
-                <CardHeader
-                  avatar={
-                    <Avatar alt={result.owner_name} src={logo(result.owner_name)} className={classes.large} />
-                  }
-                  /*action={
-                    <IconButton aria-label="settings">
-                      <MoreVertIcon />
-                    </IconButton>
-                  }*/
-                  title={result.owner_name}
-                  subheader={datec(result.date_check)}
-                  className={classes.cardHeader}
-                />
-              </Link>
-              <CardContent className={classes.summary}>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  <b>Tech: </b>{parseInt(result.score)}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  <b>Products: </b>{statescore(result.owner_name, products)}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  <b>Bizdev: </b>{statescore(result.owner_name, bizdevs)}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  <b>Community: </b>{statescore(result.owner_name, community)}
-                </Typography>
-              </CardContent>
-              <CardActions disableSpacing>
-                {top21(result.owner_name)}
-                <IconButton aria-label="share">
-                  {textResult(result.tls_check)}
-                </IconButton>
-                <IconButton className={classes.left} >
-                  {totalscore(result.score, statescore(result.owner_name, products), statescore(result.owner_name, bizdevs), statescore(result.owner_name, community))}
-                </IconButton>
-              </CardActions>
-            </Card>
-          </Grid>
-        ) : (
-        /* INACTIVE */
-        <Grid item key={result.owner_name} xs={12} sm={6} md={3}>
-          <Card className={[classes.root, classes.retired]} variant="outlined">
-            <Link className={classes.link} to={`/guilds/${result.owner_name}`}>
-              <CardHeader
-                avatar={
-                  <Avatar alt={result.owner_name} src={logo(result.owner_name)} className={classes.large} />
-                }
-                title={result.owner_name}
-                subheader={datec(result.date_check)}
-                className={classes.cardHeader}
-              />
-            </Link>
-            <CardContent className={classes.summary}>
-              <Typography variant="body2" color="textSecondary" component="p">
-                <b>Tech: </b>{parseInt(result.score)}
-              </Typography>
-              <Typography variant="body2" color="textSecondary" component="p">
-                <b>Products: </b>{statescore(result.owner_name, products)}
-              </Typography>
-              <Typography variant="body2" color="textSecondary" component="p">
-                <b>Bizdev: </b>{statescore(result.owner_name, bizdevs)}
-              </Typography>
-              <Typography variant="body2" color="textSecondary" component="p">
-                <b>Community: </b>{statescore(result.owner_name, community)}
-              </Typography>
-            </CardContent>
-            <CardActions disableSpacing>
-              {top21(result.owner_name)}
-              <IconButton aria-label="share">
-                {textResult(result.tls_check)}
-              </IconButton>
-              <IconButton className={classes.left} >
-                {totalscore(result.score, statescore(result.owner_name, products), statescore(result.owner_name, bizdevs), statescore(result.owner_name, community))}
-              </IconButton>
-            </CardActions>
-          </Card>
-        </Grid>)
-      }
-      )}</Grid>
+      <Grid container spacing={4}>
+        {results.map((result) => {
+              return isActive(result.owner_name) === true ? (
+                  /* ACTIVE */
+                  <Grid item key={result.owner_name} xs={12} sm={6} md={3}>
+                    <Card className={classes.root} variant="outlined">
+                      <Link className={classes.link} to={`/guilds/${result.owner_name}`}>
+                        <CardHeader
+                            avatar={
+                              <Avatar alt={result.owner_name} src={logo(result.owner_name)} className={classes.large} />
+                            }
+                            /*action={
+                              <IconButton aria-label="settings">
+                                <MoreVertIcon />
+                              </IconButton>
+                            }*/
+                            title={result.owner_name}
+                            subheader={datec(result.date_check)}
+                            className={classes.cardHeader}
+                        />
+                      </Link>
+                      <CardContent className={classes.summary}>
+                        <Typography variant="body2" color="textSecondary" component="p">
+                          <b>Tech: </b>{parseInt(result.score)}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary" component="p">
+                          <b>Products: </b>{statescore(result.owner_name, products)}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary" component="p">
+                          <b>Bizdev: </b>{statescore(result.owner_name, bizdevs)}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary" component="p">
+                          <b>Community: </b>{statescore(result.owner_name, community)}
+                        </Typography>
+                      </CardContent>
+                      <CardActions disableSpacing>
+                        {top21(result.owner_name)}
+                        <IconButton aria-label="share">
+                          {textResult(result.tls_check)}
+                        </IconButton>
+                        <IconButton className={classes.left} >
+                          {totalscore(result.score, statescore(result.owner_name, products), statescore(result.owner_name, bizdevs), statescore(result.owner_name, community))}
+                        </IconButton>
+                      </CardActions>
+                    </Card>
+                  </Grid>
+              ) : (
+                  /* INACTIVE */
+                  <Grid item key={result.owner_name} xs={12} sm={6} md={3}>
+                    <Card className={[classes.root, classes.retired]} variant="outlined">
+                      <Link className={classes.link} to={`/guilds/${result.owner_name}`}>
+                        <CardHeader
+                            avatar={
+                              <Avatar alt={result.owner_name} src={logo(result.owner_name)} className={classes.large} />
+                            }
+                            title={result.owner_name}
+                            subheader={datec(result.date_check)}
+                            className={classes.cardHeader}
+                        />
+                      </Link>
+                      <CardContent className={classes.summary}>
+                        <Typography variant="body2" color="textSecondary" component="p">
+                          <b>Tech: </b>{parseInt(result.score)}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary" component="p">
+                          <b>Products: </b>{statescore(result.owner_name, products)}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary" component="p">
+                          <b>Bizdev: </b>{statescore(result.owner_name, bizdevs)}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary" component="p">
+                          <b>Community: </b>{statescore(result.owner_name, community)}
+                        </Typography>
+                      </CardContent>
+                      <CardActions disableSpacing>
+                        {top21(result.owner_name)}
+                        <IconButton aria-label="share">
+                          {textResult(result.tls_check)}
+                        </IconButton>
+                        <IconButton className={classes.left} >
+                          {totalscore(result.score, statescore(result.owner_name, products), statescore(result.owner_name, bizdevs), statescore(result.owner_name, community))}
+                        </IconButton>
+                      </CardActions>
+                    </Card>
+                  </Grid>)
+            }
+        )}</Grid>
   );
 }
 

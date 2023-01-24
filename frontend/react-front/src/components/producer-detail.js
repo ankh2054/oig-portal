@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, {useEffect, useState} from "react";
 import axios from "axios";
-import { api_base } from "../config";
-import { withStyles, makeStyles } from "@material-ui/core/styles";
+import {api_base} from "../config";
+import {makeStyles, withStyles} from "@material-ui/core/styles";
 import TechresultTables from "./tech-tablelist-results";
-import { green, red, grey } from "@material-ui/core/colors";
+import {green, grey, red} from "@material-ui/core/colors";
 import Tooltip from "@material-ui/core/Tooltip";
 import Icon from "@material-ui/core/Icon";
-import { CpuStatsGraph, cpuSummary } from "./cpu-stats-graph";
+import {CpuStatsGraph, cpuSummary} from "./cpu-stats-graph";
 import Paper from "@material-ui/core/Paper";
 import getCachedImage from "./getCachedImage";
 import hyperionV2Logo from "../assets/img/hyperion.png";
 import apiLogo from "../assets/img/api.png";
 import historyV1Logo from "../assets/img/v1.png";
 import atomicLogo from "../assets/img/atomic.png";
-import Notification from './Notification.js'
 
 const HtmlTooltip = withStyles((theme) => ({
   tooltip: {
@@ -127,7 +126,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "-8px",
     display: "inline-block",
     filter:
-      "invert(49%) sepia(7%) saturate(3407%) hue-rotate(73deg) brightness(116%) contrast(94%)",
+        "invert(49%) sepia(7%) saturate(3407%) hue-rotate(73deg) brightness(116%) contrast(94%)",
   },
   atomicGreen: {
     height: "38px",
@@ -135,7 +134,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "-10px",
     display: "inline-block",
     filter:
-      "invert(48%) sepia(62%) saturate(424%) hue-rotate(73deg) brightness(108%) contrast(91%)",
+        "invert(48%) sepia(62%) saturate(424%) hue-rotate(73deg) brightness(108%) contrast(91%)",
   },
   hyperionRed: {
     height: "40px",
@@ -143,7 +142,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "-8px",
     display: "inline-block",
     filter:
-      "invert(34%) sepia(78%) saturate(3670%) hue-rotate(344deg) brightness(104%) contrast(91%)",
+        "invert(34%) sepia(78%) saturate(3670%) hue-rotate(344deg) brightness(104%) contrast(91%)",
   },
   atomicRed: {
     height: "38px",
@@ -151,7 +150,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "-8px",
     display: "inline-block",
     filter:
-      "invert(33%) sepia(91%) saturate(3715%) hue-rotate(345deg) brightness(110%) contrast(91%)",
+        "invert(33%) sepia(91%) saturate(3715%) hue-rotate(345deg) brightness(110%) contrast(91%)",
   },
   hyperionGrey: {
     height: "40px",
@@ -159,7 +158,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "-8px",
     display: "inline-block",
     filter:
-      "invert(56%) sepia(24%) saturate(0%) hue-rotate(153deg) brightness(104%) contrast(102%)",
+        "invert(56%) sepia(24%) saturate(0%) hue-rotate(153deg) brightness(104%) contrast(102%)",
   },
   atomicGrey: {
     height: "38px",
@@ -167,7 +166,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "-8px",
     display: "inline-block",
     filter:
-      "invert(63%) sepia(0%) saturate(0%) hue-rotate(136deg) brightness(102%) contrast(88%)",
+        "invert(63%) sepia(0%) saturate(0%) hue-rotate(136deg) brightness(102%) contrast(88%)",
   },
   genericIcon: {
     verticalAlign: "middle",
@@ -175,11 +174,11 @@ const useStyles = makeStyles((theme) => ({
     marginRight: "8px",
     display: "inline-block",
   },
-  latestResultsTitleWrapper: { 
+  latestResultsTitleWrapper: {
     display: 'flex',
     alignItems: 'center',
     "& input": {
-      height:'40px', 
+      height:'40px',
       width:'90px',
       padding: '10px'
     }
@@ -213,22 +212,22 @@ const calculateSecurity = (latest) => {
     net: latest.net_api_check === "true",
     dbsize: latest.dbsize_api_check === "true",
     tls:
-      latest.tls_check !== "false" &&
-      (latest.tls_check.indexOf("1.2") !== -1 ||
-        latest.tls_check.indexOf("1.3") !== -1),
+        latest.tls_check !== "false" &&
+        (latest.tls_check.indexOf("1.2") !== -1 ||
+            latest.tls_check.indexOf("1.3") !== -1),
   };
   const success =
-    Object.keys(res)
-      .flatMap((key) => res[key])
-      .indexOf(false) === -1;
+      Object.keys(res)
+          .flatMap((key) => res[key])
+          .indexOf(false) === -1;
   const summary = [
     !res.producer ? "Producer API is enabled" : "",
     !res.net ? "Net API is enabled" : "",
     !res.dbsize ? "DBSize API is enabled" : "",
     !res.tls ? "TLS is either not enabled or below 1.2" : "",
   ]
-    .filter((message) => message !== "")
-    .join("\n");
+      .filter((message) => message !== "")
+      .join("\n");
   return {
     success,
     summary,
@@ -244,15 +243,15 @@ const generateServicesProvided = (results, classes) => {
       latest.full_history,
       null,
       <img
-        alt=""
-        src={historyV1Logo}
-        className={
-          latest.full_history === true
-            ? classes.hyperionGreen
-            : latest.full_history === false
-            ? classes.hyperionRed
-            : classes.hyperionGrey
-        }
+          alt=""
+          src={historyV1Logo}
+          className={
+            latest.full_history === true
+                ? classes.hyperionGreen
+                : latest.full_history === false
+                    ? classes.hyperionRed
+                    : classes.hyperionGrey
+          }
       />,
     ],
     [
@@ -260,15 +259,15 @@ const generateServicesProvided = (results, classes) => {
       latest.hyperion_v2,
       null,
       <img
-        alt=""
-        src={hyperionV2Logo}
-        className={
-          latest.hyperion_v2 === true
-            ? classes.hyperionGreen
-            : latest.hyperion_v2 === false
-            ? classes.hyperionRed
-            : classes.hyperionGrey
-        }
+          alt=""
+          src={hyperionV2Logo}
+          className={
+            latest.hyperion_v2 === true
+                ? classes.hyperionGreen
+                : latest.hyperion_v2 === false
+                    ? classes.hyperionRed
+                    : classes.hyperionGrey
+          }
       />,
     ],
     [
@@ -276,15 +275,15 @@ const generateServicesProvided = (results, classes) => {
       latest.atomic_api,
       null,
       <img
-        alt=""
-        src={atomicLogo}
-        className={
-          latest.atomic_api === true
-            ? classes.atomicGreen
-            : latest.atomic_api === false
-            ? classes.atomicRed
-            : classes.atomicGrey
-        }
+          alt=""
+          src={atomicLogo}
+          className={
+            latest.atomic_api === true
+                ? classes.atomicGreen
+                : latest.atomic_api === false
+                    ? classes.atomicRed
+                    : classes.atomicGrey
+          }
       />,
     ],
     [
@@ -292,91 +291,89 @@ const generateServicesProvided = (results, classes) => {
       latest.api_node,
       null,
       <img
-        alt=""
-        src={apiLogo}
-        className={
-          latest.api_node === true
-            ? classes.hyperionGreen
-            : latest.api_node === false
-            ? classes.hyperionRed
-            : classes.hyperionGrey
-        }
+          alt=""
+          src={apiLogo}
+          className={
+            latest.api_node === true
+                ? classes.hyperionGreen
+                : latest.api_node === false
+                    ? classes.hyperionRed
+                    : classes.hyperionGrey
+          }
       />,
     ],
     ["Missed Blocks (24 hours)", null, null],
     ["Security", security.success, "fa fa-shield-alt"],
   ];
 
-  const jsx = services.map((item, index) => {
+  return services.map((item, index) => {
     const iconColor =
-      item[1] === true ? green[500] : item[1] === false ? red[500] : grey[500];
+        item[1] === true ? green[500] : item[1] === false ? red[500] : grey[500];
     const serviceName = item[0];
     const iconClass = item[2]
-      ? "fa " + item[2]
-      : item[1] === true
-      ? "fa fa-check-circle"
-      : item[1] === false
-      ? "fa fa-times-circle"
-      : "fa fa-question-circle";
+        ? "fa " + item[2]
+        : item[1] === true
+            ? "fa fa-check-circle"
+            : item[1] === false
+                ? "fa fa-times-circle"
+                : "fa fa-question-circle";
     const icon = !item[3] ? (
-      <Icon
-        className={[iconClass, classes.genericIcon]}
-        /* Smart use of `style` */ style={{ color: iconColor }}
-      />
+        <Icon
+            className={[iconClass, classes.genericIcon]}
+            /* Smart use of `style` */ style={{color: iconColor}}
+        />
     ) : (
-      item[3]
+        item[3]
     );
 
     return serviceName === "Security" && !security.success ? (
-      <HtmlTooltip
-        title={security.summary}
-        aria-label="summary"
-        placement="left"
-      >
+        <HtmlTooltip
+            title={security.summary}
+            aria-label="summary"
+            placement="left"
+        >
+          <li key={index}>
+            {icon}&nbsp;
+            {serviceName}
+          </li>
+        </HtmlTooltip>
+    ) : (
         <li key={index}>
           {icon}&nbsp;
           {serviceName}
         </li>
-      </HtmlTooltip>
-    ) : (
-      <li key={index}>
-        {icon}&nbsp;
-        {serviceName}
-      </li>
     );
   });
-  return jsx;
 };
 
 const App = ({
-  producer,
-  latestresults,
-  producerLogos,
-  producerDomainMap,
-  activeUser,
-  metaSnapshotDate,
-  openTimeMachine,
-}) => {
+               producer,
+               latestresults,
+               producerLogos,
+               producerDomainMap,
+               activeUser,
+               metaSnapshotDate,
+               openTimeMachine,
+             }) => {
   const classes = useStyles();
   const [results, setResults] = useState([]);
   const [avgResult, setAvgResult] = useState([]);
   const [numberOfAverageDays, setNumberOfAverageDays] = useState(30)
-  const [toastNotification, setToastNotification] = useState({displayFlag: false, msg: ''})
 
   const preload = 60; // Number of results to preload (21 for 1 page, 42 for 2)
 
   useEffect(() => {
     if (producer) {
       axios
-        .get(
-          api_base +
-            `/api/truncatedPaginatedResults/${
-              producer.owner_name
-            }?index=0&limit=${preload - 1}`
-        )
-        .then((response) => {
-          setResults(response.data);
-        });
+          .get(
+              api_base +
+              `/api/truncatedPaginatedResults/${
+                  producer.owner_name
+              }?index=0&limit=${preload - 1}`
+          )
+          .then((response) => {
+            setResults(response.data);
+          });
       // Future-proof: add ?month=x, ?year=y to show results for a particular month
 
 
@@ -384,15 +381,15 @@ const App = ({
       if(!!metaSnapshotDate && metaSnapshotDate !== 'None'){
         const year = metaSnapshotDate.substring(0, 4);
         const month = metaSnapshotDate.substring(5, 7);
-        queryString = `/api/monthlyaverageresults/${producer.owner_name}?month=${month}&year=${year}`; 
+        queryString = `/api/monthlyaverageresults/${producer.owner_name}?month=${month}&year=${year}`;
       }else{
-        queryString = `/api/monthlyaverageresults/${producer.owner_name}?days=${numberOfAverageDays}`; 
+        queryString = `/api/monthlyaverageresults/${producer.owner_name}?days=${numberOfAverageDays}`;
       }
       axios
-        .get(api_base + queryString)
-        .then((response) => {
-          setAvgResult(response.data);
-        });
+          .get(api_base + queryString)
+          .then((response) => {
+            setAvgResult(response.data);
+          });
     }
   }, [producer, metaSnapshotDate, numberOfAverageDays]);
 
@@ -401,7 +398,7 @@ const App = ({
       return results;
     }
     const paginatedResults = await axios.get(
-      api_base +
+        api_base +
         `/api/truncatedPaginatedResults/${producer.owner_name}?index=${index}&limit=${limit}`
     );
     const newResults = [...results, ...paginatedResults.data];
@@ -415,108 +412,108 @@ const App = ({
     }else{
       alert("Number of Average days must not exceed 1000")
     }
-    
+
   }
 
   return (
-    <div className={classes.root}>
-      {producer ? (
-        <h1>
-          {producer.candidate} <small>{producer.owner_name}</small>
-        </h1>
-      ) : null}
-      {results.length === 0 ? (
-        <h2 className={classes.warning}>
-          No data recorded for this guild yet.
-        </h2>
-      ) : !producer.active ? (
-        <h2 className={classes.warning}>This guild is retired.</h2>
-      ) : activeUser && activeUser.accountName === producer.account_name ? (
-        <h2 className={classes.warning}>This is your guild.</h2>
-      ) : null}
-      <div className={classes.constrainedBox}>
-        {producer && (producer.logo_svg || producer.country_code) ? (
-          <Paper
-            className={[classes.paper, classes.logoAndFlag]}
-            variant="outlined"
-          >
-            {producerLogos ? (
-              <img
-                alt={producer.candidate + " logo"}
-                className={classes.guildLogo}
-                src={getCachedImage(
-                  producer.logo_svg,
-                  producerLogos,
-                  producerDomainMap
-                )}
-              />
-            ) : null}
-            <br />
-            {flagMap[producer.country_code] ? (
-              <span className={classes.flagIcon}>
+      <div className={classes.root}>
+        {producer ? (
+            <h1>
+              {producer.candidate} <small>{producer.owner_name}</small>
+            </h1>
+        ) : null}
+        {results.length === 0 ? (
+            <h2 className={classes.warning}>
+              No data recorded for this guild yet.
+            </h2>
+        ) : !producer.active ? (
+            <h2 className={classes.warning}>This guild is retired.</h2>
+        ) : activeUser && activeUser.accountName === producer.account_name ? (
+            <h2 className={classes.warning}>This is your guild.</h2>
+        ) : null}
+        <div className={classes.constrainedBox}>
+          {producer && (producer.logo_svg || producer.country_code) ? (
+              <Paper
+                  className={[classes.paper, classes.logoAndFlag]}
+                  variant="outlined"
+              >
+                {producerLogos ? (
+                    <img
+                        alt={producer.candidate + " logo"}
+                        className={classes.guildLogo}
+                        src={getCachedImage(
+                            producer.logo_svg,
+                            producerLogos,
+                            producerDomainMap
+                        )}
+                    />
+                ) : null}
+                <br />
+                {flagMap[producer.country_code] ? (
+                    <span className={classes.flagIcon}>
                 {flagMap[producer.country_code]}
               </span>
-            ) : null}
-          </Paper>
+                ) : null}
+              </Paper>
+          ) : null}
+          {results.length >= 1 ? (
+              <Paper
+                  className={[classes.paper, classes.servicesProvided]}
+                  variant="outlined"
+              >
+                <h2>Services Provided</h2>
+                <ul>{generateServicesProvided(results, classes)}</ul>
+              </Paper>
+          ) : null}
+        </div>
+        {results.length >= 1 ? (
+            <Paper
+                className={[classes.paper, classes.cpuStatsHolder]}
+                variant="outlined"
+            >
+              <h2>CPU stats</h2>
+              <CpuStatsGraph
+                  results={results.slice(0, 7)}
+                  latestresults={latestresults}
+              />
+            </Paper>
         ) : null}
         {results.length >= 1 ? (
-          <Paper
-            className={[classes.paper, classes.servicesProvided]}
-            variant="outlined"
-          >
-            <h2>Services Provided</h2>
-            <ul>{generateServicesProvided(results, classes)}</ul>
-          </Paper>
+            <Paper
+                className={[classes.paper, classes.smallCpuStats]}
+                variant="outlined"
+            >
+              <h2>CPU stats</h2>
+              <p>{cpuSummary({ results: results.slice(0, 7), latestresults })}</p>
+            </Paper>
+        ) : null}
+        {results.length >= 1 ?
+            <div className={classes.latestResultsTitleWrapper}>
+              <h2>Latest Results</h2>
+              <>Average Days
+                <input
+                    label="Number"
+                    type="number"
+                    value={!metaSnapshotDate ? numberOfAverageDays : '--'}
+                    onChange={updateAverageDays}
+                    min={1}
+                    max={1000}
+
+                />
+              </>
+            </div>
+            : null}
+        {results.length >= 1 ? (
+            <TechresultTables
+                passedResults={results}
+                avgResult={avgResult}
+                metaSnapshotDate={metaSnapshotDate}
+                openTimeMachine={openTimeMachine}
+                hideOwnerName={true}
+                loadMoreResults={loadMoreResults}
+            />
         ) : null}
       </div>
-      {results.length >= 1 ? (
-        <Paper
-          className={[classes.paper, classes.cpuStatsHolder]}
-          variant="outlined"
-        >
-          <h2>CPU stats</h2>
-          <CpuStatsGraph
-            results={results.slice(0, 7)}
-            latestresults={latestresults}
-          />
-        </Paper>
-      ) : null}
-      {results.length >= 1 ? (
-        <Paper
-          className={[classes.paper, classes.smallCpuStats]}
-          variant="outlined"
-        >
-          <h2>CPU stats</h2>
-          <p>{cpuSummary({ results: results.slice(0, 7), latestresults })}</p>
-        </Paper>
-      ) : null}
-      {results.length >= 1 ? 
-      <div className={classes.latestResultsTitleWrapper}>
-        <h2>Latest Results</h2>
-        <>Average Days
-        <input
-          label="Number"
-          type="number"   
-          value={!metaSnapshotDate ? numberOfAverageDays : '--'} 
-          onChange={updateAverageDays}      
-          min={1}
-          max={1000}
-         
-        />
-        </>
-      </div> 
-      : null}
-      {results.length >= 1 ? (
-        <TechresultTables
-          passedResults={results}
-          avgResult={avgResult}
-          metaSnapshotDate={metaSnapshotDate}
-          openTimeMachine={openTimeMachine}
-          hideOwnerName={true}
-          loadMoreResults={loadMoreResults}
-        />
-      ) : null}
-    </div>
   );
 };
 export default App;

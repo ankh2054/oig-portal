@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {lazy, useState, useEffect, Suspense} from "react";
 import axios from "axios";
 import {
   BrowserRouter as Router,
@@ -7,22 +7,21 @@ import {
   useParams,
 } from "react-router-dom";
 import "./App.css";
+import { api_base, admin_override } from "./config";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
-import MonthlyResults from "./components/results";
-import SnapshotResults from "./components/snapshot-results";
-import ProducerCards from "./components/producerscards";
-import ProducerDetails from "./components/producer-detail";
-import Testform from "./components/monthly-updates";
-import AdminPanel from "./components/admin";
 import Container from "@material-ui/core/Container";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import { api_base, admin_override } from "./config";
-// import {addScoreToItem} from './functions/scoring'
+import ErrorBoundary from "./ErrorBoundary";
 
-//import 'fontsource-roboto';
-import ButtonAppBar from "./components/appbar";
+const ProducerCards = lazy(() => import ("./components/producerscards"));
+const ProducerDetails = lazy(() => import ("./components/producer-detail"));
+const Testform = lazy(() => import ("./components/monthly-updates"));
+const AdminPanel = lazy(() => import ("./components/admin"));
+const ButtonAppBar = lazy(() => import ("./components/appbar"));
+const MonthlyResults = lazy(() => import ("./components/results"));
+const SnapshotResults = lazy(() => import ("./components/snapshot-results"));
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -49,7 +48,7 @@ function importAll(r) {
 }
 
 const { producerLogos, producerDomainMap } = importAll(
-  require.context("./assets/logo_cache", true, /\.(png|jpe?g|svg)$/)
+    require.context("./assets/logo_cache", true, /\.(png|jpe?g|svg)$/)
 );
 
 const App = (props) => {
@@ -60,7 +59,7 @@ const App = (props) => {
     "wjosep.oig",
     "sentnlagents",
     "uz.j2.wam",
-    
+
   ];
 
   const adminOverride = admin_override; // Whether to require wallet authentication to access admin features.
@@ -86,24 +85,8 @@ const App = (props) => {
   const [minimumTechScore, setMinimumTechScore] = useState(999);
   const [metaSnapshotDate, setMetaSnapshotDate] = useState(null);
   const [availableMetaSnapshots, setAvailableMetaSnapshots] = useState([]);
-  const [defaultMetaSnapshotDate, setDefaultMetaSnapshotDate] = useState(
-    "1980-01-01T00:00:00.000Z"
-  );
+  const defaultMetaSnapshotDate = "1980-01-01T00:00:00.000Z";
 
-  const monthMap = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
 
   const updateMetaSnapshotDate = (date) => {
     // const year = date.substring(0, 4);
@@ -124,11 +107,11 @@ const App = (props) => {
 
   const formatDate = (dateString) => {
     if(!dateString){
-        return
-    } 
+      return
+    }
     const options = { year: "numeric", month: "long", day: "numeric" }
     return new Date(dateString).toLocaleDateString(undefined, options)
-}
+  }
 
   useEffect(() => {
     // Load data and set hooks. A future implementation could use axios.all
@@ -139,7 +122,7 @@ const App = (props) => {
     axios.get(api_base + "/api/producers").then((response) => {
       setRawProducers(response.data);
       setProducers(
-        response.data.filter((producer) => producer.active === true)
+          response.data.filter((producer) => producer.active === true)
       );
     });
     axios.get(api_base + "/api/products").then((response) => {
@@ -153,8 +136,8 @@ const App = (props) => {
     axios.get(api_base + "/api/community").then((response) => {
       // setRawCommunity(response.data)
       setCommunity(response.data);
-    });    
-    
+    });
+
     axios.get(api_base + "/api/snapshotsettings/").then((response) => {
       setSnapshotSettings(response.data);
     });
@@ -171,8 +154,8 @@ const App = (props) => {
     axios.get(api_base + "/api/getAdminSettings").then((response) => {
       const data = response.data;
       const availableMetaSnapshots = data
-        .filter((row) => !!row.metasnapshot_date)
-        .map((row) => row.metasnapshot_date.substring(0, 10));        
+          .filter((row) => !!row.metasnapshot_date)
+          .map((row) => row.metasnapshot_date.substring(0, 10));
       // availableMetaSnapshots[0] = 'None';
       setAvailableMetaSnapshots(availableMetaSnapshots);
       // console.log("Set available meta-snapshots");
@@ -182,11 +165,11 @@ const App = (props) => {
       //     : 999;
       const minScoreArray = data.filter(row => row.metasnapshot_date === defaultMetaSnapshotDate)
       const minScoreRec = minScoreArray && minScoreArray[0] && minScoreArray[0].minimum_tech_score
-      ? minScoreArray[0].minimum_tech_score
-      : 999;
+          ? minScoreArray[0].minimum_tech_score
+          : 999;
       setMinimumTechScore(minScoreRec);
     });
-  }, []);
+  }, [defaultMetaSnapshotDate]);
 
   useEffect(() => {
     axios.get(api_base + `/api/latestresults/${metaSnapshotDate ? metaSnapshotDate : defaultMetaSnapshotDate}`).then((response) => {
@@ -195,37 +178,39 @@ const App = (props) => {
     axios.get(api_base + `/api/snapshotlatestresults/${metaSnapshotDate ? metaSnapshotDate : ''}`).then((response) => {
       setSnapshotLatestResults(response.data);
     });
-  }, [metaSnapshotDate]) 
+  }, [metaSnapshotDate, defaultMetaSnapshotDate])
 
   const BPwithownername = () => {
     let params = useParams();
 
     return (
-      <>
-        <ProducerDetails
-          producer={
-            rawProducers.filter(
-              (result) => result.owner_name === params.ownername
-            )[0]
-          }
-          latestresults={latestresults}
-          producerLogos={producerLogos}
-          producerDomainMap={producerDomainMap}
-          activeUser={props.ual.activeUser}
-          metaSnapshotDate={metaSnapshotDate}
-          openTimeMachine={openTimeMachine}
-        />
-      </>
+        <>
+          <ProducerDetails
+              producer={
+                rawProducers.filter(
+                    (result) => result.owner_name === params.ownername
+                )[0]
+              }
+              latestresults={latestresults}
+              producerLogos={producerLogos}
+              producerDomainMap={producerDomainMap}
+              activeUser={props.ual.activeUser}
+              metaSnapshotDate={metaSnapshotDate}
+              openTimeMachine={openTimeMachine}
+          />
+        </>
     );
   };
 
+  const renderLoader = () => <p>Loading...</p>;
+
   return (
-    <main>
-      <Switch>
-        <>
-          <CssBaseline />
-          <Container component="main" maxWidth="xl">
-            {/* commented-out this App button component and placed
+      <main>
+        <Switch>
+          <>
+            <CssBaseline />
+            <Container component="main" maxWidth="xl">
+              {/* commented-out this App button component and placed
             it within the React router component <Rounter/> below,
             so that when the <Link> component can work with it.
             <ButtonAppBar
@@ -235,139 +220,143 @@ const App = (props) => {
               metaSnapshotDate={metaSnapshotDate}
               openTimeMachine={openTimeMachine}
               isAdmin={adminOverride || (props.ual.activeUser && admins.indexOf(props.ual.activeUser.accountName) !== -1)} /> */}
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <Paper className={classes.paper}>
-                  <Router>
-                    <ButtonAppBar
-                      activeUser={props.ual.activeUser}
-                      loginModal={props.ual.showModal}
-                      logOut={props.ual.logout}
-                      metaSnapshotDate={metaSnapshotDate}
-                      openTimeMachine={openTimeMachine}
-                      setMetaSnapshotDate={setMetaSnapshotDate}
-                      availableMetaSnapshots={availableMetaSnapshots}
-                      isAdmin={
-                        adminOverride ||
-                        (props.ual.activeUser &&
-                          admins.indexOf(props.ual.activeUser.accountName) !==
-                            -1)
-                      }
-                    />
-                    <Route
-                      path="/latestresults"
-                      component={() => (
-                        <MonthlyResults
-                          results={latestresults}
-                          activeGuilds={producers.map(
-                            (producer) => producer.owner_name
-                          )}
-                          top21Guilds={rawProducers
-                            .filter((producer) => producer.top21 === true)
-                            .map((producer) => producer.owner_name)}
-                        />
-                      )}
-                      exact
-                    />
-                    <Route
-                      exact
-                      path="/snapshot"
-                      component={() => (
-                        <SnapshotResults
-                          /*results={latestresults}*/
-                          producers={producers}
-                          products={products}
-                          bizdevs={bizdevs}
-                          pointSystem={pointSystem}
-                          community={community}
-                          snapresults={snapshotlatestresults}
-                          isAdmin={
-                            adminOverride ||
-                            (props.ual.activeUser &&
-                              admins.indexOf(
-                                props.ual.activeUser.accountName
-                              ) !== -1)
-                          }
-                          producerLogos={producerLogos}
-                          producerDomainMap={producerDomainMap}
-                          activeGuilds={rawProducers
-                            .filter((producer) => producer.active === true)
-                            .map((producer) => producer.owner_name)}
-                          metaSnapshotDate={metaSnapshotDate}
-                          formatDate={formatDate}
-                          defaultMetaSnapshotDate={defaultMetaSnapshotDate}
-                        />
-                      )}
-                    />
-                    <Route
-                      exact
-                      path="/"
-                      component={() => (
-                        <ProducerCards
-                          results={latestresults}
-                          producers={rawProducers}
-                          products={products}
-                          bizdevs={bizdevs}
-                          community={community}
-                          producerLogos={producerLogos}
-                          producerDomainMap={producerDomainMap}
-                          minimumTechScore={minimumTechScore}
-                          metaSnapshotDate={metaSnapshotDate}
-                          formatDate={formatDate}
-                        />
-                      )}
-                    />
-                    <Route
-                      exact
-                      path="/guilds/:ownername"
-                      component={BPwithownername}
-                    />
-                    <Route
-                      exact
-                      path="/form"
-                      component={() => (
-                        <Testform
-                          producers={producers}
-                          isAdmin={
-                            adminOverride ||
-                            (props.ual.activeUser &&
-                              admins.indexOf(
-                                props.ual.activeUser.accountName
-                              ) !== -1)
-                          }
-                        />
-                      )}
-                    />
-                    <Route
-                      exact
-                      path="/admin"
-                      component={() => (
-                        <AdminPanel
-                          defaultMetaSnapshotDate={defaultMetaSnapshotDate}
-                          snapshotSettings={snapshotSettings}
-                          producers={rawProducers}
-                          pointSystem={rawPointSystem}
-                          isAdmin={
-                            adminOverride ||
-                            (props.ual.activeUser &&
-                              admins.indexOf(
-                                props.ual.activeUser.accountName
-                              ) !== -1)
-                          }
-                          minimumTechScore={minimumTechScore}
-                          metaSnapshotDate={metaSnapshotDate}
-                          formatDate={formatDate}
-                        />
-                      )}
-                    />
-                  </Router>
-                </Paper>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <Paper className={classes.paper}>
+                    <ErrorBoundary>
+                      <Suspense fallback={renderLoader()}>
+                        <Router>
+                          <ButtonAppBar
+                              activeUser={props.ual.activeUser}
+                              loginModal={props.ual.showModal}
+                              logOut={props.ual.logout}
+                              metaSnapshotDate={metaSnapshotDate}
+                              openTimeMachine={openTimeMachine}
+                              setMetaSnapshotDate={setMetaSnapshotDate}
+                              availableMetaSnapshots={availableMetaSnapshots}
+                              isAdmin={
+                                  adminOverride ||
+                                  (props.ual.activeUser &&
+                                      admins.indexOf(props.ual.activeUser.accountName) !==
+                                      -1)
+                              }
+                          />
+                          <Route
+                              path="/latestresults"
+                              component={() => (
+                                  <MonthlyResults
+                                      results={latestresults}
+                                      activeGuilds={producers.map(
+                                          (producer) => producer.owner_name
+                                      )}
+                                      top21Guilds={rawProducers
+                                          .filter((producer) => producer.top21 === true)
+                                          .map((producer) => producer.owner_name)}
+                                  />
+                              )}
+                              exact
+                          />
+                          <Route
+                              exact
+                              path="/snapshot"
+                              component={() => (
+                                  <SnapshotResults
+                                      /*results={latestresults}*/
+                                      producers={producers}
+                                      products={products}
+                                      bizdevs={bizdevs}
+                                      pointSystem={pointSystem}
+                                      community={community}
+                                      snapresults={snapshotlatestresults}
+                                      isAdmin={
+                                          adminOverride ||
+                                          (props.ual.activeUser &&
+                                              admins.indexOf(
+                                                  props.ual.activeUser.accountName
+                                              ) !== -1)
+                                      }
+                                      producerLogos={producerLogos}
+                                      producerDomainMap={producerDomainMap}
+                                      activeGuilds={rawProducers
+                                          .filter((producer) => producer.active === true)
+                                          .map((producer) => producer.owner_name)}
+                                      metaSnapshotDate={metaSnapshotDate}
+                                      formatDate={formatDate}
+                                      defaultMetaSnapshotDate={defaultMetaSnapshotDate}
+                                  />
+                              )}
+                          />
+                          <Route
+                              exact
+                              path="/"
+                              component={() => (
+                                  <ProducerCards
+                                      results={latestresults}
+                                      producers={rawProducers}
+                                      products={products}
+                                      bizdevs={bizdevs}
+                                      community={community}
+                                      producerLogos={producerLogos}
+                                      producerDomainMap={producerDomainMap}
+                                      minimumTechScore={minimumTechScore}
+                                      metaSnapshotDate={metaSnapshotDate}
+                                      formatDate={formatDate}
+                                  />
+                              )}
+                          />
+                          <Route
+                              exact
+                              path="/guilds/:ownername"
+                              component={BPwithownername}
+                          />
+                          <Route
+                              exact
+                              path="/form"
+                              component={() => (
+                                  <Testform
+                                      producers={producers}
+                                      isAdmin={
+                                          adminOverride ||
+                                          (props.ual.activeUser &&
+                                              admins.indexOf(
+                                                  props.ual.activeUser.accountName
+                                              ) !== -1)
+                                      }
+                                  />
+                              )}
+                          />
+                          <Route
+                              exact
+                              path="/admin"
+                              component={() => (
+                                  <AdminPanel
+                                      defaultMetaSnapshotDate={defaultMetaSnapshotDate}
+                                      snapshotSettings={snapshotSettings}
+                                      producers={rawProducers}
+                                      pointSystem={rawPointSystem}
+                                      isAdmin={
+                                          adminOverride ||
+                                          (props.ual.activeUser &&
+                                              admins.indexOf(
+                                                  props.ual.activeUser.accountName
+                                              ) !== -1)
+                                      }
+                                      minimumTechScore={minimumTechScore}
+                                      metaSnapshotDate={metaSnapshotDate}
+                                      formatDate={formatDate}
+                                  />
+                              )}
+                          />
+                        </Router>
+                      </Suspense>
+                    </ErrorBoundary>
+                  </Paper>
+                </Grid>
               </Grid>
-            </Grid>
-          </Container>
-        </>
-      </Switch>
-    </main>
+            </Container>
+          </>
+        </Switch>
+      </main>
   );
 };
 

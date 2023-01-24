@@ -6,8 +6,8 @@ import axios from "axios";
 import { Button, TextField } from '@material-ui/core';
 import TableDataGrid from './table-datagrid'
 import moment from 'moment-timezone'
-import MomentUtils from '@date-io/moment'
 import Notification from './Notification.js'
+import MomentUtils from "@date-io/moment";
 
 moment.tz.setDefault('Europe/London')
 
@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimumTechScore, metaSnapshotDate, defaultMetaSnapshotDate, formatDate
-}) => {
+                    }) => {
     const classes = useStyles();
     const [snapshotDate, updateSnapshotDate] = useState(null);
     const [passedScore, updatePassedScore] = useState(120)
@@ -103,15 +103,6 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
         return rows.filter(row => row.metasnapshot_date === defaultMetaSnapshotDate || row.metasnapshot_date === undefined)
 
     }
-
-    // const formatDate = (dateString) => {
-    //     if(!dateString){
-    //         return
-    //     } 
-    //     const options = { year: "numeric", month: "long", day: "numeric" }
-    //     return new Date(dateString).toLocaleDateString(undefined, options)
-    // }
-
     return isAdmin ? <div className={classes.root}>
         <h1>Admin Panel {(metaSnapshotDate && metaSnapshotDate !== 'None') ? <span style={{fontSize: '16px', fontWeight: 'bolder'}}>{formatDate(metaSnapshotDate)} </span>: <span style={{fontSize: '16px', fontWeight: 'bolder'}}>(No Time Machine date chosen)</span>}</h1>
         {minTechScore ? <TextField value={minTechScore} className={classes.techScore} fullWidth="true" onChange={handleTechScoreChange} label="Minimum Tech Score"></TextField> : null }
@@ -135,7 +126,7 @@ const AdminPanel = ({ snapshotSettings, producers, pointSystem, isAdmin, minimum
             Trigger Meta Snapshot
         </Button>
         <Notification toastNotification={toastNotification} />
-        
+
         <br></br><br></br>
         {snapshotDate ? <MuiPickersUtilsProvider utils={MomentUtils}>
             <KeyboardDateTimePicker

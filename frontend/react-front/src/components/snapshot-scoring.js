@@ -9,10 +9,7 @@ import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton'
 import Typography from '@material-ui/core/Typography'
 import { green, red } from '@material-ui/core/colors'
-// Ununused var // import HttpsIcon from '@material-ui/icons/Https'
-// import MoreVertIcon from '@material-ui/icons/MoreVert'
 import Grid from '@material-ui/core/Grid'
-// Ununused var // import FavoriteIcon from '@material-ui/icons/Favorite'
 import Tooltip from '@material-ui/core/Tooltip'
 import datec from '../functions/date'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
@@ -99,7 +96,7 @@ const SnapshotScoring = ({ results, producers, products, bizdevs, community, isA
     return getCachedImage(logosvg_url, producerLogos, producerDomainMap)
   }
 
-  // Returns score from state 
+  // Returns score from state
   function statescore(owner, state) {
     // Get array from state where owner = owner_name
     let statearray = state.filter((product) => product.owner_name === owner)
@@ -118,15 +115,15 @@ const SnapshotScoring = ({ results, producers, products, bizdevs, community, isA
     let sum = parseInt(tech) + product + bizdev + community
     if (sum >= pass) {
       return (
-        <Tooltip title="pass" aria-label="pass" placement="top">
-          <Avatar className={classes.green}>{parseInt(sum)}</Avatar>
-        </Tooltip>
+          <Tooltip title="pass" aria-label="pass" placement="top">
+            <Avatar className={classes.green}>{parseInt(sum)}</Avatar>
+          </Tooltip>
       );
     } else {
       return (
-        <Tooltip title="fail" aria-label="fail" placement="top">
-          <Avatar className={classes.red}>{parseInt(sum)}</Avatar>
-        </Tooltip>
+          <Tooltip title="fail" aria-label="fail" placement="top">
+            <Avatar className={classes.red}>{parseInt(sum)}</Avatar>
+          </Tooltip>
 
       );
     }
@@ -134,98 +131,98 @@ const SnapshotScoring = ({ results, producers, products, bizdevs, community, isA
   }
 
   return (
-    <Grid container spacing={4}>
-      {results.map((result) => {
-        const filteredProducts = filterByOwner(products, result.owner_name, 'product');
-        const filteredBizdevs = filterByOwner(bizdevs, result.owner_name, 'bizdev');
-        const filteredCommunity = filterByOwner(community, result.owner_name, 'community')
-        // Another 'achievement' multiplier exists.
-        return (
-          <Grid item key={result.owner_name} xs={12} sm={12} md={12}>
-            <Card className={classes.root} variant="outlined">
-              <Link to={`/guilds/${result.owner_name}`} className={classes.link}>
-                <CardHeader
-                  avatar={
-                    <Avatar alt={result.owner_name} src={logo(result.owner_name)} className={classes.large} /> 
-                  }
-                  /*action={
-                    <IconButton aria-label="settings">
-                      <MoreVertIcon />
+      <Grid container spacing={4}>
+        {results.map((result) => {
+          const filteredProducts = filterByOwner(products, result.owner_name, 'product');
+          const filteredBizdevs = filterByOwner(bizdevs, result.owner_name, 'bizdev');
+          const filteredCommunity = filterByOwner(community, result.owner_name, 'community')
+          // Another 'achievement' multiplier exists.
+          return (
+              <Grid item key={result.owner_name} xs={12} sm={12} md={12}>
+                <Card className={classes.root} variant="outlined">
+                  <Link to={`/guilds/${result.owner_name}`} className={classes.link}>
+                    <CardHeader
+                        avatar={
+                          <Avatar alt={result.owner_name} src={logo(result.owner_name)} className={classes.large} />
+                        }
+                        /*action={
+                          <IconButton aria-label="settings">
+                            <MoreVertIcon />
+                          </IconButton>
+                        }*/
+                        title={result.owner_name}
+                        subheader={datec(result.date_check)}
+                        className={classes.cardHeader}
+                    />
+                  </Link>
+                  <CardContent>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                      <b>Tech: </b>{parseInt(result.score)}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                      <b>Products: </b>{statescore(result.owner_name, products)}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                      <b>Bizdev: </b>{statescore(result.owner_name, bizdevs)}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                      <b>Community: </b>{statescore(result.owner_name, community)}
+                    </Typography>
+                  </CardContent>
+                  <CardActions disableSpacing>
+                    <IconButton className={classes.left} >
+                      {totalscore(result.score, statescore(result.owner_name, products), statescore(result.owner_name, bizdevs), statescore(result.owner_name, community))}
                     </IconButton>
-                  }*/
-                  title={result.owner_name}
-                  subheader={datec(result.date_check)}
-                  className={classes.cardHeader}
-                />
-              </Link>
-              <CardContent>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  <b>Tech: </b>{parseInt(result.score)}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  <b>Products: </b>{statescore(result.owner_name, products)}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  <b>Bizdev: </b>{statescore(result.owner_name, bizdevs)}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  <b>Community: </b>{statescore(result.owner_name, community)}
-                </Typography>
-              </CardContent>
-              <CardActions disableSpacing>
-                <IconButton className={classes.left} >
-                  {totalscore(result.score, statescore(result.owner_name, products), statescore(result.owner_name, bizdevs), statescore(result.owner_name, community))}
-                </IconButton>
-                <IconButton
-                  className={clsx(classes.expand, {
-                    [classes.expandOpen]: expandedId,
-                  })}
-                  onClick={() => setExpandedId(expandedId !== result.owner_name ? result.owner_name : "")}
-                  aria-expanded={expandedId === result.owner_name ? true : false}
-                  aria-label="show more"
-                >
-                  <ExpandMoreIcon />
-                </IconButton>
-              </CardActions>
-              <Collapse in={expandedId === result.owner_name ? true : false} timeout="auto" unmountOnExit>
-                <CardContent>
-                  <TableDataGrid
-                    tableData={filteredProducts}
-                    tableTitle="Products"
-                    defaultGuild={result.owner_name}
-                    isAdmin={isAdmin}
-                    pointSystem={pointSystem}
-                  />
-                </CardContent>
-                <CardContent>
-                  <TableDataGrid
-                    tableData={filteredBizdevs}
-                    tableTitle="Bizdevs"
-                    defaultGuild={result.owner_name}
-                    isAdmin={isAdmin}
-                  />
-                </CardContent>
-                <CardContent>
-                  <TableDataGrid
-                    tableData={filteredCommunity}
-                    tableTitle="Community"
-                    defaultGuild={result.owner_name}
-                    isAdmin={isAdmin}
-                  />
-                </CardContent>
-                <CardContent>
-                  <TableDataGrid
-                    tableData={[reArrangeTableHeaders(result)]}
-                    tableTitle="Tech Snapshot"
-                    isAdmin={isAdmin}
-                  />
-                </CardContent>
-              </Collapse>
-            </Card>
-          </Grid>
-        )
-      })}
-    </Grid>
+                    <IconButton
+                        className={clsx(classes.expand, {
+                          [classes.expandOpen]: expandedId,
+                        })}
+                        onClick={() => setExpandedId(expandedId !== result.owner_name ? result.owner_name : "")}
+                        aria-expanded={expandedId === result.owner_name}
+                        aria-label="show more"
+                    >
+                      <ExpandMoreIcon />
+                    </IconButton>
+                  </CardActions>
+                  <Collapse in={expandedId === result.owner_name} timeout="auto" unmountOnExit>
+                    <CardContent>
+                      <TableDataGrid
+                          tableData={filteredProducts}
+                          tableTitle="Products"
+                          defaultGuild={result.owner_name}
+                          isAdmin={isAdmin}
+                          pointSystem={pointSystem}
+                      />
+                    </CardContent>
+                    <CardContent>
+                      <TableDataGrid
+                          tableData={filteredBizdevs}
+                          tableTitle="Bizdevs"
+                          defaultGuild={result.owner_name}
+                          isAdmin={isAdmin}
+                      />
+                    </CardContent>
+                    <CardContent>
+                      <TableDataGrid
+                          tableData={filteredCommunity}
+                          tableTitle="Community"
+                          defaultGuild={result.owner_name}
+                          isAdmin={isAdmin}
+                      />
+                    </CardContent>
+                    <CardContent>
+                      <TableDataGrid
+                          tableData={[reArrangeTableHeaders(result)]}
+                          tableTitle="Tech Snapshot"
+                          isAdmin={isAdmin}
+                      />
+                    </CardContent>
+                  </Collapse>
+                </Card>
+              </Grid>
+          )
+        })}
+      </Grid>
   );
 }
 
