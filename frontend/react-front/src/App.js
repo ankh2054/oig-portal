@@ -14,12 +14,12 @@ import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import ErrorBoundary from "./ErrorBoundary";
+import ButtonAppBar from "./components/appbar";
+import ProducerCards from "./components/producerscards";
 
-const ProducerCards = lazy(() => import ("./components/producerscards"));
 const ProducerDetails = lazy(() => import ("./components/producer-detail"));
 const Testform = lazy(() => import ("./components/monthly-updates"));
 const AdminPanel = lazy(() => import ("./components/admin"));
-const ButtonAppBar = lazy(() => import ("./components/appbar"));
 const MonthlyResults = lazy(() => import ("./components/results"));
 const SnapshotResults = lazy(() => import ("./components/snapshot-results"));
 

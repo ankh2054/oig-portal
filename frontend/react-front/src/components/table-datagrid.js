@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import MaterialTable from "material-table";
 import { makeStyles } from '@material-ui/core/styles';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 import datec from '../functions/date'
 import tryUpdateTable from './try-update-table'
 import AddNewDialog from "./add-new-dialog";
@@ -27,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, pointSystem, defaultMetaSnapshotDate }) {
+export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, pointSystem }) {
   const classes = useStyles();
   const [tableState, setTableState] = useState(tableData);
 
@@ -77,7 +78,16 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
     // Create Columns from keys of object prop
     const columnsSetup = Object.keys(columnObj).map(function (key) {
       // Not sure if this will work for multiple types of items?
-      const renderGuildLogo = (rowData) => <a href={'/guilds/' + rowData.owner_name} alt={rowData.owner_name} className={classes.guildLink}><img src={rowData.guild} alt={rowData.owner_name} /* Smart use of `style`*/ style={{ width: 50, borderRadius: '50%' }} /></a>;
+      const renderGuildLogo = (rowData) => {
+        return (
+            <a href={'/guilds/' + rowData.owner_name} alt={rowData.owner_name} className={classes.guildLink}>
+              <LazyLoadImage
+                  alt={rowData.owner_name}
+                  src={rowData.guild}
+                  style={{ width: 50, borderRadius: '50%' }}/>
+            </a>
+        )
+      }
       const isDate = key === 'date_updated' || key === 'date_check' || key === 'snapshot_date';
       const dateHead = isDate ? key : null;
       const renderDate = (rowData) => datec(rowData[dateHead]);
@@ -127,7 +137,7 @@ export default function Table({ tableData, tableTitle, defaultGuild, isAdmin, po
           }
         ] : null}
         //editable={tableState[0].metasnapshot_date &&  isAdmin && type !== 'unknownType' ? { // Show only for admins
-        editable={isAdmin && type !== 'unknownType' ? {  // Show only for admins 
+        editable={isAdmin && type !== 'unknownType' ? {  // Show only for admins
         onRowUpdate: (newRow, currentRow) => tryUpdateTable('update', currentRow, tableTitle, tableState, setTableState, type, pointSystem, newRow),
           onRowDelete: (currentRow) => tryUpdateTable('delete', currentRow, tableTitle, tableState, setTableState, type),
         } : !tableState[0].metasnapshot_date && isAdmin ? { // No delete for snapshot tech results or point system
