@@ -358,13 +358,14 @@ if __name__ == "__main__":
         main(cpucheck)
         #print(cpu.getcpustats())
         #print(cpu.cpuAverage('eosriobrazil'))
-        #print(history.check_hyperion('oneinacilian','hyperion-v2',partialtest=True))
+        #print(history.check_hyperion('eosarabianet','hyperion-v2'))
         #print(atomic.getAtomicTemplates('https://aa.dapplica.io','kogsofficial'))
         #print(atomic.getAtomicSchema('https://aa.dapplica.io','kogsofficial'))
         #print(atomic.getAtomicassets('https://aa.dapplica.io'))
         #print(chainjson.getchainsJSON('sentnlagents','mainnet'))
         #print(chainjson.getwwwJSON('sentnlagents'))
         #print(chainjson.compareJSON('sentnlagents','mainnet'))
+        #print(api.check_https('sentnlagents','tlschk'))
 
         
 

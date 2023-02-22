@@ -38,10 +38,10 @@ def check_hyperion(producer,feature,partialtest=False,testnet=False):
         payload = dict(id=fulltrx[0])
         try:
             response = eosio.get_stuff(api,payload,'trx')
-            #print(response)
+            print(response)
             #print(response['executed'])
             trxExecuted = response['executed']
-            #print(f'TRXexecued {trxExecuted}')
+            print(f'TRXexecued {trxExecuted}')
             trx_id = response['trx_id']
             msg = f"Not enough data to count as running Full Hyperion. Hyperion is missing transaction: {trx_id}. HTML Response {response}"
         except:

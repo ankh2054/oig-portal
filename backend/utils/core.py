@@ -1,6 +1,4 @@
-#import requests
-#import json
-#import time
+
 import re
 #import random
 import socket
@@ -93,7 +91,6 @@ def check_http2(domain_name,port,checktype):
         return False, error
 
 
-
 def check_tls(domain_name,port):
     tls = ""
     tlsver = [ssl.TLSVersion.SSLv3,ssl.TLSVersion.TLSv1,ssl.TLSVersion.TLSv1_1,ssl.TLSVersion.TLSv1_2,ssl.TLSVersion.TLSv1_3,ssl.TLSVersion.TLSv1_3]
@@ -106,7 +103,13 @@ def check_tls(domain_name,port):
                 ctx.set_alpn_protocols(['h2', 'spdy/3', 'http/1.1'])
                 conn = ctx.wrap_socket(
                     socket.socket(socket.AF_INET, socket.SOCK_STREAM), server_hostname=HOST)
-                ctx.maximum_version = tlsver[i]
+                try:
+                    ctx.maximum_version = tlsver[i]
+                except ValueError as e:
+                    if str(e) == "Unsupported protocol version 0x300":
+                        print("Error: SSLv3 is not supported in this version of openssl")
+                    else:
+                        raise e
                 i += 1
                 conn.connect((HOST,PORT))
                 tls = conn.version()
@@ -118,3 +121,5 @@ def check_tls(domain_name,port):
                 conn.close()
                 print(sslErr)
     return False, 'tls_dowgrade i does not equal 5'
+
+
