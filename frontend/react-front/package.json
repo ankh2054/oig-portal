@@ -18,7 +18,7 @@
     "axios": "^0.21.2",
     "material-table": "^1.69.1",
     "moment": "^2.29.1",
-    "moment-timezone": "^0.5.33",
+    "moment-timezone": "^0.5.35",
     "prop-types": "^15.6.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
