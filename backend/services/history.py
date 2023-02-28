@@ -61,9 +61,12 @@ def check_hyperion(producer,feature,partialtest=False,testnet=False):
         try:
             jsonres = response.json()
             last_action_date = dateutil.parser.parse(
-                    jsonres['actions'][0]['@timestamp']).replace(tzinfo=None)
-        except:
-                msg = 'Other error occured'
+                    jsonres['actions'][0]['timestamp']).replace(tzinfo=None)
+            # Old hyperion prior to 3.3.9
+            #last_action_date = dateutil.parser.parse(
+                    #jsonres['actions'][0]['@timestamp']).replace(tzinfo=None)
+        except Exception as err:
+                msg = f'Other error occurred: {err}'
                 return False, msg
         diff_secs = (datetime.utcnow() -
                             last_action_date).total_seconds()
