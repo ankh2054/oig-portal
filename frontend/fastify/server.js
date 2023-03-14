@@ -6,6 +6,8 @@ const fastify = require('fastify')({
     ignoreTrailingSlash: true,
     logger: true // Used to check how much requests come through from the React frontend
 })
+const got = require('got')
+
 
 // CORS setup
 fastify.register(require('fastify-cors'), { 
@@ -26,6 +28,22 @@ fastify.register(require('fastify-static'), {
     prefix: '/', // optional: default '/'
   })
 
+
+//Python API
+fastify.get('/runcheck', async (request, reply) => {
+try {
+    const ignoreCpuCheck = request.query.ignorecpucheck || 'false'
+    const ignoreLastCheck = request.query.ignorelastcheck || 'true'
+    const bp = request.query.bp || 'eosriobrazil'
+    const apiUrl = `http://127.0.0.1:8000/run?ignorecpucheck=${ignoreCpuCheck}&ignorelastcheck=${ignoreLastCheck}&bp=${bp}`
+    const response = await got(apiUrl)
+    const data = JSON.parse(response.body)
+    reply.send(data)
+} catch (error) {
+    console.log(error)
+    reply.code(500).send('Internal server error')
+}
+})
 fastify.get('/snapshot', (req, reply) => reply.sendFile('index.html'))
 fastify.get('/admin', (req, reply) => reply.sendFile('index.html')) 
 fastify.get('/form', (req, reply) => reply.sendFile('index.html'))  

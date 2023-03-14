@@ -4,7 +4,6 @@ from datetime import timedelta
 from datetime import datetime
 import db_connect
 import argparse
-import utils.eosio as eosio
 import services.atomic as atomic
 import services.producers as producers
 import services.nodes as nodes
@@ -15,6 +14,7 @@ import services.delphi as delphi
 import services.cpu as cpu
 import services.chainjson as chainjson
 import utils.requests as requests
+from fastapi import FastAPI
 
 
 
@@ -118,7 +118,7 @@ def printOuput(results,description):
     return  print(description,colorstart,result,core.bcolors.ENDC)
     
 
-def finalresults(cpucheck):
+def finalresults(cpucheck,singlebp):
     ## Testing a single BP on  all tests, just change the BP name
     if singlebp:
         producersdb = [(singlebp, 'LiquidStudios', 'https://liquidstudios.io', 'https://liquidstudios.io/wax.json', 'https://liquidstudios.io/chains.json', True, 'https://liquidstudios.io/wp-content/uploads/2021/04/logo_small_icon_only-1.png', True, 'MU', None)]
@@ -312,9 +312,13 @@ def finalresults(cpucheck):
 
 
 
-def main(cpucheck):
-    MainNodes = eosio.getFullnodes()
-    TestNodes = eosio.getFullnodes(testnet=True)
+def start(cpucheck,ignorelastcheck,bp):
+    now = datetime.now() - timedelta(minutes=1)
+    if not lastCheck(now,ignorelastcheck):
+        print("Not running as ran withtin last 2 hours")
+        exit
+    else:
+        pass
     if cpucheck:
         print(core.bcolors.OKYELLOW,f"{'='*100}\nCPU is being checked ",core.bcolors.ENDC)
     else:
@@ -339,37 +343,19 @@ def main(cpucheck):
     testnet_nodes = nodes.node_list(testnet=True) # Tesnet = True so collect testnet nodes from json files
     db_connect.nodesInsert(testnet_nodes)
     # Get all results and save to DB
-    results = finalresults(cpucheck) # Set True to check CPU , False to ignore
+    results = finalresults(cpucheck,bp) # Set True to check CPU , False to ignore
     db_connect.resultsInsert(results)
     # Take snapshot
     takeSnapshot(now)
 
-if __name__ == "__main__":
-    my_parser = argparse.ArgumentParser()
-    my_parser.add_argument('--ignorecpucheck', default=True, action="store_false")
-    my_parser.add_argument('--ignorelastcheck',default=False, action="store_true")
-    my_parser.add_argument('--bp', action="store")
-    args = my_parser.parse_args()
-    cpucheck = args.ignorecpucheck
-    ignorelastcheck = args.ignorelastcheck
-    singlebp = args.bp
-    now = datetime.now() - timedelta(minutes=1)
-    # If lastcheck is False
-    if not lastCheck(now,ignorelastcheck):
-        print("Not running as ran withtin last 2 hours")
-    else:
-        main(cpucheck)
-        #print(cpu.getcpustats())
-        #print(cpu.cpuAverage('eosriobrazil'))
-        #print(history.check_hyperion('eosarabianet','hyperion-v2'))
-        #print(atomic.getAtomicTemplates('https://aa.dapplica.io','kogsofficial'))
-        #print(atomic.getAtomicSchema('https://aa.dapplica.io','kogsofficial'))
-        #print(atomic.getAtomicassets('https://aa.dapplica.io'))
-        #print(chainjson.getchainsJSON('sentnlagents','mainnet'))
-        #print(chainjson.getwwwJSON('sentnlagents'))
-        #print(chainjson.compareJSON('sentnlagents','mainnet'))
-        #print(api.check_https('sentnlagents','tlschk'))
-
+#uvicorn main:app --reload --reload-delay  432000 (reload the server every 7 days to refresh mainnet and testnet nodes)
+#curl "http://localhost:8000/run?ignorecpucheck=false&ignorelastcheck=true&bp=eosriobrazil"
+app = FastAPI()
+@app.get("/run")
+async def run_producer(ignorecpucheck: bool = True, ignorelastcheck: bool = False, bp: str = None):
+    start(ignorecpucheck, ignorelastcheck, bp)
+    return {"message": f"Checks were successfully ran for {bp}"}
+    
         
 
 ## Invdividual BP check (ignoring both CPU checks an lastcheck )
