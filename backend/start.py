@@ -15,6 +15,7 @@ import services.delphi as delphi
 import services.cpu as cpu
 import services.chainjson as chainjson
 import utils.requests as requests
+import sys
 
 
 
@@ -118,7 +119,7 @@ def printOuput(results,description):
     return  print(description,colorstart,result,core.bcolors.ENDC)
     
 
-def finalresults(cpucheck):
+def finalresults(cpucheck,singlebp):
     ## Testing a single BP on  all tests, just change the BP name
     if singlebp:
         producersdb = [(singlebp, 'LiquidStudios', 'https://liquidstudios.io', 'https://liquidstudios.io/wax.json', 'https://liquidstudios.io/chains.json', True, 'https://liquidstudios.io/wp-content/uploads/2021/04/logo_small_icon_only-1.png', True, 'MU', None)]
@@ -312,9 +313,11 @@ def finalresults(cpucheck):
 
 
 
-def main(cpucheck):
-    MainNodes = eosio.getFullnodes()
-    TestNodes = eosio.getFullnodes(testnet=True)
+def main(cpucheck, ignorelastcheck, bp):
+    now = datetime.now() - timedelta(minutes=1)
+    if not lastCheck(now,ignorelastcheck):
+        print("Not running as ran withtin last 2 hours")
+        sys.exit()
     if cpucheck:
         print(core.bcolors.OKYELLOW,f"{'='*100}\nCPU is being checked ",core.bcolors.ENDC)
     else:
@@ -339,7 +342,7 @@ def main(cpucheck):
     testnet_nodes = nodes.node_list(testnet=True) # Tesnet = True so collect testnet nodes from json files
     db_connect.nodesInsert(testnet_nodes)
     # Get all results and save to DB
-    results = finalresults(cpucheck) # Set True to check CPU , False to ignore
+    results = finalresults(cpucheck,bp) # Set True to check CPU , False to ignore
     db_connect.resultsInsert(results)
     # Take snapshot
     takeSnapshot(now)
@@ -353,22 +356,17 @@ if __name__ == "__main__":
     cpucheck = args.ignorecpucheck
     ignorelastcheck = args.ignorelastcheck
     singlebp = args.bp
-    now = datetime.now() - timedelta(minutes=1)
-    # If lastcheck is False
-    if not lastCheck(now,ignorelastcheck):
-        print("Not running as ran withtin last 2 hours")
-    else:
-        main(cpucheck)
-        #print(cpu.getcpustats())
-        #print(cpu.cpuAverage('eosriobrazil'))
-        #print(history.check_hyperion('eosarabianet','hyperion-v2'))
-        #print(atomic.getAtomicTemplates('https://aa.dapplica.io','kogsofficial'))
-        #print(atomic.getAtomicSchema('https://aa.dapplica.io','kogsofficial'))
-        #print(atomic.getAtomicassets('https://aa.dapplica.io'))
-        #print(chainjson.getchainsJSON('sentnlagents','mainnet'))
-        #print(chainjson.getwwwJSON('sentnlagents'))
-        #print(chainjson.compareJSON('sentnlagents','mainnet'))
-        #print(api.check_https('sentnlagents','tlschk'))
+    main(cpucheck, ignorelastcheck, singlebp)
+    #print(cpu.getcpustats())
+    #print(cpu.cpuAverage('eosriobrazil'))
+    #print(history.check_hyperion('eosarabianet','hyperion-v2'))
+    #print(atomic.getAtomicTemplates('https://aa.dapplica.io','kogsofficial'))
+    #print(atomic.getAtomicSchema('https://aa.dapplica.io','kogsofficial'))
+    #print(atomic.getAtomicassets('https://aa.dapplica.io'))
+    #print(chainjson.getchainsJSON('sentnlagents','mainnet'))
+    #print(chainjson.getwwwJSON('sentnlagents'))
+    #print(chainjson.compareJSON('sentnlagents','mainnet'))
+    #print(api.check_https('sentnlagents','tlschk'))
 
         
 
