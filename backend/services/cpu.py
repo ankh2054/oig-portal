@@ -46,8 +46,6 @@ def getcpustats():
 def cpuresults(producer,producercpu):
     # Get cpustats(key) value for the items in producercpu if the producer passed is in that list.
     cpu = [item['cpustats'] for item in producercpu if item["producer"] == producer]
-    print(f'All CPU results {producercpu}')
-    print(f'CPU: {cpu}')
     # If producer is not in that list  means producer is not in top21, so we need testnet data.
     if not cpu:
         return int(1.0)
@@ -58,12 +56,10 @@ def cpuresults(producer,producercpu):
 def cpuAverage(producer):
     try:
         allcpu = db_connect.getCPU(producer)
-        print(allcpu)
     except:
         # New Guilds will not have any CPU scores, so set to 0
         allcpu = 0
     cpu_final = []
-    print(allcpu)
     for cpu in allcpu:
         cpu_final.append(cpu[0])
     try:
