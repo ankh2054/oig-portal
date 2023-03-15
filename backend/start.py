@@ -316,7 +316,7 @@ def finalresults(cpucheck,singlebp):
 
 
 
-def main(cpucheck, ignorelastcheck, bp):
+def main(cpucheck, ignorelastcheck, singlebp):
     now = datetime.now() - timedelta(minutes=1)
     print(core.bcolors.OKYELLOW,f"{'='*100}\nTime: ",now,core.bcolors.ENDC)
     if not lastCheck(now,ignorelastcheck,2):
@@ -326,23 +326,27 @@ def main(cpucheck, ignorelastcheck, bp):
         print(core.bcolors.OKYELLOW,f"{'='*100}\nCPU is being checked ",core.bcolors.ENDC)
     else:
         print(core.bcolors.OKYELLOW,f"{'='*100}\nCPU is not being checked ",core.bcolors.ENDC)
-    # Get list of producers
-    print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",core.bcolors.ENDC)
-    producersList = producers.producer_chain_list()
-    # Update producers to DB
-    db_connect.producerInsert(producersList)
-    # Delete all nodes from table
-    print(core.bcolors.OKYELLOW,f"{'='*100}\nRemoving existing nodes from DB ",core.bcolors.ENDC)
-    db_connect.nodesDelete('oig.nodes')
-    # Add nodes to DB
-    print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of mainnet nodes from JSON files ",core.bcolors.ENDC)
-    mainnet_nodes = nodes.node_list()
-    db_connect.nodesInsert(mainnet_nodes)
-    print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of testnet nodes from JSON files ",core.bcolors.ENDC)
-    testnet_nodes = nodes.node_list(testnet=True) # Tesnet = True so collect testnet nodes from json files
-    db_connect.nodesInsert(testnet_nodes)
+    """if only single BP is checked we do not process below functions to update DB
+    this allows for uvicorn to run and BPs to force check from oig portal without interfering with main
+    process which checks all BPs"""
+    if not singlebp:
+        # Get list of producers
+        print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",core.bcolors.ENDC)
+        producersList = producers.producer_chain_list()
+        # Update producers to DB
+        db_connect.producerInsert(producersList)
+        # Delete all nodes from table
+        print(core.bcolors.OKYELLOW,f"{'='*100}\nRemoving existing nodes from DB ",core.bcolors.ENDC)
+        db_connect.nodesDelete('oig.nodes')
+        # Add nodes to DB
+        print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of mainnet nodes from JSON files ",core.bcolors.ENDC)
+        mainnet_nodes = nodes.node_list()
+        db_connect.nodesInsert(mainnet_nodes)
+        print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of testnet nodes from JSON files ",core.bcolors.ENDC)
+        testnet_nodes = nodes.node_list(testnet=True) # Tesnet = True so collect testnet nodes from json files
+        db_connect.nodesInsert(testnet_nodes)
     # Get all results and save to DB
-    results = finalresults(cpucheck,bp) # Set True to check CPU , False to ignore
+    results = finalresults(cpucheck,singlebp) # Set True to check CPU , False to ignore
     db_connect.resultsInsert(results)
     # Take snapshot
     takeSnapshot(now)
