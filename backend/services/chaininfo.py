@@ -15,8 +15,3 @@ def getScore(scores, producer):
             return score['score']
     return 0
 
-
-
-
-
-

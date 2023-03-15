@@ -179,8 +179,8 @@ def nodesInsert(records):
 
 def resultsInsert(records):
     db = MyDB()
-    query = """ INSERT INTO oig.results (owner_name, cors_check, cors_check_error, http_check, http_check_error, https_check, https_check_error, tls_check, tls_check_error, producer_api_check, producer_api_error, net_api_check, net_api_error, dbsize_api_check,  dbsize_api_error, http2_check, http2_check_error, full_history, full_history_error, hyperion_v2, hyperion_v2_error,  hyperion_v2_full, hyperion_v2_full_error, hyperion_v2_testnet,  hyperion_v2_testnet_error, hyperion_v2_testnet_full,  hyperion_v2_testnet_full_error, atomic_api, atomic_api_error, wwwjson, wwwjson_error, seed_node, seed_node_error, api_node, api_node_error, oracle_feed, oracle_feed_error, wax_json, chains_json, cpu_time, cpu_avg, date_check, score,metasnapshot_date) 
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+    query = """ INSERT INTO oig.results (owner_name, cors_check, cors_check_error, http_check, http_check_error, https_check, https_check_error, tls_check, tls_check_error, producer_api_check, producer_api_error, net_api_check, net_api_error, dbsize_api_check,  dbsize_api_error, http2_check, http2_check_error, full_history, full_history_error, hyperion_v2, hyperion_v2_error,  hyperion_v2_full, hyperion_v2_full_error, hyperion_v2_testnet,  hyperion_v2_testnet_error, hyperion_v2_testnet_full,  hyperion_v2_testnet_full_error, atomic_api, atomic_api_error, wwwjson, wwwjson_error, seed_node, seed_node_error, api_node, api_node_error, oracle_feed, oracle_feed_error, wax_json, chains_json, cpu_time, cpu_avg, date_check, score,metasnapshot_date,chainscore) 
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 ON CONFLICT (owner_name,date_check,metasnapshot_date) DO UPDATE SET 
                 cors_check= EXCLUDED.cors_check, cors_check_error= EXCLUDED.cors_check_error, 
                 http_check = EXCLUDED.http_check, http_check_error = EXCLUDED.http_check_error,
@@ -202,7 +202,9 @@ def resultsInsert(records):
                 oracle_feed= EXCLUDED.oracle_feed, oracle_feed_error= EXCLUDED.oracle_feed_error,
                 wax_json= EXCLUDED.wax_json, 
                 chains_json= EXCLUDED.chains_json, cpu_time= EXCLUDED.cpu_time, cpu_avg= EXCLUDED.cpu_avg,
-                date_check= EXCLUDED.date_check, score= EXCLUDED.score;
+                date_check= EXCLUDED.date_check, 
+                score= EXCLUDED.score,
+                chainscore= EXCLUDED.chainscore;
             """
     db.dbInsertMany(records, query)
 

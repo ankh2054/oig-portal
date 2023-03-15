@@ -137,7 +137,7 @@ def finalresults(cpucheck,singlebp):
     # Get list of delphioracles and store for use
     producersoracle = delphi.delphioracle_actors()
     # Get list of current producer scores
-    producerChainScore = chaininfo.getguildsJSON('mainnet')
+    producerChainScores = chaininfo.getguildsJSON('mainnet')
     # Create empty list
     finaltuple = []
     for producer in producersdb:
@@ -309,6 +309,9 @@ def finalresults(cpucheck,singlebp):
         resultslist.append(score)
         # Add metansnapshot_date to final tuple
         resultslist.append(requests.metasnapshot_date)
+        #Obtain latest chain score for guild
+        chainscore = chaininfo.getScore(producerChainScores,producer)
+        resultslist.append(chainscore)
         # Turn list into tuple read for Postgres
         resultstuple = tuple(resultslist)
         finaltuple.append(resultstuple)

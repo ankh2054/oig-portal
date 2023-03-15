@@ -80,7 +80,8 @@ CREATE TABLE oig.results (
     score DECIMAL NOT NULL,
     snapshot_date TIMESTAMPTZ,
     comments VARCHAR ( 1000 ),
-    metasnapshot_date timestamp with time zone
+    metasnapshot_date timestamp with time zone,
+    chainscore DECIMAL
     
 );
 /* Unique index to cover two culumns*/
