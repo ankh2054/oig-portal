@@ -1,12 +1,12 @@
 import json
 import jsondiff
-from io import BytesIO
+#from io import BytesIO
 import db_connect
 import utils.requests as requests
 import utils.eosio as eosio
 
 
-
+"""Compare website json file to whats been uploaded to chain"""
 def getchainsJSON(producer,chain):
     producerjson_table = requests.get_table_data("producerjson","producerjson","producerjson","200")
     producers = eosio.getEOStable(producerjson_table,chain)

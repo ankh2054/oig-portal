@@ -60,14 +60,15 @@ r.headers.update(headers)
 
 
 # Get producer table 
-def get_table_data(code,table,scope,limit):
+def get_table_data(code,table,scope,limit,reverse=False):
     table_dict = {
         "code": code,
         "table": table,
         "scope": scope,
         "json": "true",
         "limit": limit,
-        "lower_bound": "0"
+        "lower_bound": "0",
+        "reverse": reverse
     }
     return table_dict
 

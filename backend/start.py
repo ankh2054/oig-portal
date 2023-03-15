@@ -9,6 +9,7 @@ import services.atomic as atomic
 import services.producers as producers
 import services.nodes as nodes
 import services.api as api
+import services.chaininfo as chaininfo
 import services.history as history
 import services.p2p as p2p
 import services.delphi as delphi
@@ -19,7 +20,7 @@ import sys
 
 
 
-def lastCheck(now,ignorelastcheck):
+def lastCheck(now,ignorelastcheck,hours):
     lastcheck = db_connect.getLastcheck() #2021-11-19 07:25:24.11084+00
     # Set now date
     now = now
@@ -29,7 +30,7 @@ def lastCheck(now,ignorelastcheck):
     lastcheck_oig = lastcheck[0][0].strftime("%m/%d/%Y %H:%M")
     # Convert them both back to datetime objects for comparison
     today_date_object = datetime.strptime(today, "%m/%d/%Y %H:%M")
-    lastcheck_date_object = datetime.strptime(lastcheck_oig, "%m/%d/%Y %H:%M") + timedelta(hours=2)
+    lastcheck_date_object = datetime.strptime(lastcheck_oig, "%m/%d/%Y %H:%M") + timedelta(hours=hours)
     if today_date_object > lastcheck_date_object:
         return True
     elif ignorelastcheck:
@@ -135,6 +136,8 @@ def finalresults(cpucheck,singlebp):
     pointsystem =  db_connect.getPoints()
     # Get list of delphioracles and store for use
     producersoracle = delphi.delphioracle_actors()
+    # Get list of current producer scores
+    producerChainScore = chaininfo.getguildsJSON('mainnet')
     # Create empty list
     finaltuple = []
     for producer in producersdb:
@@ -315,17 +318,14 @@ def finalresults(cpucheck,singlebp):
 
 def main(cpucheck, ignorelastcheck, bp):
     now = datetime.now() - timedelta(minutes=1)
-    if not lastCheck(now,ignorelastcheck):
-        print("Not running as ran withtin last 2 hours")
+    print(core.bcolors.OKYELLOW,f"{'='*100}\nTime: ",now,core.bcolors.ENDC)
+    if not lastCheck(now,ignorelastcheck,2):
+        print("Not running as ran within last 2 hours")
         sys.exit()
     if cpucheck:
         print(core.bcolors.OKYELLOW,f"{'='*100}\nCPU is being checked ",core.bcolors.ENDC)
     else:
         print(core.bcolors.OKYELLOW,f"{'='*100}\nCPU is not being checked ",core.bcolors.ENDC)
-    # Get Todays date minus 1 minutes - see db_connect.createSnapshot for reasoning
-    now = datetime.now() - timedelta(minutes=1)
-    print(core.bcolors.OKYELLOW,f"{'='*100}\nTime: ",now,core.bcolors.ENDC)
-    # If last runtime was within 2 hours, skip running process.
     # Get list of producers
     print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",core.bcolors.ENDC)
     producersList = producers.producer_chain_list()
@@ -357,6 +357,10 @@ if __name__ == "__main__":
     ignorelastcheck = args.ignorelastcheck
     singlebp = args.bp
     main(cpucheck, ignorelastcheck, singlebp)
+    #scores = chaininfo.getguildsJSON('mainnet')
+    #print(chaininfo.getScore(scores,'sentnlagents'))
+
+
     #print(cpu.getcpustats())
     #print(cpu.cpuAverage('eosriobrazil'))
     #print(history.check_hyperion('eosarabianet','hyperion-v2'))

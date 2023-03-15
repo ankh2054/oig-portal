@@ -209,6 +209,13 @@ autostart=true
 autorestart=true
 numprocs=1
 user=postgres
+[program:fastapi]
+command=uvicorn main:app --reload --reload-delay  432000
+directory=/app/oig-portal/backend
+priority=1
+autostart=true
+autorestart=true
+numprocs=1
 [program:crond]
 priority = 100
 #command = bash -c "while true; do sleep 0.1; [[ -e /var/run/crond.pid ]] || break; done && exec /usr/sbin/cron -f" 
