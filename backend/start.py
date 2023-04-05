@@ -336,6 +336,9 @@ def main(cpucheck, ignorelastcheck, singlebp):
         # Get list of producers
         print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of producers on chain ",core.bcolors.ENDC)
         producersList = producers.producer_chain_list()
+        if not producersList:
+            print("No producers found. Exiting the program.")
+            sys.exit()
         # Update producers to DB
         db_connect.producerInsert(producersList)
         # Delete all nodes from table
@@ -366,6 +369,7 @@ if __name__ == "__main__":
     main(cpucheck, ignorelastcheck, singlebp)
     #scores = chaininfo.getguildsJSON('mainnet')
     #print(chaininfo.getScore(scores,'sentnlagents'))
+    #producers.producer_chain_list()
 
 
     #print(cpu.getcpustats())
