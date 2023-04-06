@@ -1,6 +1,5 @@
 import { waitFor } from '@testing-library/dom'
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import React from 'react'
 import { Provider } from 'react-redux'
 
@@ -14,28 +13,7 @@ test('Show App Component', () => {
     </Provider>
   )
 
-  expect(screen.getByText('Hello Vite + RTK Query!')).toBeInTheDocument()
-})
-
-test('Working Counter', async () => {
-  const user = userEvent.setup()
-  const { getByText } = render(
-    <Provider store={store}>
-      <App />
-    </Provider>
-  )
-  expect(getByText('count is: 0')).toBeInTheDocument()
-
-  const button = getByText('Increment')
-
-  await user.click(button)
-  expect(getByText('count is: 1')).toBeInTheDocument()
-
-  await user.click(button)
-  expect(getByText('count is: 2')).toBeInTheDocument()
-
-  await user.click(button)
-  expect(getByText('count is: 3')).toBeInTheDocument()
+  expect(screen.getByText('OIG Portal')).toBeInTheDocument()
 })
 
 test('working with msw', async () => {
@@ -45,6 +23,6 @@ test('working with msw', async () => {
     </Provider>
   )
   await waitFor(() => {
-    expect(screen.getByText('Hello Vite + RTK Query!')).toBeInTheDocument()
+    expect(screen.getByText('OIG Portal')).toBeInTheDocument()
   })
 })

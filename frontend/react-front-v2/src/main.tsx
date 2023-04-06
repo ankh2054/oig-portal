@@ -7,7 +7,7 @@ import App from './App'
 import { store } from './store'
 
 const root = ReactDOM.createRoot(document.getElementById('root')!)
-
+//sss
 if (process.env.NODE_ENV === 'development') {
   import('../mocks/browser')
     .then(({ worker }) => {

@@ -1,7 +1,7 @@
 import { rest } from 'msw'
 
 export const handlers = [
-  rest.get('https://oig.sentnl.io.com/api/docs_list', (req, res, ctx) => {
+  rest.get('https://oig.sentnl.io/api/docs_list', (req, res, ctx) => {
     const data = [
       { name: 'Redux Toolkit', url: 'https://redux-toolkit.js.org/' },
       { name: 'MSW', url: 'https://mswjs.io/' },
