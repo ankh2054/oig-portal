@@ -8,7 +8,7 @@ import NavItem from './NavItem'
 const Header = () => {
   return (
     <nav className="left-0 top-0 z-20 w-full bg-secondary">
-      <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-3 px-8">
+      <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4 px-8">
         <a href="/" className="flex items-center gap-x-2">
           <Logo width="100%" />
           <span className="self-center whitespace-nowrap text-xl font-medium text-white">
@@ -19,7 +19,7 @@ const Header = () => {
           <div className="flex md:order-2">
             <button
               type="button"
-              className="inline-flex hidden items-center rounded-full border  border-white px-5  py-2 text-center text-sm font-medium text-white hover:border-primary hover:bg-primary focus:outline-none md:flex "
+              className="inline-flex hidden items-center rounded-full border  border-white px-4  py-1 text-center text-sm font-medium text-white hover:border-primary hover:bg-primary focus:outline-none md:flex "
             >
               <IconPerson color="white" className="mr-2" />
               Login

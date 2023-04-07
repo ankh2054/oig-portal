@@ -1,4 +1,5 @@
 import GuildCard from '../../shared/guild-card/GuildCard'
+import Pagination from '../../shared/pagination/Pagination'
 import ResultsToggle from '../../shared/result-toggle/ResultsToggle'
 
 const LatestResults = () => {
@@ -18,8 +19,8 @@ const LatestResults = () => {
         <GuildCard />
         <GuildCard />
         <GuildCard />
-        <GuildCard />
       </div>
+      <Pagination className="mt-6 flex justify-center" />
     </div>
   )
 }
