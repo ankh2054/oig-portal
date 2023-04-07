@@ -4,7 +4,7 @@ import Badge from '../badge/Badge'
 import ServiceState from '../service-state/ServiceState'
 const GuildCard = () => {
   return (
-    <div className="flex justify-between border border-lightGray bg-white p-4">
+    <div className="flex justify-between rounded-sm border border-lightGray bg-white p-4">
       <div className="flex gap-x-2">
         <img
           src="https://www.alohaeos.com/images/bpinfo/aeos-circle-256.png"
