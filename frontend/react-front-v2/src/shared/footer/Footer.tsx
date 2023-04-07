@@ -3,7 +3,7 @@ import Logo from '../icons/Logo'
 
 const Footer = () => {
   return (
-    <footer className="w-full bg-secondary py-4 text-white">
+    <footer className="w-full bg-secondary px-8 py-4 text-white">
       <Container className="flex flex-col items-center">
         <Logo width="100%" />
         <p>

@@ -6,7 +6,7 @@ import router from './router'
 
 const App: React.FC = () => {
   return (
-    <main className="App">
+    <main className="App bg-cultured text-black">
       <RouterProvider router={router} />
     </main>
   )

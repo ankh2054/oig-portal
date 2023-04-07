@@ -1,9 +1,10 @@
+import LatestResults from '../../features/latest-results/LatestResults'
 import Layout from '../Layout'
 
 const HomePage = () => {
   return (
     <Layout>
-      <h1>Homepage</h1>
+      <LatestResults />
     </Layout>
   )
 }

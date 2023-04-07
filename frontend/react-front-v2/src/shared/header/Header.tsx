@@ -8,7 +8,7 @@ import NavItem from './NavItem'
 const Header = () => {
   return (
     <nav className="left-0 top-0 z-20 w-full bg-secondary">
-      <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-3">
+      <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-3 px-8">
         <a href="/" className="flex items-center gap-x-2">
           <Logo width="100%" />
           <span className="self-center whitespace-nowrap text-xl font-medium text-white">
@@ -51,7 +51,7 @@ const Header = () => {
             className="hidden w-full items-center justify-between uppercase md:order-1 md:flex md:w-auto"
             id="navbar-sticky"
           >
-            <ul className="mt-4 flex flex-col rounded-lg border  p-4 font-medium  md:mt-0 md:flex-row md:space-x-8 md:border-0 md:p-0">
+            <ul className="flex flex-col md:flex-row md:space-x-8">
               <NavItem title="Home" url="/" isActive={true} />
               <NavItem title="Guilds" url="/guilds" />
               <NavItem title="Latest results" url="/latest-results" />
