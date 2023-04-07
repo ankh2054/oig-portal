@@ -15,11 +15,11 @@ const Header = () => {
             OIG Portal
           </span>
         </a>
-        <div className="flex gap-x-28">
+        <div className="flex gap-x-20">
           <div className="flex md:order-2">
             <button
               type="button"
-              className=" mb-2 mr-2 inline-flex items-center rounded-full  border border-white  px-5 py-2 text-center text-sm font-medium text-white hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-100"
+              className="inline-flex hidden items-center rounded-full border  border-white px-5  py-2 text-center text-sm font-medium text-white hover:border-primary hover:bg-primary focus:outline-none md:flex "
             >
               <IconPerson color="white" className="mr-2" />
               Login
@@ -27,7 +27,7 @@ const Header = () => {
             <button
               data-collapse-toggle="navbar-sticky"
               type="button"
-              className="inline-flex items-center rounded-lg p-2 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400  md:hidden"
+              className="inline-flex items-center rounded-lg p-2 text-sm text-white hover:bg-primary focus:outline-none md:hidden"
               aria-controls="navbar-sticky"
               aria-expanded="false"
             >

@@ -12,9 +12,12 @@ const NavItem = ({ title, url, isActive }: Props) => {
     <li>
       <a
         href={url}
-        className={cx('block rounded py-2 pl-3 pr-4 text-white md:p-0', {
-          'font-bold': isActive,
-        })}
+        className={cx(
+          'block rounded py-2 pl-3 pr-4 text-white hover:text-primary md:p-0',
+          {
+            'font-bold': isActive,
+          }
+        )}
       >
         {title}
       </a>
