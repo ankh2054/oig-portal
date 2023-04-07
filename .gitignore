@@ -52,3 +52,5 @@ pip-delete-this-directory.txt
 workspace.code-workspace
 frontend/fastify/public/*
 *yarn.lock
+/.idea/*
+/node_modules/
