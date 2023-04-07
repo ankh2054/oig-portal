@@ -1,9 +1,10 @@
+import { lazy } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 
-import ErrorPage from './pages/errors/default'
-import Guild from './pages/guild/Guild'
-import HomePage from './pages/homepage/HomePage'
+const ErrorPage = lazy(() => import('./pages/errors/default'))
 
+const Guild = lazy(() => import('./pages/guild/GuildPage'))
+const HomePage = lazy(() => import('./pages/homepage/HomePage'))
 const router = createBrowserRouter([
   {
     element: <HomePage />,

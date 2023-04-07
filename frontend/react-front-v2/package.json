@@ -19,8 +19,8 @@
     "prettier": "prettier --write \"**/*.+(json|yml|css|md|mdx|tsx|ts|js|)\"",
     "clean": "rimraf node_modules package-lock.json dist",
     "validate": "./scripts/validate",
-    "builddocker": "tsc && vite build && mkdir -p ../fastify/public && cp -r -f build/* ../fastify/public/",
-    "buildev": "tsc && vite build && mkdir -p ../fastify/public && cp -r -f build/* ../fastify/public/"
+    "builddocker": "tsc && vite build && rm dist/assets/*.map && mkdir -p ../fastify/public && cp -r -f dist/* ../fastify/public/",
+    "buildev": "tsc && vite build && rm dist/assets/*.map && mkdir -p ../fastify/public && cp -r -f dist/* ../fastify/public/"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.3",

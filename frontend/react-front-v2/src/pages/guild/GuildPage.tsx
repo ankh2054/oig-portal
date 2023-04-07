@@ -1,6 +1,6 @@
 import Layout from '../Layout'
 
-const Guild = () => {
+const GuildPage = () => {
   return (
     <Layout>
       <h1>Guild</h1>
@@ -8,4 +8,4 @@ const Guild = () => {
   )
 }
 
-export default Guild
+export default GuildPage
