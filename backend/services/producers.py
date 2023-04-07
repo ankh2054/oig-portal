@@ -30,10 +30,12 @@ def producer_chain_list():
     top21producers = eosio.producerSCHED()
     producer_final = []
     for i in producers:
+        guild = i['owner']
+        print(f'Currently processing Guild:{guild}')
         url = i['url']
-        url = url.rstrip('/')+'/chains.json'
+        urlchains = url.rstrip('/')+'/chains.json'
         reqJSON = requests.getJSON()
-        response = reqJSON.getRequest(url,trydo='continue')
+        response = reqJSON.getRequest(urlchains,trydo='continue')
         try:
                 json_response = response.json()
                 waxjson = json_response['chains'][requests.mainnet_id]
@@ -45,15 +47,15 @@ def producer_chain_list():
                 except:
                     print(f'Looking for testnet chains json on testnet URL')
                     try:
-                        guildtesturl = get_testnetJSON(i['owner'])
+                        guildtesturl = get_testnetJSON(guild)
                         guildtesturl = guildtesturl.rstrip('/')
-                        response = requests.get(url=guildtesturl + '/chains.json', timeout=requests.defaulttimeout)
+                        response = requests.r.get(url=guildtesturl + '/chains.json', timeout=requests.defaulttimeout)
                         json_response = response.json()
                         waxtestjson = json_response['chains'][requests.testnet_id]
                         waxtestjson = waxtestjson.lstrip('/')
                         waxtestjson = guildtesturl + '/'+waxtestjson
                     except Exception as err:
-                        print(f'Could not find testnet JSON')
+                        print(f'Could not find testnet JSON for {guild}')
                         waxtestjson = ""
                         pass
                 waxjson = waxjson.lstrip('/')
@@ -66,41 +68,38 @@ def producer_chain_list():
         except Exception as err:
                 print(f'Other error occurred: {err}')  
                 continue
-        else:
-                try:
-                    # Get response data in JSON
-                    response = requests.r.get(url=url+"/"+waxjson)
-                    json_response = response.json()
-                    # Extract org candidate name
-                    candidate_name = json_response['org']['candidate_name']
-                    try:
-                        country_code = json_response['org']['location']['country']
-                    except:
-                        country_code = None
-                    try:
-                        logo_256 = json_response['org']['branding']['logo_256']
-                    except: 
-                        logo_256 = None
-                except requests.JSONDecodeError:
-                    print('JSON parsing error')
-                    continue
-                except requests.HTTPError as http_err:
-                    print(f'HTTP error occurred: {http_err}')
-                    continue  
-                except Exception as err:
-                    print(f'Other error occurred: {err}')  
-                    continue
-                else:
-                    # is producer currently in top21
-                    guild = i['owner']
-                    top21 = guild in top21producers
-                    # Get current active status from DB if it exists.
-                    try:
-                        active = db_connect.getProducerStatus(guild)[0][0]
-                    # If not means Guild is new so set to active.
-                    except:
-                        active = True
-                        print("Guild not in DB setting active to True")
-                    thistuple = (guild, requests.metasnapshot_date ,candidate_name, url, url + '/'+waxjson, waxtestjson, url + '/chains.json', logo_256, top21, country_code, active)
-                    producer_final.append(thistuple)
+        try:
+            # Get response data in JSON
+            response = requests.r.get(url=url+"/"+waxjson)
+            json_response = response.json()
+            # Extract org candidate name
+            candidate_name = json_response['org']['candidate_name']
+            try:
+                country_code = json_response['org']['location']['country']
+            except:
+                country_code = None
+            try:
+                logo_256 = json_response['org']['branding']['logo_256']
+            except: 
+                logo_256 = None
+        except requests.JSONDecodeError:
+            print('JSON parsing error')
+            continue
+        except requests.HTTPError as http_err:
+            print(f'HTTP error occurred: {http_err}')
+            continue  
+        except Exception as err:
+            print(f'Other error occurred: {err}')  
+            continue
+        # is producer currently in top21
+        top21 = guild in top21producers
+        # Get current active status from DB if it exists.
+        try:
+            active = db_connect.getProducerStatus(guild)[0][0]
+        # If not means Guild is new so set to active.
+        except:
+            active = True
+            print("Guild not in DB setting active to True")
+        thistuple = (guild, requests.metasnapshot_date ,candidate_name, url, url + '/'+waxjson, waxtestjson, url + '/chains.json', logo_256, top21, country_code, active)
+        producer_final.append(thistuple)
     return producer_final
