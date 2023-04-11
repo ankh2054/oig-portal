@@ -1,11 +1,5 @@
-import Layout from '../Layout'
-
 const GuildPage = () => {
-  return (
-    <Layout>
-      <h1>Guild</h1>
-    </Layout>
-  )
+  return <h1>Guild</h1>
 }
 
 export default GuildPage
