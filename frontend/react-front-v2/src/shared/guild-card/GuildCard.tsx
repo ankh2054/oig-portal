@@ -1,22 +1,21 @@
 import getUnicodeFlagIcon from 'country-flag-icons/unicode'
 import { LazyLoadImage } from 'react-lazy-load-image-component'
-
-import Badge from '../badge/Badge'
-import ServiceState from '../service-state/ServiceState'
-
-import './GuildCard.css'
 import { Link } from 'react-router-dom'
 
-import IconHistory from '../icons/IconHistory'
 import type { Guild } from '../../types/Guild'
+import Badge from '../badge/Badge'
+import IconHistory from '../icons/IconHistory'
+import ServiceState from '../service-state/ServiceState'
+import './GuildCard.css'
 
 interface Props {
   data: Guild
 }
+
 const GuildCard = ({ data }: Props) => {
   return (
     <Link
-      to="/guilds/1"
+      to={`/guilds/${data.owner_name}`}
       className="flex justify-between rounded-sm border border-lightGray bg-white p-4"
     >
       <div className="flex w-36 gap-x-2">

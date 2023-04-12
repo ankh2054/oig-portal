@@ -13,6 +13,9 @@ export const api = createApi({
     getLatestResults: builder.query<LastestResultsResponse, void>({
       query: () => `/latestresults`,
     }),
+    getMonthlyAverageResultsByOwner: builder.query<ProducersResponse, void>({
+      query: () => `/monthlyaverageresults`,
+    }),
     getProducers: builder.query<ProducersResponse, void>({
       query: () => `/producers`,
     }),
@@ -22,4 +25,8 @@ export const api = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetLatestResultsQuery, useGetProducersQuery } = api
+export const {
+  useGetLatestResultsQuery,
+  useGetProducersQuery,
+  useGetMonthlyAverageResultsByOwnerQuery,
+} = api
