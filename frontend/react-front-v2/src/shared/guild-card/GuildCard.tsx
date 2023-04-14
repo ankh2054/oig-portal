@@ -36,9 +36,26 @@ const GuildCard = ({ data }: Props) => {
           </div>
         </div>
       </div>
-      <ServiceState icon={<IconHistory />} name="history_v1" />
-      <ServiceState icon={<span>{data.cpu_avg}</span>} name="cpu" />
-      <ServiceState icon={<span>{data.score}</span>} name="score" />
+      <ServiceState
+        icon={<IconHistory />}
+        name="history_v1"
+        error={!data.full_history}
+        message={data.full_history_error}
+      />
+      <ServiceState
+        icon={<IconHistory />}
+        name="hyperion_v2"
+        error={!data.hyperion_v2}
+        message={data.hyperion_v2_error}
+      />
+      <div className="flex flex-col items-center">
+        <div className="relative">{data.cpu_avg}</div>
+        <div className="text-gray">cpu</div>
+      </div>
+      <div className="flex flex-col items-center">
+        <div className="relative">{Number(data.score).toFixed(0)}</div>
+        <div className="text-gray">score</div>
+      </div>
     </Link>
   )
 }
