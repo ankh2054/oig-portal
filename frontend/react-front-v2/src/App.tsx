@@ -2,7 +2,6 @@ import React, { Suspense } from 'react'
 import './App.css'
 import { RouterProvider } from 'react-router-dom'
 
-import Layout from './pages/Layout'
 import router from './router'
 import { useGetProducersQuery } from './services/api'
 
@@ -34,11 +33,9 @@ const App: React.FC = () => {
 
   return (
     <main className="bg-cultured text-black">
-      <Layout>
-        <Suspense fallback={<Loader />}>
-          <RouterProvider router={router} />
-        </Suspense>
-      </Layout>
+      <Suspense fallback={<Loader />}>
+        <RouterProvider router={router} />
+      </Suspense>
     </main>
   )
 }

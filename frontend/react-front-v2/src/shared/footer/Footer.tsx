@@ -5,12 +5,13 @@ import IconYoutube from '../icons/IconYoutube'
 import Logo from '../icons/Logo'
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear()
   return (
     <footer className="w-full bg-secondary px-8 py-4 text-white">
       <Container className="flex flex-col items-center gap-y-2">
         <Logo width="100%" />
         <p>
-          © 2023 OIG portal. A product of{' '}
+          © {currentYear} OIG portal. A product of&nbsp;
           <span className="font-bold">Sentnl</span>.
         </p>
         <div className="flex gap-x-2">

@@ -19,11 +19,7 @@ const GuildCard = ({ data }: Props) => {
       className="flex justify-between rounded-sm border border-lightGray bg-white p-4"
     >
       <div className="flex w-36 gap-x-2">
-        <LazyLoadImage
-          placeholder={<span>loading</span>}
-          src={data.logo_svg}
-          className="h-8 self-center"
-        />
+        <LazyLoadImage src={data.logo_svg} className="h-8 self-center" />
         <div className="flex flex-col gap-y-1">
           <div>{data.owner_name}</div>
           <div className="flex items-center gap-x-1">

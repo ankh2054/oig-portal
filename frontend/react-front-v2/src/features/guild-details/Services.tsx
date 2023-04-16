@@ -10,8 +10,8 @@ const Service = ({ state }: ServiceProps) => {
     <div className="flex gap-x-2">
       <span className={cx('text-success', { 'text-error': state === 'ERROR' })}>
         <IconHistory />
-      </span>{' '}
-      History v1
+      </span>
+      &nbsp;History v1
     </div>
   )
 }

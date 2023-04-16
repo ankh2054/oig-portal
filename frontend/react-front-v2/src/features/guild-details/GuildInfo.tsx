@@ -1,22 +1,35 @@
 import getUnicodeFlagIcon from 'country-flag-icons/unicode'
 import React from 'react'
 
+import type { Producer } from '../../services/types'
 import Badge from '../../shared/badge/Badge'
 import IconNotion from '../../shared/icons/IconNotion'
 import Score from '../../shared/score/Score'
 
-const GuildInfo = () => {
+interface Props {
+  producer: Producer
+}
+const GuildInfo = ({ producer }: Props) => {
   return (
     <>
-      <img
-        src="https://hivebp.io/hivebp-logo256.png"
-        className="-mt-12 w-16"
-        alt=""
-      />
-      <h3 className="text-lg">waxhiveguild</h3>
+      {producer.logo_svg && (
+        <img
+          src={producer.logo_svg}
+          className="-mt-12 w-16 rounded-full bg-white p-1"
+          alt=""
+        />
+      )}
+      <h3 className="text-center text-lg leading-5">
+        {producer.candidate} <br />
+        <span className="text-sm text-gray">{producer.owner_name}</span>
+      </h3>
       <div className="mb-4 flex items-center gap-x-1">
-        <Badge bgColor="bg-success">Top 21</Badge>
-        <span className="text-2xl leading-5">{getUnicodeFlagIcon('gb')}</span>
+        {producer.top21 && <Badge bgColor="bg-success">Top 21</Badge>}
+        {producer.country_code && (
+          <span className="text-2xl leading-5">
+            {getUnicodeFlagIcon(producer.country_code)}
+          </span>
+        )}
       </div>
       <div className="mb-4 flex gap-x-4">
         <Score title="Previous score" score={30} />

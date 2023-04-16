@@ -13,7 +13,6 @@ const Loader = () => {
 const LatestResults = () => {
   const { data, error, isLoading } = useGetLatestResultsQuery()
   const { data: producersData } = useGetProducersQuery()
-
   return (
     <div className="flex w-full flex-col">
       <div className="mb-4 flex justify-between">

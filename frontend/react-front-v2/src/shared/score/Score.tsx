@@ -11,11 +11,12 @@ const Score = ({ title, score }: Props) => {
     <div className="flex flex-col items-center">
       <div
         className={cx(
-          'flex h-8 w-8 items-center justify-center rounded-full  bg-success bg-opacity-10 align-middle',
-          { 'bg-error': isLow }
+          'flex h-8 w-8 items-center justify-center rounded-full bg-opacity-10 p-5 align-middle',
+          { 'bg-error': isLow },
+          { 'bg-success': !isLow }
         )}
       >
-        <span className="font-medium">{score}</span>
+        <span className="text-sm font-medium text-gray">{score}</span>
       </div>
       <div className="text-sm text-gray">{title}</div>
     </div>
