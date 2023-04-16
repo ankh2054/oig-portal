@@ -1,7 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import ky from 'ky'
 
-import type { LastestResultsResponse, ProducersResponse } from './types'
+import type {
+  LastestResultsResponse,
+  ProducersResponse,
+  ResultsResponse,
+} from './types'
 
 // Define a service using a base URL and expected endpoints
 export const api = createApi({
@@ -19,6 +23,14 @@ export const api = createApi({
     getProducers: builder.query<ProducersResponse, void>({
       query: () => `/producers`,
     }),
+    getResults: builder.query<ResultsResponse, { ownerName: string }>({
+      query: (arg) => {
+        const { ownerName } = arg
+        return {
+          url: `truncatedPaginatedResults/${ownerName}`,
+        }
+      },
+    }),
   }),
   reducerPath: 'sentnlApi',
 })
@@ -29,4 +41,5 @@ export const {
   useGetLatestResultsQuery,
   useGetProducersQuery,
   useGetMonthlyAverageResultsByOwnerQuery,
+  useGetResultsQuery,
 } = api

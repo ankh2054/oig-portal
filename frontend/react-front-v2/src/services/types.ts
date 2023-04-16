@@ -1,5 +1,3 @@
-export type LastestResultsResponse = Array<GuildResult>
-
 export type GuildResult = {
   owner_name: string
   cors_check: boolean
@@ -65,4 +63,7 @@ export type Producer = {
   jsontestneturl: null | string
 }
 
+export type LastestResultsResponse = Array<GuildResult>
+
 export type ProducersResponse = Array<Producer>
+export type ResultsResponse = Array<GuildResult & { rownum: string }>

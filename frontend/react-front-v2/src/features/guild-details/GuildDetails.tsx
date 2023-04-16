@@ -1,7 +1,7 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
 
-import { useGetProducersQuery } from '../../services/api'
+import { useGetProducersQuery, useGetResultsQuery } from '../../services/api'
 import type { Producer } from '../../services/types'
 
 import CpuChart from './CpuChart'
@@ -11,6 +11,8 @@ import Services from './Services'
 const GuildDetails = () => {
   const { guildId } = useParams()
   const { data: producersData, isSuccess } = useGetProducersQuery()
+  const { data: resultsData } = useGetResultsQuery({ ownerName: guildId })
+
   let producer: Producer | null = null
 
   if (isSuccess) {
@@ -18,7 +20,7 @@ const GuildDetails = () => {
       (producer) => producer.owner_name === guildId
     )[0]
   }
-  if (!producer) return
+  if (!producer) return null
   return (
     <div className="z-10 w-full">
       <div className="grid grid-flow-row grid-cols-3  gap-6">
@@ -27,9 +29,11 @@ const GuildDetails = () => {
             <div className="flex flex-col items-center gap-y-1 rounded-sm border border-lightGray bg-white p-4">
               <GuildInfo producer={producer} />
             </div>
-            <div className=" rounded-sm border border-lightGray bg-white p-4">
-              <Services />
-            </div>
+            {resultsData && (
+              <div className=" rounded-sm border border-lightGray bg-white p-4">
+                <Services latestResult={resultsData[0]} />
+              </div>
+            )}
           </div>
         </div>
         <div className="col-start-2 col-end-4 rounded-sm border border-lightGray bg-white p-4">

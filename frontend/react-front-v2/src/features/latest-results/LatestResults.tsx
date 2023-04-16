@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import {
   useGetLatestResultsQuery,
   useGetProducersQuery,
@@ -11,13 +13,18 @@ const Loader = () => {
   return <div className="text-gray">Loading...</div>
 }
 const LatestResults = () => {
+  const [showAll, setShowAll] = useState(false)
   const { data, error, isLoading } = useGetLatestResultsQuery()
   const { data: producersData } = useGetProducersQuery()
+
+  const onSwitch = (showAll: boolean) => {
+    setShowAll(showAll)
+  }
   return (
     <div className="flex w-full flex-col">
       <div className="mb-4 flex justify-between">
         <h3 className="text-2xl">Latest results</h3>
-        <ResultsToggle />
+        <ResultsToggle onClick={onSwitch} showAll={showAll} />
       </div>
       <div className="flex w-full flex-col gap-y-4">
         {error ? (
@@ -27,7 +34,11 @@ const LatestResults = () => {
         ) : data && producersData ? (
           data.map((v, i) => {
             return (
-              <GuildCard data={mapProducerToGuild(v, producersData)} key={i} />
+              <GuildCard
+                data={mapProducerToGuild(v, producersData)}
+                key={i}
+                showAll={showAll}
+              />
             )
           })
         ) : (
