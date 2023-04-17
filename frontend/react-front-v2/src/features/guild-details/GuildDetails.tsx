@@ -18,6 +18,7 @@ import Services from './Services'
 
 const GuildDetails = () => {
   const [showAll, setShowAll] = useState(false)
+  const [numberOfAverageDays, setNumberOfAverageDays] = useState(30)
 
   const { guildId } = useParams()
   const { data: producersData, isSuccess } = useGetProducersQuery()
@@ -55,9 +56,18 @@ const GuildDetails = () => {
   const onSwitch = (showAll: boolean) => {
     setShowAll(showAll)
   }
+
+  const updateAverageDays = (e) => {
+    if (e.target.value < 1000) {
+      setNumberOfAverageDays(e.target.value)
+    } else {
+      // eslint-disable-next-line no-alert
+      alert('Number of Average days must not exceed 1000')
+    }
+  }
   return (
     <div className="z-10 w-full">
-      <div className="grid grid-flow-row grid-cols-3  gap-6">
+      <div className="grid grid-flow-row grid-cols-3  gap-x-6">
         <div className="row-start-1 row-end-4">
           <div className="flex flex-col gap-y-6">
             <div className="flex flex-col items-center gap-y-1 rounded-sm border border-lightGray bg-white p-4">
@@ -74,10 +84,24 @@ const GuildDetails = () => {
           <CpuChart data={chartData} />
         </div>
       </div>
-      <div>
+      <div className="mt-6">
         <div className="mb-4 flex justify-between">
           <h3 className="text-2xl">Latest results</h3>
-          <ResultsToggle onClick={onSwitch} showAll={showAll} />
+          <div className="flex gap-x-6">
+            <ResultsToggle onClick={onSwitch} showAll={showAll} />
+            <div className="flex items-center gap-x-2">
+              <label htmlFor="first_name" className="text-sm text-gray">
+                Average Days
+              </label>
+              <input
+                type="number"
+                id="first_name"
+                value={numberOfAverageDays}
+                className="w-16 rounded-sm  border border-lightGray p-1 text-sm text-gray focus:border-primary focus:outline-none"
+                required
+              />
+            </div>
+          </div>
         </div>
         <div className="mb-4 h-8 bg-secondary bg-opacity-10"></div>
         <div className="flex w-full flex-col gap-y-4">
