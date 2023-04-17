@@ -4,35 +4,46 @@ import { Link } from 'react-router-dom'
 
 import type { Guild } from '../../types/Guild'
 import Badge from '../badge/Badge'
+import IconCalendar from '../icons/IconCalendar'
 import IconHistory from '../icons/IconHistory'
 import ServiceState from '../service-state/ServiceState'
 import './GuildCard.css'
+import datec from '../../utils/datec'
 
 interface Props {
   data: Guild
   showAll: boolean
+  showTime: boolean
+  hideLogo: boolean
 }
 
-const GuildCard = ({ data, showAll }: Props) => {
+const GuildCard = ({
+  data,
+  showAll,
+  showTime = false,
+  hideLogo = false,
+}: Props) => {
   return (
     <Link
       to={`/guilds/${data.owner_name}`}
       className="flex items-center justify-between rounded-sm border border-lightGray bg-white p-4"
     >
-      <div className="flex w-36 gap-x-2">
-        <LazyLoadImage src={data.logo_svg} className="h-8 self-center" />
-        <div className="flex flex-col gap-y-1">
-          <div>{data.owner_name}</div>
-          <div className="flex items-center gap-x-1">
-            {data.top21 && <Badge bgColor="bg-success">Top 21</Badge>}
-            {data.country_code && (
-              <span className="text-2xl leading-5">
-                {getUnicodeFlagIcon(data.country_code)}
-              </span>
-            )}
+      {!hideLogo && (
+        <div className="flex w-36 gap-x-2">
+          <LazyLoadImage src={data.logo_svg} className="h-8 self-center" />
+          <div className="flex flex-col gap-y-1">
+            <div>{data.owner_name}</div>
+            <div className="flex items-center gap-x-1">
+              {data.top21 && <Badge bgColor="bg-success">Top 21</Badge>}
+              {data.country_code && (
+                <span className="text-2xl leading-5">
+                  {getUnicodeFlagIcon(data.country_code)}
+                </span>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
       <div className="flex flex-col ">
         <div className="flex gap-x-4">
           <ServiceState
@@ -147,9 +158,17 @@ const GuildCard = ({ data, showAll }: Props) => {
         <div className="text-xs text-gray">cpu</div>
       </div>
       <div className="flex flex-col items-center">
-        <div className="relative">{Number(data.score).toFixed(0)}</div>
+        <div className="relative">
+          {Math.round(Number.parseInt(data.score))}
+        </div>
         <div className="text-xs text-gray">score</div>
       </div>
+      {showTime && (
+        <div className="flex flex-col items-center">
+          <IconCalendar />
+          <div className="text-sm text-gray">{datec(data.date_check)}</div>
+        </div>
+      )}
     </Link>
   )
 }

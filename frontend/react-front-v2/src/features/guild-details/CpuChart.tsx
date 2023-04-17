@@ -7,78 +7,78 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Legend,
+  Line,
 } from 'recharts'
 
-const data = [
-  {
-    avgTime: 0.25,
-    name: '03/04/23@11:10',
-    time: 0.3,
-  },
-  {
-    avgTime: 0.4,
-    name: '04/04/23@11:12',
-    time: 0.25,
-  },
-  {
-    avgTime: 0.3,
-    name: '05/04/23@23:12',
-    time: 0.3,
-  },
-  {
-    avgTime: 0.35,
-    name: '06/04/23@23:13',
-    time: 0.2,
-  },
-  {
-    avgTime: 0.7,
-    name: '07/04/23@0:13',
-    time: 0.2,
-  },
-  {
-    avgTime: 1,
-    name: '8/04/23@0:11',
-    time: 0.2,
-  },
-  {
-    avgTime: 0.8,
-    name: '9/04/23@21:18',
-    time: 0.2,
-  },
-]
-
-const CpuChart = () => {
+const CpuChart = ({ data }: { data: Array<{}> }) => {
   return (
-    <div className="flex h-96 w-full">
+    <div className="flex w-full" style={{ height: '542px' }}>
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart
-          width={500}
-          height={400}
-          data={data}
-          margin={{
-            bottom: 0,
-            left: 0,
-            right: 30,
-            top: 10,
-          }}
-        >
+        <AreaChart data={data} syncId="cpuGraph">
+          <defs>
+            <linearGradient id="colorTime" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#5F2BA1" stopOpacity={0.8} />
+              <stop offset="95%" stopColor="#D0C1E8" stopOpacity={0} />
+            </linearGradient>
+            <linearGradient id="colorAggAvg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#FF6E6E" stopOpacity={0.8} />
+              <stop offset="95%" stopColor="#FFC1C1" stopOpacity={0} />
+            </linearGradient>
+            <linearGradient
+              id="colorAggAvgAllGuilds"
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
+              <stop offset="5%" stopColor="#04CC84" stopOpacity={0.8} />
+              <stop offset="95%" stopColor="#9DDDC6" stopOpacity={0} />
+            </linearGradient>
+          </defs>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
+          <XAxis dataKey="date_check" />
+          <YAxis
+            label={{ angle: -90, position: 'insideLeft', value: 'time (ms)' }}
+          />
           <Tooltip />
+
           <Area
             type="monotone"
-            dataKey="avgTime"
-            stackId="1"
-            stroke="#E34B31"
-            fill="#E34B31"
+            dataKey="cpu time"
+            stroke="#5F2BA1"
+            strokeWidth={2}
+            fillOpacity={1}
+            fill="url(#colorTime)"
           />
           <Area
             type="monotone"
-            dataKey="time"
-            stackId="1"
+            dataKey="cpu average time"
+            stroke="#E34B31"
+            strokeWidth={2}
+            fillOpacity={1}
+            fill="url(#colorAggAvg)"
+          />
+          <Area
+            type="monotone"
+            dataKey="aggregate average time (all guilds)"
+            strokeWidth={2}
+            stroke="#04CC84"
+            fillOpacity={1}
+            fill="url(#colorAggAvgAllGuilds)"
+          />
+          <Legend />
+          <Line
+            type="monotone"
+            dataKey="cpu time"
             stroke="#5F2BA1"
-            fill="#5F2BA1"
+            activeDot={{ r: 8 }}
+          />
+          <Line type="monotone" dataKey="cpu average time" stroke="#E34B31" />
+          <Line
+            type="monotone"
+            dataKey="aggregate average time (all guilds)"
+            stroke="#04CC84"
           />
         </AreaChart>
       </ResponsiveContainer>
