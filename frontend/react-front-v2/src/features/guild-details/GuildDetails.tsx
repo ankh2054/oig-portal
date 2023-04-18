@@ -7,17 +7,14 @@ import {
   useGetResultsQuery,
 } from '../../services/api'
 import type { Producer } from '../../services/types'
-import GuildCard from '../../shared/guild-card/GuildCard'
-import ResultsToggle from '../../shared/result-toggle/ResultsToggle'
 import datec from '../../utils/datec'
-import mapProducerToGuild from '../../utils/mapProducerToGuild'
+import LatestResults from '../latest-results/LatestResults'
 
 import CpuChart from './CpuChart'
 import GuildInfo from './GuildInfo'
 import Services from './Services'
 
 const GuildDetails = () => {
-  const [showAll, setShowAll] = useState(false)
   const [numberOfAverageDays, setNumberOfAverageDays] = useState(30)
 
   const { guildId } = useParams()
@@ -27,7 +24,7 @@ const GuildDetails = () => {
 
   let producer: Producer | null = null
 
-  if (isSuccess) {
+  if (isSuccess && producersData) {
     producer = producersData.filter(
       (producer) => producer.owner_name === guildId
     )[0]
@@ -53,17 +50,31 @@ const GuildDetails = () => {
       })
       .reverse()
   }
-  const onSwitch = (showAll: boolean) => {
-    setShowAll(showAll)
+
+  const updateAverageDays = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number.parseInt(e.target.value)
+    if (value < 1000) {
+      setNumberOfAverageDays(value)
+    }
   }
 
-  const updateAverageDays = (e) => {
-    if (e.target.value < 1000) {
-      setNumberOfAverageDays(e.target.value)
-    } else {
-      // eslint-disable-next-line no-alert
-      alert('Number of Average days must not exceed 1000')
-    }
+  const AverageDayInput = () => {
+    return (
+      <div className="flex items-center gap-x-2">
+        <label htmlFor="first_name" className="text-sm text-gray">
+          Average Days
+        </label>
+        <input
+          type="number"
+          max={1000}
+          id="first_name"
+          onChange={updateAverageDays}
+          value={numberOfAverageDays}
+          className="w-16 rounded-sm  border border-lightGray p-1 text-sm text-gray focus:border-primary focus:outline-none"
+          required
+        />
+      </div>
+    )
   }
   return (
     <div className="z-10 w-full">
@@ -80,44 +91,21 @@ const GuildDetails = () => {
             )}
           </div>
         </div>
-        <div className="col-start-2 col-end-4 rounded-sm border border-lightGray bg-white p-4">
+        <div className="col-start-2 col-end-4 rounded-sm border border-lightGray bg-white p-4 text-sm">
           <CpuChart data={chartData} />
         </div>
       </div>
       <div className="mt-6">
-        <div className="mb-4 flex justify-between">
-          <h3 className="text-2xl">Latest results</h3>
-          <div className="flex gap-x-6">
-            <ResultsToggle onClick={onSwitch} showAll={showAll} />
-            <div className="flex items-center gap-x-2">
-              <label htmlFor="first_name" className="text-sm text-gray">
-                Average Days
-              </label>
-              <input
-                type="number"
-                id="first_name"
-                value={numberOfAverageDays}
-                className="w-16 rounded-sm  border border-lightGray p-1 text-sm text-gray focus:border-primary focus:outline-none"
-                required
-              />
-            </div>
-          </div>
-        </div>
-        <div className="mb-4 h-8 bg-secondary bg-opacity-10"></div>
         <div className="flex w-full flex-col gap-y-4">
-          {resultsData &&
-            producersData &&
-            resultsData.map((v, i) => {
-              return (
-                <GuildCard
-                  data={mapProducerToGuild(v, producersData)}
-                  key={i}
-                  showAll={showAll}
-                  showTime={true}
-                  hideLogo={true}
-                />
-              )
-            })}
+          {resultsData && producersData && (
+            <LatestResults
+              results={resultsData}
+              producers={producersData}
+              hideLogo={true}
+              showTime={true}
+              action={<AverageDayInput />}
+            />
+          )}
         </div>
       </div>
     </div>

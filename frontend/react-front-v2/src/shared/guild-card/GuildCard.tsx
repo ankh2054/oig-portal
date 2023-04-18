@@ -1,5 +1,4 @@
 import getUnicodeFlagIcon from 'country-flag-icons/unicode'
-import { LazyLoadImage } from 'react-lazy-load-image-component'
 import { Link } from 'react-router-dom'
 
 import type { Guild } from '../../types/Guild'
@@ -30,7 +29,9 @@ const GuildCard = ({
     >
       {!hideLogo && (
         <div className="flex w-36 gap-x-2">
-          <LazyLoadImage src={data.logo_svg} className="h-8 self-center" />
+          {data.logo_svg && (
+            <img src={data.logo_svg} className="h-8 self-center" alt="logo" />
+          )}
           <div className="flex flex-col gap-y-1">
             <div>{data.owner_name}</div>
             <div className="flex items-center gap-x-1">
@@ -166,7 +167,7 @@ const GuildCard = ({
       {showTime && (
         <div className="flex flex-col items-center">
           <IconCalendar />
-          <div className="text-sm text-gray">{datec(data.date_check)}</div>
+          <div className="text-xs text-gray">{datec(data.date_check)}</div>
         </div>
       )}
     </Link>

@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import ky from 'ky'
 
 import type {
-  LastestResultsResponse,
+  LatestResultsResponse,
   ProducersResponse,
   ResultsResponse,
 } from './types'
@@ -14,7 +14,7 @@ export const api = createApi({
     fetchFn: (...args) => ky(...args),
   }),
   endpoints: (builder) => ({
-    getLatestResults: builder.query<LastestResultsResponse, void>({
+    getLatestResults: builder.query<LatestResultsResponse, void>({
       query: () => `/latestresults`,
     }),
     getMonthlyAverageResultsByOwner: builder.query<ProducersResponse, void>({
