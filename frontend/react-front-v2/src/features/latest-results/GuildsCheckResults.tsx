@@ -41,13 +41,23 @@ const GuildsCheckResults = ({
   }
 
   useEffect(() => {
-    setTotalItems(results.length)
-    setPaginatedData(results.slice(itemOffset, itemOffset + ITEMS_PER_PAGE))
+    const activeGuilds = results.filter((r) => isActive(r.owner_name))
+    setTotalItems(activeGuilds.length)
+    setPaginatedData(
+      activeGuilds.slice(itemOffset, itemOffset + ITEMS_PER_PAGE)
+    )
   }, [results, itemOffset, totalItems])
 
   const handlePageClick = (activePage: number) => {
     const newOffset = (activePage * ITEMS_PER_PAGE) % totalItems
     setItemOffset(newOffset)
+  }
+
+  const isActive = (owner_name: string) => {
+    const owner = producers.find(
+      (producer) => producer.owner_name === owner_name
+    )
+    return owner ? owner.active !== false && owner.active !== null : true
   }
 
   return (

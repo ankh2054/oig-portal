@@ -28,7 +28,7 @@ const AvgResults = ({ data }: Props) => {
       )
     } else {
       if (count === 'cpu_time') {
-        return <div>{parseInt(data[count] * 100)/100}  </div>
+        return <div>{parseInt(data[count] * 100) / 100} </div>
       } else if (count === 'score_avg') {
         return <div>{parseInt(data[count])}</div>
       }

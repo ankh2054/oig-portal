@@ -38,7 +38,15 @@ const GuildDetails = () => {
       (producer) => producer.owner_name === guildId
     )[0]
   }
-  if (!producer) return null
+  if (!producer)
+    return (
+      <div
+        className="mb-4 h-14 w-full rounded-lg bg-blue-50 p-4 text-secondary"
+        role="alert"
+      >
+        No data recorded for this guild yet.
+      </div>
+    )
   let chartData = []
   if (latestResults && resultsData) {
     const cpu_avgs = latestResults.map((result) => result.cpu_avg)
@@ -86,39 +94,42 @@ const GuildDetails = () => {
     )
   }
   return (
-    <div className="z-10 w-full">
-      <div className="grid grid-flow-row grid-cols-3  gap-x-6">
-        <div className="row-start-1 row-end-4">
-          <div className="flex flex-col gap-y-6">
-            <div className="flex flex-col items-center gap-y-1 rounded-sm border border-lightGray bg-white p-4">
-              <GuildInfo producer={producer} />
-            </div>
-            {resultsData && (
-              <div className=" rounded-sm border border-lightGray bg-white p-4">
-                <Services latestResult={resultsData[0]} />
+    <>
+      <div className="absolute left-0 right-0 z-0 -mt-14 h-40 border-t border-white border-opacity-20 bg-secondary"></div>
+      <div className="z-10 w-full">
+        <div className="grid grid-flow-row grid-cols-3  gap-x-6">
+          <div className="row-start-1 row-end-4">
+            <div className="flex flex-col gap-y-6">
+              <div className="flex flex-col items-center gap-y-1 rounded-sm border border-lightGray bg-white p-4">
+                <GuildInfo producer={producer} />
               </div>
+              {resultsData && (
+                <div className=" rounded-sm border border-lightGray bg-white p-4">
+                  <Services latestResult={resultsData[0]} />
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="col-start-2 col-end-4 rounded-sm border border-lightGray bg-white p-4 text-sm">
+            <CpuChart data={chartData} />
+          </div>
+        </div>
+        <div className="mt-6">
+          <div className="flex w-full flex-col gap-y-4">
+            {resultsData && producersData && (
+              <GuildsCheckResults
+                results={resultsData}
+                producers={producersData}
+                avgResults={avgResults}
+                hideLogo={true}
+                showTime={true}
+                action={<AverageDayInput />}
+              />
             )}
           </div>
         </div>
-        <div className="col-start-2 col-end-4 rounded-sm border border-lightGray bg-white p-4 text-sm">
-          <CpuChart data={chartData} />
-        </div>
       </div>
-      <div className="mt-6">
-        <div className="flex w-full flex-col gap-y-4">
-          {resultsData && producersData && (
-            <GuildsCheckResults
-              results={resultsData}
-              producers={producersData}
-              avgResults={avgResults}
-              hideLogo={true}
-              showTime={true}
-              action={<AverageDayInput />}
-            />
-          )}
-        </div>
-      </div>
-    </div>
+    </>
   )
 }
 
