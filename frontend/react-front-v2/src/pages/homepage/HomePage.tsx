@@ -1,4 +1,4 @@
-import LatestResults from '../../features/latest-results/LatestResults'
+import GuildsCheckResults from '../../features/latest-results/GuildsCheckResults'
 import {
   useGetLatestResultsQuery,
   useGetProducersQuery,
@@ -58,7 +58,7 @@ const HomePage = () => {
   return (
     producers &&
     latestResults && (
-      <LatestResults
+      <GuildsCheckResults
         results={latestResults}
         producers={producers}
         hideLogo={false}

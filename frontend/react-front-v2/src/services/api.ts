@@ -5,6 +5,7 @@ import type {
   LatestResultsResponse,
   ProducersResponse,
   ResultsResponse,
+  AvgResultsResponse,
 } from './types'
 
 // Define a service using a base URL and expected endpoints
@@ -14,11 +15,19 @@ export const api = createApi({
     fetchFn: (...args) => ky(...args),
   }),
   endpoints: (builder) => ({
+    getAvgResults: builder.query<
+      AvgResultsResponse,
+      { ownerName: string; numberOfAverageDays: number }
+    >({
+      query: (arg) => {
+        const { ownerName, numberOfAverageDays } = arg
+        return {
+          url: `/monthlyaverageresults/${ownerName}?days=${numberOfAverageDays}`,
+        }
+      },
+    }),
     getLatestResults: builder.query<LatestResultsResponse, void>({
       query: () => `/latestresults`,
-    }),
-    getMonthlyAverageResultsByOwner: builder.query<ProducersResponse, void>({
-      query: () => `/monthlyaverageresults`,
     }),
     getProducers: builder.query<ProducersResponse, void>({
       query: () => `/producers`,
@@ -27,7 +36,7 @@ export const api = createApi({
       query: (arg) => {
         const { ownerName } = arg
         return {
-          url: `truncatedPaginatedResults/${ownerName}`,
+          url: `truncatedPaginatedResults/${ownerName}?index=0&limit=59`,
         }
       },
     }),
@@ -40,6 +49,6 @@ export const api = createApi({
 export const {
   useGetLatestResultsQuery,
   useGetProducersQuery,
-  useGetMonthlyAverageResultsByOwnerQuery,
   useGetResultsQuery,
+  useGetAvgResultsQuery,
 } = api

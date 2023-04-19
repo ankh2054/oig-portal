@@ -45,21 +45,21 @@ const Pagination = ({ total, itemsPerPage, onPageClick, className }: Props) => {
             onClick={() => handlePageClick(activePage - 1)}
             className={cx(
               ' relative block rounded-sm bg-transparent px-2 py-0.5 text-sm text-black transition-all duration-300 hover:text-primary',
-              { 'pointer-events-none': activePage === 0 }
+              { 'pointer-events-none text-gray': activePage === 0 }
             )}
           >
             « Previous
           </button>
         </li>
-        {[...Array(pagesCount).keys()].map((v) => {
-          return <Item index={v} />
+        {[...Array(pagesCount).keys()].map((v, i) => {
+          return <Item index={v} key={i} />
         })}
         <li>
           <button
             onClick={() => handlePageClick(activePage + 1)}
             className={cx(
               'relative block rounded-sm bg-transparent px-2 py-0.5 text-sm text-black transition-all duration-300 hover:text-primary',
-              { 'pointer-events-none': activePage === pagesCount - 1 }
+              { 'pointer-events-none text-gray': activePage === pagesCount - 1 }
             )}
           >
             Next »

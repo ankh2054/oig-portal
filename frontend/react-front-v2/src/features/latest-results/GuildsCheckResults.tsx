@@ -5,23 +5,28 @@ import type {
   LatestResultsResponse,
   ResultsResponse,
   ProducersResponse,
+  AvgResultsResponse,
 } from '../../services/types'
 import GuildCard from '../../shared/guild-card/GuildCard'
 import Pagination from '../../shared/pagination/Pagination'
 import ResultsToggle from '../../shared/result-toggle/ResultsToggle'
 import mapProducerToGuild from '../../utils/mapProducerToGuild'
 
+import AvgResults from './AvgResults'
+
 const ITEMS_PER_PAGE = 10
 interface Props {
   results: ResultsResponse | LatestResultsResponse
   producers: ProducersResponse
+  avgResults?: AvgResultsResponse
   hideLogo: boolean
   showTime: boolean
   action?: JSX.Element
 }
-const LatestResults = ({
+const GuildsCheckResults = ({
   results,
   producers,
+  avgResults,
   hideLogo,
   showTime,
   action,
@@ -44,6 +49,7 @@ const LatestResults = ({
     const newOffset = (activePage * ITEMS_PER_PAGE) % totalItems
     setItemOffset(newOffset)
   }
+
   return (
     <div className="flex w-full flex-col">
       <div className="mb-4 flex justify-between">
@@ -53,6 +59,7 @@ const LatestResults = ({
           {action}
         </div>
       </div>
+      {avgResults && <AvgResults data={avgResults} />}
       <div className="flex w-full flex-col gap-y-4">
         {paginatedData.map((v, i) => {
           return (
@@ -78,4 +85,4 @@ const LatestResults = ({
   )
 }
 
-export default LatestResults
+export default GuildsCheckResults

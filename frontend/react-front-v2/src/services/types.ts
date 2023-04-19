@@ -63,6 +63,47 @@ export type Producer = {
   jsontestneturl: null | string
 }
 
+export type AvgResultsResponse = {
+  total_count: string
+  chains_json_count: string
+  wax_json_count: string
+  api_node_count: string
+  seed_node_count: string
+  http_check_count: string
+  https_check_count: string
+  tls_ver_count: string
+  http2_check_count: string
+  history_v1_count: string
+  hyperion_v2_count: string
+  hyperion_v2_full_count: string
+  hyperion_v2_testnet_count: string
+  hyperion_v2_testnet_full_count: string
+  atomic_api_count: string
+  cors_check_count: string
+  oracle_feed_count: string
+  wwwjson_count: string
+  cpu_time: string
+  score_avg: string
+  total_pct: string
+  chains_json_pct: string
+  wax_json_pct: string
+  api_node_pct: string
+  seed_node_pct: string
+  http_check_pct: string
+  https_check_pct: string
+  tls_ver_pct: string
+  http2_check_pct: string
+  history_v1_pct: string
+  hyperion_v2_pct: string
+  hyperion_v2_full_pct: string
+  hyperion_v2_testnet_pct: string
+  hyperion_v2_testnet_full_pct: string
+  atomic_api_pct: string
+  cors_check_pct: string
+  oracle_feed_pct: string
+  wwwjson_pct: string
+}
+
 export type LatestResultsResponse = Array<GuildResult>
 
 export type ProducersResponse = Array<Producer>

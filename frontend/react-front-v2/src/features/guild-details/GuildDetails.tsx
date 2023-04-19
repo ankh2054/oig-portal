@@ -1,14 +1,15 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import {
+  useGetAvgResultsQuery,
   useGetLatestResultsQuery,
   useGetProducersQuery,
   useGetResultsQuery,
 } from '../../services/api'
 import type { Producer } from '../../services/types'
 import datec from '../../utils/datec'
-import LatestResults from '../latest-results/LatestResults'
+import GuildsCheckResults from '../latest-results/GuildsCheckResults'
 
 import CpuChart from './CpuChart'
 import GuildInfo from './GuildInfo'
@@ -20,9 +21,17 @@ const GuildDetails = () => {
   const { guildId } = useParams()
   const { data: producersData, isSuccess } = useGetProducersQuery()
   const { data: resultsData } = useGetResultsQuery({ ownerName: guildId })
-  const { data: latestResultsData } = useGetLatestResultsQuery()
-
+  const { data: latestResults } = useGetLatestResultsQuery()
+  const { data: avgResults, refetch: refetchAvgResults } =
+    useGetAvgResultsQuery({
+      numberOfAverageDays: numberOfAverageDays,
+      ownerName: guildId,
+    })
   let producer: Producer | null = null
+
+  useEffect(() => {
+    refetchAvgResults()
+  }, [numberOfAverageDays])
 
   if (isSuccess && producersData) {
     producer = producersData.filter(
@@ -31,8 +40,8 @@ const GuildDetails = () => {
   }
   if (!producer) return null
   let chartData = []
-  if (latestResultsData && resultsData) {
-    const cpu_avgs = latestResultsData.map((result) => result.cpu_avg)
+  if (latestResults && resultsData) {
+    const cpu_avgs = latestResults.map((result) => result.cpu_avg)
     const nonNull_cpu_avgs = cpu_avgs.filter(
       (result) => !!result && result > 0 && result !== '1'
     )
@@ -98,9 +107,10 @@ const GuildDetails = () => {
       <div className="mt-6">
         <div className="flex w-full flex-col gap-y-4">
           {resultsData && producersData && (
-            <LatestResults
+            <GuildsCheckResults
               results={resultsData}
               producers={producersData}
+              avgResults={avgResults}
               hideLogo={true}
               showTime={true}
               action={<AverageDayInput />}
