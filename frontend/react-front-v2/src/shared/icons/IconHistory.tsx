@@ -9,7 +9,7 @@ const IconHistory = ({
   width = '24',
   height = '24',
   className,
-  color,
+  color = 'currentColor',
 }: Props) => {
   return (
     <svg

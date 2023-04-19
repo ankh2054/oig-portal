@@ -1,11 +1,12 @@
-import Layout from '../Layout'
+import React from 'react'
+
+import GuildDetails from '../../features/guild-details/GuildDetails'
 
 const GuildPage = () => {
   return (
-    <Layout>
-      <h1>Guild</h1>
-    </Layout>
+    <>
+      <GuildDetails />
+    </>
   )
 }
-
 export default GuildPage

@@ -1,5 +1,3 @@
-import React from 'react'
-
 import IconPerson from '../icons/IconPerson'
 import Logo from '../icons/Logo'
 
@@ -52,7 +50,7 @@ const Header = () => {
             id="navbar-sticky"
           >
             <ul className="flex flex-col md:flex-row md:space-x-8">
-              <NavItem title="Home" url="/" isActive={true} />
+              <NavItem title="Home" url="/" />
               <NavItem title="Guilds" url="/guilds" />
               <NavItem title="Latest results" url="/latest-results" />
             </ul>

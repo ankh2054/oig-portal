@@ -1,13 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query'
 
-import { docsApi } from './services/docs'
+import { api } from './services/api'
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(docsApi.middleware),
+    getDefaultMiddleware().concat(api.middleware),
   reducer: {
-    [docsApi.reducerPath]: docsApi.reducer,
+    [api.reducerPath]: api.reducer,
   },
 })
 
