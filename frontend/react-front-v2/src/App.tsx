@@ -6,9 +6,7 @@ import router from './router'
 import { useGetProducersQuery } from './services/api'
 
 const Loader = () => {
-  return (
-    <></>
-  )
+  return <></>
 }
 const App: React.FC = () => {
   useGetProducersQuery()

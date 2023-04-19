@@ -6,7 +6,7 @@ import NavItem from './NavItem'
 const Header = () => {
   return (
     <nav className="left-0 top-0 z-20 w-full bg-secondary">
-      <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4 px-8">
+      <div className="mx-auto flex max-w-screen-2xl flex-wrap items-center justify-between p-4 px-8">
         <a href="/" className="flex items-center gap-x-2">
           <Logo width="100%" />
           <span className="self-center whitespace-nowrap text-xl font-medium text-white">

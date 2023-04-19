@@ -70,7 +70,7 @@ const GuildsCheckResults = ({
         </div>
       </div>
       {avgResults && <AvgResults data={avgResults} />}
-      <div className="flex w-full flex-col gap-y-4">
+      <div className="grid gap-y-4">
         {paginatedData.map((v, i) => {
           return (
             <GuildCard

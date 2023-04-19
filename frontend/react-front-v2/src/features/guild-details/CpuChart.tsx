@@ -10,10 +10,11 @@ import {
   Legend,
   Line,
 } from 'recharts'
+import './styles.css'
 
 const CpuChart = ({ data }: { data: Array<{}> }) => {
   return (
-    <div className="flex w-full" style={{ height: '542px' }}>
+    <div className="cpu-chart flex w-full">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} syncId="cpuGraph">
           <defs>
