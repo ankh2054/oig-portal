@@ -17,6 +17,8 @@ import IconProtocol from '../icons/IconProtocol'
 import IconSeedNode from '../icons/IconSeedNode'
 import ServiceState from '../service-state/ServiceState'
 import './GuildCard.css'
+import IconHyperionV2TestNet from '../icons/IconHyperionV2TestNet'
+import IconImage from '../icons/IconImage'
 
 interface Props {
   data: Guild
@@ -41,8 +43,23 @@ const GuildCard = ({
     >
       {!hideLogo && (
         <Link to={`/guilds/${data.owner_name}`} className="flex gap-x-2">
-          {data.logo_svg && (
-            <img src={data.logo_svg} className="h-8 self-center" alt="logo" />
+          {data.logo_svg ? (
+            <img
+              src={data.logo_svg}
+              className="h-8 self-center"
+              alt="logo"
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null // prevents looping
+                currentTarget.src =
+                  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgOTYgOTYwIDk2MCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMjAwIDk3NnEtNTAgMC04NS0zNXQtMzUtODVWMjk2cTAtNTAgMzUtODV0ODUtMzVoNTYwcTUwIDAgODUgMzV0MzUgODV2NTYwcTAgNTAtMzUgODV0LTg1IDM1SDIwMFptMC04MGg1NjBxMTcgMCAyOC41LTExLjVUODAwIDg1NlYyOTZxMC0xNy0xMS41LTI4LjVUNzYwIDI1NkgyMDBxLTE3IDAtMjguNSAxMS41VDE2MCAyOTZ2NTYwcTAgMTcgMTEuNSAyOC41VDIwMCA4OTZabTQwLTgwIDE2MC0xNjAgNzIgNzEgODgtMTExIDE2MCAyMDBIMjQwWm04MC0zMjBxLTMzIDAtNTYuNS0yMy41VDI0MCA0MTZxMC0zMyAyMy41LTU2LjVUMzIwIDMzNnEzMyAwIDU2LjUgMjMuNVQ0MDAgNDE2cTAgMzMtMjMuNSA1Ni41VDMyMCA0OTZaIi8+PC9zdmc+'
+              }}
+            />
+          ) : (
+            <IconImage
+              className="w-8 w-8 rounded rounded-md"
+              width="32"
+              height="32"
+            />
           )}
           <div className="flex flex-col gap-y-1">
             <div>{data.owner_name}</div>
@@ -79,13 +96,13 @@ const GuildCard = ({
             message={data.hyperion_v2_full_error}
           />
           <ServiceState
-            icon={<IconHyperionV2 />}
+            icon={<IconHyperionV2TestNet />}
             name="hyperion_testnet"
             status={data.hyperion_v2_testnet}
             message={data.hyperion_v2_testnet_error}
           />
           <ServiceState
-            icon={<IconHyperionV2 />}
+            icon={<IconHyperionV2TestNet />}
             name="hyperion_testnet_full"
             status={data.hyperion_v2_testnet_full}
             message={data.hyperion_v2_testnet_full_error}
@@ -142,8 +159,8 @@ const GuildCard = ({
           <ServiceState
             icon={<IconProtocol />}
             name="http_check"
-            status={data.hyperion_v2_testnet_full}
-            message={data.hyperion_v2_testnet_full_error}
+            status={data.http_check}
+            message={data.http_check_error}
           />
           <ServiceState
             icon={<IconProtocol />}
