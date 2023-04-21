@@ -10,7 +10,6 @@ import IconAtomic from '../icons/IconAtomic'
 import IconCalendar from '../icons/IconCalendar'
 import IconCashCheck from '../icons/IconCashCheck'
 import IconCors from '../icons/IconCors'
-import IconHistory from '../icons/IconHistory'
 import IconHyperionV1 from '../icons/IconHyperionV1'
 import IconHyperionV2 from '../icons/IconHyperionV2'
 import IconJson from '../icons/IconJson'
@@ -62,7 +61,7 @@ const GuildCard = ({
       {!showAll ? (
         <>
           <ServiceState
-            icon={<IconHistory />}
+            icon={<IconHyperionV1 />}
             name="History V1"
             status={data.full_history}
             message={data.full_history_error}
@@ -80,13 +79,13 @@ const GuildCard = ({
             message={data.hyperion_v2_full_error}
           />
           <ServiceState
-            icon={<IconHyperionV1 />}
+            icon={<IconHyperionV2 />}
             name="hyperion_testnet"
             status={data.hyperion_v2_testnet}
             message={data.hyperion_v2_testnet_error}
           />
           <ServiceState
-            icon={<IconHyperionV1 />}
+            icon={<IconHyperionV2 />}
             name="hyperion_testnet_full"
             status={data.hyperion_v2_testnet_full}
             message={data.hyperion_v2_testnet_full_error}

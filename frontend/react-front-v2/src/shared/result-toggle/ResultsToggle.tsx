@@ -18,7 +18,7 @@ const ResultsToggle = ({ onClick, showAll }: Props) => {
         )}
         onClick={() => onClick(false)}
       >
-        Results Summary
+        Services
       </button>
       <button
         className={cx(
@@ -31,7 +31,7 @@ const ResultsToggle = ({ onClick, showAll }: Props) => {
         )}
         onClick={() => onClick(true)}
       >
-        Full Statistics
+        Requirements
       </button>
     </div>
   )

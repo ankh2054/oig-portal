@@ -3,7 +3,7 @@ import cx from 'classnames'
 import type { GuildResult } from '../../services/types'
 import IconApi from '../../shared/icons/IconApi'
 import IconAtomic from '../../shared/icons/IconAtomic'
-import IconHistory from '../../shared/icons/IconHistory'
+import IconHyperionV1 from '../../shared/icons/IconHyperionV1'
 import IconHyperionV2 from '../../shared/icons/IconHyperionV2'
 import IconShieldLock from '../../shared/icons/IconShieldLock'
 
@@ -47,7 +47,7 @@ const Services = ({ latestResult }: ServicesProps) => {
       <Service
         state={getServiceState(latestResult.full_history)}
         name="History V1"
-        icon={<IconHistory />}
+        icon={<IconHyperionV1 />}
       />
       <Service
         state={getServiceState(latestResult.hyperion_v2)}
