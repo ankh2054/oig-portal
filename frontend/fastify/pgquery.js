@@ -16,8 +16,19 @@ const client = new Client({
 client.connect()
 
 // Get all producers
-const getProducers = (request, reply) => {
+const getProducers2 = (request, reply) => {
   client.query('SELECT * FROM oig.producer ORDER BY owner_name ASC', (error, results) => {
+    if (error) {
+      throw error
+    }
+    console.log(results.rows)
+    reply.status(200).send(results.rows);
+  })
+}
+
+// Get all producers
+const getProducers = (request, reply) => {
+  client.query("SELECT * FROM oig.producer WHERE metasnapshot_date = timestamp '1980-01-01 00:00:00' ORDER BY owner_name ASC", (error, results) => {
     if (error) {
       throw error
     }
