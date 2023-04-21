@@ -1,13 +1,23 @@
+import cx from 'classnames'
 import getUnicodeFlagIcon from 'country-flag-icons/unicode'
 import { Link } from 'react-router-dom'
 
 import type { Guild } from '../../types/Guild'
+import datec from '../../utils/datec'
 import Badge from '../badge/Badge'
+import IconApi from '../icons/IconApi'
+import IconAtomic from '../icons/IconAtomic'
 import IconCalendar from '../icons/IconCalendar'
+import IconCashCheck from '../icons/IconCashCheck'
+import IconCors from '../icons/IconCors'
 import IconHistory from '../icons/IconHistory'
+import IconHyperionV1 from '../icons/IconHyperionV1'
+import IconHyperionV2 from '../icons/IconHyperionV2'
+import IconJson from '../icons/IconJson'
+import IconProtocol from '../icons/IconProtocol'
+import IconSeedNode from '../icons/IconSeedNode'
 import ServiceState from '../service-state/ServiceState'
 import './GuildCard.css'
-import datec from '../../utils/datec'
 
 interface Props {
   data: Guild
@@ -23,12 +33,15 @@ const GuildCard = ({
   hideLogo = false,
 }: Props) => {
   return (
-    <Link
-      to={`/guilds/${data.owner_name}`}
-      className="flex items-center justify-between rounded-sm border border-lightGray bg-white p-4"
+    <div
+      className={cx(
+        'lg:grid-cols-  grid grid-cols-2 flex-wrap items-center gap-4  gap-x-8 rounded-sm border border-lightGray bg-white p-4   md:grid-cols-4 md:justify-between ',
+        { 'lg:grid-cols-12 ': !showAll },
+        { 'lg:grid-cols-11 ': showAll }
+      )}
     >
       {!hideLogo && (
-        <div className="flex w-36 gap-x-2">
+        <Link to={`/guilds/${data.owner_name}`} className="flex gap-x-2">
           {data.logo_svg && (
             <img src={data.logo_svg} className="h-8 self-center" alt="logo" />
           )}
@@ -43,10 +56,11 @@ const GuildCard = ({
               )}
             </div>
           </div>
-        </div>
+        </Link>
       )}
-      <div className="flex flex-col ">
-        <div className="flex gap-x-4">
+
+      {!showAll ? (
+        <>
           <ServiceState
             icon={<IconHistory />}
             name="History V1"
@@ -54,106 +68,110 @@ const GuildCard = ({
             message={data.full_history_error}
           />
           <ServiceState
-            icon={<IconHistory />}
+            icon={<IconHyperionV2 />}
             name="Hyperion V2"
             status={data.hyperion_v2}
             message={data.hyperion_v2_error}
           />
           <ServiceState
-            icon={<IconHistory />}
+            icon={<IconHyperionV2 />}
             name="Hyperion V2 full"
             status={data.hyperion_v2_full}
             message={data.hyperion_v2_full_error}
           />
           <ServiceState
-            icon={<IconHistory />}
+            icon={<IconHyperionV1 />}
             name="hyperion_testnet"
             status={data.hyperion_v2_testnet}
             message={data.hyperion_v2_testnet_error}
           />
           <ServiceState
-            icon={<IconHistory />}
+            icon={<IconHyperionV1 />}
             name="hyperion_testnet_full"
             status={data.hyperion_v2_testnet_full}
             message={data.hyperion_v2_testnet_full_error}
           />
           <ServiceState
-            icon={<IconHistory />}
+            icon={<IconAtomic />}
             name="Atomic API"
             status={data.atomic_api}
             message={data.atomic_api_error}
           />
           <ServiceState
-            icon={<IconHistory />}
+            icon={<IconCors />}
             name="cors_check"
             status={data.cors_check}
             message={data.cors_check_error}
           />
           <ServiceState
-            icon={<IconHistory />}
+            icon={<IconCashCheck />}
             name="oracle_feed"
             status={data.oracle_feed}
             message={data.hyperion_v2_error}
           />
           <ServiceState
-            icon={<IconHistory />}
+            icon={<IconJson />}
             name="wwwjson"
             status={data.wwwjson}
             message={data.wwwjson_error}
           />
-        </div>
-        {showAll && (
-          <>
-            <hr className="my-4 h-px border-t-0 bg-lightGray" />
-            <div className="flex gap-x-4 pt-2">
-              <ServiceState
-                icon={<IconHistory />}
-                name="chains_json"
-                status={data.chains_json}
-              />
-              <ServiceState
-                icon={<IconHistory />}
-                name="wax_json"
-                status={data.wax_json}
-              />
-              <ServiceState
-                icon={<IconHistory />}
-                name="API"
-                status={data.api_node}
-                message={data.api_node_error}
-              />
-              <ServiceState
-                icon={<IconHistory />}
-                name="seed_node"
-                status={data.seed_node}
-                message={data.seed_node_error}
-              />
-              <ServiceState
-                icon={<IconHistory />}
-                name="http_check"
-                status={data.hyperion_v2_testnet_full}
-                message={data.hyperion_v2_testnet_full_error}
-              />
-              <ServiceState
-                icon={<IconHistory />}
-                name="https_check"
-                status={data.https_check}
-                message={data.https_check_error}
-              />
-              <div className="flex flex-col items-center">
-                <div className="relative">1.2</div>
-                <div className="text-xs text-gray">tls_ver</div>
-              </div>
-              <ServiceState
-                icon={<IconHistory />}
-                name="http2_check"
-                status={data.http2_check}
-                message={data.http2_check_error}
-              />
+        </>
+      ) : (
+        <>
+          <ServiceState
+            icon={<IconJson />}
+            name="chains_json"
+            status={data.chains_json}
+          />
+          <ServiceState
+            icon={<IconJson />}
+            name="wax_json"
+            status={data.wax_json}
+          />
+          <ServiceState
+            icon={<IconApi />}
+            name="API"
+            status={data.api_node}
+            message={data.api_node_error}
+          />
+          <ServiceState
+            icon={<IconSeedNode />}
+            name="seed_node"
+            status={data.seed_node}
+            message={data.seed_node_error}
+          />
+          <ServiceState
+            icon={<IconProtocol />}
+            name="http_check"
+            status={data.hyperion_v2_testnet_full}
+            message={data.hyperion_v2_testnet_full_error}
+          />
+          <ServiceState
+            icon={<IconProtocol />}
+            name="https_check"
+            status={data.https_check}
+            message={data.https_check_error}
+          />
+          <div className="flex flex-col items-center">
+            <div
+              className={cx(
+                'relative font-medium',
+                { 'text-success': data.tls_check_error === 'ok' },
+                { 'text-error': data.tls_check_error !== 'ok' }
+              )}
+            >
+              {data.tls_check.slice(4, 7)}
             </div>
-          </>
-        )}
-      </div>
+            <div className="text-xs text-gray">tls_ver</div>
+          </div>
+          <ServiceState
+            icon={<IconProtocol />}
+            name="http2_check"
+            status={data.http2_check}
+            message={data.http2_check_error}
+          />
+        </>
+      )}
       <div className="flex flex-col items-center">
         <div className="relative">{data.cpu_avg}</div>
         <div className="text-xs text-gray">cpu</div>
@@ -170,7 +188,7 @@ const GuildCard = ({
           <div className="text-xs text-gray">{datec(data.date_check)}</div>
         </div>
       )}
-    </Link>
+    </div>
   )
 }
 

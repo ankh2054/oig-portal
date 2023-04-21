@@ -14,7 +14,6 @@ import mapProducerToGuild from '../../utils/mapProducerToGuild'
 
 import AvgResults from './AvgResults'
 
-const ITEMS_PER_PAGE = 10
 interface Props {
   results: ResultsResponse | LatestResultsResponse
   producers: ProducersResponse
@@ -23,6 +22,9 @@ interface Props {
   showTime: boolean
   action?: JSX.Element
 }
+
+const ITEMS_PER_PAGE = 15
+
 const GuildsCheckResults = ({
   results,
   producers,
@@ -69,8 +71,8 @@ const GuildsCheckResults = ({
           {action}
         </div>
       </div>
-      {avgResults && <AvgResults data={avgResults} />}
-      <div className="flex w-full flex-col gap-y-4">
+      {avgResults && <AvgResults data={avgResults} showAll={showAll} />}
+      <div className="grid gap-y-4">
         {paginatedData.map((v, i) => {
           return (
             <GuildCard

@@ -61,6 +61,7 @@ export type Producer = {
   account_name: null | string
   metasnapshot_date: Date
   jsontestneturl: null | string
+  notion_url?: string
 }
 
 export type AvgResultsResponse = {

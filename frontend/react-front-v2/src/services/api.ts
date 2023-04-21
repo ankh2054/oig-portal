@@ -9,9 +9,13 @@ import type {
 } from './types'
 
 // Define a service using a base URL and expected endpoints
+const BASE_URL =
+  import.meta.env.MODE !== 'development'
+    ? 'http://localhost:3000'
+    : 'https://oig.sentnl.io/api'
 export const api = createApi({
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://oig.sentnl.io/api',
+    baseUrl: BASE_URL,
     fetchFn: (...args) => ky(...args),
   }),
   endpoints: (builder) => ({
@@ -40,6 +44,14 @@ export const api = createApi({
         }
       },
     }),
+    reScan: builder.query<unknown, { ownerName: string }>({
+      query: (arg) => {
+        const { ownerName } = arg
+        return {
+          url: `rescan?bp=${ownerName}`,
+        }
+      },
+    }),
   }),
   reducerPath: 'sentnlApi',
 })
@@ -51,4 +63,5 @@ export const {
   useGetProducersQuery,
   useGetResultsQuery,
   useGetAvgResultsQuery,
+  useLazyReScanQuery,
 } = api

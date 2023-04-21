@@ -1,7 +1,11 @@
 import cx from 'classnames'
 
 import type { GuildResult } from '../../services/types'
+import IconApi from '../../shared/icons/IconApi'
+import IconAtomic from '../../shared/icons/IconAtomic'
 import IconHistory from '../../shared/icons/IconHistory'
+import IconHyperionV2 from '../../shared/icons/IconHyperionV2'
+import IconShieldLock from '../../shared/icons/IconShieldLock'
 
 enum State {
   IDLE = 'IDLE',
@@ -14,8 +18,9 @@ const getServiceState = (state: boolean): State =>
 interface ServiceProps {
   state: State
   name: string
+  icon: JSX.Element
 }
-const Service = ({ state, name }: ServiceProps) => {
+const Service = ({ state, name, icon }: ServiceProps) => {
   return (
     <div className="flex gap-x-2">
       <span
@@ -25,7 +30,7 @@ const Service = ({ state, name }: ServiceProps) => {
           { 'text-gray': state === State.IDLE }
         )}
       >
-        <IconHistory />
+        {icon}
       </span>
       &nbsp;{name}
     </div>
@@ -42,18 +47,28 @@ const Services = ({ latestResult }: ServicesProps) => {
       <Service
         state={getServiceState(latestResult.full_history)}
         name="History V1"
+        icon={<IconHistory />}
       />
       <Service
         state={getServiceState(latestResult.hyperion_v2)}
         name="Hyperion V2"
+        icon={<IconHyperionV2 />}
       />
       <Service
         state={getServiceState(latestResult.atomic_api)}
         name="Atomic API"
+        icon={<IconAtomic />}
       />
-      <Service state={getServiceState(latestResult.api_node)} name="API" />
-      <Service state={State.IDLE} name="Missed Blocks (24 hours)" />
-      <Service state={State.SUCCESS} name="Security" />
+      <Service
+        state={getServiceState(latestResult.api_node)}
+        name="API"
+        icon={<IconApi />}
+      />
+      <Service
+        state={State.SUCCESS}
+        name="Security"
+        icon={<IconShieldLock />}
+      />
     </div>
   )
 }

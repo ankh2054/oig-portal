@@ -7,7 +7,12 @@ import {
   useGetProducersQuery,
   useGetResultsQuery,
 } from '../../services/api'
-import type { Producer } from '../../services/types'
+import type {
+  LatestResultsResponse,
+  Producer,
+  ResultsResponse,
+} from '../../services/types'
+import type { ChartDataPoint } from '../../types/ChartDataPoint'
 import datec from '../../utils/datec'
 import GuildsCheckResults from '../latest-results/GuildsCheckResults'
 
@@ -17,10 +22,10 @@ import Services from './Services'
 
 const GuildDetails = () => {
   const [numberOfAverageDays, setNumberOfAverageDays] = useState(30)
-
+  const [chartData, setChartData] = useState<ChartDataPoint>([])
   const { guildId } = useParams()
   const { data: producersData, isSuccess } = useGetProducersQuery()
-  const { data: resultsData } = useGetResultsQuery({ ownerName: guildId })
+  const { data: results } = useGetResultsQuery({ ownerName: guildId })
   const { data: latestResults } = useGetLatestResultsQuery()
   const { data: avgResults, refetch: refetchAvgResults } =
     useGetAvgResultsQuery({
@@ -29,10 +34,40 @@ const GuildDetails = () => {
     })
   let producer: Producer | null = null
 
+  const buildChartData = (
+    results: ResultsResponse,
+    avgResults: LatestResultsResponse,
+    numberOfAverageDays: number
+  ): ChartDataPoint => {
+    const cpu_avgs = avgResults.map((result) => result.cpu_avg)
+    const nonNull_cpu_avgs = cpu_avgs.filter(
+      (result) => !!result && result > 0 && result !== '1'
+    )
+    const aggregate_average =
+      nonNull_cpu_avgs.reduce((total, current) => +total + +current, 0) /
+      nonNull_cpu_avgs.length
+    return results
+      .map((result) => {
+        return {
+          'aggregate average time (all guilds)': aggregate_average.toFixed(2),
+          'cpu average time': result.cpu_avg ? result.cpu_avg : null,
+          'cpu time': result.cpu_time ? result.cpu_time : null,
+          date_check: datec(result.date_check),
+        }
+      })
+      .sort((a, b) => new Date(a.date_check) - new Date(b.date_check))
+      .reverse()
+      .slice(-numberOfAverageDays)
+  }
   useEffect(() => {
     refetchAvgResults()
   }, [numberOfAverageDays])
 
+  useEffect(() => {
+    if (latestResults && results) {
+      setChartData(buildChartData(results, latestResults, numberOfAverageDays))
+    }
+  }, [latestResults, results, numberOfAverageDays])
   if (isSuccess && producersData) {
     producer = producersData.filter(
       (producer) => producer.owner_name === guildId
@@ -47,26 +82,6 @@ const GuildDetails = () => {
         No data recorded for this guild yet.
       </div>
     )
-  let chartData = []
-  if (latestResults && resultsData) {
-    const cpu_avgs = latestResults.map((result) => result.cpu_avg)
-    const nonNull_cpu_avgs = cpu_avgs.filter(
-      (result) => !!result && result > 0 && result !== '1'
-    )
-    const aggregate_average =
-      nonNull_cpu_avgs.reduce((total, current) => +total + +current, 0) /
-      nonNull_cpu_avgs.length
-    chartData = resultsData
-      .map((result) => {
-        return {
-          'aggregate average time (all guilds)': aggregate_average.toFixed(2),
-          'cpu average time': result.cpu_avg ? result.cpu_avg : null,
-          'cpu time': result.cpu_time ? result.cpu_time : null,
-          date_check: datec(result.date_check),
-        }
-      })
-      .reverse()
-  }
 
   const updateAverageDays = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number.parseInt(e.target.value)
@@ -93,44 +108,47 @@ const GuildDetails = () => {
       </div>
     )
   }
-  return (
-    <>
-      <div className="absolute left-0 right-0 z-0 -mt-14 h-40 border-t border-white border-opacity-20 bg-secondary"></div>
-      <div className="z-10 w-full">
-        <div className="grid grid-flow-row grid-cols-3  gap-x-6">
-          <div className="row-start-1 row-end-4">
-            <div className="flex flex-col gap-y-6">
-              <div className="flex flex-col items-center gap-y-1 rounded-sm border border-lightGray bg-white p-4">
-                <GuildInfo producer={producer} />
-              </div>
-              {resultsData && (
-                <div className=" rounded-sm border border-lightGray bg-white p-4">
-                  <Services latestResult={resultsData[0]} />
+
+  if (results) {
+    return (
+      <>
+        <div className="absolute left-0 right-0 z-0 -mt-14 h-40 border-t border-white border-opacity-20 bg-secondary"></div>
+        <div className="z-10 w-full">
+          <div className="grid grid-flow-row grid-cols-1 gap-x-6  gap-y-6 md:grid-cols-3 md:gap-y-0">
+            <div className="row-start-1 row-end-4">
+              <div className="flex flex-col gap-y-6">
+                <div className="flex flex-col items-center gap-y-1 rounded-sm border border-lightGray bg-white p-4">
+                  <GuildInfo producer={producer} result={results[0]} />
                 </div>
+                {results && (
+                  <div className=" rounded-sm border border-lightGray bg-white p-4">
+                    <Services latestResult={results[0]} />
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="rounded-sm border border-lightGray bg-white p-4 text-sm md:col-start-2 md:col-end-4">
+              <CpuChart data={chartData} />
+            </div>
+          </div>
+          <div className="mt-8">
+            <div className="flex w-full flex-col gap-y-4">
+              {results && producersData && (
+                <GuildsCheckResults
+                  results={results}
+                  producers={producersData}
+                  avgResults={avgResults}
+                  hideLogo={true}
+                  showTime={true}
+                  action={<AverageDayInput />}
+                />
               )}
             </div>
           </div>
-          <div className="col-start-2 col-end-4 rounded-sm border border-lightGray bg-white p-4 text-sm">
-            <CpuChart data={chartData} />
-          </div>
         </div>
-        <div className="mt-6">
-          <div className="flex w-full flex-col gap-y-4">
-            {resultsData && producersData && (
-              <GuildsCheckResults
-                results={resultsData}
-                producers={producersData}
-                avgResults={avgResults}
-                hideLogo={true}
-                showTime={true}
-                action={<AverageDayInput />}
-              />
-            )}
-          </div>
-        </div>
-      </div>
-    </>
-  )
+      </>
+    )
+  }
 }
 
 export default GuildDetails

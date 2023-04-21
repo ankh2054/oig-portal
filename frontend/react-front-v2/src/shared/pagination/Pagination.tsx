@@ -10,7 +10,6 @@ interface Props {
 
 const Pagination = ({ total, itemsPerPage, onPageClick, className }: Props) => {
   const [activePage, setActivePage] = useState(0)
-
   const pagesCount = Math.ceil(total / itemsPerPage)
   const handlePageClick = (index: number) => {
     setActivePage(index)
