@@ -9,20 +9,20 @@ const ResultsToggle = ({ onClick, showAll }: Props) => {
     <div className="flex cursor-pointer rounded-full  border border-lightGray bg-white text-gray">
       <button
         className={cx(
-          'px-2 py-1',
+          'w-32 px-2 py-1',
           {
-            'rounded-full bg-gradient-to-r from-redSalsa to-sunsetOrange  font-medium text-white':
+            'rounded-full bg-gradient-to-r from-redSalsa  to-sunsetOrange font-medium text-white':
               !showAll,
           },
           { 'text-gray': showAll }
         )}
         onClick={() => onClick(false)}
       >
-        Results Summary
+        Services
       </button>
       <button
         className={cx(
-          'px-2 py-1',
+          'w-32 px-2 py-1',
           {
             'rounded-full bg-gradient-to-r from-redSalsa to-sunsetOrange  font-medium text-white':
               showAll,
@@ -31,7 +31,7 @@ const ResultsToggle = ({ onClick, showAll }: Props) => {
         )}
         onClick={() => onClick(true)}
       >
-        Full Statistics
+        Requirements
       </button>
     </div>
   )
