@@ -7,7 +7,12 @@ import {
   useGetProducersQuery,
   useGetResultsQuery,
 } from '../../services/api'
-import type { Producer } from '../../services/types'
+import type {
+  LatestResultsResponse,
+  Producer,
+  ResultsResponse,
+} from '../../services/types'
+import type { ChartDataPoint } from '../../types/ChartDataPoint'
 import datec from '../../utils/datec'
 import GuildsCheckResults from '../latest-results/GuildsCheckResults'
 
@@ -17,7 +22,7 @@ import Services from './Services'
 
 const GuildDetails = () => {
   const [numberOfAverageDays, setNumberOfAverageDays] = useState(30)
-
+  const [chartData, setChartData] = useState<ChartDataPoint>([])
   const { guildId } = useParams()
   const { data: producersData, isSuccess } = useGetProducersQuery()
   const { data: results } = useGetResultsQuery({ ownerName: guildId })
@@ -29,10 +34,40 @@ const GuildDetails = () => {
     })
   let producer: Producer | null = null
 
+  const buildChartData = (
+    results: ResultsResponse,
+    avgResults: LatestResultsResponse,
+    numberOfAverageDays: number
+  ): ChartDataPoint => {
+    const cpu_avgs = avgResults.map((result) => result.cpu_avg)
+    const nonNull_cpu_avgs = cpu_avgs.filter(
+      (result) => !!result && result > 0 && result !== '1'
+    )
+    const aggregate_average =
+      nonNull_cpu_avgs.reduce((total, current) => +total + +current, 0) /
+      nonNull_cpu_avgs.length
+    return results
+      .map((result) => {
+        return {
+          'aggregate average time (all guilds)': aggregate_average.toFixed(2),
+          'cpu average time': result.cpu_avg ? result.cpu_avg : null,
+          'cpu time': result.cpu_time ? result.cpu_time : null,
+          date_check: datec(result.date_check),
+        }
+      })
+      .sort((a, b) => new Date(a.date_check) - new Date(b.date_check))
+      .reverse()
+      .slice(-numberOfAverageDays)
+  }
   useEffect(() => {
     refetchAvgResults()
   }, [numberOfAverageDays])
 
+  useEffect(() => {
+    if (latestResults && results) {
+      setChartData(buildChartData(results, latestResults, numberOfAverageDays))
+    }
+  }, [latestResults, results, numberOfAverageDays])
   if (isSuccess && producersData) {
     producer = producersData.filter(
       (producer) => producer.owner_name === guildId
@@ -47,26 +82,6 @@ const GuildDetails = () => {
         No data recorded for this guild yet.
       </div>
     )
-  let chartData = []
-  if (latestResults && results) {
-    const cpu_avgs = latestResults.map((result) => result.cpu_avg)
-    const nonNull_cpu_avgs = cpu_avgs.filter(
-      (result) => !!result && result > 0 && result !== '1'
-    )
-    const aggregate_average =
-      nonNull_cpu_avgs.reduce((total, current) => +total + +current, 0) /
-      nonNull_cpu_avgs.length
-    chartData = results
-      .map((result) => {
-        return {
-          'aggregate average time (all guilds)': aggregate_average.toFixed(2),
-          'cpu average time': result.cpu_avg ? result.cpu_avg : null,
-          'cpu time': result.cpu_time ? result.cpu_time : null,
-          date_check: datec(result.date_check),
-        }
-      })
-      .reverse()
-  }
 
   const updateAverageDays = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number.parseInt(e.target.value)
@@ -116,7 +131,7 @@ const GuildDetails = () => {
               <CpuChart data={chartData} />
             </div>
           </div>
-          <div className="mt-6">
+          <div className="mt-8">
             <div className="flex w-full flex-col gap-y-4">
               {results && producersData && (
                 <GuildsCheckResults

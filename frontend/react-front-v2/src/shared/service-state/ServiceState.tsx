@@ -12,7 +12,7 @@ const ServiceState = ({ icon, name, status, message, className }: Props) => {
   const tooltipId = uuidv4()
   return (
     <div
-      className={`flex flex-col items-center ${className}`}
+      className={`flex h-12 flex-col items-center ${className}`}
       data-tooltip-id={tooltipId}
       data-tooltip-content={message}
     >
@@ -26,14 +26,14 @@ const ServiceState = ({ icon, name, status, message, className }: Props) => {
         ></span>
         {icon}
       </div>
-      <div className="text-xs text-gray">{name}</div>
+      <div className="text-center text-xs text-gray">{name}</div>
       <Tooltip
         id={tooltipId}
         closeOnEsc={true}
         clickable={true}
         positionStrategy="fixed"
         className={cx(
-          'border  bg-white text-gray shadow-md',
+          'max-w-sm  break-words border bg-white text-sm text-gray shadow-md',
           { 'border-success': status },
           { 'border-error': !status }
         )}
