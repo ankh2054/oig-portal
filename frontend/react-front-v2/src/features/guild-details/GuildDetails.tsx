@@ -21,9 +21,10 @@ import GuildInfo from './GuildInfo'
 import Services from './Services'
 
 const GuildDetails = () => {
+  const params = useParams<{ guildId: string }>()
+  const guildId = params.guildId!
   const [numberOfAverageDays, setNumberOfAverageDays] = useState(30)
   const [chartData, setChartData] = useState<ChartDataPoint>([])
-  const { guildId } = useParams()
   const { data: producersData, isSuccess } = useGetProducersQuery()
   const { data: results } = useGetResultsQuery({ ownerName: guildId })
   const { data: latestResults } = useGetLatestResultsQuery()
@@ -41,7 +42,7 @@ const GuildDetails = () => {
   ): ChartDataPoint => {
     const cpu_avgs = avgResults.map((result) => result.cpu_avg)
     const nonNull_cpu_avgs = cpu_avgs.filter(
-      (result) => !!result && result > 0 && result !== '1'
+      (result) => !!result && result.length > 0 && result !== '1'
     )
     const aggregate_average =
       nonNull_cpu_avgs.reduce((total, current) => +total + +current, 0) /
@@ -55,7 +56,6 @@ const GuildDetails = () => {
           date_check: datec(result.date_check),
         }
       })
-      .sort((a, b) => new Date(a.date_check) - new Date(b.date_check))
       .reverse()
       .slice(-numberOfAverageDays)
   }
@@ -149,6 +149,7 @@ const GuildDetails = () => {
       </>
     )
   }
+  return null
 }
 
 export default GuildDetails
