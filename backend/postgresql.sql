@@ -13,6 +13,7 @@ CREATE TABLE oig.producer (
 	url VARCHAR ( 50 ) NOT NULL,
 	jsonurl VARCHAR ( 100 ) NOT NULL,
     jsontestneturl VARCHAR ( 100 ),
+    notion_url VARCHAR ( 250 ),
     chainsurl VARCHAR ( 50 ) NOT NULL,
     active BOOLEAN NOT NULL,
     logo_svg VARCHAR ( 100 ), /*Can be Null as sometimes people dont have a logo */
@@ -206,4 +207,8 @@ GRANT ALL PRIVILEGES ON DATABASE oig TO oiguser ;
 GRANT ALL PRIVILEGES ON SCHEMA oig TO oiguser ;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA oig TO oiguser ;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA oig TO oiguser ;
+
+
+-- Add notion_url to oig.producer 
+alter table oig.producer add notion_url varchar(250);
 
