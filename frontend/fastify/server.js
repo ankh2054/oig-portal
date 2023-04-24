@@ -1,32 +1,37 @@
 const { port } = require('./config');
 const path = require('path');
+const cors = require('@fastify/cors');
 
 
 const fastify = require('fastify')({
     ignoreTrailingSlash: true,
     logger: true // Used to check how much requests come through from the React frontend
 })
-const got = require('got')
+import('got').then((got) => {
+    // Your code that uses the got module goes here
+  }).catch((err) => {
+    console.error('Error importing got module:', err);
+  });
 
 
 // CORS setup
-fastify.register(require('fastify-cors'), { 
+fastify.register(cors, { 
     // put your options here
   })
 
-//Compression
-const fastifyCompress = require('fastify-compress')
 
-fastify.register(fastifyCompress)
+// replace fastify-compress with @fastify/compress
+fastify.register(require('@fastify/compress'));
+
+//fastify.register(fastifyCompress)
 
 
 const db = require('./pgquery')
 
-//Routes/////////
-fastify.register(require('fastify-static'), {
+fastify.register(require('@fastify/static'), {
     root: path.join(__dirname, 'public'),
     prefix: '/', // optional: default '/'
-  })
+  });
 
 
 //Python API
