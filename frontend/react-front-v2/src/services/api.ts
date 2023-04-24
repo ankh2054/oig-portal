@@ -11,7 +11,7 @@ import type {
 // Define a service using a base URL and expected endpoints
 const BASE_URL =
   import.meta.env.MODE === 'development'
-    ? 'http://localhost:3001/api'
+    ? 'http://localhost:3000/api'
     : 'https://oig.sentnl.io/api'
 export const api = createApi({
   baseQuery: fetchBaseQuery({
