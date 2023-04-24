@@ -51,8 +51,6 @@ const Header = () => {
           >
             <ul className="flex flex-col md:flex-row md:space-x-8">
               <NavItem title="Home" url="/" />
-              <NavItem title="Guilds" url="/guilds" />
-              <NavItem title="Latest results" url="/latest-results" />
             </ul>
           </div>
         </div>
