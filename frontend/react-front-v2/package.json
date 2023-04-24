@@ -6,8 +6,8 @@
     "workerDirectory": "public"
   },
   "scripts": {
-    "start": "vite",
-    "dev": "vite",
+    "start": "vite --port 3001",
+    "dev": "vite --port 3001",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "serve": "serve dist",

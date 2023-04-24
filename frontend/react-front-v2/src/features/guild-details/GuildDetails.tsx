@@ -12,6 +12,7 @@ import type {
   Producer,
   ResultsResponse,
 } from '../../services/types'
+import Breadcrumb from '../../shared/breadcrumb/Breadcrumb'
 import type { ChartDataPoint } from '../../types/ChartDataPoint'
 import datec from '../../utils/datec'
 import GuildsCheckResults from '../latest-results/GuildsCheckResults'
@@ -21,9 +22,10 @@ import GuildInfo from './GuildInfo'
 import Services from './Services'
 
 const GuildDetails = () => {
+  const params = useParams<{ guildId: string }>()
+  const guildId = params.guildId!
   const [numberOfAverageDays, setNumberOfAverageDays] = useState(30)
   const [chartData, setChartData] = useState<ChartDataPoint>([])
-  const { guildId } = useParams()
   const { data: producersData, isSuccess } = useGetProducersQuery()
   const { data: results } = useGetResultsQuery({ ownerName: guildId })
   const { data: latestResults } = useGetLatestResultsQuery()
@@ -41,7 +43,7 @@ const GuildDetails = () => {
   ): ChartDataPoint => {
     const cpu_avgs = avgResults.map((result) => result.cpu_avg)
     const nonNull_cpu_avgs = cpu_avgs.filter(
-      (result) => !!result && result > 0 && result !== '1'
+      (result) => !!result && result.length > 0 && result !== '1'
     )
     const aggregate_average =
       nonNull_cpu_avgs.reduce((total, current) => +total + +current, 0) /
@@ -55,7 +57,6 @@ const GuildDetails = () => {
           date_check: datec(result.date_check),
         }
       })
-      .sort((a, b) => new Date(a.date_check) - new Date(b.date_check))
       .reverse()
       .slice(-numberOfAverageDays)
   }
@@ -112,8 +113,12 @@ const GuildDetails = () => {
   if (results) {
     return (
       <>
-        <div className="absolute left-0 right-0 z-0 -mt-14 h-40 border-t border-white border-opacity-20 bg-secondary"></div>
-        <div className="z-10 w-full">
+        <div className="-z-1 absolute left-0 right-0 z-0 -mt-14 h-72 border-t border-white border-opacity-20 bg-secondary"></div>
+        <Breadcrumb
+          className="z-10"
+          items={[{ label: producer.owner_name, url: producer.owner_name }]}
+        />
+        <div className="z-10 z-10 mt-14 w-full">
           <div className="grid grid-flow-row grid-cols-1 gap-x-6  gap-y-6 md:grid-cols-3 md:gap-y-0">
             <div className="row-start-1 row-end-4">
               <div className="flex flex-col gap-y-6">
@@ -149,6 +154,7 @@ const GuildDetails = () => {
       </>
     )
   }
+  return null
 }
 
 export default GuildDetails

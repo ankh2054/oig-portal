@@ -55,9 +55,9 @@ const HomePage = () => {
       </div>
     )
   }
-  return (
-    producers &&
-    latestResults && (
+
+  if (producers && latestResults) {
+    return (
       <GuildsCheckResults
         results={latestResults}
         producers={producers}
@@ -65,7 +65,9 @@ const HomePage = () => {
         showTime={false}
       />
     )
-  )
+  }
+
+  return null
 }
 
 export default HomePage

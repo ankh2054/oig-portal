@@ -33,7 +33,7 @@ const AvgResults = ({ data, showAll }: Props) => {
       if (count === 'cpu_time') {
         return (
           <div className="text-center">
-            {parseInt(data[count] * 100) / 100}{' '}
+            {Number(data[count]).toPrecision(2)}
           </div>
         )
       } else if (count === 'score_avg') {
