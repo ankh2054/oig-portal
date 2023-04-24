@@ -10,7 +10,7 @@
   "author": "Charles Holtzkampf",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.22"
   },
   "dependencies": {
     "dotenv": "^8.2.0",
