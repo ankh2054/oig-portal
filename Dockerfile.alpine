@@ -1,5 +1,5 @@
 # dockerfile
-FROM alpine:3.17-stable
+FROM alpine:3.17
 
 ENV PACKAGES="\
   supervisor \
