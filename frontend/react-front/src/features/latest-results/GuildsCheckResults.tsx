@@ -23,7 +23,7 @@ interface Props {
   action?: JSX.Element
 }
 
-const ITEMS_PER_PAGE = 15
+const ITEMS_PER_PAGE = 45
 
 const GuildsCheckResults = ({
   results,

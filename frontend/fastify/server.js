@@ -2,6 +2,11 @@ const { port } = require('./config');
 const path = require('path');
 const cors = require('@fastify/cors');
 
+let got;
+import('got').then((module) => {
+  got = module.default;
+});
+
 
 const fastify = require('fastify')({
     ignoreTrailingSlash: true,
@@ -35,14 +40,15 @@ fastify.register(require('@fastify/static'), {
 
 
 //Python API
-fastify.get('/runcheck', async (request, reply) => {
+fastify.get('/api/rescan', async (request, reply) => {
 try {
     const ignoreCpuCheck = request.query.ignorecpucheck || 'false'
     const ignoreLastCheck = request.query.ignorelastcheck || 'true'
-    const bp = request.query.bp || 'eosriobrazil'
+    const bp = request.query.bp 
     const apiUrl = `http://127.0.0.1:8000/run?ignorecpucheck=${ignoreCpuCheck}&ignorelastcheck=${ignoreLastCheck}&bp=${bp}`
     const response = await got(apiUrl)
     const data = JSON.parse(response.body)
+    console.log(data)
     reply.send(data)
 } catch (error) {
     console.log(error)
@@ -51,12 +57,9 @@ try {
 })
 
 
-fastify.get('/latestresults', (req, reply) => reply.sendFile('index.html'))
-fastify.get('/guilds/*', (req, reply) => reply.sendFile('index.html'))
-
 // PG Routes//
 fastify.get('/api/producers', db.getProducers)
-fastify.get('/api/results', db.getResults)
+//fastify.get('/api/results', db.getResults)
 fastify.get('/api/latestresults', db.getLatestResults)
 // Monthly average results used for percentages
 fastify.get('/api/monthlyaverageresults/:owner', db.getAverageMonthlyResult)
@@ -66,26 +69,16 @@ fastify.get('/api/truncatedPaginatedResults/:owner', db.getTruncatedPaginatedRes
 
 
 
-
-//fastify.get('/api/latestresults/:metasnapshot_date', db.getLatestResults)
-// Get latest tech results based on snapshot date
-//fastify.get('/api/results/:owner', db.getResultsbyOwner)
-// Paginated results by owner (requires index & limit in body)
-//fastify.get('/api/paginatedresults/:owner', db.getPaginatedResultsByOwner)
-//fastify.get('/api/snapshotlatestresults/:metasnapshot_date', db.getLatestSnapshotResults)
-
-
-
 // Starts the Fastify Server //
 const start = async () => {
-    try {
-        await fastify.listen(port, '0.0.0.0');
-        fastify.log.info(`Server listening on ${fastify.server.address().port}`);
-    }
-    catch(err) {
-        fastify.log.error(err)
-        process.exit(1);
-    }
-}
+  try {
+    await fastify.listen({ port: port, host: '0.0.0.0' });
+    fastify.log.info(`Server listening on ${fastify.server.address().port}`);
+  } catch (err) {
+    fastify.log.error(err);
+    process.exit(1);
+  }
+};
+
 
 start();

@@ -35,8 +35,7 @@ except ImportError:
 
 mainnet_id = cfg.chain["mainnet_chainid"]
 testnet_id = cfg.chain["testnet_chainid"]
-# Default metasnapshot_date 
-metasnapshot_date  = datetime.strptime('1980-01-01', "%Y-%d-%m")
+
 
 
 

@@ -100,6 +100,6 @@ def producer_chain_list():
         except:
             active = True
             print("Guild not in DB setting active to True")
-        thistuple = (guild, requests.metasnapshot_date ,candidate_name, url, url + '/'+waxjson, waxtestjson, url + '/chains.json', logo_256, top21, country_code, active)
+        thistuple = (guild ,candidate_name, url, url + '/'+waxjson, waxtestjson, url + '/chains.json', logo_256, top21, country_code, active)
         producer_final.append(thistuple)
     return producer_final

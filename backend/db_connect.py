@@ -10,7 +10,6 @@ from datetime import datetime
 tday = time.time()
 file_size = [] #just to keep track of the total savings in storage size
 net = 'mainnet' # passes in the default chain to queries if required
-metasnapshot_date = '1980-01-01 00:00:00' 
 
 
 user = cfg.db["user"]
@@ -91,12 +90,12 @@ class MyDB():
 
 def getProducers():
     db = MyDB()
-    query = db.dbSelect("SELECT * FROM oig.producer WHERE active AND metasnapshot_date = timestamp '1980-01-01 00:00:00'")
+    query = db.dbSelect("SELECT * FROM oig.producer WHERE active")
     return query
 
 def getProducer(producer):
     db = MyDB()
-    query = db.dbSelect("SELECT * FROM oig.producer WHERE active AND metasnapshot_date = timestamp '1980-01-01 00:00:00' AND owner_name =  %s",producer)
+    query = db.dbSelect("SELECT * FROM oig.producer WHERE active  AND owner_name =  %s",producer)
     return query
 
 def getPoints():
@@ -120,7 +119,7 @@ def getFullnodes(testnet=False):
 
 def getProducerStatus(producer):
     db = MyDB()
-    query = db.dbSelect("SELECT active FROM oig.producer WHERE metasnapshot_date = '1980-01-01 00:00:00' AND owner_name =  %s",producer)
+    query = db.dbSelect("SELECT active FROM oig.producer AND owner_name =  %s",producer)
     return query
 
 def getSnapshotdate():
@@ -159,9 +158,9 @@ def nodesDelete2(table):
 
 def producerInsert(records):
     db = MyDB()
-    query = """ INSERT INTO oig.producer (owner_name,metasnapshot_date ,candidate, url, jsonurl, jsontestneturl, chainsurl, logo_svg, top21, country_code, active) 
-                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                           ON CONFLICT (owner_name,metasnapshot_date) DO UPDATE SET candidate = EXCLUDED.candidate, url = EXCLUDED.url, 
+    query = """ INSERT INTO oig.producer (owner_name ,candidate, url, jsonurl, jsontestneturl, chainsurl, logo_svg, top21, country_code, active) 
+                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                           ON CONFLICT (owner_name) DO UPDATE SET candidate = EXCLUDED.candidate, url = EXCLUDED.url, 
                            jsonurl = EXCLUDED.jsonurl, jsontestneturl = EXCLUDED.jsontestneturl,chainsurl = EXCLUDED.chainsurl, 
                            logo_svg = EXCLUDED.logo_svg, top21 = EXCLUDED.top21, country_code = EXCLUDED.country_code, active = EXCLUDED.active;
                            """
@@ -179,9 +178,9 @@ def nodesInsert(records):
 
 def resultsInsert(records):
     db = MyDB()
-    query = """ INSERT INTO oig.results (owner_name, cors_check, cors_check_error, http_check, http_check_error, https_check, https_check_error, tls_check, tls_check_error, producer_api_check, producer_api_error, net_api_check, net_api_error, dbsize_api_check,  dbsize_api_error, http2_check, http2_check_error, full_history, full_history_error, hyperion_v2, hyperion_v2_error,  hyperion_v2_full, hyperion_v2_full_error, hyperion_v2_testnet,  hyperion_v2_testnet_error, hyperion_v2_testnet_full,  hyperion_v2_testnet_full_error, atomic_api, atomic_api_error, wwwjson, wwwjson_error, seed_node, seed_node_error, api_node, api_node_error, oracle_feed, oracle_feed_error, wax_json, chains_json, cpu_time, cpu_avg, date_check, score,metasnapshot_date,chainscore) 
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                ON CONFLICT (owner_name,date_check,metasnapshot_date) DO UPDATE SET 
+    query = """ INSERT INTO oig.results (owner_name, cors_check, cors_check_error, http_check, http_check_error, https_check, https_check_error, tls_check, tls_check_error, producer_api_check, producer_api_error, net_api_check, net_api_error, dbsize_api_check,  dbsize_api_error, http2_check, http2_check_error, full_history, full_history_error, hyperion_v2, hyperion_v2_error,  hyperion_v2_full, hyperion_v2_full_error, hyperion_v2_testnet,  hyperion_v2_testnet_error, hyperion_v2_testnet_full,  hyperion_v2_testnet_full_error, atomic_api, atomic_api_error, wwwjson, wwwjson_error, seed_node, seed_node_error, api_node, api_node_error, oracle_feed, oracle_feed_error, wax_json, chains_json, cpu_time, cpu_avg, date_check, score,chainscore) 
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                ON CONFLICT (owner_name,date_check) DO UPDATE SET 
                 cors_check= EXCLUDED.cors_check, cors_check_error= EXCLUDED.cors_check_error, 
                 http_check = EXCLUDED.http_check, http_check_error = EXCLUDED.http_check_error,
                 https_check = EXCLUDED.https_check, https_check_error = EXCLUDED.https_check_error,

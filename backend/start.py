@@ -15,7 +15,7 @@ import services.p2p as p2p
 import services.delphi as delphi
 import services.cpu as cpu
 import services.chainjson as chainjson
-import utils.requests as requests
+#import utils.requests as requests
 import sys
 
 
@@ -37,48 +37,6 @@ def lastCheck(now,ignorelastcheck,hours):
         return True
     else:
         return False
-
-# Looks at snapshot date as specified by OIG and if today is that day, create snapshot
-# Also look at last snapshot date, if within 24 hours of last snapshot taken dont snapshot. That prevents if from taking multiple snapshots
-def takeSnapshot(now):
-    producers = db_connect.getProducers()
-    # get snapshot timestamp as set by OIG
-    snapshot_oig = db_connect.getSnapshotdate()
-    # get date of last snapshot taken timestamp
-    latest_snapshot_date = db_connect.getSnapshottakendate()
-    # Access first element in tuple
-    snapshot_oig_date = snapshot_oig[0][0]
-    latest_snapshot_date = latest_snapshot_date[1][0]
-    # Set now date
-    now = now
-    # Convert todays date to string to remove offset aware datetime issues 
-    today = now.strftime("%m/%d/%Y")
-    # Convert DB date to string to remove offset aware datetime issues
-    snapshot_oig = snapshot_oig_date.strftime("%m/%d/%Y")
-    latest_snapshot_date = latest_snapshot_date.strftime("%m/%d/%Y")
-    # Convert them both back to datetime objects for comparison
-    snapshot_oig = datetime.strptime(snapshot_oig, "%m/%d/%Y")
-    latest_snapshot_date  = datetime.strptime(latest_snapshot_date , "%m/%d/%Y")
-    today_date_object = datetime.strptime(today, "%m/%d/%Y")
-    # If today is date of snapshot date set by OIG, then take snapshot
-    if today_date_object == snapshot_oig:
-        # But first check whether snapshot was already taken today
-        if latest_snapshot_date == snapshot_oig:
-            print("Snapshot was already taken today")
-        else:
-            print("snapshot will be taken today")
-            # Set snapshot_date for all producers in DB.
-            for producer in producers:
-                producer = producer[0]
-                db_connect.createSnapshot(snapshot_oig_date, producer, now)
-
-    else:
-        print("Not a snapshot day today")
-    print(f'Last snapshot taken: {latest_snapshot_date}')
-    print(f'OIG DB format date: {snapshot_oig_date}')
-    print(f'OIG date: {snapshot_oig}')
-    print(f'Today: {today_date_object}')
-    print(f'Now: {now}')
     
 
 # Results are a key value dict with each check as its called in DB, 
@@ -87,6 +45,8 @@ def pointsResults(results,pointsystem):
     points = 0
     # for each check in points system - Names of checks
     for check in pointsystem:
+        if check == 'minimum-points':
+            continue
         # Look in results dict and find check key and get value
         checkResult = results.get(check[0])
         minrequirementscheck = results.get(check[3])
@@ -307,8 +267,6 @@ def finalresults(cpucheck,singlebp):
         print("Final Tech points:",core.bcolors.OKGREEN,score,core.bcolors.ENDC)
         # Add final sore to list
         resultslist.append(score)
-        # Add metansnapshot_date to final tuple
-        resultslist.append(requests.metasnapshot_date)
         #Obtain latest chain score for guild
         chainscore = chaininfo.getScore(producerChainScores,producer)
         resultslist.append(chainscore)
@@ -354,8 +312,6 @@ def main(cpucheck, ignorelastcheck, singlebp):
     # Get all results and save to DB
     results = finalresults(cpucheck,singlebp) # Set True to check CPU , False to ignore
     db_connect.resultsInsert(results)
-    # Take snapshot
-    takeSnapshot(now)
 
 if __name__ == "__main__":
     my_parser = argparse.ArgumentParser()

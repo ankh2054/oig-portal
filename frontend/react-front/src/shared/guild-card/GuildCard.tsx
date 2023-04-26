@@ -57,8 +57,8 @@ const GuildCard = ({
           ) : (
             <IconImage
               className="w-8 w-8 rounded rounded-md"
-              width="32"
-              height="32"
+              width="40"
+              height="40"
             />
           )}
           <div className="flex flex-col gap-y-1">

@@ -40,19 +40,20 @@ export const api = createApi({
       query: (arg) => {
         const { ownerName } = arg
         return {
-          url: `truncatedPaginatedResults/${ownerName}?index=0&limit=59`,
+          url: `truncatedPaginatedResults/${ownerName}?index=0&limit=100`,
         }
       },
     }),
-    reScan: builder.query<unknown, { ownerName: string }>({
+    reScan: builder.query<{ message: string }, { ownerName: string }>({
       query: (arg) => {
         const { ownerName } = arg
         return {
-          url: `rescan?bp=${ownerName}`,
+          url: `/rescan?bp=${ownerName}`,
         }
       },
     }),
   }),
+  
   reducerPath: 'sentnlApi',
 })
 
