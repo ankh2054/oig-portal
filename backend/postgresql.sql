@@ -19,7 +19,8 @@ CREATE TABLE oig.producer (
     logo_svg VARCHAR ( 100 ), /*Can be Null as sometimes people dont have a logo */
     country_code VARCHAR ( 100 ), /*Can be Null as sometimes people dont have a country specified */
     top21 BOOLEAN NOT NULL,
-    account_name VARCHAR ( 12 )
+    account_name VARCHAR ( 12 ),
+    publickey VARCHAR ( 250 )
 );
 CREATE UNIQUE INDEX producer_idx ON oig.producer(owner_name);
 

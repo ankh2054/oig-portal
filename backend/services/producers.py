@@ -34,9 +34,14 @@ def producer_chain_list():
         print(f'Currently processing Guild:{guild}')
         url = i['url']
         urlchains = url.rstrip('/')+'/chains.json'
+        # Access active key associated with guild
+        getAccountURL = eosio.HyperionNodeMainnet1 + str(eosio.Api_Calls('v2', f'state/get_account?account={guild}'))
         reqJSON = requests.getJSON()
         response = reqJSON.getRequest(urlchains,trydo='continue')
+        Accountrespsonse  =  reqJSON.getRequest(getAccountURL,trydo='continue')
         try:
+                accountDetails = Accountrespsonse.json()
+                Activekey = accountDetails['account']['permissions'][0]['required_auth']['keys'][0]['key']
                 json_response = response.json()
                 waxjson = json_response['chains'][requests.mainnet_id]
                 try:
@@ -100,6 +105,6 @@ def producer_chain_list():
         except:
             active = True
             print("Guild not in DB setting active to True")
-        thistuple = (guild ,candidate_name, url, url + '/'+waxjson, waxtestjson, url + '/chains.json', logo_256, top21, country_code, active)
+        thistuple = (guild ,candidate_name, url, url + '/'+waxjson, waxtestjson, url + '/chains.json', logo_256, top21, country_code, active, Activekey)
         producer_final.append(thistuple)
     return producer_final

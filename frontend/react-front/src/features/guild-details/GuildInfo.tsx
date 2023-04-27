@@ -27,7 +27,7 @@ const GuildInfo = ({ producer, result }: Props) => {
 
   const handleOnScanClick = async () => {
     try {
-      const response = await rescan({ ownerName: producer.owner_name }).unwrap()
+      const response = await rescan().unwrap()
       setScanMessage(response.message)
       setTimeout(() => {
         setScanMessage('')

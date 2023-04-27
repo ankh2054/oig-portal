@@ -1,9 +1,99 @@
 import IconPerson from '../icons/IconPerson'
 import Logo from '../icons/Logo'
-
+import React, { useEffect, useRef, useState } from 'react';
 import NavItem from './NavItem'
+import { withUAL } from 'ual-reactjs-renderer';
 
-const Header = () => {
+const Header = (props: { ual: any; }) => {
+  const { ual } = props;
+  const [access_token, setAccessToken] = useState(localStorage.getItem('access_token') || '');
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('access_token'));
+  const [activeUser, setActiveUser] = useState(localStorage.getItem('activeUser') || null);
+
+  useEffect(() => {
+    const user = ual.activeUser;
+    if (user && !access_token) {
+      login(user).then(() => {
+        setIsLoggedIn(true);
+        setActiveUser(user.accountName);
+      });
+    }
+  }, [ual.activeUser]);
+
+  const login = async (user: { accountName: any; signerProof: any; signerRequest: any; session: { publicKey: any; }; }) => {
+    const accountName = user.accountName;
+    const signature = user.signerProof;
+    const signerRequest = user.signerRequest; 
+    const publicKey = user.session.publicKey;
+
+
+    // Sign the message using the active user from Anchor Wallet
+    //const signature = signedTransaction.signatures[0];
+    //const { signature } = await user.signArbitrary(message);
+    //console.log('signature:', signature);
+  
+    // Call the validate-signature endpoint with the account_name and signed_message
+    const response = await fetch('http://localhost:3000/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        signature: signature,
+        transaction: signerRequest,
+      }),
+    });
+
+    console.log('response:', response);
+    if (response.ok) {
+      const data = await response.json();
+
+      // If the login is successful, store the access token and proceed
+      if (data.token) {
+        setAccessToken(data.token);
+        localStorage.setItem('access_token', data.token);
+        setIsLoggedIn(true); // set isLoggedIn to true after successful login
+        setActiveUser(accountName)
+        localStorage.setItem('activeUser', accountName);
+      } else {
+        console.error('Access token is empty');
+      }
+    } else {
+      console.error('Failed to login');
+    }
+  }
+  const handleLogin = async () => {
+    if (!isLoggedIn) {
+      try {
+        await ual.showModal(true);
+
+        // Wait for the activeUser property to be set
+        while (!ual.activeUser) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      } catch (error) {
+        console.error('Login failed:', error);
+      }
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      // Logout user from UAL
+      await ual.logout();
+  
+      // Clear access_token from local storage
+      localStorage.removeItem('access_token');
+  
+      // Reset the state variables
+      setAccessToken('');
+      setIsLoggedIn(false);
+      setActiveUser(null);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   return (
     <nav className="left-0 top-0 z-20 w-full bg-secondary">
       <div className="mx-auto flex max-w-screen-2xl flex-wrap items-center justify-between p-4 px-8">
@@ -15,13 +105,21 @@ const Header = () => {
         </a>
         <div className="flex gap-x-20">
           <div className="flex md:order-2">
-            <button
-              type="button"
-              className="inline-flex hidden items-center rounded-full border  border-white px-4  py-1 text-center text-sm font-medium text-white hover:border-primary hover:bg-primary focus:outline-none md:flex "
-            >
-              <IconPerson color="white" className="mr-2" />
-              Login
-            </button>
+          {!isLoggedIn ? (
+                <button
+                  onClick={() => handleLogin()}
+                  className="px-4 py-2 block text-gray-900 hover:bg-gray-400 focus:outline-none"
+                >
+                  Login
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleLogout()}
+                  className="px-4 py-2 block text-gray-900 hover:bg-gray-400 focus:outline-none"
+                >
+                  Logout
+                </button>
+              )}
             <button
               data-collapse-toggle="navbar-sticky"
               type="button"

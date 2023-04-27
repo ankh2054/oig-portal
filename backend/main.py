@@ -54,5 +54,5 @@ async def run_producer(
     # Add the request to the queue
     task_queue.put((ignorecpucheck, ignorelastcheck, bp))
     return {
-        "message": f"Checks have been scheduled for {bp}. You are {position} in the queue. Refresh the page in 2-3 minutes to obtain the results."
+        "message": f"Checks have been scheduled for {bp}. You are {position} in the queue. Refresh the page in 1-2 minutes to obtain the results."
     }

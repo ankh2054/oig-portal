@@ -25,9 +25,12 @@ WAX OIG portal
 |**DB_USER**               |`oigdbuser`                            | Database user with access to DB      |
 |**DB_PASSWORD**           |`oigdbpassword`                        | Password for Database user       	  |
 |**PGNAME**                |`oig.db`                               | PG container name                    |
+|**PYTHONAPI**             |`oig.db`                               | Python API container name            |
+|**JWTSECRET**             |`secret`                               | JWT secret for fastify               |
 
 
-
+sed -i "s/pythonapi/$PYTHONAPI/" fastify/.env 
+sed -i "s/jwtsecret/$JWTSECRET/" fastify/.env 
 # 4 Run the frontend container
 
 ```
@@ -40,6 +43,8 @@ docker run --network=sentnl-net --name oig.sentnl.io --expose 80 \
 -e "DB_USER=waxramuser" \
 -e "DB_PASSWORD=waxramuserpassword" \
 -e "PGNAME=oig.db" \
+-e "PYTHONAPI=oig.db" \
+-e "JWTSECRET=secret" \
 oig-frontend:prod
 ```
 

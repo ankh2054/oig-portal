@@ -9,19 +9,9 @@ The command will execute all new DB changes required since last update
 
 
 
---- Chains JSON check
-alter table results rename column snapshots to wwwjson;
-alter table results rename column snapshots_error to wwwjson_error;
-UPDATE oig.pointsystem SET points_type = 'wwwjson' WHERE points_type = 'snapshots';
 
---- On Chains score
-alter table oig.results add chainscore decimal;
-
-
-
-
--- Add notion_url to oig.producer 
-alter table oig.producer add notion_url varchar(250);
+-- Add publickey to oig.producer 
+alter table oig.producer add publickey varchar(100);
 
 
 

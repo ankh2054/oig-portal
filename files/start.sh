@@ -8,8 +8,9 @@ sed -i "s/pgdb/$DB_DATABASE/" fastify/.env && \
 sed -i "s/pguser/$DB_USER/" fastify/.env && \
 sed -i "s/pgpassword/$DB_PASSWORD/" fastify/.env
 sed -i "s/pgdockername/$PGNAME/" fastify/.env 
+sed -i "s/pythonapi/$PYTHONAPI/" fastify/.env 
+sed -i "s/jwtsecret/$JWTSECRET/" fastify/.env 
 }
-
 
 
 # ########################

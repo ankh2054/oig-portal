@@ -26,6 +26,16 @@ const getProducers = (request, reply) => {
   })
 }
 
+const getProducerPublicKey = (request, reply) => {
+  const owner_name = request.params.owner_name; // assuming owner_name is passed as a parameter in the request
+
+  client.query("SELECT publickey FROM oig.producer WHERE owner_name = $1", [owner_name], (error, result) => {
+    if (error) {
+      throw error;
+    }
+    reply.status(200).send(result.rows[0]);
+  });
+}
 
 
 const getLatestResults = (request, reply) => { 

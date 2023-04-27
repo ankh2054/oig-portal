@@ -158,15 +158,19 @@ def nodesDelete2(table):
 
 def producerInsert(records):
     db = MyDB()
-    query = """ INSERT INTO oig.producer (owner_name ,candidate, url, jsonurl, jsontestneturl, chainsurl, logo_svg, top21, country_code, active) 
-                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+    query = """ INSERT INTO oig.producer (owner_name ,candidate, url, jsonurl, jsontestneturl, chainsurl, logo_svg, top21, country_code, active, publickey) 
+                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                            ON CONFLICT (owner_name) DO UPDATE SET candidate = EXCLUDED.candidate, url = EXCLUDED.url, 
                            jsonurl = EXCLUDED.jsonurl, jsontestneturl = EXCLUDED.jsontestneturl,chainsurl = EXCLUDED.chainsurl, 
-                           logo_svg = EXCLUDED.logo_svg, top21 = EXCLUDED.top21, country_code = EXCLUDED.country_code, active = EXCLUDED.active;
+                           logo_svg = EXCLUDED.logo_svg, top21 = EXCLUDED.top21, country_code = EXCLUDED.country_code, 
+                           active = EXCLUDED.active, publickey=EXCLUDED.publickey;
                            """
     # Call DB insert function
     db.dbInsertMany(records, query)
     #dbInsertMany(records, query)
+
+
+
 
 def nodesInsert(records):
     db = MyDB()

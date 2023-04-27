@@ -1,6 +1,28 @@
 const { port } = require('./config');
 const path = require('path');
 const cors = require('@fastify/cors');
+const dotenv = require('dotenv');
+const { Signature, Checksum256, PublicKey, Transaction } = require('@greymass/eosio');
+const fastifyJwt = require('@fastify/jwt');
+const db = require('./pgquery')
+
+dotenv.config();
+const chainId = process.env.CHAINID;
+const fastapi = process.env.PYTHON_FASTAPI
+
+const fastify = require('fastify')({
+  ignoreTrailingSlash: true,
+  logger: true // Used to check how much requests come through from the React frontend
+})
+
+// CORS setup
+fastify.register(cors, { 
+  // put your options here
+})
+
+
+// replace fastify-compress with @fastify/compress
+fastify.register(require('@fastify/compress'));
 
 let got;
 import('got').then((module) => {
@@ -8,30 +30,11 @@ import('got').then((module) => {
 });
 
 
-const fastify = require('fastify')({
-    ignoreTrailingSlash: true,
-    logger: true // Used to check how much requests come through from the React frontend
-})
-import('got').then((got) => {
-    // Your code that uses the got module goes here
-  }).catch((err) => {
-    console.error('Error importing got module:', err);
-  });
+// Register the fastify-jwt plugin
+fastify.register(fastifyJwt, {
+  secret: process.env.JWT_SECRET || 'superduperwhoknowsifitwilleverwork786123487612387462137684', // Use a secret from .env or provide a fallback
+});
 
-
-// CORS setup
-fastify.register(cors, { 
-    // put your options here
-  })
-
-
-// replace fastify-compress with @fastify/compress
-fastify.register(require('@fastify/compress'));
-
-//fastify.register(fastifyCompress)
-
-
-const db = require('./pgquery')
 
 fastify.register(require('@fastify/static'), {
     root: path.join(__dirname, 'public'),
@@ -39,13 +42,97 @@ fastify.register(require('@fastify/static'), {
   });
 
 
-//Python API
-fastify.get('/api/rescan', async (request, reply) => {
+  const fetchPublicKey = async (authorizer) => {
+    try {
+      const publicKey = await db.getProducerPublicKey(authorizer);
+      return publicKey;
+    } catch (error) {
+      console.error(`An error occurred: ${error}`);
+      throw error;
+    }
+  };
+
+  async function decode_jwt_token(request, fastify) {
+    try {
+      // Get the JWT token from the Authorization header
+      const token = request.headers.authorization.split(' ')[1];
+  
+      // Verify the JWT token using the secret key
+      const decodedToken = await fastify.jwt.verify(token);
+  
+      return decodedToken;
+    } catch (err) {
+      console.error('Error decoding JWT token:', err);
+      throw err;
+    }
+  }
+
+  
+// Core login function for Acnhor wallet
+fastify.post('/login', async (request, reply) => {
+    try {
+      const { signature, transaction } = request.body;
+      
+      // Step 1: Extract the authorizer from the transaction
+      const { authorization } = transaction.actions[0];
+      const authorizer = authorization[0].actor;
+      
+      // Step 2: Fetch the associated public key from the blockchain
+      const publicKey = await fetchPublicKey(authorizer);
+    
+      // Get the digest from transaction
+      const digest = Transaction.from(transaction).signingDigest(chainId)
+  
+      // Step 3: Verify the signature using the public key
+      const signatureInstance = Signature.from(signature);
+      const publicKeyInstance = PublicKey.from(publicKey);
+      const isSignatureValid = signatureInstance.verifyDigest(digest, publicKeyInstance);
+    
+
+      // Check actual signautre from transaction
+      //const publickey2 = signatureInstance.recoverDigest(digest);
+      //const legacyPublicKeyString = publickey2.toLegacyString();
+      //const legacyPublicKeyString2 = publickey2.toString();
+      //console.log('Public key from transaction:', legacyPublicKeyString,legacyPublicKeyString2);
+      //console.log('Public key hardcoded:', publicKeyInstance.toLegacyString())
+      //console.log('Actual Public key derived:', publickey2);
+
+      if (isSignatureValid) {
+        const message = `The signature is valid for account ${authorizer}`;
+        // Issue JWT token
+        const token = fastify.jwt.sign({ 
+            account: authorizer 
+        });
+        reply.status(200).send({ message,token });
+      } else {
+        const message = 'The signature is invalid';
+        reply.status(406).send({ message });
+      }
+    } catch (error) {
+        const message = `An error occurred: ${error}`
+        reply.status(404).send({ message });
+    }
+  });
+  
+// Add a helper function to verify the JWT
+const authenticate = async (request, reply) => {
+    try {
+      await request.jwtVerify();
+    } catch (err) {
+      reply.status(401).send({ message: 'Unauthorized' });
+    }
+  };
+
+
+// Send request to python API 
+fastify.get('/api/rescan', { preHandler: authenticate },async (request, reply) => {
 try {
+    // Decode the JWT token
+    const decodedToken = await decode_jwt_token(request, fastify);
+    console.log('decoded account', decodedToken.account)
     const ignoreCpuCheck = request.query.ignorecpucheck || 'false'
     const ignoreLastCheck = request.query.ignorelastcheck || 'true'
-    const bp = request.query.bp 
-    const apiUrl = `http://127.0.0.1:8000/run?ignorecpucheck=${ignoreCpuCheck}&ignorelastcheck=${ignoreLastCheck}&bp=${bp}`
+    const apiUrl = `http://127.0.0.1:8000/run?ignorecpucheck=${ignoreCpuCheck}&ignorelastcheck=${ignoreLastCheck}&bp=${decodedToken.account}`
     const response = await got(apiUrl)
     const data = JSON.parse(response.body)
     console.log(data)
