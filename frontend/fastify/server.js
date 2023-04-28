@@ -127,7 +127,7 @@ const authenticate = async (request, reply) => {
     try {
       await request.jwtVerify();
     } catch (err) {
-      reply.send({ message: 'You need to login first using your Guild active key before scanning' });
+      reply.send({ message: 'You need to login first using your Guild active key before scanning' , type: 'warning'});
     }
   };
 
@@ -168,6 +168,8 @@ fastify.get('/api/latestresults', db.getLatestResults)
 fastify.get('/api/monthlyaverageresults/:owner', db.getAverageMonthlyResult)
 // Truncated monthly results for guild page
 fastify.get('/api/truncatedPaginatedResults/:owner', db.getTruncatedPaginatedResults)
+// Get Telegram dates
+fastify.get('/api/dates', db.getTelegramDates)
 
 
 

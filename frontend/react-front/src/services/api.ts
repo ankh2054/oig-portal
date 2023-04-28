@@ -6,6 +6,7 @@ import type {
   ProducersResponse,
   ResultsResponse,
   AvgResultsResponse,
+  TelegramDates,
 } from './types'
 
 // Define a service using a base URL and expected endpoints
@@ -40,6 +41,9 @@ export const api = createApi({
     getLatestResults: builder.query<LatestResultsResponse, void>({
       query: () => `/latestresults`,
     }),
+    getTelegramdates: builder.query<TelegramDates, void>({
+      query: () => `/dates`,
+    }),
     getProducers: builder.query<ProducersResponse, void>({
       query: () => `/producers`,
     }),
@@ -73,4 +77,5 @@ export const {
   useGetResultsQuery,
   useGetAvgResultsQuery,
   useLazyReScanQuery,
+  useGetTelegramdatesQuery,
 } = api

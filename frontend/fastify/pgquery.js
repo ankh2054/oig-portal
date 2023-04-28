@@ -79,6 +79,25 @@ const getResultsbyOwner = (request, reply) => {
   })
 }
 
+// Get OIG dates
+const getTelegramDates = (request, reply) => {
+  client.query('SELECT * FROM oig.dates ORDER BY id DESC LIMIT 1', (error, results) => {
+    if (error) {
+      throw error
+    }
+
+    const row = results.rows[0];
+    const formattedDates = [
+      { 'type': 'Guild Update Submission Cutoff', 'date': row.submission_cutoff },
+      { 'type': 'Report Appeals Begin', 'date': row.appeal_begin },
+      { 'type': 'Report Appeals End', 'date': row.appeal_end },
+      { 'type': 'Publish Final Report', 'date': row.final_report }
+    ];
+
+    reply.status(200).send(formattedDates);
+  })
+}
+
 // Paginated results for particular owner
 const getPaginatedResultsByOwner = (request, reply) => {
   const { owner } = request.params;
@@ -219,4 +238,4 @@ DELETE FROM oig.producer WHERE metasnapshot_date != timestamp '1980-01-01 00:00:
 
 
 
-module.exports = {   getLatestResults, getProducers,  getResults, getResultsbyOwner, getUpdatesbyOwner, getPaginatedResultsByOwner, getTruncatedPaginatedResults, getAverageMonthlyResult, getProducerPublicKey };
+module.exports = {   getLatestResults, getProducers,  getResults, getResultsbyOwner, getUpdatesbyOwner, getPaginatedResultsByOwner, getTruncatedPaginatedResults, getAverageMonthlyResult, getProducerPublicKey,getTelegramDates };

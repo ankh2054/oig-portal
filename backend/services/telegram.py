@@ -1,8 +1,7 @@
-import asyncio
 import re
 from telethon import TelegramClient
-from telethon.tl.functions.channels import GetFullChannelRequest
 from telethon.tl.types import MessageActionPinMessage
+
 
 api_id = '15825270'
 api_hash = '373e14f8151cd52b23dc1fe21d117f05'
@@ -10,8 +9,9 @@ phone_number = '+447725277831'  # format: '+12345678900'
 group_link = 'https://t.me/waxgov'  # Replace with the actual group link
 
 
-async def main():
+async def fetch_telegram_dates():
     messages_to_search = 200
+    results = []
     async with TelegramClient('anon', api_id, api_hash) as client:
         await client.start(phone=phone_number)
 
@@ -69,9 +69,14 @@ async def main():
                 date_str = match.group(2).strip()
                 if date_str:
                     result = {'type': event_type, 'date': date_str}
-                    print(result)
+                    results.append(result)
                     found = True
             if found:
                 break
+    return results
 
-asyncio.run(main())
+#results = asyncio.run(telegram())
+#print(results)
+
+
+

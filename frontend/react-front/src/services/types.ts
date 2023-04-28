@@ -64,6 +64,13 @@ export type Producer = {
   notion_url?: string
 }
 
+export type TelegramDates = {
+  submission_cutoff: Date
+  appeal_begin: Date
+  appeal_end: Date
+  final_report: Date
+}
+
 export type AvgResultsResponse = {
   total_count: string
   chains_json_count: string

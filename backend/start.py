@@ -1,5 +1,6 @@
 import utils.core as core
 import requests
+import re
 from datetime import timedelta
 from datetime import datetime
 import db_connect
@@ -15,6 +16,8 @@ import services.p2p as p2p
 import services.delphi as delphi
 import services.cpu as cpu
 import services.chainjson as chainjson
+import services.telegram as telegram_module
+import asyncio
 #import utils.requests as requests
 import sys
 
@@ -38,6 +41,32 @@ def lastCheck(now,ignorelastcheck,hours):
     else:
         return False
     
+def getTelegramDates():
+    data_tuples = []
+    try:
+        date_list = asyncio.run(telegram_module.fetch_telegram_dates())
+    except Exception as e:
+        return f'Error occurred while fetching telegram dates: {e}'
+    date_format = "%A, %B %d, %Y, %H:%M:%S %Z"
+
+    for item in date_list:
+        date_string = re.sub(r'(\d)(st|nd|rd|th)', r'\1', item['date'])  # Remove ordinal indicators
+        item['date'] = datetime.strptime(date_string, date_format)
+
+    
+    for item in date_list:
+        if item['type'] == 'Guild Update Submission Cutoff':
+            submission_cutoff = item['date']
+        elif item['type'] == 'Report Appeals Begin':
+            appeal_begin = item['date']
+        elif item['type'] == 'Report Appeals End':
+            appeal_end = item['date']
+        elif item['type'] == 'Publish Final Report':
+            final_report = item['date']
+
+    data_tuples.append((submission_cutoff, appeal_begin, appeal_end, final_report))
+    return data_tuples
+
 
 # Results are a key value dict with each check as its called in DB, 
 # with the results of that check as the value
@@ -309,6 +338,14 @@ def main(cpucheck, ignorelastcheck, singlebp):
         print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of testnet nodes from JSON files ",core.bcolors.ENDC)
         testnet_nodes = nodes.node_list(testnet=True) # Tesnet = True so collect testnet nodes from json files
         db_connect.nodesInsert(testnet_nodes)
+        print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting OIG submission dates from Telegram ",core.bcolors.ENDC)
+        telegramDates = getTelegramDates()
+        if telegramDates:
+            print(f'Telegram dates: {telegramDates}')
+            db_connect.TelegramdatesInsert(telegramDates)
+        else:
+            print(f'Something went wrong with  getting dates DB not being updated: {telegramDates}')
+            pass
     # Get all results and save to DB
     results = finalresults(cpucheck,singlebp) # Set True to check CPU , False to ignore
     db_connect.resultsInsert(results)

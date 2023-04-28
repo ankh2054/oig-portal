@@ -6,11 +6,13 @@ import {
   useGetLatestResultsQuery,
   useGetProducersQuery,
   useGetResultsQuery,
+  useGetTelegramdatesQuery,
 } from '../../services/api'
 import type {
   LatestResultsResponse,
   Producer,
   ResultsResponse,
+  TelegramDates,
 } from '../../services/types'
 import Breadcrumb from '../../shared/breadcrumb/Breadcrumb'
 import type { ChartDataPoint } from '../../types/ChartDataPoint'
@@ -29,6 +31,7 @@ const GuildDetails = () => {
   const { data: producersData, isSuccess } = useGetProducersQuery()
   const { data: results } = useGetResultsQuery({ ownerName: guildId })
   const { data: latestResults } = useGetLatestResultsQuery()
+  const { data: telegramDates } = useGetTelegramdatesQuery()
   const { data: avgResults, refetch: refetchAvgResults } =
     useGetAvgResultsQuery({
       numberOfAverageDays: numberOfAverageDays,
@@ -127,7 +130,7 @@ const GuildDetails = () => {
                 </div>
                 {results && (
                   <div className=" rounded-sm border border-lightGray bg-white p-4">
-                    <Services latestResult={results[0]} />
+                     <Services latestResult={results[0]} telegramDates={telegramDates} />
                   </div>
                 )}
               </div>

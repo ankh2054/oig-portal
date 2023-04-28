@@ -170,7 +170,16 @@ def producerInsert(records):
     #dbInsertMany(records, query)
 
 
-
+def TelegramdatesInsert(records):
+    db = MyDB()
+    query = """ INSERT INTO oig.dates (submission_cutoff, appeal_begin, appeal_end, final_report) 
+                           VALUES (%s,%s,%s,%s)
+                           ON CONFLICT (id) DO UPDATE SET submission_cutoff = EXCLUDED.submission_cutoff, 
+                           appeal_begin = EXCLUDED.appeal_begin, appeal_end = EXCLUDED.appeal_end, 
+                           final_report = EXCLUDED.final_report;
+                           """
+    # Call DB insert function
+    db.dbInsertMany(records, query)
 
 def nodesInsert(records):
     db = MyDB()

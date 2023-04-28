@@ -51,3 +51,20 @@ ALTER TABLE oig.pointsystem DROP COLUMN metasnapshot_date;
 
 -- Step 3: Create a new unique index without the metasnapshot_date column
 CREATE UNIQUE INDEX pointsystem_idx ON oig.pointsystem(points_type);
+
+
+
+CREATE TABLE oig.dates (
+    id SERIAL PRIMARY KEY,
+    submission_cutoff TIMESTAMPTZ,
+    appeal_begin TIMESTAMPTZ,
+    appeal_end TIMESTAMPTZ,
+    final_report TIMESTAMPTZ
+);
+CREATE UNIQUE INDEX dates_idx ON oig.dates(id);
+
+CREATE USER oiguser WITH ENCRYPTED PASSWORD 'nightshade900';
+GRANT ALL PRIVILEGES ON DATABASE oig TO oiguser ;
+GRANT ALL PRIVILEGES ON SCHEMA oig TO oiguser ;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA oig TO oiguser ;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA oig TO oiguser ;
