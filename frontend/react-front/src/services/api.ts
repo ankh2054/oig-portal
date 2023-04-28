@@ -51,10 +51,12 @@ export const api = createApi({
         }
       },
     }),
-    reScan: builder.query<{ message: string }, void>({
-      query: () => {
+    reScan: builder.query<{ message: string }, { ownerName: string }>({
+      query: (arg) => {
+        const { ownerName } = arg
+
         return {
-          url: `/rescan`,
+          url: `/rescan/${ownerName}`,
         }
       },
     }),
