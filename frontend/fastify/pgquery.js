@@ -26,16 +26,17 @@ const getProducers = (request, reply) => {
   })
 }
 
-const getProducerPublicKey = (request, reply) => {
-  const owner_name = request.params.owner_name; // assuming owner_name is passed as a parameter in the request
-
-  client.query("SELECT publickey FROM oig.producer WHERE owner_name = $1", [owner_name], (error, result) => {
-    if (error) {
-      throw error;
-    }
-    reply.status(200).send(result.rows[0]);
+const getProducerPublicKey = (owner_name) => {
+  return new Promise((resolve, reject) => {
+    client.query("SELECT publickey FROM oig.producer WHERE owner_name = $1", [owner_name], (error, result) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(result.rows[0]);
+      }
+    });
   });
-}
+};
 
 
 const getLatestResults = (request, reply) => { 
@@ -218,4 +219,4 @@ DELETE FROM oig.producer WHERE metasnapshot_date != timestamp '1980-01-01 00:00:
 
 
 
-module.exports = {   getLatestResults, getProducers,  getResults, getResultsbyOwner, getUpdatesbyOwner, getPaginatedResultsByOwner, getTruncatedPaginatedResults, getAverageMonthlyResult };
+module.exports = {   getLatestResults, getProducers,  getResults, getResultsbyOwner, getUpdatesbyOwner, getPaginatedResultsByOwner, getTruncatedPaginatedResults, getAverageMonthlyResult, getProducerPublicKey };

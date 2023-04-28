@@ -57,10 +57,10 @@ const Header = (props: TransactionProps) => {
       method: 'POST',
     })
 
-    console.log('response:', response)
+    console.log(' Login response is this:', response)
     if (response.ok) {
       const data = await response.json()
-
+      console.log(data)
       // If the login is successful, store the access token and proceed
       if (data.token) {
         setAccessToken(data.token)

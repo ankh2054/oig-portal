@@ -2,7 +2,7 @@ const { port } = require('./config');
 const path = require('path');
 const cors = require('@fastify/cors');
 const dotenv = require('dotenv');
-const { Signature, Checksum256, PublicKey, Transaction } = require('@greymass/eosio');
+const { Signature, PublicKey, Transaction } = require('@greymass/eosio');
 const fastifyJwt = require('@fastify/jwt');
 const db = require('./pgquery')
 
@@ -42,7 +42,7 @@ fastify.register(require('@fastify/static'), {
   });
 
 
-  const fetchPublicKey = async (authorizer) => {
+  const getProducerPublicKeyHandler = async (authorizer) => {
     try {
       const publicKey = await db.getProducerPublicKey(authorizer);
       return publicKey;
@@ -51,6 +51,7 @@ fastify.register(require('@fastify/static'), {
       throw error;
     }
   };
+  
 
   async function decode_jwt_token(request, fastify) {
     try {
@@ -69,51 +70,58 @@ fastify.register(require('@fastify/static'), {
 
   
 // Core login function for Acnhor wallet
-fastify.post('/login', async (request, reply) => {
-    try {
-      const { signature, transaction } = request.body;
-      
-      // Step 1: Extract the authorizer from the transaction
-      const { authorization } = transaction.actions[0];
-      const authorizer = authorization[0].actor;
-      
-      // Step 2: Fetch the associated public key from the blockchain
-      const publicKey = await fetchPublicKey(authorizer);
-    
-      // Get the digest from transaction
-      const digest = Transaction.from(transaction).signingDigest(chainId)
-  
-      // Step 3: Verify the signature using the public key
-      const signatureInstance = Signature.from(signature);
-      const publicKeyInstance = PublicKey.from(publicKey);
-      const isSignatureValid = signatureInstance.verifyDigest(digest, publicKeyInstance);
-    
+  fastify.post('/login', async (request, reply) => {
+  try {
+    const { signature, transaction } = request.body;
 
-      // Check actual signautre from transaction
-      //const publickey2 = signatureInstance.recoverDigest(digest);
+    // Step 1: Extract the authorizer from the transaction
+    const { authorization } = transaction.actions[0];
+    const authorizer = authorization[0].actor;
+
+    // Step 2: Fetch the associated public key from the blockchain
+    const publicKey = await getProducerPublicKeyHandler(authorizer);
+    console.log('Public key:', publicKey);
+    console.log('authorizer:', authorizer);
+
+    // Get the digest from transaction
+    const digest = Transaction.from(transaction).signingDigest(chainId);
+
+    let signatureInstance;
+    let isSignatureValid;
+    try {
+      signatureInstance = Signature.from(signature);
+      const publickey2 = signatureInstance.recoverDigest(digest);
+      /** Return key in modern EOSIO format (`PUB_<type>_<base58data>`) */
+      const K1Publickeyformat = publickey2.toString();
+       /** Create PublicKey object from representing types. */
+      const publicKeyInstance = PublicKey.from(K1Publickeyformat);
+      isSignatureValid = signatureInstance.verifyDigest(digest, publicKeyInstance);
+      // Check actual signature from transaction
       //const legacyPublicKeyString = publickey2.toLegacyString();
       //const legacyPublicKeyString2 = publickey2.toString();
-      //console.log('Public key from transaction:', legacyPublicKeyString,legacyPublicKeyString2);
-      //console.log('Public key hardcoded:', publicKeyInstance.toLegacyString())
+      //console.log('Public key from transaction:', legacyPublicKeyString, legacyPublicKeyString2);
       //console.log('Actual Public key derived:', publickey2);
-
-      if (isSignatureValid) {
-        const message = `The signature is valid for account ${authorizer}`;
-        // Issue JWT token
-        const token = fastify.jwt.sign({ 
-            account: authorizer 
-        });
-        reply.status(200).send({ message,token });
-      } else {
-        const message = 'The signature is invalid';
-        reply.status(406).send({ message });
-      }
     } catch (error) {
-        const message = `An error occurred: ${error}`
-        reply.status(404).send({ message });
+      console.error("Error in Step 3:", error);
     }
-  });
-  
+
+    if (isSignatureValid) {
+      const message = `The signature is valid for account ${authorizer}`;
+      // Issue JWT token
+      const token = fastify.jwt.sign({
+        account: authorizer,
+      });
+      reply.status(200).send({ message, token });
+    } else {
+      const message = 'The signature is invalid';
+      reply.status(406).send({ message });
+    }
+  } catch (error) {
+    const message = `An error occurred: ${error}`;
+    reply.status(404).send({ message });
+  }
+});
+
 // Add a helper function to verify the JWT
 const authenticate = async (request, reply) => {
     try {
