@@ -30,7 +30,7 @@ share/python-wheels/
 *.vscode
 MANIFEST
 backendconfig.py
-
+anon.session
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
