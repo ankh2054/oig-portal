@@ -17,6 +17,13 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
     fetchFn: (...args) => ky(...args),
+    prepareHeaders: (headers) => {
+      const accessToken = localStorage.getItem('access_token')
+      if (accessToken) {
+        headers.set('authorization', `Bearer ${accessToken}`)
+      }
+      return headers
+    },
   }),
   endpoints: (builder) => ({
     getAvgResults: builder.query<
@@ -52,7 +59,7 @@ export const api = createApi({
       },
     }),
   }),
-  
+
   reducerPath: 'sentnlApi',
 })
 
