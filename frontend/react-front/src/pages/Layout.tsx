@@ -4,6 +4,7 @@ import React from 'react'
 import Container from '../shared/container/Container'
 import Footer from '../shared/footer/Footer'
 import Header from '../shared/header/Header'
+import Notification from '../shared/notification/Notification'
 
 interface Props {
   children: ReactNode
@@ -16,6 +17,7 @@ const Layout = ({ children }: Props) => {
         {children}
       </Container>
       <Footer />
+      <Notification />
     </div>
   )
 }

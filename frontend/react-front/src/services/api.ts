@@ -41,9 +41,6 @@ export const api = createApi({
     getLatestResults: builder.query<LatestResultsResponse, void>({
       query: () => `/latestresults`,
     }),
-    getTelegramdates: builder.query<TelegramDates, void>({
-      query: () => `/dates`,
-    }),
     getProducers: builder.query<ProducersResponse, void>({
       query: () => `/producers`,
     }),
@@ -55,7 +52,13 @@ export const api = createApi({
         }
       },
     }),
-    reScan: builder.query<{ message: string }, { ownerName: string }>({
+    getTelegramdates: builder.query<TelegramDates, void>({
+      query: () => `/dates`,
+    }),
+    reScan: builder.query<
+      { message: string; type?: string },
+      { ownerName: string }
+    >({
       query: (arg) => {
         const { ownerName } = arg
 

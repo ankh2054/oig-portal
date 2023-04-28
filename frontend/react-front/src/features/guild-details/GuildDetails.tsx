@@ -130,7 +130,10 @@ const GuildDetails = () => {
                 </div>
                 {results && (
                   <div className=" rounded-sm border border-lightGray bg-white p-4">
-                     <Services latestResult={results[0]} telegramDates={telegramDates} />
+                    <Services
+                      latestResult={results[0]}
+                      telegramDates={telegramDates}
+                    />
                   </div>
                 )}
               </div>

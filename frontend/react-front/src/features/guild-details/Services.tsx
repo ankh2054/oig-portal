@@ -1,6 +1,6 @@
 import cx from 'classnames'
 
-import type { GuildResult,TelegramDates } from '../../services/types'
+import type { GuildResult, TelegramDates } from '../../services/types'
 import IconApi from '../../shared/icons/IconApi'
 import IconAtomic from '../../shared/icons/IconAtomic'
 import IconHyperionV1 from '../../shared/icons/IconHyperionV1'
@@ -39,11 +39,10 @@ const Service = ({ state, name, icon }: ServiceProps) => {
 
 interface ServicesProps {
   latestResult: GuildResult
-  telegramDates: TelegramDates | undefined;
-  
+  telegramDates: TelegramDates | undefined
 }
 
-const Services = ({ latestResult,telegramDates }: ServicesProps) => {
+const Services = ({ latestResult, telegramDates }: ServicesProps) => {
   console.log(telegramDates)
   return (
     <div className="flex flex-col gap-y-4">
@@ -74,7 +73,6 @@ const Services = ({ latestResult,telegramDates }: ServicesProps) => {
         icon={<IconShieldLock />}
       />
     </div>
-
   )
 }
 
