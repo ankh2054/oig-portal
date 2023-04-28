@@ -69,9 +69,11 @@ const Header = (props: TransactionProps) => {
         localStorage.setItem('access_token', data.token)
         setIsLoggedIn(true) // set isLoggedIn to true after successful login
         setActiveUser(accountName)
-        setAvatar(data.user.avatar)
         localStorage.setItem('activeUser', accountName)
-        localStorage.setItem('avatar', data.user.avatar)
+        if (data.user?.avatar) {
+          setAvatar(data.user.avatar)
+          localStorage.setItem('avatar', data.user.avatar)
+        }
       } else {
         console.error('Access token is empty')
       }
@@ -136,7 +138,7 @@ const Header = (props: TransactionProps) => {
               </button>
             ) : (
               <Avatar
-                avatarUrl={avatar || ''}
+                avatarUrl={avatar}
                 username={activeUser || ''}
                 handleLogout={handleLogout}
               />
