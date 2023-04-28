@@ -17,6 +17,13 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
     fetchFn: (...args) => ky(...args),
+    prepareHeaders: (headers) => {
+      const accessToken = localStorage.getItem('access_token')
+      if (accessToken) {
+        headers.set('authorization', `Bearer ${accessToken}`)
+      }
+      return headers
+    },
   }),
   endpoints: (builder) => ({
     getAvgResults: builder.query<
@@ -44,15 +51,17 @@ export const api = createApi({
         }
       },
     }),
-    reScan: builder.query<{ message: string }, void>({
-      query: () => {
+    reScan: builder.query<{ message: string }, { ownerName: string }>({
+      query: (arg) => {
+        const { ownerName } = arg
+
         return {
-          url: `/rescan`,
+          url: `/rescan/${ownerName}`,
         }
       },
     }),
   }),
-  
+
   reducerPath: 'sentnlApi',
 })
 
