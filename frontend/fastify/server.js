@@ -125,7 +125,8 @@ fastify.register(require('@fastify/static'), {
         account: authorizer,
       });
       //console.log('Login working')
-      reply.status(200).send({ message, token, guildLogo });
+      user = {avatar: guildLogo, username: authorizer} 
+      reply.status(200).send({ message, token, user: {user}});
     } else {
       const message = 'The signature is invalid';
       reply.status(406).send({ message });
