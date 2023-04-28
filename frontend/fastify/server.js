@@ -90,7 +90,9 @@ fastify.register(require('@fastify/static'), {
 
     // Step 2: Fetch the associated public key from the blockchain
     const publicKey = await getProducerPublicKeyHandler(authorizer);
+    // Get Logo
     const guildLogo = await getProducerLogoHandler(authorizer);
+    
     console.log('Public key:', publicKey);
     console.log('authorizer:', authorizer);
     
