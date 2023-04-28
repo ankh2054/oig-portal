@@ -52,20 +52,26 @@ async def main():
                 if "Guild Update Submission Cutoff" in message.text:
                     filtered_messages.append(message)
 
-        date_pattern = re.compile(
-            r"(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),\s\w+\s\d{1,2}\w{2},\s\d{4},\s\d{2}:\d{2}:\d{2}\sUTC|"
-            r"(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday),\s\w+\s\d{1,2}\w{2},\sfrom\s\d{2}:\d{2}:\d{2}\suntil\s\d{2}:\d{2}:\d{2}\sUTC"
-        )
+    date_pattern = re.compile(
+        r"((?:Guild Update Submission Cutoff|Report Appeals Begin|Report Appeals End|Publish Final Report))\s*"
+        r"((?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),\s\w+\s\d{1,2}\w{2},\s\d{4},\s\d{2}:\d{2}:\d{2}\sUTC|"
+        r"(?:Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday),\s\w+\s\d{1,2}\w{2},\sfrom\s\d{2}:\d{2}:\d{2}\suntil\s\d{2}:\d{2}:\d{2}\sUTC)"
+    )
 
-        for message in filtered_messages:
-            dates = date_pattern.findall(message.text)
-            if dates:
-                for date in dates:
-                    date_str = ' '.join(filter(None, date)).strip()
-                    if date_str:
-                        result = {'type': 'Guild Update Submission Cutoff', 'date': date_str}
-                        print(result)
-            else:
-                print("No matching dates found in the message.")
+    filtered_messages.reverse()
+
+    for message in filtered_messages:
+        dates = date_pattern.finditer(message.text)
+        found = False
+        if dates:
+            for match in dates:
+                event_type = match.group(1)
+                date_str = match.group(2).strip()
+                if date_str:
+                    result = {'type': event_type, 'date': date_str}
+                    print(result)
+                    found = True
+            if found:
+                break
 
 asyncio.run(main())

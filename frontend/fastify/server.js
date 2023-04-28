@@ -127,29 +127,37 @@ const authenticate = async (request, reply) => {
     try {
       await request.jwtVerify();
     } catch (err) {
-      reply.status(401).send({ message: 'Unauthorized' });
+      reply.send({ message: 'You need to login first using your Guild active key before scanning' });
     }
   };
 
 
 // Send request to python API 
-fastify.get('/api/rescan/:owner_name', { preHandler: authenticate },async (request, reply) => {
-try {
-    // Decode the JWT token
+fastify.get('/api/rescan/:owner_name', { preHandler: authenticate }, async (request, reply) => {
+  try {
     const decodedToken = await decode_jwt_token(request, fastify);
-    console.log('decoded account', decodedToken.account)
-    const ignoreCpuCheck = request.query.ignorecpucheck || 'false'
-    const ignoreLastCheck = request.query.ignorelastcheck || 'true'
-    const apiUrl = `http://127.0.0.1:8000/run?ignorecpucheck=${ignoreCpuCheck}&ignorelastcheck=${ignoreLastCheck}&bp=${decodedToken.account}`
-    const response = await got(apiUrl)
-    const data = JSON.parse(response.body)
-    console.log(data)
-    reply.send(data)
-} catch (error) {
-    console.log(error)
-    reply.code(500).send('Internal server error')
-}
+    const { owner_name } = request.params;
+
+    // Compare the two variables using loose equality
+    if (decodedToken.account == owner_name) {
+      const ignoreCpuCheck = request.query.ignorecpucheck || 'false';
+      const ignoreLastCheck = request.query.ignorelastcheck || 'true';
+      const apiUrl = `http://127.0.0.1:8000/run?ignorecpucheck=${ignoreCpuCheck}&ignorelastcheck=${ignoreLastCheck}&bp=${decodedToken.account}`;
+      const response = await got(apiUrl);
+      const data = JSON.parse(response.body);
+      console.log(data);
+      reply.send(data);
+    } else {
+      console.log('ACcounts:',decodedToken.account,owner_name)
+      reply.send({ message: 'You can only scan your own Guld instance' });
+      return
+    }
+  } catch (error) {
+    console.log(error);
+    reply.code(500).send('Internal server error');
+  }
 })
+
 
 
 // PG Routes//
