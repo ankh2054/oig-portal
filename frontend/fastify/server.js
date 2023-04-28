@@ -133,7 +133,7 @@ const authenticate = async (request, reply) => {
 
 
 // Send request to python API 
-fastify.get('/api/rescan', { preHandler: authenticate },async (request, reply) => {
+fastify.get('/api/rescan/:owner_name', { preHandler: authenticate },async (request, reply) => {
 try {
     // Decode the JWT token
     const decodedToken = await decode_jwt_token(request, fastify);
