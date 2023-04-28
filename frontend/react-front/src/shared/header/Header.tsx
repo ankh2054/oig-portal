@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { withUAL } from 'ual-reactjs-renderer'
 
 import type { TransactionProps } from '../../types/Transaction'
 import IconPerson from '../icons/IconPerson'
 import Logo from '../icons/Logo'
 
+import Avatar from './Avatar'
 import NavItem from './NavItem'
 
 const Header = (props: TransactionProps) => {
@@ -18,6 +19,8 @@ const Header = (props: TransactionProps) => {
   const [activeUser, setActiveUser] = useState(
     localStorage.getItem('activeUser') || null
   )
+
+  const [avatar, setAvatar] = useState(localStorage.getItem('avatar') || null)
 
   useEffect(() => {
     const user = ual.activeUser
@@ -57,17 +60,18 @@ const Header = (props: TransactionProps) => {
       method: 'POST',
     })
 
-    console.log(' Login response is this:', response)
     if (response.ok) {
       const data = await response.json()
-      console.log(data)
+
       // If the login is successful, store the access token and proceed
       if (data.token) {
         setAccessToken(data.token)
         localStorage.setItem('access_token', data.token)
         setIsLoggedIn(true) // set isLoggedIn to true after successful login
         setActiveUser(accountName)
+        setAvatar(data.user.avatar)
         localStorage.setItem('activeUser', accountName)
+        localStorage.setItem('avatar', data.user.avatar)
       } else {
         console.error('Access token is empty')
       }
@@ -97,19 +101,22 @@ const Header = (props: TransactionProps) => {
 
       // Clear access_token from local storage
       localStorage.removeItem('access_token')
+      localStorage.removeItem('activeUser')
+      localStorage.removeItem('avatar')
 
       // Reset the state variables
       setAccessToken('')
       setIsLoggedIn(false)
       setActiveUser(null)
+      setAvatar(null)
     } catch (error) {
       console.error('Logout failed:', error)
     }
   }
 
   return (
-    <nav className="left-0 top-0 z-20 w-full bg-secondary">
-      <div className="mx-auto flex max-w-screen-2xl flex-wrap items-center justify-between p-4 px-8">
+    <nav className="left-0 top-0 z-20 w-full items-center  bg-secondary">
+      <div className="mx-auto flex h-20 max-w-screen-2xl flex-wrap items-center justify-between p-4 px-8">
         <a href="/" className="flex items-center gap-x-2">
           <Logo width="100%" />
           <span className="self-center whitespace-nowrap text-xl font-medium text-white">
@@ -128,14 +135,11 @@ const Header = (props: TransactionProps) => {
                 Login
               </button>
             ) : (
-              <button
-                onClick={() => handleLogout()}
-                type="button"
-                className="inline-flex hidden items-center rounded-full border  border-white px-4  py-1 text-center text-sm font-medium text-white hover:border-primary hover:bg-primary focus:outline-none md:flex "
-              >
-                <IconPerson color="white" className="mr-2" />
-                Logout
-              </button>
+              <Avatar
+                avatarUrl={avatar || ''}
+                username={activeUser || ''}
+                handleLogout={handleLogout}
+              />
             )}
             <button
               data-collapse-toggle="navbar-sticky"

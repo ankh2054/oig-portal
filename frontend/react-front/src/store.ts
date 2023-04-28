@@ -2,11 +2,13 @@ import { configureStore } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query'
 
 import { api } from './services/api'
+import notificationReducer from './shared/notification/NotificationSlice'
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(api.middleware),
   reducer: {
+    notification: notificationReducer,
     [api.reducerPath]: api.reducer,
   },
 })
