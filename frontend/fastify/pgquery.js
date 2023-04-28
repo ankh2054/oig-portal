@@ -38,6 +38,18 @@ const getProducerPublicKey = (owner_name) => {
   });
 };
 
+const getProducerLogo = (owner_name) => {
+  return new Promise((resolve, reject) => {
+    client.query("SELECT logo_svg FROM oig.producer WHERE owner_name = $1", [owner_name], (error, result) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(result.rows[0]);
+      }
+    });
+  });
+};
+
 
 const getLatestResults = (request, reply) => { 
   client.query(`
@@ -238,4 +250,4 @@ DELETE FROM oig.producer WHERE metasnapshot_date != timestamp '1980-01-01 00:00:
 
 
 
-module.exports = {   getLatestResults, getProducers,  getResults, getResultsbyOwner, getUpdatesbyOwner, getPaginatedResultsByOwner, getTruncatedPaginatedResults, getAverageMonthlyResult, getProducerPublicKey,getTelegramDates };
+module.exports = {   getLatestResults, getProducers,  getResults, getResultsbyOwner, getUpdatesbyOwner, getPaginatedResultsByOwner, getTruncatedPaginatedResults, getAverageMonthlyResult, getProducerPublicKey,getTelegramDates,getProducerLogo };

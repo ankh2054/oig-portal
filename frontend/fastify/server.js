@@ -52,6 +52,16 @@ fastify.register(require('@fastify/static'), {
     }
   };
   
+  const getProducerLogoHandler = async (authorizer) => {
+    try {
+      const publicKey = await db.getProducerLogo(authorizer);
+      return publicKey;
+    } catch (error) {
+      console.error(`An error occurred: ${error}`);
+      throw error;
+    }
+  };
+  
 
   async function decode_jwt_token(request, fastify) {
     try {
@@ -82,6 +92,7 @@ fastify.register(require('@fastify/static'), {
     const publicKey = await getProducerPublicKeyHandler(authorizer);
     console.log('Public key:', publicKey);
     console.log('authorizer:', authorizer);
+    
 
     // Get the digest from transaction
     const digest = Transaction.from(transaction).signingDigest(chainId);
@@ -89,6 +100,8 @@ fastify.register(require('@fastify/static'), {
     let signatureInstance;
     let isSignatureValid;
     try {
+      const guildLogo = await getProducerLogoHandler(authorizer);
+      console.log('Logol:',guildLogo)
       signatureInstance = Signature.from(signature);
       const publickey2 = signatureInstance.recoverDigest(digest);
       /** Return key in modern EOSIO format (`PUB_<type>_<base58data>`) */
@@ -111,7 +124,8 @@ fastify.register(require('@fastify/static'), {
       const token = fastify.jwt.sign({
         account: authorizer,
       });
-      reply.status(200).send({ message, token });
+      //console.log('Login working')
+      reply.status(200).send({ message, token, guildLogo });
     } else {
       const message = 'The signature is invalid';
       reply.status(406).send({ message });
