@@ -79,7 +79,7 @@ fastify.register(require('@fastify/static'), {
   }
 
   
-// Core login function for Acnhor wallet
+// Core login function for Anchor wallet
   fastify.post('/login', async (request, reply) => {
   try {
     const { signature, transaction } = request.body;
@@ -88,15 +88,12 @@ fastify.register(require('@fastify/static'), {
     const { authorization } = transaction.actions[0];
     const authorizer = authorization[0].actor;
 
-    // Step 2: Fetch the associated public key from the blockchain
+    // Step 2: Fetch the associated public key from the DB
     const publicKey = await getProducerPublicKeyHandler(authorizer);
     // Get Logo
     const guildLogo = await getProducerLogoHandler(authorizer);
+    //console.log('authorizer:', authorizer);
     
-    console.log('Public key:', publicKey);
-    console.log('authorizer:', authorizer);
-    
-
     // Get the digest from transaction
     const digest = Transaction.from(transaction).signingDigest(chainId);
 
@@ -116,7 +113,7 @@ fastify.register(require('@fastify/static'), {
       //console.log('Public key from transaction:', legacyPublicKeyString, legacyPublicKeyString2);
       //console.log('Actual Public key derived:', publickey2);
     } catch (error) {
-      console.error("Error in Step 3:", error);
+      console.error("Error in  singature verification:", error);
     }
 
     if (isSignatureValid) {
@@ -125,9 +122,10 @@ fastify.register(require('@fastify/static'), {
       const token = fastify.jwt.sign({
         account: authorizer,
       });
-      //console.log('Login working')
-      user = {avatar: guildLogo, username: authorizer} 
-      reply.status(200).send({ message, token, user: {user}});
+      user = { avatar: guildLogo.logo_svg, username: authorizer } 
+      reply.status(200).send({ message, token, user: {user} });
+      console.log({ message, token, user: {user} })
+      //reply.status(200).send({ message, token });
     } else {
       const message = 'The signature is invalid';
       reply.status(406).send({ message });
@@ -161,11 +159,10 @@ fastify.get('/api/rescan/:owner_name', { preHandler: authenticate }, async (requ
       const apiUrl = `http://127.0.0.1:8000/run?ignorecpucheck=${ignoreCpuCheck}&ignorelastcheck=${ignoreLastCheck}&bp=${decodedToken.account}`;
       const response = await got(apiUrl);
       const data = JSON.parse(response.body);
-      console.log(data);
       reply.send(data);
     } else {
       console.log('ACcounts:',decodedToken.account,owner_name)
-      reply.send({ message: 'You can only scan your own Guld instance' });
+      reply.send({ message: 'You can only scan your own Guld instance', type: 'warning'});
       return
     }
   } catch (error) {
