@@ -67,7 +67,7 @@ const GuildInfo = ({ producer, result }: Props) => {
       </div>
       <div className="flex items-center gap-x-8">
         <a
-          href={producer.notion_url}
+          href={'https://wax-oig.notion.site/'+producer.notion_url}
           target="_blank"
           className="flex w-32  cursor-pointer items-center justify-center  rounded-full border  border-secondary px-4 py-1 text-center text-sm font-medium text-secondary hover:border-secondary hover:bg-secondary hover:text-white focus:outline-none "
         >
