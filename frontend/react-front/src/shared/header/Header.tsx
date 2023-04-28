@@ -121,15 +121,19 @@ const Header = (props: TransactionProps) => {
             {!isLoggedIn ? (
               <button
                 onClick={() => handleLogin()}
-                className="text-gray-900 hover:bg-gray-400 block px-4 py-2 focus:outline-none"
+                type="button"
+                className="inline-flex hidden items-center rounded-full border  border-white px-4  py-1 text-center text-sm font-medium text-white hover:border-primary hover:bg-primary focus:outline-none md:flex "
               >
+                <IconPerson color="white" className="mr-2" />
                 Login
               </button>
             ) : (
               <button
                 onClick={() => handleLogout()}
-                className="text-gray-900 hover:bg-gray-400 block px-4 py-2 focus:outline-none"
+                type="button"
+                className="inline-flex hidden items-center rounded-full border  border-white px-4  py-1 text-center text-sm font-medium text-white hover:border-primary hover:bg-primary focus:outline-none md:flex "
               >
+                <IconPerson color="white" className="mr-2" />
                 Logout
               </button>
             )}
