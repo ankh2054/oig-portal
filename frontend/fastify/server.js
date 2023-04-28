@@ -90,6 +90,7 @@ fastify.register(require('@fastify/static'), {
 
     // Step 2: Fetch the associated public key from the blockchain
     const publicKey = await getProducerPublicKeyHandler(authorizer);
+    const guildLogo = await getProducerLogoHandler(authorizer);
     console.log('Public key:', publicKey);
     console.log('authorizer:', authorizer);
     
@@ -100,8 +101,6 @@ fastify.register(require('@fastify/static'), {
     let signatureInstance;
     let isSignatureValid;
     try {
-      const guildLogo = await getProducerLogoHandler(authorizer);
-      console.log('Logol:',guildLogo)
       signatureInstance = Signature.from(signature);
       const publickey2 = signatureInstance.recoverDigest(digest);
       /** Return key in modern EOSIO format (`PUB_<type>_<base58data>`) */
