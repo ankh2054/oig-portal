@@ -4,9 +4,10 @@ import { useRef, useState } from 'react'
 import useOnClickOutside from '../../hooks/useOnClickOutside'
 import IconExpandLess from '../icons/IconExpandLess'
 import IconExpandMore from '../icons/IconExpandMore'
+import IconPerson from '../icons/IconPerson'
 
 interface Props {
-  avatarUrl: string
+  avatarUrl: string | null
   username: string
   handleLogout: () => void
 }
@@ -19,11 +20,19 @@ const Avatar = ({ username, avatarUrl, handleLogout }: Props) => {
   return (
     <div className="relative" ref={ref}>
       <button onClick={handleOnClick} className="flex items-center gap-x-2">
-        <img
-          src={avatarUrl}
-          alt={username}
-          className="h-10 w-10 rounded rounded-full"
-        />
+        {avatarUrl && (
+          <img
+            src={avatarUrl}
+            alt={username}
+            className="h-10 w-10 rounded rounded-full"
+          />
+        )}
+
+        {!avatarUrl && (
+          <span className="flex h-10 w-10 items-center justify-center rounded rounded-full bg-white text-secondary">
+            <IconPerson width="32" height="32" color="rgb(95, 43, 161)" />
+          </span>
+        )}
         <span className="text-white">{username}</span>
         {!isOpen && <IconExpandMore color="white" />}
         {isOpen && <IconExpandLess color="white" />}

@@ -16,7 +16,7 @@ const fastify = require('fastify')({
 })
 
 // CORS setup
-fastify.register(cors, { 
+fastify.register(cors, {
   // put your options here
 })
 
@@ -51,7 +51,7 @@ fastify.register(require('@fastify/static'), {
       throw error;
     }
   };
-  
+
   const getProducerLogoHandler = async (authorizer) => {
     try {
       const publicKey = await db.getProducerLogo(authorizer);
@@ -61,16 +61,16 @@ fastify.register(require('@fastify/static'), {
       throw error;
     }
   };
-  
+
 
   async function decode_jwt_token(request, fastify) {
     try {
       // Get the JWT token from the Authorization header
       const token = request.headers.authorization.split(' ')[1];
-  
+
       // Verify the JWT token using the secret key
       const decodedToken = await fastify.jwt.verify(token);
-  
+
       return decodedToken;
     } catch (err) {
       console.error('Error decoding JWT token:', err);
@@ -78,7 +78,7 @@ fastify.register(require('@fastify/static'), {
     }
   }
 
-  
+
 // Core login function for Anchor wallet
   fastify.post('/login', async (request, reply) => {
   try {
@@ -93,7 +93,7 @@ fastify.register(require('@fastify/static'), {
     // Get Logo
     const guildLogo = await getProducerLogoHandler(authorizer);
     //console.log('authorizer:', authorizer);
-    
+
     // Get the digest from transaction
     const digest = Transaction.from(transaction).signingDigest(chainId);
 
@@ -122,7 +122,7 @@ fastify.register(require('@fastify/static'), {
       const token = fastify.jwt.sign({
         account: authorizer,
       });
-      user = { avatar: guildLogo.logo_svg, username: authorizer } 
+      const user = { avatar: guildLogo.logo_svg, username: authorizer }
       reply.status(200).send({ message, token, user: {user} });
       console.log({ message, token, user: {user} })
       //reply.status(200).send({ message, token });
@@ -146,7 +146,7 @@ const authenticate = async (request, reply) => {
   };
 
 
-// Send request to python API 
+// Send request to python API
 fastify.get('/api/rescan/:owner_name', { preHandler: authenticate }, async (request, reply) => {
   try {
     const decodedToken = await decode_jwt_token(request, fastify);
