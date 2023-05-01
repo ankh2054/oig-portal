@@ -65,11 +65,10 @@ export type Producer = {
 }
 
 export type TelegramDates = {
-  submission_cutoff: Date
-  appeal_begin: Date
-  appeal_end: Date
-  final_report: Date
+  type: string
+  date: Date
 }
+export type TelegramDatesResponse = Array<TelegramDates>
 
 export type AvgResultsResponse = {
   total_count: string

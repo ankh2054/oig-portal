@@ -3,7 +3,7 @@ import getUnicodeFlagIcon from 'country-flag-icons/unicode'
 import { Link } from 'react-router-dom'
 
 import type { Guild } from '../../types/Guild'
-import datec from '../../utils/datec'
+import { fullDate } from '../../utils/dates'
 import Badge from '../badge/Badge'
 import IconApi from '../icons/IconApi'
 import IconAtomic from '../icons/IconAtomic'
@@ -201,7 +201,7 @@ const GuildCard = ({
       {showTime && (
         <div className="flex flex-col items-center">
           <IconCalendar />
-          <div className="text-xs text-gray">{datec(data.date_check)}</div>
+          <div className="text-xs text-gray">{fullDate(data.date_check)}</div>
         </div>
       )}
     </div>

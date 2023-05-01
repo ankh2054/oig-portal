@@ -23,4 +23,15 @@ export const handlers = [
 
     return res(ctx.status(200), ctx.json(data))
   }),
+
+  rest.get('https://oig.sentnl.io/api/dates', (req, res, ctx) => {
+    const data = [
+      { date: new Date(), type: 'Guild Update Submission Cutoff' },
+      { date: new Date(), type: 'Report Appeals Begin' },
+      { date: new Date(), type: 'Report Appeals End' },
+      { date: new Date(), type: 'Publish Final Report' },
+    ]
+
+    return res(ctx.status(200), ctx.json(data))
+  }),
 ]
