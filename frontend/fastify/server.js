@@ -123,8 +123,8 @@ fastify.register(require('@fastify/static'), {
         account: authorizer,
       });
       const user = { avatar: guildLogo.logo_svg, username: authorizer }
-      reply.status(200).send({ message, token, user: {user} });
-      console.log({ message, token, user: {user} })
+      reply.status(200).send({ message, token, user });
+      console.log({ message, token, user })
       //reply.status(200).send({ message, token });
     } else {
       const message = 'The signature is invalid';
@@ -159,10 +159,10 @@ fastify.get('/api/rescan/:owner_name', { preHandler: authenticate }, async (requ
       const apiUrl = `http://127.0.0.1:8000/run?ignorecpucheck=${ignoreCpuCheck}&ignorelastcheck=${ignoreLastCheck}&bp=${decodedToken.account}`;
       const response = await got(apiUrl);
       const data = JSON.parse(response.body);
-      reply.send(data);
+      reply.send({ message: data.message, type: 'success'});
     } else {
       console.log('ACcounts:',decodedToken.account,owner_name)
-      reply.send({ message: 'You can only scan your own Guld instance', type: 'warning'});
+      reply.send({ message: 'You can only scan your own Guild instance', type: 'warning'});
       return
     }
   } catch (error) {

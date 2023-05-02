@@ -1,10 +1,14 @@
 import start
 from fastapi import FastAPI, BackgroundTasks
+from uvicorn import Config, Server  #
 import threading
 import queue
 import time
+import sys
+
 
 app = FastAPI()
+
 
 task_queue = queue.Queue()
 
@@ -69,3 +73,8 @@ async def run_producer(
     return {
         "message": f"Checks have been scheduled for {bp}. You are {position} in the queue. Refresh the page in 1-2 minutes to obtain the results."
     }
+
+if __name__ == "__main__":
+    config = Config(app=app, host="0.0.0.0", port=8000)
+    server = Server(config=config)
+    server.run()

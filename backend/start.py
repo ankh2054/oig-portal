@@ -23,6 +23,8 @@ import sys
 
 
 
+
+
 def lastCheck(now,ignorelastcheck,hours):
     lastcheck = db_connect.getLastcheck() #2021-11-19 07:25:24.11084+00
     # Set now date
@@ -359,7 +361,8 @@ if __name__ == "__main__":
     cpucheck = args.ignorecpucheck
     ignorelastcheck = args.ignorelastcheck
     singlebp = args.bp
-    main(cpucheck, ignorelastcheck, singlebp)
+    #main(cpucheck, ignorelastcheck, singlebp)
+    telegramDates = print(getTelegramDates())
     #scores = chaininfo.getguildsJSON('mainnet')
     #print(chaininfo.getScore(scores,'sentnlagents'))
     #producers.producer_chain_list()
