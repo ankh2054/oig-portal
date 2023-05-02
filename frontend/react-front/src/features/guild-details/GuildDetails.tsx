@@ -12,16 +12,16 @@ import type {
   LatestResultsResponse,
   Producer,
   ResultsResponse,
-  TelegramDates,
 } from '../../services/types'
 import Breadcrumb from '../../shared/breadcrumb/Breadcrumb'
 import type { ChartDataPoint } from '../../types/ChartDataPoint'
-import datec from '../../utils/datec'
+import { fullDate } from '../../utils/dates'
 import GuildsCheckResults from '../latest-results/GuildsCheckResults'
 
 import CpuChart from './CpuChart'
 import GuildInfo from './GuildInfo'
 import Services from './Services'
+import Telegramdates from './Telegramdates'
 
 const GuildDetails = () => {
   const params = useParams<{ guildId: string }>()
@@ -57,7 +57,7 @@ const GuildDetails = () => {
           'aggregate average time (all guilds)': aggregate_average.toFixed(2),
           'cpu average time': result.cpu_avg ? result.cpu_avg : null,
           'cpu time': result.cpu_time ? result.cpu_time : null,
-          date_check: datec(result.date_check),
+          date_check: fullDate(result.date_check),
         }
       })
       .reverse()
@@ -128,12 +128,12 @@ const GuildDetails = () => {
                 <div className="flex flex-col items-center gap-y-1 rounded-sm border border-lightGray bg-white p-4">
                   <GuildInfo producer={producer} result={results[0]} />
                 </div>
+                <div className=" rounded-sm border border-lightGray bg-white p-4">
+                  {telegramDates && <Telegramdates dates={telegramDates} />}
+                </div>
                 {results && (
                   <div className=" rounded-sm border border-lightGray bg-white p-4">
-                    <Services
-                      latestResult={results[0]}
-                      telegramDates={telegramDates}
-                    />
+                    <Services latestResult={results[0]} />
                   </div>
                 )}
               </div>

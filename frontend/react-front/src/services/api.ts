@@ -6,7 +6,7 @@ import type {
   ProducersResponse,
   ResultsResponse,
   AvgResultsResponse,
-  TelegramDates,
+  TelegramDatesResponse,
 } from './types'
 
 // Define a service using a base URL and expected endpoints
@@ -52,7 +52,7 @@ export const api = createApi({
         }
       },
     }),
-    getTelegramdates: builder.query<TelegramDates, void>({
+    getTelegramdates: builder.query<TelegramDatesResponse, void>({
       query: () => `/dates`,
     }),
     reScan: builder.query<
