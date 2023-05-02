@@ -122,7 +122,7 @@ const Header = (props: TransactionProps) => {
         <a href="/" className="flex items-center gap-x-2">
           <Logo width="100%" />
           <span className="self-center whitespace-nowrap text-xl font-medium text-white">
-            OIG Portal
+            Scanner
           </span>
         </a>
         <div className="flex gap-x-20">
