@@ -28,9 +28,7 @@ WAX OIG portal
 |**PYTHONAPI**             |`oig.db`                               | Python API container name            |
 |**JWTSECRET**             |`secret`                               | JWT secret for fastify               |
 
-
-sed -i "s/pythonapi/$PYTHONAPI/" fastify/.env 
-sed -i "s/jwtsecret/$JWTSECRET/" fastify/.env 
+ 
 # 4 Run the frontend container
 
 ```
@@ -50,9 +48,10 @@ oig-frontend:prod
 
 
 # 5 Run the DB container 
+- Upddate backebd/postgresql.sql file with the same username and password you specify below.
 
 ```
-docker run --network=sentnl-net  --name oig.db --expose 5432 \
+docker run --network=sentnl-net  --name oig.db --expose 5432 8000 \
 -d -e "PGPASSWORD=postgresqlpassword" \
 -e "DB_DATABASE=dbname" \
 -e "DB_USER=dbuser" \

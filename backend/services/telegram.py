@@ -1,18 +1,20 @@
 import re
 from telethon import TelegramClient
 from telethon.tl.types import MessageActionPinMessage
+import config.backendconfig as cfg
 
 
 api_id = '15825270'
 api_hash = '373e14f8151cd52b23dc1fe21d117f05'
 phone_number = '+447725277831'  # format: '+12345678900'
 group_link = 'https://t.me/waxgov'  # Replace with the actual group link
+session_file = cfg.telegram["session_file"]
 
 
 async def fetch_telegram_dates():
     messages_to_search = 200
     results = []
-    async with TelegramClient('anon', api_id, api_hash,timeout=10.0) as client:
+    async with TelegramClient(session_file, api_id, api_hash,timeout=10.0) as client:
         await client.start(phone=phone_number)
 
         # Join the group if not already a member

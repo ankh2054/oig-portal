@@ -23,3 +23,7 @@ nodes = {
     "hyperionmainnet2": 'http://wax.blokcrafters.io',
     "hyperiontestnet": 'https://wax-testnet.dapplica.io'
 }
+
+telegram = {
+    "session_file": 'anon.session'
+}
