@@ -24,8 +24,8 @@ ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 RUN apt update && apt install --no-install-recommends -y wget gnupg2 ca-certificates software-properties-common
 
 
-# Install nodejs seperately 
-RUN wget -qO- https://deb.nodesource.com/setup_12.x | bash - && \
+# Install nodejs seperately
+RUN wget -qO- https://deb.nodesource.com/setup_16.x | bash - && \
     apt-get install -y nodejs
 
 RUN apt update && apt install --no-install-recommends -y $PACKAGES  && \
@@ -44,14 +44,13 @@ COPY frontend/react-front react
 RUN mkdir -p fastify/logs && mkdir -p react/logs && mkdir -p backend/logs
 
 # .ENV files
-RUN mv fastify/DEFAULTS.env fastify/.env 
+RUN mv fastify/DEFAULTS.env fastify/.env
 
 
 
-# Install nodejs modules 
+# Install nodejs modules
 WORKDIR /app/react
 RUN npm ci --silent && \
-    npm install react-scripts@3.4.1 -g --silent && \
     npm run builddocker
 
 WORKDIR /app/fastify

@@ -9,8 +9,8 @@ ENV PACKAGES="\
 "
 
 
-#RUN apk add  --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.12/main/ nodejs=12.18.4-r0 && \
-RUN   apk add  --no-cache $PACKAGES 
+#RUN apk add  --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.12/main/ nodejs=16.14.0-r0 && \
+RUN   apk add  --no-cache $PACKAGES
 
 
 WORKDIR /app
@@ -23,15 +23,14 @@ RUN mkdir -p fastify/logs
 # .ENV files
 RUN mv fastify/DEFAULTS.env fastify/.env
 
-# Install nodejs modules 
+# Install nodejs modules
 WORKDIR /app/react
 RUN npm ci --silent && \
-    npm install react-scripts@5.0.1 -g --silent && \
     npx browserslist@latest --update-db && \
     npm run builddocker
 
 WORKDIR /app/fastify
-RUN npm install --silent 
+RUN npm install --silent
 
 
 # Nginx
