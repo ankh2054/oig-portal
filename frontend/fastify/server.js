@@ -156,7 +156,7 @@ fastify.get('/api/rescan/:owner_name', { preHandler: authenticate }, async (requ
     if (decodedToken.account == owner_name) {
       const ignoreCpuCheck = request.query.ignorecpucheck || 'false';
       const ignoreLastCheck = request.query.ignorelastcheck || 'true';
-      const apiUrl = `http://127.0.0.1:8000/run?ignorecpucheck=${ignoreCpuCheck}&ignorelastcheck=${ignoreLastCheck}&bp=${decodedToken.account}`;
+      const apiUrl = `${PYTHON_FASTAPI}/run?ignorecpucheck=${ignoreCpuCheck}&ignorelastcheck=${ignoreLastCheck}&bp=${decodedToken.account}`;
       const response = await got(apiUrl);
       const data = JSON.parse(response.body);
       reply.send({ message: data.message, type: 'success'});
