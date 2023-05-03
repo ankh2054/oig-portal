@@ -38,8 +38,8 @@ fastify.register(fastifyJwt, {
 
 fastify.register(require('@fastify/static'), {
     root: path.join(__dirname, 'public'),
-    prefix: '/', // optional: default '/'
   });
+
 
 
   const getProducerPublicKeyHandler = async (authorizer) => {
@@ -184,6 +184,19 @@ fastify.get('/api/truncatedPaginatedResults/:owner', db.getTruncatedPaginatedRes
 // Get Telegram dates
 fastify.get('/api/dates', db.getTelegramDates)
 
+
+fastify.setNotFoundHandler((req, res) => {
+  if (req.raw.url && req.raw.url.startsWith("/api")) {
+    return res.status(404).send({
+      success: false,
+      error: {
+        kind: "user_input",
+        message: "Not Found",
+      },
+    });
+  }
+  res.status(200).sendFile("index.html");
+});
 
 
 
