@@ -48,8 +48,13 @@ const Header = (props: TransactionProps) => {
     //const { signature } = await user.signArbitrary(message);
     //console.log('signature:', signature);
 
+    // Define a service using a base URL and expected endpoints
+    const LOGIN_URL =
+      import.meta.env.MODE === 'development'
+        ? 'http://localhost:3000/login'
+        : 'https://wax.sengine.co/login'
     // Call the validate-signature endpoint with the account_name and signed_message
-    const response = await fetch('http://localhost:3000/login', {
+    const response = await fetch(LOGIN_URL, {
       body: JSON.stringify({
         signature: signature,
         transaction: signerRequest,

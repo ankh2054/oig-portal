@@ -37,7 +37,8 @@ def node_list(testnet=False):
         if net == "mainnet":
             url = nodes[3]
         if net == "testnet":
-            url = nodes[11]
+            url = nodes[10]
+            print(f'testnet {url}')
         owner_name = nodes[0]
         reqJSON = requests.getJSON()
         response = reqJSON.getRequest(url,trydo='continue')
