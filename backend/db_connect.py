@@ -119,7 +119,7 @@ def getFullnodes(testnet=False):
 
 def getProducerStatus(producer):
     db = MyDB()
-    query = db.dbSelect("SELECT active FROM oig.producer AND owner_name =  %s",producer)
+    query = db.dbSelect("SELECT active FROM oig.producer WHERE owner_name =  %s",producer)
     return query
 
 def getSnapshotdate():

@@ -12,7 +12,7 @@ group_link = 'https://t.me/waxgov'  # Replace with the actual group link
 async def fetch_telegram_dates():
     messages_to_search = 200
     results = []
-    async with TelegramClient('anon', api_id, api_hash) as client:
+    async with TelegramClient('anon', api_id, api_hash,timeout=10.0) as client:
         await client.start(phone=phone_number)
 
         # Join the group if not already a member
