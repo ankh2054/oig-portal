@@ -20,6 +20,8 @@ dayjs.updateLocale('en', {
   ],
 })
 
+export { dayjs }
+
 export const fullDate = (date: Date) => {
   return dayjs(date).format('DD/MM/YY[@]H:mm') // display
 }
