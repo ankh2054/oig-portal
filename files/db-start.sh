@@ -40,7 +40,7 @@ if [ ! -d "$PG_DATA" ]; then
   echo "listen_addresses = '*' " >> ${PG_CONFIG_FILE}
 
   echo "Stopping Postgres DB ready for Supervisor "
-  ps -aux | ps axf | grep "/usr/lib/postgresql/13/bin/postgres"  | grep -v grep | awk '{print "kill -9 " $1}' | sh
+  ps -aux | ps axf | grep "/usr/lib/postgresql/15/bin/postgres"  | grep -v grep | awk '{print "kill -9 " $1}' | sh
 
 else
   echo "DB already exists"
