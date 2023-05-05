@@ -8,7 +8,7 @@ const db = require('./pgquery')
 
 dotenv.config();
 const chainId = process.env.CHAINID;
-const fastapi = process.env.PYTHON_FASTAPI
+const PYTHON_FASTAPI = process.env.PYTHON_FASTAPI
 
 const fastify = require('fastify')({
   ignoreTrailingSlash: true,
