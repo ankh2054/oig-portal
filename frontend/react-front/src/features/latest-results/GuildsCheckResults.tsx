@@ -10,6 +10,7 @@ import type {
 import GuildCard from '../../shared/guild-card/GuildCard'
 import Pagination from '../../shared/pagination/Pagination'
 import ResultsToggle from '../../shared/result-toggle/ResultsToggle'
+import { dayjs } from '../../utils/dates'
 import mapProducerToGuild from '../../utils/mapProducerToGuild'
 
 import AvgResults from './AvgResults'
@@ -65,7 +66,12 @@ const GuildsCheckResults = ({
   return (
     <div className="flex w-full flex-col">
       <div className="mb-4 flex justify-between">
-        <h3 className="text-2xl">Latest results</h3>
+        <h3 className="text-2xl">
+          Latest results&nbsp;&nbsp;
+          <span className="text-xl text-primary">
+            @ {dayjs(results[0].date_check).format('DD MMMM H:mm')}
+          </span>
+        </h3>
         <div className="flex  gap-x-8">
           <ResultsToggle onClick={onSwitch} showAll={showAll} />
           {action}
