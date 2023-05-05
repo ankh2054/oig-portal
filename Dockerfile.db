@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # APT ENV
 ENV PACKAGES="\
@@ -8,12 +8,10 @@ ENV PACKAGES="\
   postgresql \
   postgresql-client \
   sudo \
-  python3.11 \
   python3-pip \
   python3-setuptools\
   libpq-dev \ 
-  python3 \
-  python3.11-dev \
+  python3-dev \
   cron \
   git \
 "
@@ -77,7 +75,7 @@ RUN chmod 0644 /app/backend/cron && \
     crontab -u root /app/backend/cron
 
 # Remove python3 and link python3.7
-RUN rm /usr/bin/python3 && ln -s python3.11 /usr/bin/python3
+#RUN rm /usr/bin/python3 && ln -s python3.11 /usr/bin/python3
 
 # Entrypoint
 ADD files/db-start.sh /start.sh
