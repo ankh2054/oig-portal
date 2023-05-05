@@ -59,6 +59,7 @@ RUN rm -rf "$PG_BASE" && mkdir -p "$PG_BASE" && chown -R postgres:postgres "$PG_
 # Add files
 WORKDIR /app
 ADD backend/*.py /app/backend/
+ADD backend/requirements.txt /app/backend/requirements.txt
 ADD backend/*.sql /app/backend/
 ADD files/pg_hba.conf $PG_CONFIG_DIR/pg_hba.conf
 ADD files/cron /app/backend/cron
@@ -67,7 +68,7 @@ ADD files/cron /app/backend/cron
 # Install python requirements
 WORKDIR /app/backend
 RUN pip3 install wheel 
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r backend/requirements.txt
 
 
 # Setup crontask for user oig
