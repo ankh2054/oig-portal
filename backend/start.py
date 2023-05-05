@@ -361,8 +361,8 @@ if __name__ == "__main__":
     cpucheck = args.ignorecpucheck
     ignorelastcheck = args.ignorelastcheck
     singlebp = args.bp
-    #main(cpucheck, ignorelastcheck, singlebp)
-    telegramDates = print(getTelegramDates())
+    main(cpucheck, ignorelastcheck, singlebp)
+    #telegramDates = print(getTelegramDates())
     #scores = chaininfo.getguildsJSON('mainnet')
     #print(chaininfo.getScore(scores,'sentnlagents'))
     #producers.producer_chain_list()
