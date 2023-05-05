@@ -105,7 +105,7 @@ def getPoints():
 
 def getLastcheck():
     db = MyDB()
-    query = db.dbSelect("SELECT date_check FROM oig.results ORDER BY date_check DESC LIMIT 1")
+    query = db.dbSelect("SELECT date_check FROM oig.results ORDER BY date_check DESC LIMIT 1 OFFSET 9")
     return query
 
 def getFullnodes(testnet=False):
