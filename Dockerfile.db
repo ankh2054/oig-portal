@@ -68,7 +68,7 @@ ADD files/cron /app/backend/cron
 # Install python requirements
 WORKDIR /app/backend
 RUN pip3 install wheel 
-RUN pip3 install -r backend/requirements.txt
+RUN pip3 install -r /app/backend/requirements.txt
 
 
 # Setup crontask for user oig
