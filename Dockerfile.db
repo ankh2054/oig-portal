@@ -58,10 +58,10 @@ RUN rm -rf "$PG_BASE" && mkdir -p "$PG_BASE" && chown -R postgres:postgres "$PG_
 
 # Add files
 WORKDIR /app
-ADD backend/*.py backend
-ADD backend/*.sql backend
+ADD backend/*.py /app/backend
+ADD backend/*.sql /app/backend
 ADD files/pg_hba.conf $PG_CONFIG_DIR/pg_hba.conf
-ADD files/cron backend/cron
+ADD files/cron /app/backend/cron
 
 
 # Install python requirements
