@@ -1,20 +1,23 @@
+import type { ChangeEvent } from 'react'
 import { useEffect, useState } from 'react'
 
 import type {
-  GuildResult,
   LatestResultsResponse,
   ResultsResponse,
   ProducersResponse,
   AvgResultsResponse,
 } from '../../services/types'
 import GuildCard from '../../shared/guild-card/GuildCard'
+import IconSearch from '../../shared/icons/IconSearch'
 import Pagination from '../../shared/pagination/Pagination'
 import ResultsToggle from '../../shared/result-toggle/ResultsToggle'
+import Top21Toggle from '../../shared/top21-toggle/Top21Toggle'
+import type { Guild } from '../../types/Guild'
+import type { Top21Toggle as Top21ToggleType } from '../../types/Top21Toggle'
 import { dayjs } from '../../utils/dates'
 import mapProducerToGuild from '../../utils/mapProducerToGuild'
 
 import AvgResults from './AvgResults'
-
 interface Props {
   results: ResultsResponse | LatestResultsResponse
   producers: ProducersResponse
@@ -22,9 +25,10 @@ interface Props {
   hideLogo: boolean
   showTime: boolean
   action?: JSX.Element
+  filterable?: boolean
 }
 
-const ITEMS_PER_PAGE = 45
+const ITEMS_PER_PAGE = 15
 
 const GuildsCheckResults = ({
   results,
@@ -33,21 +37,20 @@ const GuildsCheckResults = ({
   hideLogo,
   showTime,
   action,
+  filterable,
 }: Props) => {
-  const [showAll, setShowAll] = useState(false)
-  const [paginatedData, setPaginatedData] = useState<Array<GuildResult>>([])
+  const [paginatedGuilds, setPaginatedGuilds] = useState<Array<Guild>>([])
   const [itemOffset, setItemOffset] = useState(0)
 
   const [totalItems, setTotalItems] = useState(0)
-  const onSwitch = (showAll: boolean) => {
-    setShowAll(showAll)
-  }
 
   useEffect(() => {
     const activeGuilds = results.filter((r) => isActive(r.owner_name))
     setTotalItems(activeGuilds.length)
-    setPaginatedData(
-      activeGuilds.slice(itemOffset, itemOffset + ITEMS_PER_PAGE)
+    setPaginatedGuilds(
+      activeGuilds
+        .slice(itemOffset, itemOffset + ITEMS_PER_PAGE)
+        .map((guild) => mapProducerToGuild(producers, guild))
     )
   }, [results, itemOffset, totalItems])
 
@@ -56,6 +59,10 @@ const GuildsCheckResults = ({
     setItemOffset(newOffset)
   }
 
+  const [showAll, setShowAll] = useState(false)
+  const [activeTop21Toggle, setActiveTop21Toggle] =
+    useState<Top21ToggleType>('all')
+  const [searchTerm, setSearchTerm] = useState('')
   const isActive = (owner_name: string) => {
     const owner = producers.find(
       (producer) => producer.owner_name === owner_name
@@ -63,27 +70,106 @@ const GuildsCheckResults = ({
     return owner ? owner.active !== false && owner.active !== null : true
   }
 
+  const activeGuilds = results
+    .filter((r) => isActive(r.owner_name))
+    .map((guild) => mapProducerToGuild(producers, guild))
+
+  const [filterableGuilds, setFilterableGuilds] =
+    useState<Array<Guild>>(activeGuilds)
+
+  const onColumnsSwitch = (showAll: boolean) => {
+    setShowAll(showAll)
+  }
+
+  const getGuildsToggle = (activeToggle: Top21ToggleType) => {
+    let guilds
+    if (activeToggle === 'top21') {
+      guilds = activeGuilds.filter((guild) => guild.top21 === true)
+    } else if (activeToggle === 'standby') {
+      guilds = activeGuilds.filter((guild) => guild.top21 !== true)
+    } else {
+      guilds = activeGuilds
+    }
+    return guilds
+  }
+
+  const onTop21Switch = (activeToggle: Top21ToggleType) => {
+    setActiveTop21Toggle(activeToggle)
+    let guilds = getGuildsToggle(activeToggle)
+    guilds = guilds.filter((guild) =>
+      guild.owner_name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    setFilterableGuilds(guilds)
+  }
+
+  const search = (searchTerm: string) => {
+    let guildResult = getGuildsToggle(activeTop21Toggle)
+    setSearchTerm(searchTerm.trim())
+    if (searchTerm.trim().length === 0) {
+      setFilterableGuilds(guildResult)
+    }
+    setFilterableGuilds(
+      guildResult.filter((guild) =>
+        guild.owner_name.toLowerCase().includes(searchTerm.trim().toLowerCase())
+      )
+    )
+  }
+  const handleOnSearch = (e: ChangeEvent<HTMLInputElement>) => {
+    search(e.target.value)
+  }
+  const lastCheckFormattedTime = dayjs(results[0].date_check).format(
+    'DD MMMM H:mm'
+  )
+
+  const guildsToDisplay = filterable ? filterableGuilds : paginatedGuilds
   return (
     <div className="flex w-full flex-col">
-      <div className="mb-4 flex justify-between">
+      <div className="mb-4 flex items-center justify-between">
         <h3 className="text-2xl">
           Latest results&nbsp;&nbsp;
           <span className="text-xl text-primary">
-            @ {dayjs(results[0].date_check).format('DD MMMM H:mm')}
+            @ {lastCheckFormattedTime}
           </span>
         </h3>
-        <div className="flex  gap-x-8">
-          <ResultsToggle onClick={onSwitch} showAll={showAll} />
+
+        <div className="flex  gap-x-4">
+          {filterable && (
+            <>
+              <div>
+                <label
+                  htmlFor="search"
+                  className="text-gray-900 sr-only mb-2 text-sm font-medium"
+                >
+                  Search
+                </label>
+                <div className="relative">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <IconSearch className="h-5 w-5 text-gray" />
+                  </div>
+                  <input
+                    type="search"
+                    id="search"
+                    className="text-gray-900 block w-full rounded-full border border-lightGray py-2.5 pl-10  text-sm focus:border-secondary focus:ring-secondary"
+                    placeholder="Search"
+                    onChange={handleOnSearch}
+                    required
+                  />
+                </div>
+              </div>
+              <Top21Toggle onClick={onTop21Switch} showAll={showAll} />
+            </>
+          )}
+          <ResultsToggle onClick={onColumnsSwitch} showAll={showAll} />
           {action}
         </div>
       </div>
       {avgResults && <AvgResults data={avgResults} showAll={showAll} />}
       <div className="grid gap-y-4">
-        {paginatedData.map((v, i) => {
+        {guildsToDisplay.map((guild) => {
           return (
             <GuildCard
-              data={mapProducerToGuild(v, producers)}
-              key={i}
+              data={guild}
+              key={guild.owner_name}
               showAll={showAll}
               hideLogo={hideLogo}
               showTime={showTime}
@@ -91,7 +177,7 @@ const GuildsCheckResults = ({
           )
         })}
       </div>
-      {totalItems > ITEMS_PER_PAGE && (
+      {!filterable && totalItems > ITEMS_PER_PAGE && (
         <Pagination
           className="mt-6 flex justify-center"
           total={totalItems}

@@ -6,12 +6,12 @@ interface Props {
 }
 const ResultsToggle = ({ onClick, showAll }: Props) => {
   return (
-    <div className="flex cursor-pointer rounded-full  border border-lightGray bg-white text-gray">
+    <div className="flex cursor-pointer rounded-full  border border-primary bg-white text-gray">
       <button
         className={cx(
           'w-32 px-2 py-1',
           {
-            'rounded-full bg-gradient-to-r from-redSalsa  to-sunsetOrange font-medium text-white':
+            'm-1 rounded-full bg-gradient-to-r  from-redSalsa to-sunsetOrange font-medium text-white ':
               !showAll,
           },
           { 'text-gray': showAll }
@@ -24,7 +24,7 @@ const ResultsToggle = ({ onClick, showAll }: Props) => {
         className={cx(
           'w-32 px-2 py-1',
           {
-            'rounded-full bg-gradient-to-r from-redSalsa to-sunsetOrange  font-medium text-white':
+            'm-1 rounded-full bg-gradient-to-r from-redSalsa  to-sunsetOrange font-medium  text-white ':
               showAll,
           },
           { 'text-gray': !showAll }
