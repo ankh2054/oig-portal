@@ -129,7 +129,7 @@ const GuildCard = ({
             icon={<IconCashCheck />}
             name="oracle_feed"
             status={data.oracle_feed}
-            message={data.hyperion_v2_error}
+            message={data.oracle_feed_error}
           />
           <ServiceState
             icon={<IconJson />}
