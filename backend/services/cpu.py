@@ -63,12 +63,8 @@ def cpuresults(producer,producercpu,producertestcpu):
         return stat
     else:
         print(f'Producer not found in either mainnet or testnet data looking for data')
-        cpu = eosio.get_testnetproducer_cpustats(producer)
-        if cpu == None:
-            return int(1.0)
-        else: 
-            stat = round(cpu/1000,2)
-            return stat
+        return int(1.0)
+
 
 """def cpuresults2(producer,producercpu):
     # Get cpustats(key) value for the items in producercpu if the producer passed is in that list.
