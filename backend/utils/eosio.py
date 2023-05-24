@@ -87,12 +87,12 @@ class getJSON():
             return self.url
 
     def getPostData(self,url,payload):
-            self.response  = requests.post(url,json=payload)
+            self.response  = requests.post(url,json=payload,timeout=20)
             self.response_json = json.loads(self.response.text)
             return self.response_json
             
     def getData(self,url,retValue,payload):
-            self.response  = requests.get(url,params=payload)
+            self.response  = requests.get(url,params=payload,timeout=20)
             self.response_json = json.loads(self.response.text)
             self.json = self.response_json[retValue]
             return self.json
@@ -350,18 +350,25 @@ def get_stuff(apiNode,payload,type,chain='guild'):
 def get_testnetproducer_cpustats(producer):
     # Get current headblock from testnet
     current_headblock = headblock("testnet")
+    print(f'Producer from DB {producer}')
     # Set producer to random name
     blockproducer = "nobody"
     transactions = []
     amount = 0 
+    print(producer)
     while producer != blockproducer or len(transactions) == 0:
-        currentblock = getblockTestnet(current_headblock)
-        transactions = currentblock['transactions']
+        try:
+            currentblock = getblockTestnet(current_headblock)
+            transactions = currentblock['transactions']
+        except:
+            continue
         # Set producer of current block
         blockproducer = currentblock['producer']
+        if producer == blockproducer:
+            print(f'Producer match: {blockproducer}, but transactions count is {len(transactions)} ')
         # Deduct 1 from current block to check next block
         current_headblock = current_headblock - 1
-        # Only go back 4000 Blocks
+        # Only go back 500 Blocks
         amount = amount + 1
         if amount == 500:
             return None

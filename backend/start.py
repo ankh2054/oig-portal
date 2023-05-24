@@ -122,7 +122,8 @@ def finalresults(cpucheck,singlebp):
     if not cpucheck:
         pass
     else:
-        producercpu = cpu.getcpustats()
+        producercpu = cpu.getcpustats('mainnet')
+        producertestcpu = cpu.getcpustats('testnet')
     # Get points system
     pointsystem =  db_connect.getPoints()
     # Get list of delphioracles and store for use
@@ -188,7 +189,7 @@ def finalresults(cpucheck,singlebp):
         if not cpucheck:
             cpu_time = (1.0)
         else: 
-            cpu_time = cpu.cpuresults(producer,producercpu)
+            cpu_time = cpu.cpuresults(producer,producercpu,producertestcpu)
         print("CPU latency on EOS Mechanics below 2 ms on average:",core.bcolors.OKYELLOW, cpu_time,core.bcolors.ENDC,"ms")
         cpuavg = cpu.cpuAverage(producer)
         print("CPU latency average over 30days:",core.bcolors.OKYELLOW, cpuavg,core.bcolors.ENDC,"ms")

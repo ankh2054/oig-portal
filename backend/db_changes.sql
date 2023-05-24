@@ -68,3 +68,22 @@ GRANT ALL PRIVILEGES ON DATABASE oig TO oiguser ;
 GRANT ALL PRIVILEGES ON SCHEMA oig TO oiguser ;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA oig TO oiguser ;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA oig TO oiguser ;
+
+-- TESNET CPU CHANGES --
+
+-- Step 1: Set producers as false 
+UPDATE oig.producer
+SET active = false
+WHERE owner_name IN ('aus1genereos', 'blocksmithio', 'edeniaedenia','eosbarcelona','eoseouldotio','hkeosguildhk','niftylifewax','polar.wax','pplbresource','valcapitalbp','waxcafeblock','zenblockswax', 'nomadxchange', 'polar.wax');
+
+-- Step 2: Add column for testnet names
+ALTER TABLE oig.producer ADD owner_name_testnet VARCHAR(12);
+
+-- Step 3: Copy testnet data from owner_name
+UPDATE oig.producer
+SET owner_name_testnet = owner_name;
+
+-- Step 4: Update dapplica to testnet name
+UPDATE oig.producer
+SET owner_name_testnet = 'dapplicawaxt'
+WHERE owner_name = 'dapplica';

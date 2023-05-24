@@ -9,6 +9,7 @@ CREATE SCHEMA oig;
 
 CREATE TABLE oig.producer (
 	owner_name VARCHAR ( 12 ),
+    owner_name_testnet VARCHAR ( 12 ),
 	candidate VARCHAR ( 40 ) NOT NULL,
 	url VARCHAR ( 50 ) NOT NULL,
 	jsonurl VARCHAR ( 100 ) NOT NULL,
