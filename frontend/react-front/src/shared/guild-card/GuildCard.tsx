@@ -195,7 +195,7 @@ const GuildCard = ({
         </>
       )}
       <div className="flex flex-col items-center">
-        <div className="relative">{data.cpu_avg}</div>
+        <div className="relative">{data.cpu_time}</div>
         <div className="text-xs text-gray">cpu</div>
       </div>
       <div className="flex flex-col items-center">
