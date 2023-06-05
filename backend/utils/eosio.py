@@ -212,7 +212,7 @@ def hyperionindexedBlocks(host):
     try:
         url = host + str(Api_Calls('v2', 'health'))
         print(url)
-        response = s.get(url, verify=False)
+        response = s.get(url, verify=False, timeout=15)
         jsonres = response.json()
         response.raise_for_status()  # Raises an HTTPError if the status is 4xx, 5xx
     except requests.ConnectionError as e:
