@@ -211,10 +211,11 @@ def getrandomNode(nodelist):
 def hyperionindexedBlocks(host):
     try:
         url = host + str(Api_Calls('v2', 'health'))
+        print(url)
         response = s.get(url, verify=False)
         jsonres = response.json()
     except:
-        return False, 'Could not connect to Hyperion'
+        return False, f'{response.reason} error code: {response.status_code}'
     health_info = jsonres.get('health')
     try:
         service_data = health_info[2]['service_data']
