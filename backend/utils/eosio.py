@@ -98,7 +98,7 @@ class getJSON():
             return self.json
     
     def getDataSimple(self,url,payload):
-            self.response  = requests.get(url,params=payload,timeout=60)
+            self.response  = requests.get(url,params=payload,timeout=20)
             self.response_json = json.loads(self.response.text)
             return self.response_json
 
