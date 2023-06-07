@@ -214,6 +214,7 @@ def hyperionindexedBlocks(host):
         print(url)
         response = s.get(url, verify=False, timeout=15)
         jsonres = response.json()
+        health_info = jsonres.get('health')
         response.raise_for_status()  # Raises an HTTPError if the status is 4xx, 5xx
     except requests.ConnectionError as e:
         # Handling connection related errors
@@ -221,12 +222,9 @@ def hyperionindexedBlocks(host):
     except requests.HTTPError as e:
         # Handling HTTP error responses from the server
         return False, f'{response.reason} error code: {response.status_code}'
-    try:
-        jsonres = response.json()
     except ValueError:
         # Handling JSON decoding errors
         return False, 'Invalid JSON response'
-    health_info = jsonres.get('health')
     try:
         service_data = health_info[2]['service_data']
     except:
