@@ -8,7 +8,7 @@ from datetime import datetime
 import requests as requests2
 
 
-def check_hyperion(producer,feature,partialtest=False,testnet=False):
+def check_hyperion(producer,feature,fulltrx,partialtest=False,testnet=False):
     ### Check Hyperion exists in DB 
     try:
         api = db_connect.getQueryNodes(producer,feature,'api',testnet)[0]
@@ -31,9 +31,9 @@ def check_hyperion(producer,feature,partialtest=False,testnet=False):
     # Test for full or partial
     if partialtest:
         # block to test is headblock minus 20 weeks 1 day back. 2 blocks per second.
-        fourweeksOnedayinSeconds = 30480000+86400
+        #fourweeksOnedayinSeconds = 30480000+86400
         # Get random transaction
-        fulltrx = eosio.get_random_trx(fourweeksOnedayinSeconds,chain)
+        #fulltrx = eosio.get_random_trx(fourweeksOnedayinSeconds,chain)
         #Create payload for request to hyperion
         payload = dict(id=fulltrx[0])
         try:

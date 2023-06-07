@@ -127,9 +127,13 @@ class getJSON():
             self.json = retCount(self.retCount,self.response_json)
         # Handle accessing dict key
         except KeyError as err:
+            print(f"Error: {err}, response_json: {self.response_json}")
             url = self.getRandomNode(err)
             self.response_json = self.getPostData(url,payload)
-            self.json = retCount(self.retCount,self.response_json)
+            try:
+                self.json = retCount(self.retCount, self.response_json)
+            except KeyError as err:
+                print(f"Error: {err}, response_json: {self.response_json}")
         return self.json
     
     def reqPostSimple(self,url,payload=None):
@@ -374,3 +378,4 @@ def get_testnetproducer_cpustats(producer):
             return None
     else:
         return currentblock['transactions'][0]['cpu_usage_us']
+    
