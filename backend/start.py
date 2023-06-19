@@ -17,6 +17,7 @@ import services.delphi as delphi
 import services.cpu as cpu
 import services.chainjson as chainjson
 import services.telegram as telegram_module
+import services.score as scoring
 import asyncio
 #import utils.requests as requests
 import sys
@@ -70,41 +71,13 @@ def getTelegramDates():
             appeal_end = item['date']
         elif item['type'] == 'Publish Final Report':
             final_report = item['date']
+    try:
+        data_tuples.append((submission_cutoff, appeal_begin, appeal_end, final_report))
+        return data_tuples
+    except:
+        return False
+    
 
-    data_tuples.append((submission_cutoff, appeal_begin, appeal_end, final_report))
-    return data_tuples
-
-
-# Results are a key value dict with each check as its called in DB, 
-# with the results of that check as the value
-def pointsResults(results,pointsystem):
-    points = 0
-    # for each check in points system - Names of checks
-    for check in pointsystem:
-        if check == 'minimum-points':
-            continue
-        # Look in results dict and find check key and get value
-        checkResult = results.get(check[0])
-        minrequirementscheck = results.get(check[3])
-        # CPU exception
-        if check == 'cpu_time':
-            if checkResult <= 0.5:
-                points = points+(check[1]*check[2])
-            else:
-                points = points+0
-        # Website exception 
-        elif check == 'website':
-            points = points+(check[1]*check[2])
-        # For all other scores if result is True
-        else:
-            if checkResult == True:
-                points = points+(check[1]*check[2])
-            # If checkresult fails and its a minimum requirement deduct 1000 points, so the guld fails the min point requirements
-            elif checkResult == False and minrequirementscheck == True:
-                points = points-1000
-            else:
-                points = points+0
-    return points
 
 ## Final Results print output function to display results to console for each check
 def printOuput(results,description):
@@ -300,7 +273,7 @@ def finalresults(cpucheck,singlebp):
             cpuavg, 
             dt
         ]
-        score = pointsResults(pointslist,pointsystem)
+        score = scoring.pointsResults(pointslist,pointsystem)
         print("Final Tech points:",core.bcolors.OKGREEN,score,core.bcolors.ENDC)
         # Add final sore to list
         resultslist.append(score)

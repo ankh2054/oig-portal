@@ -92,7 +92,8 @@ CREATE TABLE oig.pointsystem (
 	points_type VARCHAR ( 50 ),
 	points SMALLINT,
     multiplier DECIMAL NOT NULL,
-    min_requirements BOOLEAN
+    min_requirements BOOLEAN,
+    points_deduct SMALLINT
 );
 CREATE UNIQUE INDEX pointsystem_idx ON oig.pointsystem(points_type);
 

@@ -60,10 +60,10 @@ const GuildInfo = ({ producer, result }: Props) => {
       </div>
       <div className="mb-4 flex gap-x-4">
         <Score
-          title="Previous score"
+          title="Prev Chain score"
           score={parseInt(result.chainscore) / 10000}
         />
-        <Score title="Current score" score={parseInt(result.score)} />
+        <Score title="Tech score" score={parseInt(result.score)} />
       </div>
       <div className="flex items-center gap-x-8">
         <a
