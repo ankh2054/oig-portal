@@ -87,7 +87,7 @@ class getJSON():
             return self.url
 
     def getPostData(self,url,payload):
-            self.response  = requests.post(url,json=payload,timeout=20)
+            self.response  = requests.post(url,json=payload,timeout=60)
             self.response_json = json.loads(self.response.text)
             return self.response_json
             
