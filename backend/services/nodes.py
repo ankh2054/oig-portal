@@ -18,7 +18,7 @@ def node_types(type, node, owner_name,net):
         else:         
             nodeurl = node.get(nodes)
         # If the node type is features and it's not a list, convert it to a list
-        if nodes == 'features' and type(nodeurl) is not list:
+        if nodes == 'features' and not isinstance(nodeurl, list):
             nodeurl = [nodeurl]
         finallist.append(nodeurl)
     # Turn list into tuple 
