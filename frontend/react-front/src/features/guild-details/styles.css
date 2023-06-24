@@ -1,9 +1,9 @@
-.cpu-chart {
+.chart {
   height: 300px;
 }
 
 @media (min-width: 768px) {
-  .cpu-chart {
-    height: 732px;
+  .chart {
+    height: 336px;
   }
 }
