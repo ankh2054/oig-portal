@@ -63,6 +63,7 @@ const HomePage = () => {
         producers={producers}
         hideLogo={false}
         showTime={false}
+        filterable={true}
       />
     )
   }

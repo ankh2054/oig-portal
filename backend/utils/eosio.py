@@ -87,18 +87,18 @@ class getJSON():
             return self.url
 
     def getPostData(self,url,payload):
-            self.response  = requests.post(url,json=payload)
+            self.response  = requests.post(url,json=payload,timeout=60)
             self.response_json = json.loads(self.response.text)
             return self.response_json
             
     def getData(self,url,retValue,payload):
-            self.response  = requests.get(url,params=payload)
+            self.response  = requests.get(url,params=payload,timeout=20)
             self.response_json = json.loads(self.response.text)
             self.json = self.response_json[retValue]
             return self.json
     
     def getDataSimple(self,url,payload):
-            self.response  = requests.get(url,params=payload,timeout=60)
+            self.response  = requests.get(url,params=payload,timeout=20)
             self.response_json = json.loads(self.response.text)
             return self.response_json
 
@@ -127,9 +127,13 @@ class getJSON():
             self.json = retCount(self.retCount,self.response_json)
         # Handle accessing dict key
         except KeyError as err:
+            print(f"Error: {err}, response_json: {self.response_json}")
             url = self.getRandomNode(err)
             self.response_json = self.getPostData(url,payload)
-            self.json = retCount(self.retCount,self.response_json)
+            try:
+                self.json = retCount(self.retCount, self.response_json)
+            except KeyError as err:
+                print(f"Error: {err}, response_json: {self.response_json}")
         return self.json
     
     def reqPostSimple(self,url,payload=None):
@@ -211,11 +215,20 @@ def getrandomNode(nodelist):
 def hyperionindexedBlocks(host):
     try:
         url = host + str(Api_Calls('v2', 'health'))
-        response = s.get(url, verify=False)
+        print(url)
+        response = s.get(url, verify=False, timeout=15)
         jsonres = response.json()
-    except:
-        return False, 'Could not connect to Hyperion'
-    health_info = jsonres.get('health')
+        health_info = jsonres.get('health')
+        response.raise_for_status()  # Raises an HTTPError if the status is 4xx, 5xx
+    except requests.ConnectionError as e:
+        # Handling connection related errors
+        return False, str(e)
+    except requests.HTTPError as e:
+        # Handling HTTP error responses from the server
+        return False, f'{response.reason} error code: {response.status_code}'
+    except ValueError:
+        # Handling JSON decoding errors
+        return False, 'Invalid JSON response'
     try:
         service_data = health_info[2]['service_data']
     except:
@@ -350,20 +363,28 @@ def get_stuff(apiNode,payload,type,chain='guild'):
 def get_testnetproducer_cpustats(producer):
     # Get current headblock from testnet
     current_headblock = headblock("testnet")
+    print(f'Producer from DB {producer}')
     # Set producer to random name
     blockproducer = "nobody"
     transactions = []
     amount = 0 
+    print(producer)
     while producer != blockproducer or len(transactions) == 0:
-        currentblock = getblockTestnet(current_headblock)
-        transactions = currentblock['transactions']
+        try:
+            currentblock = getblockTestnet(current_headblock)
+            transactions = currentblock['transactions']
+        except:
+            continue
         # Set producer of current block
         blockproducer = currentblock['producer']
+        if producer == blockproducer:
+            print(f'Producer match: {blockproducer}, but transactions count is {len(transactions)} ')
         # Deduct 1 from current block to check next block
         current_headblock = current_headblock - 1
-        # Only go back 4000 Blocks
+        # Only go back 500 Blocks
         amount = amount + 1
         if amount == 500:
             return None
     else:
         return currentblock['transactions'][0]['cpu_usage_us']
+    

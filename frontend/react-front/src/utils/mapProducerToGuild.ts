@@ -1,8 +1,8 @@
 import type { GuildResult, ProducersResponse } from '../services/types'
 
 const mapProducerToGuild = (
-  guild: GuildResult,
-  producers: ProducersResponse
+  producers: ProducersResponse,
+  guild: GuildResult
 ) => {
   const selectedProducers = producers.filter(
     (producer) => producer.owner_name === guild.owner_name

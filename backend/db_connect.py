@@ -122,6 +122,13 @@ def getProducerStatus(producer):
     query = db.dbSelect("SELECT active FROM oig.producer WHERE owner_name =  %s",producer)
     return query
 
+def getProducerTestnetName(producer):
+    db = MyDB()
+    query = db.dbSelect("SELECT owner_name_testnet FROM oig.producer WHERE owner_name =  %s",producer)
+    return query
+
+#print(getProducerTestnetName('sentnlagents').pop()[0])
+
 def getSnapshotdate():
     db = MyDB()
     query = db.dbSelect("SELECT snapshot_date FROM oig.snapshotsettings")

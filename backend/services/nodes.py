@@ -1,6 +1,7 @@
 import utils.requests as requests
 import db_connect
 
+
 # Iterate over all different types of possible URLs and features
 def node_types(type, node, owner_name,net):
     # Set node type
@@ -16,11 +17,13 @@ def node_types(type, node, owner_name,net):
         # Else pass in node URL or featurelist
         else:         
             nodeurl = node.get(nodes)
+        # If the node type is features and it's not a list, convert it to a list
+        if nodes == 'features' and not isinstance(nodeurl, list):
+            nodeurl = [nodeurl]
         finallist.append(nodeurl)
     # Turn list into tuple 
     thistuple = tuple(finallist)
     return thistuple
-
 
 ## Get list of nodes from each wax.json and produce tuple of all nodes
 ## Look for features 

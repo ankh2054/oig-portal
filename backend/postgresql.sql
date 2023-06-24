@@ -9,6 +9,7 @@ CREATE SCHEMA oig;
 
 CREATE TABLE oig.producer (
 	owner_name VARCHAR ( 12 ),
+    owner_name_testnet VARCHAR ( 12 ),
 	candidate VARCHAR ( 40 ) NOT NULL,
 	url VARCHAR ( 50 ) NOT NULL,
 	jsonurl VARCHAR ( 100 ) NOT NULL,
@@ -91,7 +92,8 @@ CREATE TABLE oig.pointsystem (
 	points_type VARCHAR ( 50 ),
 	points SMALLINT,
     multiplier DECIMAL NOT NULL,
-    min_requirements BOOLEAN
+    min_requirements BOOLEAN,
+    points_deduct SMALLINT
 );
 CREATE UNIQUE INDEX pointsystem_idx ON oig.pointsystem(points_type);
 

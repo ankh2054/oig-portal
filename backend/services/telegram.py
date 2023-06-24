@@ -60,7 +60,7 @@ async def fetch_telegram_dates():
         r"(?:Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday),\s\w+\s\d{1,2}\w{2},\sfrom\s\d{2}:\d{2}:\d{2}\suntil\s\d{2}:\d{2}:\d{2}\sUTC)"
     )
 
-    filtered_messages.reverse()
+    #filtered_messages.reverse()
 
     for message in filtered_messages:
         dates = date_pattern.finditer(message.text)
@@ -79,6 +79,5 @@ async def fetch_telegram_dates():
 
 #results = asyncio.run(telegram())
 #print(results)
-
 
 

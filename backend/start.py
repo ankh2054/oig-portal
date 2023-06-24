@@ -17,13 +17,19 @@ import services.delphi as delphi
 import services.cpu as cpu
 import services.chainjson as chainjson
 import services.telegram as telegram_module
+import services.score as scoring
 import asyncio
 #import utils.requests as requests
 import sys
 
 
 
-
+#Get random transactions
+fourweeksOnedayinSeconds = 30480000+86400
+mainnetfulltrx = eosio.get_random_trx(fourweeksOnedayinSeconds,'mainnet')
+testnetfulltrx = eosio.get_random_trx(fourweeksOnedayinSeconds,'testnet')
+print(core.bcolors.OKYELLOW,f"{'='*100}\nRandom Mainnet TRX: ",mainnetfulltrx,core.bcolors.ENDC)
+print(core.bcolors.OKYELLOW,f"{'='*100}\nRandom Testnet TRX: ",testnetfulltrx,core.bcolors.ENDC)
 
 def lastCheck(now,ignorelastcheck,hours):
     lastcheck = db_connect.getLastcheck() #2021-11-19 07:25:24.11084+00
@@ -65,41 +71,13 @@ def getTelegramDates():
             appeal_end = item['date']
         elif item['type'] == 'Publish Final Report':
             final_report = item['date']
+    try:
+        data_tuples.append((submission_cutoff, appeal_begin, appeal_end, final_report))
+        return data_tuples
+    except:
+        return False
+    
 
-    data_tuples.append((submission_cutoff, appeal_begin, appeal_end, final_report))
-    return data_tuples
-
-
-# Results are a key value dict with each check as its called in DB, 
-# with the results of that check as the value
-def pointsResults(results,pointsystem):
-    points = 0
-    # for each check in points system - Names of checks
-    for check in pointsystem:
-        if check == 'minimum-points':
-            continue
-        # Look in results dict and find check key and get value
-        checkResult = results.get(check[0])
-        minrequirementscheck = results.get(check[3])
-        # CPU exception
-        if check == 'cpu_time':
-            if checkResult <= 0.5:
-                points = points+(check[1]*check[2])
-            else:
-                points = points+0
-        # Website exception 
-        elif check == 'website':
-            points = points+(check[1]*check[2])
-        # For all other scores if result is True
-        else:
-            if checkResult == True:
-                points = points+(check[1]*check[2])
-            # If checkresult fails and its a minimum requirement deduct 1000 points, so the guld fails the min point requirements
-            elif checkResult == False and minrequirementscheck == True:
-                points = points-1000
-            else:
-                points = points+0
-    return points
 
 ## Final Results print output function to display results to console for each check
 def printOuput(results,description):
@@ -122,7 +100,8 @@ def finalresults(cpucheck,singlebp):
     if not cpucheck:
         pass
     else:
-        producercpu = cpu.getcpustats()
+        producercpu = cpu.getcpustats('mainnet')
+        producertestcpu = cpu.getcpustats('testnet')
     # Get points system
     pointsystem =  db_connect.getPoints()
     # Get list of delphioracles and store for use
@@ -188,7 +167,7 @@ def finalresults(cpucheck,singlebp):
         if not cpucheck:
             cpu_time = (1.0)
         else: 
-            cpu_time = cpu.cpuresults(producer,producercpu)
+            cpu_time = cpu.cpuresults(producer,producercpu,producertestcpu)
         print("CPU latency on EOS Mechanics below 2 ms on average:",core.bcolors.OKYELLOW, cpu_time,core.bcolors.ENDC,"ms")
         cpuavg = cpu.cpuAverage(producer)
         print("CPU latency average over 30days:",core.bcolors.OKYELLOW, cpuavg,core.bcolors.ENDC,"ms")
@@ -198,19 +177,19 @@ def finalresults(cpucheck,singlebp):
         printOuput(full_history,"Running a v1 History node: ")
 
         # v2 Hyperion mainnet check
-        hyperion_v2 = history.check_hyperion(producer,'hyperion-v2')
+        hyperion_v2 = history.check_hyperion(producer,'hyperion-v2',mainnetfulltrx)
         printOuput(hyperion_v2,"Running a v2 Hyperion node: ")
 
         # v2 Hyperion mainnet Full/Partial check
-        hyperion_v2_full = history.check_hyperion(producer,'hyperion-v2',partialtest=True)
+        hyperion_v2_full = history.check_hyperion(producer,'hyperion-v2',mainnetfulltrx,partialtest=True)
         printOuput( hyperion_v2_full,"Running a v2 Hyperion Full node: ")
 
         # v2 Hyperion testnet check
-        hyperion_v2_testnet = history.check_hyperion(producer,'hyperion-v2',testnet=True)
+        hyperion_v2_testnet = history.check_hyperion(producer,'hyperion-v2',testnetfulltrx,testnet=True)
         printOuput(hyperion_v2_testnet,"Running a v2 Hyperion testnet node: ")
 
         # v2 Hyperion testnet Full/Partial check
-        hyperion_v2_testnet_full = history.check_hyperion(producer,'hyperion-v2',testnet=True,partialtest=True)
+        hyperion_v2_testnet_full = history.check_hyperion(producer,'hyperion-v2',testnetfulltrx,testnet=True,partialtest=True)
         printOuput(hyperion_v2_testnet_full,"Running a v2 Hyperion Full testnet node: ")
 
         # Atomic Assets API
@@ -294,7 +273,7 @@ def finalresults(cpucheck,singlebp):
             cpuavg, 
             dt
         ]
-        score = pointsResults(pointslist,pointsystem)
+        score = scoring.pointsResults(pointslist,pointsystem)
         print("Final Tech points:",core.bcolors.OKGREEN,score,core.bcolors.ENDC)
         # Add final sore to list
         resultslist.append(score)

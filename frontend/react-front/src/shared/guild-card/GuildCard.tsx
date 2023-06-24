@@ -12,13 +12,13 @@ import IconCashCheck from '../icons/IconCashCheck'
 import IconCors from '../icons/IconCors'
 import IconHyperionV1 from '../icons/IconHyperionV1'
 import IconHyperionV2 from '../icons/IconHyperionV2'
+import IconHyperionV2TestNet from '../icons/IconHyperionV2TestNet'
+import IconImage from '../icons/IconImage'
 import IconJson from '../icons/IconJson'
 import IconProtocol from '../icons/IconProtocol'
 import IconSeedNode from '../icons/IconSeedNode'
 import ServiceState from '../service-state/ServiceState'
 import './GuildCard.css'
-import IconHyperionV2TestNet from '../icons/IconHyperionV2TestNet'
-import IconImage from '../icons/IconImage'
 
 interface Props {
   data: Guild
@@ -48,6 +48,8 @@ const GuildCard = ({
               src={data.logo_svg}
               className="h-8 self-center"
               alt="logo"
+              width="32"
+              height="32"
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null // prevents looping
                 currentTarget.src =
@@ -64,7 +66,11 @@ const GuildCard = ({
           <div className="flex flex-col gap-y-1">
             <div>{data.owner_name}</div>
             <div className="flex items-center gap-x-1">
-              {data.top21 && <Badge bgColor="bg-success">Top 21</Badge>}
+              {data.top21 && (
+                <Badge bgColor="bg-success" className="top21-badge">
+                  Top 21
+                </Badge>
+              )}
               {data.country_code && (
                 <span className="text-2xl leading-5">
                   {getUnicodeFlagIcon(data.country_code)}
@@ -123,7 +129,7 @@ const GuildCard = ({
             icon={<IconCashCheck />}
             name="oracle_feed"
             status={data.oracle_feed}
-            message={data.hyperion_v2_error}
+            message={data.oracle_feed_error}
           />
           <ServiceState
             icon={<IconJson />}
@@ -189,7 +195,7 @@ const GuildCard = ({
         </>
       )}
       <div className="flex flex-col items-center">
-        <div className="relative">{data.cpu_avg}</div>
+        <div className="relative">{data.cpu_time}</div>
         <div className="text-xs text-gray">cpu</div>
       </div>
       <div className="flex flex-col items-center">
