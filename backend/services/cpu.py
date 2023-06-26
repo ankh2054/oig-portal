@@ -62,7 +62,7 @@ def cpuresults(producer,producercpu,producertestcpu):
         stat = round((sum(cpuTest) / len(cpuTest))/1000,2)
         return stat
     else:
-        print(f'Producer not found in either mainnet or testnet data looking for data')
+        print(f'Producer not found in either mainnet or testnet data setting to default of 1.0')
         return int(1.0)
 
 

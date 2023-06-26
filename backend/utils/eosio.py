@@ -197,6 +197,7 @@ def getFullnodes(testnet=False):
                 if rpcstatus == 'OK' and responsetimes < 500 and node not in bad_node_list:
                     nodes = {'Node': node, 'res': responsetimes }
                     nodelist.append(nodes)
+    print(nodelist)
     return nodelist
 
 #hyperion_Node = getrandomNode(nodelist)

@@ -55,13 +55,14 @@ async def fetch_telegram_dates():
                     filtered_messages.append(message)
 
     date_pattern = re.compile(
-        r"((?:Guild Update Submission Cutoff|Report Appeals Begin|Report Appeals End|Publish Final Report))\s*"
-        r"((?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),\s\w+\s\d{1,2}\w{2},\s\d{4},\s\d{2}:\d{2}:\d{2}\sUTC|"
-        r"(?:Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday),\s\w+\s\d{1,2}\w{2},\sfrom\s\d{2}:\d{2}:\d{2}\suntil\s\d{2}:\d{2}:\d{2}\sUTC)"
+        #r"((?:Guild Update Submission Cutoff|Report Appeals Begin|Report Appeals End|Publish Final Report))\s*"
+        r"((\*\*)?(?:Guild Update Submission Cutoff|Report Appeals Begin|Report Appeals End|Publish Final Report))\s*"
+        r"((\*\*)(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),\s\w+\s\d{1,2}\w{2},\s\d{4},\s\d{2}:\d{2}:\d{2}\sUTC|"
+        r"((\*\*)?:Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday),\s\w+\s\d{1,2}\w{2},\sfrom\s\d{2}:\d{2}:\d{2}\suntil\s\d{2}:\d{2}:\d{2}\sUTC)"
     )
 
     #filtered_messages.reverse()
-
+    
     for message in filtered_messages:
         dates = date_pattern.finditer(message.text)
         found = False
@@ -77,7 +78,7 @@ async def fetch_telegram_dates():
                 break
     return results
 
-#results = asyncio.run(telegram())
-#print(results)
+
+
 
 

@@ -63,7 +63,7 @@ def getTelegramDates():
 
     
     for item in date_list:
-        if item['type'] == 'Guild Update Submission Cutoff':
+        if item['type'] == 'Guild Update Submission Cutoff': 
             submission_cutoff = item['date']
         elif item['type'] == 'Report Appeals Begin':
             appeal_begin = item['date']
@@ -340,8 +340,8 @@ if __name__ == "__main__":
     cpucheck = args.ignorecpucheck
     ignorelastcheck = args.ignorelastcheck
     singlebp = args.bp
-    main(cpucheck, ignorelastcheck, singlebp)
-    #telegramDates = print(getTelegramDates())
+    #main(cpucheck, ignorelastcheck, singlebp)
+    telegramDates = print(getTelegramDates())
     #scores = chaininfo.getguildsJSON('mainnet')
     #print(chaininfo.getScore(scores,'sentnlagents'))
     #producers.producer_chain_list()
