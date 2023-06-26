@@ -15,11 +15,13 @@ import type {
 } from '../../services/types'
 import Breadcrumb from '../../shared/breadcrumb/Breadcrumb'
 import type { ChartDataPoint } from '../../types/ChartDataPoint'
+import type { ScoreDataPoint } from '../../types/ScoreDataPoint'
 import { fullDate } from '../../utils/dates'
 import GuildsCheckResults from '../latest-results/GuildsCheckResults'
 
 import CpuChart from './CpuChart'
 import GuildInfo from './GuildInfo'
+import ScoreChart from './ScoreChart'
 import Services from './Services'
 import Telegramdates from './Telegramdates'
 
@@ -27,7 +29,9 @@ const GuildDetails = () => {
   const params = useParams<{ guildId: string }>()
   const guildId = params.guildId!
   const [numberOfAverageDays, setNumberOfAverageDays] = useState(30)
-  const [chartData, setChartData] = useState<ChartDataPoint>([])
+  const [cpuChartData, setCpuChartData] = useState<ChartDataPoint>([])
+  const [scoreChartData, setScoreChartData] = useState<ScoreDataPoint>([])
+
   const { data: producersData, isSuccess } = useGetProducersQuery()
   const { data: results } = useGetResultsQuery({ ownerName: guildId })
   const { data: latestResults } = useGetLatestResultsQuery()
@@ -63,13 +67,58 @@ const GuildDetails = () => {
       .reverse()
       .slice(-numberOfAverageDays)
   }
+
+  const buildScoreData = (
+    results: ResultsResponse,
+    allGuildsAvgResults: LatestResultsResponse,
+    numberOfAverageDays: number
+  ): ScoreDataPoint => {
+    const guildScores = results.map((result) => result.score)
+    const nonNullGuildScoreAverage = guildScores.filter(
+      (result) => !!result && result.length > 0 && result !== '1'
+    )
+    const guildScoreAverage =
+      nonNullGuildScoreAverage.reduce(
+        (total, current) => +total + +current,
+        0
+      ) / nonNullGuildScoreAverage.length
+
+    const allGuildsScores = allGuildsAvgResults.map((result) => result.score)
+    const nonNullAllGuildsScoreAverage = allGuildsScores.filter(
+      (result) => !!result && result.length > 0 && result !== '1'
+    )
+    const aggregateAllGuildsScoreAverage =
+      nonNullAllGuildsScoreAverage.reduce(
+        (total, current) => +total + +current,
+        0
+      ) / nonNullAllGuildsScoreAverage.length
+
+    return results
+      .map((result) => {
+        return {
+          'aggregate average score (all guilds)':
+            aggregateAllGuildsScoreAverage.toFixed(2),
+          date_check: fullDate(result.date_check),
+          score: result.score ? result.score : null,
+          'score average': guildScoreAverage.toFixed(2),
+        }
+      })
+      .reverse()
+      .slice(-numberOfAverageDays)
+  }
+
   useEffect(() => {
     refetchAvgResults()
   }, [numberOfAverageDays])
 
   useEffect(() => {
     if (latestResults && results) {
-      setChartData(buildChartData(results, latestResults, numberOfAverageDays))
+      setCpuChartData(
+        buildChartData(results, latestResults, numberOfAverageDays)
+      )
+      setScoreChartData(
+        buildScoreData(results, latestResults, numberOfAverageDays)
+      )
     }
   }, [latestResults, results, numberOfAverageDays])
   if (isSuccess && producersData) {
@@ -138,8 +187,13 @@ const GuildDetails = () => {
                 )}
               </div>
             </div>
-            <div className="rounded-sm border border-lightGray bg-white p-4 text-sm md:col-start-2 md:col-end-4">
-              <CpuChart data={chartData} />
+            <div className="flex flex-col gap-y-6 md:col-start-2 md:col-end-4">
+              <div className="rounded-sm border border-lightGray bg-white p-4 text-sm ">
+                <CpuChart data={cpuChartData} />
+              </div>
+              <div className="rounded-sm border border-lightGray bg-white p-4 text-sm ">
+                <ScoreChart data={scoreChartData} />
+              </div>
             </div>
           </div>
           <div className="mt-8">

@@ -14,7 +14,7 @@ import './styles.css'
 
 const CpuChart = ({ data }: { data: Array<{}> }) => {
   return (
-    <div className="cpu-chart flex w-full">
+    <div className="chart ">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} syncId="cpuGraph">
           <defs>
@@ -57,7 +57,7 @@ const CpuChart = ({ data }: { data: Array<{}> }) => {
             dataKey="cpu average time"
             stroke="#E34B31"
             strokeWidth={2}
-            fillOpacity={1}
+            fillOpacity={0}
             fill="url(#colorAggAvg)"
           />
           <Area
@@ -65,7 +65,7 @@ const CpuChart = ({ data }: { data: Array<{}> }) => {
             dataKey="aggregate average time (all guilds)"
             strokeWidth={2}
             stroke="#04CC84"
-            fillOpacity={1}
+            fillOpacity={0}
             fill="url(#colorAggAvgAllGuilds)"
           />
           <Legend />
