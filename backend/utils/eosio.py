@@ -230,6 +230,8 @@ def hyperionindexedBlocks(host):
     except ValueError:
         # Handling JSON decoding errors
         return False, 'Invalid JSON response'
+    except Exception as err:
+        return False, err
     try:
         service_data = health_info[2]['service_data']
     except:
