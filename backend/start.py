@@ -320,7 +320,7 @@ def main(cpucheck, ignorelastcheck, singlebp):
         testnet_nodes = nodes.node_list(testnet=True) # Tesnet = True so collect testnet nodes from json files
         db_connect.nodesInsert(testnet_nodes)
         print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting OIG submission dates from Telegram ",core.bcolors.ENDC)
-        telegramDates = getTelegramDates()
+        telegramDates = False #getTelegramDates()
         if telegramDates:
             print(f'Telegram dates: {telegramDates}')
             db_connect.TelegramdatesInsert(telegramDates)
