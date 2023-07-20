@@ -165,7 +165,8 @@ def finalresults(cpucheck,singlebp):
         printOuput(dbsize_apicheck,"db_size API is disabled on visible nodes:")
         #CPU checks
         if not cpucheck:
-            cpu_time = (1.0)
+            #cpu_time = (1.0)
+            cpu_time = cpu.cpuAverage(producer)
         else: 
             cpu_time = cpu.cpuresults(producer,producercpu,producertestcpu)
         print("CPU latency on EOS Mechanics below 2 ms on average:",core.bcolors.OKYELLOW, cpu_time,core.bcolors.ENDC,"ms")
