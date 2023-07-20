@@ -29,13 +29,14 @@ def compareJSON(producer,chain):
     try:
         chainjson = getchainsJSON(producer,chain)
         wwwjson = getwwwJSON(producer)
+        diff = jsondiff.diff(json.loads(chainjson), wwwjson)
+        print(wwwjson)
     except:
-        return False, f'JSON file not posted to chain'
-    diff = jsondiff.diff(json.loads(chainjson), wwwjson)
+        return False, f'JSON file not posted to chain or incorrect format'
     if not diff:
         return True, 'ok'
     else:
-        #print("Mismatches:", diff)
+        print("Mismatches:", diff)
         return False, f'JSON file on website does not match chain version: {diff}'
     
 

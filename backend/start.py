@@ -341,6 +341,7 @@ if __name__ == "__main__":
     ignorelastcheck = args.ignorelastcheck
     singlebp = args.bp
     main(cpucheck, ignorelastcheck, singlebp)
+    #print(chainjson.compareJSON('waxhiveguild','mainnet'))
     #telegramDates = print(getTelegramDates())
     #scores = chaininfo.getguildsJSON('mainnet')
     #print(chaininfo.getScore(scores,'sentnlagents'))
