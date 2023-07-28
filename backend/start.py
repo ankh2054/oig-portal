@@ -25,9 +25,9 @@ import sys
 
 
 #Get random transactions
-fourweeksOnedayinSeconds = 30480000+86400
-mainnetfulltrx = eosio.get_random_trx(fourweeksOnedayinSeconds,'mainnet')
-testnetfulltrx = eosio.get_random_trx(fourweeksOnedayinSeconds,'testnet')
+sixweeksOnedayinSeconds = 3715200
+mainnetfulltrx = eosio.get_random_trx(sixweeksOnedayinSeconds,'mainnet')
+testnetfulltrx = eosio.get_random_trx(sixweeksOnedayinSeconds,'testnet')
 print(core.bcolors.OKYELLOW,f"{'='*100}\nRandom Mainnet TRX: ",mainnetfulltrx,core.bcolors.ENDC)
 print(core.bcolors.OKYELLOW,f"{'='*100}\nRandom Testnet TRX: ",testnetfulltrx,core.bcolors.ENDC)
 
