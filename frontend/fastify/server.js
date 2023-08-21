@@ -5,10 +5,12 @@ const dotenv = require('dotenv');
 const { Signature, PublicKey, Transaction } = require('@greymass/eosio');
 const fastifyJwt = require('@fastify/jwt');
 const db = require('./pgquery')
+const axios = require('axios');
 
 dotenv.config();
 const chainId = process.env.CHAINID;
 const PYTHON_FASTAPI = process.env.PYTHON_FASTAPI
+const MISSINGBLOCK_URL = process.env.MISSINGBLOCKURL
 
 const fastify = require('fastify')({
   ignoreTrailingSlash: true,
@@ -171,6 +173,43 @@ fastify.get('/api/rescan/:owner_name', { preHandler: authenticate }, async (requ
   }
 })
 
+// Block Reliability 
+fastify.get('/missing-blocks-by-days', async (req, reply) => {
+  const ownerName = req.query.ownerName;
+  const days = parseInt(req.query.days, 10);
+
+  if (!ownerName || isNaN(days)) {
+    return reply.status(400).send({
+      success: false,
+      error: {
+        kind: "user_input",
+        message: "Invalid or missing parameters",
+      },
+    });
+  }
+
+  // Construct the external URL with query parameters
+  const externalURL = `${MISSINGBLOCK_URL}/missing-blocks-by-days?ownerName=${encodeURIComponent(ownerName)}&days=${days}`;
+
+  try {
+    // Make a GET request using axios
+    const response = await axios.get(externalURL);
+
+    // Send the data received from the external URL back to the client
+    reply.send(response.data);
+  } catch (error) {
+    console.error('Error calling external URL:', error);
+    
+    // Handle the error based on your needs (e.g., sending a custom error response)
+    reply.status(500).send({
+      success: false,
+      error: {
+        kind: "external_api",
+        message: "Failed to fetch data from external source.",
+      },
+    });
+  }
+});
 
 
 // PG Routes//

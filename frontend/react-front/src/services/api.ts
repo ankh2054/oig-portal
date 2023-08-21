@@ -5,6 +5,7 @@ import type {
   LatestResultsResponse,
   ProducersResponse,
   ResultsResponse,
+  MissingBlocksResponse,
   AvgResultsResponse,
   TelegramDatesResponse,
 } from './types'
@@ -40,6 +41,17 @@ export const api = createApi({
     }),
     getLatestResults: builder.query<LatestResultsResponse, void>({
       query: () => `/latestresults`,
+    }),
+    getMissingBlocksResults: builder.query<
+      MissingBlocksResponse,
+      { ownerName: string; numberOfAverageDays: number }
+    >({
+      query: (arg) => {
+        const { ownerName, numberOfAverageDays } = arg
+        return {
+          url: `//missing-blocks-by-days/${ownerName}?days=${numberOfAverageDays}`,
+        }
+      },
     }),
     getProducers: builder.query<ProducersResponse, void>({
       query: () => `/producers`,
@@ -78,6 +90,7 @@ export const {
   useGetLatestResultsQuery,
   useGetProducersQuery,
   useGetResultsQuery,
+  useGetMissingBlocksResultsQuery,
   useGetAvgResultsQuery,
   useLazyReScanQuery,
   useGetTelegramdatesQuery,
