@@ -10,7 +10,8 @@ const axios = require('axios');
 dotenv.config();
 const chainId = process.env.CHAINID;
 const PYTHON_FASTAPI = process.env.PYTHON_FASTAPI
-const MISSINGBLOCK_URL = process.env.MISSINGBLOCKURL
+const TESTNET_MISSINGBLOCK_URL = process.env.TESTNET_MISSINGBLOCKURL
+const MAINNET_MISSINGBLOCK_URL = process.env.MAINNET_MISSINGBLOCKURL
 
 const fastify = require('fastify')({
   ignoreTrailingSlash: true,
@@ -177,8 +178,9 @@ fastify.get('/api/rescan/:owner_name', { preHandler: authenticate }, async (requ
 fastify.get('/missing-blocks-by-days', async (req, reply) => {
   const ownerName = req.query.ownerName;
   const days = parseInt(req.query.days, 10);
+  const top21 = req.query.top21 === 'true';  // Convert the string representation to boolean
 
-  if (!ownerName || isNaN(days)) {
+  if (!ownerName || isNaN(days) || typeof top21 !== 'boolean') {
     return reply.status(400).send({
       success: false,
       error: {
@@ -188,8 +190,11 @@ fastify.get('/missing-blocks-by-days', async (req, reply) => {
     });
   }
 
+  // Decide the base URL based on the top21 parameter
+  const baseURL = top21 ? MAINNET_MISSINGBLOCK_URL : TESTNET_MISSINGBLOCK_URL;
+
   // Construct the external URL with query parameters
-  const externalURL = `${MISSINGBLOCK_URL}/missing-blocks-by-days?ownerName=${encodeURIComponent(ownerName)}&days=${days}`;
+  const externalURL = `${baseURL}/missing-blocks-by-days?ownerName=${encodeURIComponent(ownerName)}&days=${days}`;
 
   try {
     // Make a GET request using axios

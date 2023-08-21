@@ -44,12 +44,12 @@ export const api = createApi({
     }),
     getMissingBlocksResults: builder.query<
       MissingBlocksResponse,
-      { ownerName: string; numberOfAverageDays: number }
+      { ownerName: string; numberOfAverageDays: number; top21: boolean }
     >({
       query: (arg) => {
-        const { ownerName, numberOfAverageDays } = arg
+        const { ownerName, numberOfAverageDays, top21 } = arg
         return {
-          url: `//missing-blocks-by-days/${ownerName}?days=${numberOfAverageDays}`,
+          url: `/missing-blocks-by-days?${ownerName}&days=${numberOfAverageDays}&top21${top21}`,
         }
       },
     }),
