@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import {
   useGetAvgResultsQuery,
   useGetLatestResultsQuery,
+  useGetMissingBlocksResultsQuery,
   useGetProducersQuery,
   useGetResultsQuery,
   useGetTelegramdatesQuery,
