@@ -15,8 +15,10 @@ import Score from '../../shared/score/Score'
 interface Props {
   producer: Producer
   result: GuildResult
+  reliability?: number
+  missingBlocks?: number
 }
-const GuildInfo = ({ producer, result }: Props) => {
+const GuildInfo = ({ producer, result, reliability, missingBlocks }: Props) => {
   const dispatch = useDispatch()
   const [rescan] = useLazyReScanQuery()
 
@@ -61,9 +63,13 @@ const GuildInfo = ({ producer, result }: Props) => {
       <div className="mb-4 flex gap-x-4">
         <Score
           title="Prev Chain score"
-          score={parseInt(result.chainscore) / 10000}
+          value={String(parseInt(result.chainscore) / 10000)}
         />
-        <Score title="Tech score" score={parseInt(result.score)} />
+        <Score title="Tech score" value={String(parseInt(result.score))} />
+        {reliability && <Score title="reliability" value={`${reliability}%`} />}
+        {missingBlocks && (
+          <Score title="Missing Blocks" value={`${missingBlocks}`} />
+        )}
       </div>
       <div className="flex items-center gap-x-8">
         <a

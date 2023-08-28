@@ -2,8 +2,16 @@
   height: 300px;
 }
 
+.small-chart {
+  height: 300px;
+}
+
 @media (min-width: 768px) {
   .chart {
     height: 336px;
+  }
+
+  .small-chart {
+    height: 140px;
   }
 }

@@ -34,4 +34,51 @@ export const handlers = [
 
     return res(ctx.status(200), ctx.json(data))
   }),
+  rest.get(
+    'https://wax.sengine.co/api/missing-blocks-by-days?ownerName=3dkrenderwax&days=30&top21=true',
+    (req, res, ctx) => {
+      const data = {
+        data: [
+          {
+            block_number: 231959980,
+            blocks_missed: true,
+            date: '2023-08-12T20:15:42.000Z',
+            missed_block_count: 4,
+            owner_name: '3dkrenderwax',
+            round_missed: false,
+          },
+          {
+            block_number: 232622733,
+            blocks_missed: true,
+            date: '2023-08-16T16:18:42.000Z',
+            missed_block_count: 1,
+            owner_name: '3dkrenderwax',
+            round_missed: false,
+          },
+          {
+            block_number: 233119411,
+            blocks_missed: true,
+            date: '2023-08-19T13:17:48.000Z',
+            missed_block_count: 1,
+            owner_name: '3dkrenderwax',
+            round_missed: false,
+          },
+          {
+            block_number: 233299841,
+            blocks_missed: true,
+            date: '2023-08-20T14:21:24.000Z',
+            missed_block_count: 1,
+            owner_name: '3dkrenderwax',
+            round_missed: false,
+          },
+        ],
+        days: 30,
+        missingBlocks: 7,
+        ownerName: '3dkrenderwax',
+        reliability: 90,
+      }
+
+      return res(ctx.status(200), ctx.json(data))
+    }
+  ),
 ]
