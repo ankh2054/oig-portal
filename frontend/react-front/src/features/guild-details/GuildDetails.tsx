@@ -43,7 +43,6 @@ const GuildDetails = () => {
       numberOfAverageDays: numberOfAverageDays,
       ownerName: guildId,
     })
-
   const { data: missingBlocksResults } = useGetMissingBlocksResultsQuery({
     numberOfAverageDays: numberOfAverageDays,
     ownerName: guildId,
@@ -212,9 +211,11 @@ const GuildDetails = () => {
               <div className="rounded-sm border border-lightGray bg-white p-4 text-sm ">
                 <ScoreChart data={scoreChartData} />
               </div>
-              <div className="rounded-sm border border-lightGray bg-white p-4 text-sm ">
-                <MissingBlocksChart data={scoreChartData} />
-              </div>
+              {missingBlocksResults && missingBlocksResults.data && (
+                <div className="rounded-sm border border-lightGray bg-white p-4 text-sm ">
+                  <MissingBlocksChart data={missingBlocksResults.data} />
+                </div>
+              )}
             </div>
           </div>
           <div className="mt-8">

@@ -49,7 +49,7 @@ export const api = createApi({
       query: (arg) => {
         const { ownerName, numberOfAverageDays, top21 } = arg
         return {
-          url: `/missing-blocks-by-days?${ownerName}&days=${numberOfAverageDays}&top21${top21}`,
+          url: `/missing-blocks-by-days?ownerName=${ownerName}&days=${numberOfAverageDays}&top21=${top21}`,
         }
       },
     }),
