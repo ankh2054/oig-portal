@@ -115,4 +115,19 @@ export type LatestResultsResponse = Array<GuildResult>
 
 export type ProducersResponse = Array<Producer>
 export type ResultsResponse = Array<GuildResult & { rownum: string }>
-export type MissingBlocksResponse = Array<GuildResult & { rownum: string }>
+
+export type Block = {
+  owner_name: string
+  block_number: number
+  date: Date
+  round_missed: boolean
+  blocks_missed: boolean
+  missed_block_count: number
+}
+export type MissingBlocksResponse = {
+  ownerName: string
+  days: number
+  reliability: number
+  missingBlocks: number
+  data: Array<Block>
+}

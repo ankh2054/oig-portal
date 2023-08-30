@@ -12,7 +12,7 @@ import type {
 
 // Define a service using a base URL and expected endpoints.
 const BASE_URL =
-  import.meta.env.MODE === 'development'
+  import.meta.env.MODE !== 'development'
     ? 'http://localhost:3000/api'
     : 'https://wax.sengine.co/api'
 export const api = createApi({
@@ -49,7 +49,7 @@ export const api = createApi({
       query: (arg) => {
         const { ownerName, numberOfAverageDays, top21 } = arg
         return {
-          url: `/missing-blocks-by-days?${ownerName}&days=${numberOfAverageDays}&top21${top21}`,
+          url: `/missing-blocks-by-days?ownerName=${ownerName}&days=${numberOfAverageDays}&top21=${top21}`,
         }
       },
     }),

@@ -14,7 +14,7 @@ import './styles.css'
 
 const ScoreChart = ({ data }: { data: Array<{}> }) => {
   return (
-    <div className="chart ">
+    <div className="small-chart">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} syncId="scoreGraph">
           <CartesianGrid strokeDasharray="3 3" />

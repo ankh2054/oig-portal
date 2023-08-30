@@ -2,12 +2,12 @@ import './Score.css'
 
 interface Props {
   title: string
-  score: number
+  value: string
 }
-const Score = ({ title, score }: Props) => {
+const Score = ({ title, value }: Props) => {
   return (
     <div className="flex flex-col items-center">
-      <div className="text-md font-medium text-black">{score}</div>
+      <div className="text-md font-medium text-black">{value}</div>
       <div className="text-sm text-gray">{title}</div>
     </div>
   )
