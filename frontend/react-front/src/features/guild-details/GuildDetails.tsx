@@ -7,16 +7,18 @@ import {
   useGetProducersQuery,
   useGetResultsQuery,
   useGetTelegramdatesQuery,
-  useGetMissingBlocksResultsQuery,
+  useLazyGetMissingBlocksResultsQuery,
 } from '../../services/api'
 import type {
   Block,
   LatestResultsResponse,
   Producer,
   ResultsResponse,
+  MissingBlocksResponse,
 } from '../../services/types'
 import Breadcrumb from '../../shared/breadcrumb/Breadcrumb'
 import type { ChartDataPoint } from '../../types/ChartDataPoint'
+import type { MissedBlocktDataPoint } from '../../types/MissedBlocktDataPoint'
 import type { ScoreDataPoint } from '../../types/ScoreDataPoint'
 import { fullDate } from '../../utils/dates'
 import GuildsCheckResults from '../latest-results/GuildsCheckResults'
@@ -27,7 +29,6 @@ import MissingBlocksChart from './MissingBlocksChart'
 import ScoreChart from './ScoreChart'
 import Services from './Services'
 import Telegramdates from './Telegramdates'
-import { MissedBlocktDataPoint } from '../../types/MissedBlocktDataPoint'
 
 const GuildDetails = () => {
   const params = useParams<{ guildId: string }>()
@@ -35,7 +36,7 @@ const GuildDetails = () => {
   const [numberOfAverageDays, setNumberOfAverageDays] = useState(30)
   const [cpuChartData, setCpuChartData] = useState<ChartDataPoint>([])
   const [scoreChartData, setScoreChartData] = useState<ScoreDataPoint>([])
-
+  const [missingBlocks, setMissingBlocks] = useState<MissingBlocksResponse>()
   const { data: producersData, isSuccess } = useGetProducersQuery()
   const { data: results } = useGetResultsQuery({ ownerName: guildId })
   const { data: latestResults } = useGetLatestResultsQuery()
@@ -46,6 +47,7 @@ const GuildDetails = () => {
       ownerName: guildId,
     })
 
+  const [getMissingBlocks] = useLazyGetMissingBlocksResultsQuery()
   let producer: Producer | null = null
 
   const buildChartData = (
@@ -136,6 +138,20 @@ const GuildDetails = () => {
       )
     }
   }, [latestResults, results, numberOfAverageDays])
+
+  useEffect(() => {
+    const fetchMissingBlocks = async () => {
+      const response = await getMissingBlocks({
+        numberOfAverageDays: numberOfAverageDays,
+        ownerName: guildId,
+        top21: !!producer?.top21,
+      }).unwrap()
+      setMissingBlocks(response)
+    }
+
+    fetchMissingBlocks().catch()
+  }, [numberOfAverageDays, producer])
+
   if (isSuccess && producersData) {
     producer = producersData.filter(
       (producer) => producer.owner_name === guildId
@@ -157,12 +173,6 @@ const GuildDetails = () => {
       setNumberOfAverageDays(value)
     }
   }
-
-  const { data: missingBlocksResults } = useGetMissingBlocksResultsQuery({
-    numberOfAverageDays: numberOfAverageDays,
-    ownerName: guildId,
-    top21: producer.top21,
-  })
 
   const AverageDayInput = () => {
     return (
@@ -199,12 +209,8 @@ const GuildDetails = () => {
                   <GuildInfo
                     producer={producer}
                     result={results[0]}
-                    reliability={
-                      missingBlocksResults && missingBlocksResults.reliability
-                    }
-                    missingBlocks={
-                      missingBlocksResults && missingBlocksResults.missingBlocks
-                    }
+                    reliability={missingBlocks && missingBlocks.reliability}
+                    missingBlocks={missingBlocks && missingBlocks.missingBlocks}
                   />
                 </div>
                 <div className=" rounded-sm border border-lightGray bg-white p-4">
@@ -224,10 +230,10 @@ const GuildDetails = () => {
               <div className="rounded-sm border border-lightGray bg-white p-4 text-sm ">
                 <ScoreChart data={scoreChartData} />
               </div>
-              {missingBlocksResults && missingBlocksResults.data && (
+              {missingBlocks && missingBlocks.data && (
                 <div className="rounded-sm border border-lightGray bg-white p-4 text-sm ">
                   <MissingBlocksChart
-                    data={buildMissedBlockData(missingBlocksResults.data)}
+                    data={buildMissedBlockData(missingBlocks.data)}
                   />
                 </div>
               )}
