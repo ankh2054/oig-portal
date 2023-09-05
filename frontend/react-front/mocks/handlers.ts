@@ -35,7 +35,7 @@ export const handlers = [
     return res(ctx.status(200), ctx.json(data))
   }),
   rest.get(
-    'https://wax.sengine.co/api/missing-blocks-by-days',
+    'https://wax.sengine.co/api/missing-blocks-by-days/disabled',
     (req, res, ctx) => {
       const searchParams = req.url.searchParams
       const ownerName = searchParams.get('ownerName')
