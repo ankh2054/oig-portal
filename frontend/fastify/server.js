@@ -66,6 +66,20 @@ fastify.register(require('@fastify/static'), {
   };
 
 
+
+  const getOwnerNameTestnet = async (ownerName) => {
+    console.log(`Inside getOwnerNameTestnet with ownerName: ${ownerName}`);
+    try {
+      const testnetName = await db.fetchOwnerNameTestnet(ownerName);
+      return testnetName;
+    } catch (error) {
+      console.error(`An error occurred: ${error}`);
+      throw error;
+    }
+};
+
+
+
   async function decode_jwt_token(request, fastify) {
     try {
       // Get the JWT token from the Authorization header
@@ -175,7 +189,8 @@ fastify.get('/api/rescan/:owner_name', { preHandler: authenticate }, async (requ
 })
 
 // Block Reliability 
-fastify.get('/missing-blocks-by-days', async (req, reply) => {
+fastify.get('/api/missing-blocks-by-days', async (req, reply) => {
+  let testName
   const ownerName = req.query.ownerName;
   const days = parseInt(req.query.days, 10);
   const top21 = req.query.top21 === 'true';  // Convert the string representation to boolean
@@ -190,18 +205,34 @@ fastify.get('/missing-blocks-by-days', async (req, reply) => {
     });
   }
 
+  if (!top21) {
+    try {
+      testName = await getOwnerNameTestnet(ownerName);
+      // If there are any other statements here, add logs before and after them.
+    } catch (error) {
+      console.error(`Error in route: ${error.message}`);
+      // your error handling code
+    }
+  }
+  
+
   // Decide the base URL based on the top21 parameter
   const baseURL = top21 ? MAINNET_MISSINGBLOCK_URL : TESTNET_MISSINGBLOCK_URL;
+  // For top21, use ownerName. For others, use targetName.
+  const targetName = top21 ? ownerName : testName;
 
   // Construct the external URL with query parameters
-  const externalURL = `${baseURL}/missing-blocks-by-days?ownerName=${encodeURIComponent(ownerName)}&days=${days}`;
+  const externalURL = `${baseURL}/missing-blocks-by-days?ownerName=${encodeURIComponent(targetName)}&days=${days}`;
+  console.log(externalURL)
 
   try {
     // Make a GET request using axios
     const response = await axios.get(externalURL);
 
+
     // Send the data received from the external URL back to the client
     reply.send(response.data);
+    console.log(response.data)
   } catch (error) {
     console.error('Error calling external URL:', error);
     
@@ -241,7 +272,6 @@ fastify.setNotFoundHandler((req, res) => {
   }
   res.status(200).sendFile("index.html");
 });
-
 
 
 // Starts the Fastify Server //

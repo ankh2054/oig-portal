@@ -16,6 +16,7 @@ const client = new Client({
 client.connect()
 
 
+
 // Get all producers
 const getProducers = (request, reply) => {
   client.query("SELECT * FROM oig.producer ORDER BY owner_name ASC", (error, results) => {
@@ -25,6 +26,29 @@ const getProducers = (request, reply) => {
     reply.status(200).send(results.rows);
   })
 }
+
+// Function to fetch owner_name_testnet by owner_name
+const fetchOwnerNameTestnet = (ownerName) => {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT owner_name_testnet FROM oig.producer WHERE owner_name = $1";
+    client.query(query, [ownerName], (error, results) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+
+      if (results.rows.length > 0) {
+        console.log('DB result:', results.rows[0].owner_name_testnet);
+        resolve(results.rows[0].owner_name_testnet);
+      } else {
+        console.log('DB no match for:', ownerName);
+        reject(new Error("Owner name not found."));
+      }
+    });
+  });
+};
+
+
 
 const getProducerPublicKey = (owner_name) => {
   return new Promise((resolve, reject) => {
@@ -250,4 +274,4 @@ DELETE FROM oig.producer WHERE metasnapshot_date != timestamp '1980-01-01 00:00:
 
 
 
-module.exports = {   getLatestResults, getProducers,  getResults, getResultsbyOwner, getUpdatesbyOwner, getPaginatedResultsByOwner, getTruncatedPaginatedResults, getAverageMonthlyResult, getProducerPublicKey,getTelegramDates,getProducerLogo };
+module.exports = {   getLatestResults, getProducers,  getResults, getResultsbyOwner, getUpdatesbyOwner, getPaginatedResultsByOwner, getTruncatedPaginatedResults, getAverageMonthlyResult, getProducerPublicKey,getTelegramDates,getProducerLogo,fetchOwnerNameTestnet };
