@@ -188,6 +188,38 @@ fastify.get('/api/rescan/:owner_name', { preHandler: authenticate }, async (requ
   }
 })
 
+function insertDummyDataIfEmpty(apiResponse) {
+  if (apiResponse.data && apiResponse.data.length === 0) {
+      const days = apiResponse.days;
+      const currentDate = new Date();
+      const oneDayMilliseconds = 24 * 60 * 60 * 1000;
+
+      let dummyDataset = [];  // Temporary storage for dummy data
+      
+      for (let i = 0; i < days; i++) {
+          const dateObj = new Date(currentDate - i * oneDayMilliseconds);
+          
+          const dummyData = {
+              owner_name: apiResponse.ownerName,
+              block_number: 231959980 + i,  // Adjust this based on your needs.
+              date: dateObj.toISOString(),
+              round_missed: false,
+              blocks_missed: false,
+              missed_block_count: 0
+          };
+          
+          dummyDataset.push(dummyData);
+      }
+
+      apiResponse.data = dummyDataset.reverse();  // Reverse the array to get descending order
+  }
+
+  return apiResponse;
+}
+
+
+
+
 // Block Reliability 
 fastify.get('/api/missing-blocks-by-days', async (req, reply) => {
   let testName
@@ -228,11 +260,12 @@ fastify.get('/api/missing-blocks-by-days', async (req, reply) => {
   try {
     // Make a GET request using axios
     const response = await axios.get(externalURL);
+    const processedResponse = insertDummyDataIfEmpty(response.data);
 
 
     // Send the data received from the external URL back to the client
-    reply.send(response.data);
-    console.log(response.data)
+    //reply.send(response.data);
+    reply.send(processedResponse);
   } catch (error) {
     console.error('Error calling external URL:', error);
     
