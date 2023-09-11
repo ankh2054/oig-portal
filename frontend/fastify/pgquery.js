@@ -151,7 +151,8 @@ const getPaginatedResultsByOwner = (request, reply) => {
 
 const getAverageMonthlyResult = (request, reply) => {
   const { owner } = request.params;
-  const { month, year, days } = request.query;
+  //const { month, year, days } = request.query;
+  const { startDate, endDate } = request.query;
   let qry = `select 
     COUNT(*) as total_count,
     COUNT(*) FILTER (WHERE chains_json = TRUE) AS chains_json_count, 
@@ -177,32 +178,36 @@ const getAverageMonthlyResult = (request, reply) => {
     where owner_name = $1
     `   
     
-    if(!!month && year !== 'None'){
-      const vMonth = !!month ? parseInt(month) : 'extract(month FROM current_date)';
-      const vYear = !!year ? parseInt(year) : 'extract(year FROM current_date)';
-      qry = qry + `and extract(month FROM date_check) = ${vMonth}
-      and extract(year FROM date_check) = ${vYear}`    
-    } else if(days) {   
-    const vDays = parseInt(days);
-    qry = qry + `and date_check > current_date - interval '${vDays}' day`;
-  }   
-  
-  client.query(qry, [owner], (error, results) => {
-    if (error) {
-      throw error
+    if (startDate && endDate) {
+      qry += `and date_check BETWEEN $2 AND $3`;
+      client.query(qry, [owner, startDate, endDate], (error, results) => {
+        if (error) {
+          throw error
+        }
+        processResults(results);
+      });
+    } else {
+      client.query(qry, [owner], (error, results) => {
+        if (error) {
+          throw error
+        }
+        processResults(results);
+      });
     }
-    const row = results.rows[0];
-    let pcts = {};
-    const { total_count } = row;
-    Object.keys(row).forEach(key => {
-      if (key.indexOf("_count") !== -1) {
-        const newKey = key.replace("_count", "_pct");
-        pcts[newKey] = `${parseInt((row[key] / total_count) * 10000) / 100}%`;
-      }
-    })
-    const vResults = { ...row, ...pcts, month, year };
-    reply.status(200).send(vResults);
-  })
+    
+    function processResults(results) {
+      const row = results.rows[0];
+      let pcts = {};
+      const { total_count } = row;
+      Object.keys(row).forEach(key => {
+        if (key.indexOf("_count") !== -1) {
+          const newKey = key.replace("_count", "_pct");
+          pcts[newKey] = `${parseInt((row[key] / total_count) * 10000) / 100}%`;
+        }
+      })
+      const vResults = { ...row, ...pcts };
+      reply.status(200).send(vResults);
+    }
 }
 
 const getTruncatedPaginatedResults = (request, reply) => {
