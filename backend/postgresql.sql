@@ -62,6 +62,8 @@ CREATE TABLE oig.results (
     full_history_error VARCHAR ( 1000 ),
     hyperion_v2 BOOLEAN NOT NULL,
     hyperion_v2_error VARCHAR ( 1000 ),
+    hyperion_v2_full BOOLEAN NOT NULL,
+    hyperion_v2_full_error VARCHAR ( 1000 ),
     hyperion_v2_testnet BOOLEAN NOT NULL,
     hyperion_v2_testnet_error VARCHAR ( 1000 ),
     atomic_api BOOLEAN NOT NULL,
