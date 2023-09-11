@@ -190,28 +190,29 @@ fastify.get('/api/rescan/:owner_name', { preHandler: authenticate }, async (requ
 
 function insertDummyDataIfEmpty(apiResponse) {
   if (apiResponse.data && apiResponse.data.length === 0) {
-      const days = apiResponse.days;
-      const currentDate = new Date();
-      const oneDayMilliseconds = 24 * 60 * 60 * 1000;
+    const startDate = new Date(apiResponse.startDate);
+    const endDate = new Date(apiResponse.endDate);
+    const oneDayMilliseconds = 24 * 60 * 60 * 1000;
+    const days = Math.ceil((endDate - startDate) / oneDayMilliseconds);
 
-      let dummyDataset = [];  // Temporary storage for dummy data
-      
-      for (let i = 0; i < days; i++) {
-          const dateObj = new Date(currentDate - i * oneDayMilliseconds);
-          
-          const dummyData = {
-              owner_name: apiResponse.ownerName,
-              block_number: 231959980 + i,  // Adjust this based on your needs.
-              date: dateObj.toISOString(),
-              round_missed: false,
-              blocks_missed: false,
-              missed_block_count: 0
-          };
-          
-          dummyDataset.push(dummyData);
-      }
+    let dummyDataset = [];  // Temporary storage for dummy data
 
-      apiResponse.data = dummyDataset.reverse();  // Reverse the array to get descending order
+    for (let i = 0; i < days; i++) {
+      const dateObj = new Date(startDate.getTime() + i * oneDayMilliseconds);
+
+      const dummyData = {
+        owner_name: apiResponse.ownerName,
+        block_number: 231959980 + i,  // Adjust this based on your needs.
+        date: dateObj.toISOString(),
+        round_missed: false,
+        blocks_missed: false,
+        missed_block_count: 0
+      };
+
+      dummyDataset.push(dummyData);
+    }
+
+    apiResponse.data = dummyDataset.reverse();  // No need to reverse as we're incrementing the date
   }
 
   return apiResponse;
@@ -221,13 +222,14 @@ function insertDummyDataIfEmpty(apiResponse) {
 
 
 // Block Reliability 
-fastify.get('/api/missing-blocks-by-days', async (req, reply) => {
+fastify.get('/api/missing-blocks', async (req, reply) => {
   let testName
   const ownerName = req.query.ownerName;
-  const days = parseInt(req.query.days, 10);
+  const startDate = req.query.startDate;
+  const endDate = req.query.endDate;
   const top21 = req.query.top21 === 'true';  // Convert the string representation to boolean
 
-  if (!ownerName || isNaN(days) || typeof top21 !== 'boolean') {
+  if (!ownerName || typeof top21 !== 'boolean') {
     return reply.status(400).send({
       success: false,
       error: {
@@ -254,14 +256,13 @@ fastify.get('/api/missing-blocks-by-days', async (req, reply) => {
   const targetName = top21 ? ownerName : testName;
 
   // Construct the external URL with query parameters
-  const externalURL = `${baseURL}/missing-blocks-by-days?ownerName=${encodeURIComponent(targetName)}&days=${days}`;
+  const externalURL = `${baseURL}/missing-blocks?ownerName=${encodeURIComponent(targetName)}&startDate=${startDate}&endDate=${endDate}`;
   console.log(externalURL)
 
   try {
     // Make a GET request using axios
     const response = await axios.get(externalURL);
     const processedResponse = insertDummyDataIfEmpty(response.data);
-
 
     // Send the data received from the external URL back to the client
     //reply.send(response.data);
