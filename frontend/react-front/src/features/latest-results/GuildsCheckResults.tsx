@@ -1,5 +1,7 @@
 import type { ChangeEvent } from 'react'
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
+import type { Value } from 'react-multi-date-picker'
+import DatePicker, { DateObject } from 'react-multi-date-picker'
 
 import type {
   LatestResultsResponse,
@@ -24,7 +26,8 @@ interface Props {
   avgResults?: AvgResultsResponse
   hideLogo: boolean
   showTime: boolean
-  action?: JSX.Element
+  showDateRange?: boolean
+  onDateRangeChange?: (dateObject: DateObject | DateObject[] | null) => void
   filterable?: boolean
 }
 
@@ -36,7 +39,8 @@ const GuildsCheckResults = ({
   avgResults,
   hideLogo,
   showTime,
-  action,
+  showDateRange,
+  onDateRangeChange,
   filterable,
 }: Props) => {
   const [paginatedGuilds, setPaginatedGuilds] = useState<Array<Guild>>([])
@@ -44,6 +48,10 @@ const GuildsCheckResults = ({
 
   const [totalItems, setTotalItems] = useState(0)
 
+  const [values, setValues] = useState<Value>([
+    new DateObject().subtract(30, 'days'),
+    new DateObject().add(0, 'days'),
+  ])
   useEffect(() => {
     const activeGuilds = results.filter((r) => isActive(r.owner_name))
     setTotalItems(activeGuilds.length)
@@ -122,6 +130,28 @@ const GuildsCheckResults = ({
   )
 
   const guildsToDisplay = filterable ? filterableGuilds : paginatedGuilds
+
+  const DateRange = () => {
+    return (
+      <div className="flex items-center gap-x-2">
+        <label htmlFor="dateRange" className="text-sm text-gray">
+          Date range
+        </label>
+        <DatePicker
+          id="dateRange"
+          value={values}
+          onChange={(dateObject) => {
+            setValues(dateObject)
+            if (onDateRangeChange) {
+              onDateRangeChange(dateObject)
+            }
+          }}
+          range
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="flex w-full flex-col">
       <div className="mb-4 flex items-center justify-between">
@@ -160,7 +190,7 @@ const GuildsCheckResults = ({
             </>
           )}
           <ResultsToggle onClick={onColumnsSwitch} showAll={showAll} />
-          {action}
+          {showDateRange && <DateRange />}
         </div>
       </div>
       {avgResults && <AvgResults data={avgResults} showAll={showAll} />}
@@ -189,4 +219,4 @@ const GuildsCheckResults = ({
   )
 }
 
-export default GuildsCheckResults
+export default memo(GuildsCheckResults)

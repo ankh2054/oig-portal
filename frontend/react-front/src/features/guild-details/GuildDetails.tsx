@@ -1,4 +1,6 @@
+import dayjs from 'dayjs'
 import React, { useEffect, useState } from 'react'
+import type { DateObject } from 'react-multi-date-picker'
 import { useParams } from 'react-router-dom'
 
 import {
@@ -33,7 +35,11 @@ import Telegramdates from './Telegramdates'
 const GuildDetails = () => {
   const params = useParams<{ guildId: string }>()
   const guildId = params.guildId!
-  const [numberOfAverageDays, setNumberOfAverageDays] = useState(30)
+
+  //TODO:: remove console
+  //eslint-disable-next-line no-console
+  console.count('got re-rendred ...')
+
   const [cpuChartData, setCpuChartData] = useState<ChartDataPoint>([])
   const [scoreChartData, setScoreChartData] = useState<ScoreDataPoint>([])
   const [missingBlocks, setMissingBlocks] = useState<MissingBlocksResponse>()
@@ -43,8 +49,9 @@ const GuildDetails = () => {
   const { data: telegramDates } = useGetTelegramdatesQuery()
   const { data: avgResults, refetch: refetchAvgResults } =
     useGetAvgResultsQuery({
-      numberOfAverageDays: numberOfAverageDays,
+      endDate: '2023-09-11T22:15:57.000Z',
       ownerName: guildId,
+      startDate: '2023-09-11T22:15:57.000Z',
     })
 
   const [getMissingBlocks] = useLazyGetMissingBlocksResultsQuery()
@@ -124,33 +131,48 @@ const GuildDetails = () => {
     })
   }
 
+  const onDateRangeChange = (dateObj: DateObject | DateObject[] | null) => {
+    //TODO:: remove console
+    //eslint-disable-next-line no-console
+    console.log('dateObj:', dateObj)
+    const [start, end] = dateObj
+    //TODO:: remove console
+    //eslint-disable-next-line no-console 
+    console.log('start:', start);
+
+    //TODO:: remove console
+    //eslint-disable-next-line no-console
+    console.log('end:', end);
+    
+  }
+
   useEffect(() => {
     refetchAvgResults()
-  }, [numberOfAverageDays])
+  }, [])
 
   useEffect(() => {
     if (latestResults && results) {
-      setCpuChartData(
-        buildChartData(results, latestResults, numberOfAverageDays)
-      )
-      setScoreChartData(
-        buildScoreData(results, latestResults, numberOfAverageDays)
-      )
+      const start = dayjs(new Date())
+      const end = dayjs(new Date())
+      const daysDifference = end.diff(start, 'day')
+      setCpuChartData(buildChartData(results, latestResults, daysDifference))
+      setScoreChartData(buildScoreData(results, latestResults, daysDifference))
     }
-  }, [latestResults, results, numberOfAverageDays])
+  }, [latestResults, results])
 
   useEffect(() => {
     const fetchMissingBlocks = async () => {
       const response = await getMissingBlocks({
-        numberOfAverageDays: numberOfAverageDays,
+        endDate: '2023-09-11T22:15:57.000Z',
         ownerName: guildId,
+        startDate: '2023-09-11T22:15:57.000Z',
         top21: !!producer?.top21,
       }).unwrap()
       setMissingBlocks(response)
     }
 
     fetchMissingBlocks().catch()
-  }, [numberOfAverageDays, producer])
+  }, [producer])
 
   if (isSuccess && producersData) {
     producer = producersData.filter(
@@ -166,32 +188,6 @@ const GuildDetails = () => {
         No data recorded for this guild yet.
       </div>
     )
-
-  const updateAverageDays = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number.parseInt(e.target.value)
-    if (value < 1000) {
-      setNumberOfAverageDays(value)
-    }
-  }
-
-  const AverageDayInput = () => {
-    return (
-      <div className="flex items-center gap-x-2">
-        <label htmlFor="first_name" className="text-sm text-gray">
-          Average Days
-        </label>
-        <input
-          type="number"
-          max={1000}
-          id="first_name"
-          onChange={updateAverageDays}
-          value={numberOfAverageDays}
-          className="w-16 rounded-sm  border border-lightGray p-1 text-sm text-gray focus:border-primary focus:outline-none"
-          required
-        />
-      </div>
-    )
-  }
 
   if (results) {
     return (
@@ -248,7 +244,8 @@ const GuildDetails = () => {
                   avgResults={avgResults}
                   hideLogo={true}
                   showTime={true}
-                  action={<AverageDayInput />}
+                  showDateRange={true}
+                  onDateRangeChange={onDateRangeChange}
                 />
               )}
             </div>

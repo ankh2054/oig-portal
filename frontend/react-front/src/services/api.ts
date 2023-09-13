@@ -12,7 +12,7 @@ import type {
 
 // Define a service using a base URL and expected endpoints.
 const BASE_URL =
-  import.meta.env.MODE === 'development'
+  import.meta.env.MODE !== 'development'
     ? 'http://localhost:3000/api'
     : 'https://wax.sengine.co/api'
 export const api = createApi({
@@ -30,12 +30,12 @@ export const api = createApi({
   endpoints: (builder) => ({
     getAvgResults: builder.query<
       AvgResultsResponse,
-      { ownerName: string; numberOfAverageDays: number }
+      { ownerName: string; startDate: string; endDate: string }
     >({
       query: (arg) => {
-        const { ownerName, numberOfAverageDays } = arg
+        const { ownerName, startDate, endDate } = arg
         return {
-          url: `/monthlyaverageresults/${ownerName}?days=${numberOfAverageDays}`,
+          url: `/monthlyaverageresults/${ownerName}?startDate=${startDate}&endDate=${endDate}`,
         }
       },
     }),
@@ -44,12 +44,12 @@ export const api = createApi({
     }),
     getMissingBlocksResults: builder.query<
       MissingBlocksResponse,
-      { ownerName: string; numberOfAverageDays: number; top21: boolean }
+      { ownerName: string; startDate: string; endDate: string; top21: boolean }
     >({
       query: (arg) => {
-        const { ownerName, numberOfAverageDays, top21 } = arg
+        const { ownerName, startDate, endDate, top21 } = arg
         return {
-          url: `/missing-blocks-by-days?ownerName=${ownerName}&days=${numberOfAverageDays}&top21=${top21}`,
+          url: `/missing-blocks?ownerName=${ownerName}&startDate=${startDate}&endDate=${endDate}&top21=${top21}`,
         }
       },
     }),
