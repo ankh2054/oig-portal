@@ -1,3 +1,4 @@
+/*
 .chart {
   height: 300px;
 }
@@ -15,3 +16,18 @@
     height: 140px;
   }
 }
+*/
+
+
+.small-chart,
+.chart {
+  height: 300px;
+}
+
+@media (min-width: 768px) {
+  .small-chart,
+  .chart {
+    height: 336px;
+  }
+}
+

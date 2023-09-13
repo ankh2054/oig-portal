@@ -231,7 +231,7 @@ const GuildDetails = () => {
                 <ScoreChart data={scoreChartData} />
               </div>
               {missingBlocks && missingBlocks.data && (
-                <div className="rounded-sm border border-lightGray bg-white p-4 text-sm ">
+                <div className="rounded-sm border border-lightGray bg-white p-4 text-sm hidden ">
                   <MissingBlocksChart
                     data={buildMissedBlockData(missingBlocks.data)}
                   />
