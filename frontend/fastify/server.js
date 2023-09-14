@@ -288,6 +288,7 @@ fastify.get('/api/producers', db.getProducers)
 fastify.get('/api/latestresults', db.getLatestResults)
 // Monthly average results used for percentages
 fastify.get('/api/monthlyaverageresults/:owner', db.getAverageMonthlyResult)
+
 // Truncated monthly results for guild page
 fastify.get('/api/truncatedPaginatedResults/:owner', db.getTruncatedPaginatedResults)
 // Get Telegram dates
