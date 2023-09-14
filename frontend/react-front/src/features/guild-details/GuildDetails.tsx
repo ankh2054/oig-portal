@@ -9,148 +9,84 @@ import {
   useGetTelegramdatesQuery,
   useLazyGetMissingBlocksResultsQuery,
 } from '../../services/api'
-import type {
-  Block,
-  LatestResultsResponse,
-  Producer,
-  ResultsResponse,
-  MissingBlocksResponse,
-} from '../../services/types'
+import type { Producer, MissingBlocksResponse } from '../../services/types'
 import Breadcrumb from '../../shared/breadcrumb/Breadcrumb'
 import type { ChartDataPoint } from '../../types/ChartDataPoint'
-import type { MissedBlocktDataPoint } from '../../types/MissedBlocktDataPoint'
 import type { ScoreDataPoint } from '../../types/ScoreDataPoint'
-import { fullDate } from '../../utils/dates'
+import { dayjs } from '../../utils/dates'
+import {
+  buildChartData,
+  buildMissedBlockData,
+  buildScoreData,
+} from '../../utils/helpers'
 import GuildsCheckResults from '../latest-results/GuildsCheckResults'
 
 import CpuChart from './CpuChart'
+import DateRangePicker from './DateRangePicker'
 import GuildInfo from './GuildInfo'
 import MissingBlocksChart from './MissingBlocksChart'
 import ScoreChart from './ScoreChart'
 import Services from './Services'
 import Telegramdates from './Telegramdates'
 
+import 'react-datepicker/dist/react-datepicker.css'
 const GuildDetails = () => {
+  const currentDate = dayjs()
+  const dateLast30Days = currentDate.subtract(30, 'day')
+
   const params = useParams<{ guildId: string }>()
   const guildId = params.guildId!
-  const [numberOfAverageDays, setNumberOfAverageDays] = useState(30)
   const [cpuChartData, setCpuChartData] = useState<ChartDataPoint>([])
   const [scoreChartData, setScoreChartData] = useState<ScoreDataPoint>([])
   const [missingBlocks, setMissingBlocks] = useState<MissingBlocksResponse>()
+  const [dateRange, setDateRange] = useState<[Date, Date]>([
+    dateLast30Days.toDate(),
+    currentDate.toDate(),
+  ])
+
   const { data: producersData, isSuccess } = useGetProducersQuery()
   const { data: results } = useGetResultsQuery({ ownerName: guildId })
   const { data: latestResults } = useGetLatestResultsQuery()
   const { data: telegramDates } = useGetTelegramdatesQuery()
   const { data: avgResults, refetch: refetchAvgResults } =
     useGetAvgResultsQuery({
-      numberOfAverageDays: numberOfAverageDays,
+      endDate: dateRange[1].toISOString(),
       ownerName: guildId,
+      startDate: dateRange[0].toISOString(),
     })
 
   const [getMissingBlocks] = useLazyGetMissingBlocksResultsQuery()
   let producer: Producer | null = null
 
-  const buildChartData = (
-    results: ResultsResponse,
-    avgResults: LatestResultsResponse,
-    numberOfAverageDays: number
-  ): ChartDataPoint => {
-    const cpu_avgs = avgResults.map((result) => result.cpu_avg)
-    const nonNull_cpu_avgs = cpu_avgs.filter(
-      (result) => !!result && result.length > 0 && result !== '1'
-    )
-    const aggregate_average =
-      nonNull_cpu_avgs.reduce((total, current) => +total + +current, 0) /
-      nonNull_cpu_avgs.length
-    return results
-      .map((result) => {
-        return {
-          'aggregate average time (all guilds)': aggregate_average.toFixed(2),
-          'cpu average time': result.cpu_avg ? result.cpu_avg : null,
-          'cpu time': result.cpu_time ? result.cpu_time : null,
-          date_check: fullDate(result.date_check),
-        }
-      })
-      .reverse()
-      .slice(-numberOfAverageDays)
-  }
-
-  const buildScoreData = (
-    results: ResultsResponse,
-    allGuildsAvgResults: LatestResultsResponse,
-    numberOfAverageDays: number
-  ): ScoreDataPoint => {
-    const guildScores = results.map((result) => result.score)
-    const nonNullGuildScoreAverage = guildScores.filter(
-      (result) => !!result && result.length > 0 && result !== '1'
-    )
-    const guildScoreAverage =
-      nonNullGuildScoreAverage.reduce(
-        (total, current) => +total + +current,
-        0
-      ) / nonNullGuildScoreAverage.length
-
-    const allGuildsScores = allGuildsAvgResults.map((result) => result.score)
-    const nonNullAllGuildsScoreAverage = allGuildsScores.filter(
-      (result) => !!result && result.length > 0 && result !== '1'
-    )
-    const aggregateAllGuildsScoreAverage =
-      nonNullAllGuildsScoreAverage.reduce(
-        (total, current) => +total + +current,
-        0
-      ) / nonNullAllGuildsScoreAverage.length
-
-    return results
-      .map((result) => {
-        return {
-          'aggregate average score (all guilds)':
-            aggregateAllGuildsScoreAverage.toFixed(2),
-          date_check: fullDate(result.date_check),
-          score: result.score ? result.score : null,
-          'score average': guildScoreAverage.toFixed(2),
-        }
-      })
-      .reverse()
-      .slice(-numberOfAverageDays)
-  }
-
-  const buildMissedBlockData = (data: Array<Block>): MissedBlocktDataPoint => {
-    return data.map((item) => {
-      return {
-        'Missed block count': item.missed_block_count,
-        'Missed round': item.round_missed ? 1 : 0,
-        date: fullDate(item.date),
-      }
-    })
-  }
-
   useEffect(() => {
     refetchAvgResults()
-  }, [numberOfAverageDays])
+  }, [dateRange])
 
   useEffect(() => {
-    if (latestResults && results) {
+    if (latestResults && results && dateRange) {
+      const [startDate, endDate] = dateRange
       setCpuChartData(
-        buildChartData(results, latestResults, numberOfAverageDays)
+        buildChartData(results, latestResults, startDate, endDate)
       )
       setScoreChartData(
-        buildScoreData(results, latestResults, numberOfAverageDays)
+        buildScoreData(results, latestResults, startDate, endDate)
       )
     }
-  }, [latestResults, results, numberOfAverageDays])
+  }, [latestResults, results, dateRange])
 
   useEffect(() => {
     const fetchMissingBlocks = async () => {
       const response = await getMissingBlocks({
-        numberOfAverageDays: numberOfAverageDays,
+        endDate: dateRange[0].toISOString(),
         ownerName: guildId,
+        startDate: dateRange[0].toISOString(),
         top21: !!producer?.top21,
       }).unwrap()
       setMissingBlocks(response)
     }
 
     fetchMissingBlocks().catch()
-  }, [numberOfAverageDays, producer])
+  }, [dateRange, producer])
 
   if (isSuccess && producersData) {
     producer = producersData.filter(
@@ -166,32 +102,6 @@ const GuildDetails = () => {
         No data recorded for this guild yet.
       </div>
     )
-
-  const updateAverageDays = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number.parseInt(e.target.value)
-    if (value < 1000) {
-      setNumberOfAverageDays(value)
-    }
-  }
-
-  const AverageDayInput = () => {
-    return (
-      <div className="flex items-center gap-x-2">
-        <label htmlFor="first_name" className="text-sm text-gray">
-          Average Days
-        </label>
-        <input
-          type="number"
-          max={1000}
-          id="first_name"
-          onChange={updateAverageDays}
-          value={numberOfAverageDays}
-          className="w-16 rounded-sm  border border-lightGray p-1 text-sm text-gray focus:border-primary focus:outline-none"
-          required
-        />
-      </div>
-    )
-  }
 
   if (results) {
     return (
@@ -231,7 +141,7 @@ const GuildDetails = () => {
                 <ScoreChart data={scoreChartData} />
               </div>
               {missingBlocks && missingBlocks.data && (
-                <div className="rounded-sm border border-lightGray bg-white p-4 text-sm hidden ">
+                <div className="hidden rounded-sm border border-lightGray bg-white p-4 text-sm ">
                   <MissingBlocksChart
                     data={buildMissedBlockData(missingBlocks.data)}
                   />
@@ -248,7 +158,17 @@ const GuildDetails = () => {
                   avgResults={avgResults}
                   hideLogo={true}
                   showTime={true}
-                  action={<AverageDayInput />}
+                  action={
+                    <DateRangePicker
+                      value={dateRange}
+                      onChange={(selectedRange) => {
+                        const [startDate, endDate] = selectedRange
+                        if (startDate && endDate) {
+                          setDateRange([startDate, endDate])
+                        }
+                      }}
+                    />
+                  }
                 />
               )}
             </div>
