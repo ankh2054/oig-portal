@@ -14,7 +14,7 @@ import type {
 const BASE_URL =
   import.meta.env.MODE !== 'development'
     ? 'http://localhost:3000/api'
-    : 'https://oigstage.sentnl.io/api' //'https://wax.sengine.co/api'
+    : 'https://wax.sengine.co/api' //'https://oigstage.sentnl.io/api'
 export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
