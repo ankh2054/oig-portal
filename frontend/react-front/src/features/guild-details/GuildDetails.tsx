@@ -77,7 +77,7 @@ const GuildDetails = () => {
   useEffect(() => {
     const fetchMissingBlocks = async () => {
       const response = await getMissingBlocks({
-        endDate: dateRange[0].toISOString(),
+        endDate: dateRange[1].toISOString(),
         ownerName: guildId,
         startDate: dateRange[0].toISOString(),
         top21: !!producer?.top21,
