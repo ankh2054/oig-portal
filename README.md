@@ -8,6 +8,12 @@ WAX OIG portal
 # 2 Build the website  container
 `docker build -f Dockerfile.alpine -t oig-frontend:prod .`
 
+```
+docker build \
+--build-arg REACT_APP_DEV_API_URL=http://localhost:3000/api \
+--build-arg REACT_APP_PROD_API_URL=https://wax.sengine.co/api -t oig-frontend:prod .
+```
+
 
 # 3 Build the DB container
 
