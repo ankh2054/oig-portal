@@ -18,7 +18,7 @@ interface Props {
   reliability?: number
   missingBlocks?: number
 }
-const GuildInfo = ({ producer, result }: Props) => {
+const GuildInfo = ({ producer, result, reliability, missingBlocks }: Props) => {
   const dispatch = useDispatch()
   const [rescan] = useLazyReScanQuery()
 
@@ -66,12 +66,12 @@ const GuildInfo = ({ producer, result }: Props) => {
           value={String(parseInt(result.chainscore) / 10000)}
         />
         <Score title="Tech score" value={String(parseInt(result.score))} />
-        {/* {reliability
+        {reliability ||
           (80 && <Score title="reliability" value={`${reliability || 80}%`} />)}
         {missingBlocks ||
           (4 && (
             <Score title="Missing Blocks" value={`${missingBlocks || 4}`} />
-          ))}*/}
+          ))}
       </div>
       <div className="flex items-center gap-x-8">
         <a

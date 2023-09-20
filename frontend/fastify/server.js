@@ -257,12 +257,12 @@ fastify.get('/api/missing-blocks', async (req, reply) => {
 
   // Construct the external URL with query parameters
   const externalURL = `${baseURL}/missing-blocks?ownerName=${encodeURIComponent(targetName)}&startDate=${startDate}&endDate=${endDate}`;
-  console.log(externalURL)
 
   try {
     // Make a GET request using axios
     const response = await axios.get(externalURL);
     const processedResponse = insertDummyDataIfEmpty(response.data);
+    console.log( processedResponse)
 
     // Send the data received from the external URL back to the client
     //reply.send(response.data);
