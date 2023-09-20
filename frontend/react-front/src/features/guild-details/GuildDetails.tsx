@@ -119,8 +119,12 @@ const GuildDetails = () => {
                   <GuildInfo
                     producer={producer}
                     result={results[0]}
-                    reliability={missingBlocks && missingBlocks.reliability}
-                    missingBlocks={missingBlocks && missingBlocks.missingBlocks}
+                    reliability={
+                      missingBlocks && missingBlocks.percentageReliability
+                    }
+                    missingBlocks={
+                      missingBlocks && missingBlocks.totalMissedBlocks
+                    }
                   />
                 </div>
                 <div className=" rounded-sm border border-lightGray bg-white p-4">
