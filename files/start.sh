@@ -10,6 +10,8 @@ sed -i "s/pgpassword/$DB_PASSWORD/" fastify/.env
 sed -i "s/pgdockername/$PGNAME/" fastify/.env 
 sed -i "s/pythonapi/$PYTHONAPI/" fastify/.env 
 sed -i "s/jwtsecret/$JWTSECRET/" fastify/.env 
+sed -i "s/missm/$MISSINGBLOCKS_MAIN/" fastify/.env 
+sed -i "s/misst/$MISSINGBLOCKS_TEST/" fastify/.env 
 }
 
 
@@ -42,7 +44,6 @@ priority=4
 autostart=true
 autorestart=true
 numprocs=1
-
 EOF
 }
 

@@ -28,6 +28,8 @@ WAX OIG portal
 |**PYTHONAPI**             |`oig.db`                               | Python API container name            |
 |**JWTSECRET**             |`secret`                               | JWT secret for fastify               |
 |**PYTHON_FASTAPI**        |`http://oig.db:8000`                   | Python API server                    |
+|**MISSINGBLOCKS_MAIN**    |`https://missm.sentnl.io`              | Missing Blocks API for Mainnet       |
+|**MISSINGBLOCKS_TEST**    |`https://misst.sentnl.io`              | Missing Blocks API for Testnet       |
 
 
 
@@ -47,6 +49,8 @@ docker run --network=sentnl-net --name oig.sentnl.io --expose 80 \
 -e "PYTHONAPI=oignew.db" \
 -e "PYTHON_FASTAPI=http://oignew.db:8000" \
 -e "JWTSECRET=secret" \
+-e "MISSINGBLOCKS_MAIN=https://missm.sentnl.io" \
+-e "MISSINGBLOCKS_TEST=https://misst.sentnl.io" \
 oig-frontend:prod
 ```
 
