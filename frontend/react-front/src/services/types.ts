@@ -127,7 +127,9 @@ export type Block = {
 export type MissingBlocksResponse = {
   ownerName: string
   days: number
-  reliability?: number
-  missingBlocks?: number
+  percentageReliability?: number
+  percentageMissed?: number
+  totalMissedBlocks?: number
+  totalExpectedBlocks?: number
   data: Array<Block>
 }
