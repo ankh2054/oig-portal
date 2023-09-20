@@ -10,8 +10,9 @@ sed -i "s/pgpassword/$DB_PASSWORD/" fastify/.env
 sed -i "s/pgdockername/$PGNAME/" fastify/.env 
 sed -i "s/pythonapi/$PYTHONAPI/" fastify/.env 
 sed -i "s/jwtsecret/$JWTSECRET/" fastify/.env 
-sed -i "s#missm#$MISSINGBLOCKS_MAIN#" fastify/.env 
 sed -i "s#misst#$MISSINGBLOCKS_TEST#" fastify/.env 
+sed -i "s#missm#$MISSINGBLOCKS_MAIN#" fastify/.env 
+
 }
 
 
