@@ -8,12 +8,19 @@ WAX OIG portal
 # 2 Build the website  container
 `docker build -f Dockerfile.alpine -t oig-frontend:prod .`
 
+### Build Production Frontend
 ```
-docker build \
---build-arg REACT_APP_DEV_API_URL=http://localhost:3000/api \
---build-arg REACT_APP_PROD_API_URL=https://wax.sengine.co/api -t oig-frontend:prod .
+docker build -f Dockerfile.alpine \
+--build-arg VITE_APP_DEV_API_URL=http://localhost:3000/api \
+--build-arg VITE_APP_PROD_API_URL=https://wax.sengine.co/api -t oig-frontend:prod .
 ```
 
+### Build Staging Frontend
+```
+docker build -f Dockerfile.alpine \
+--build-arg VITE_APP_DEV_API_URL=http://localhost:3000/api \
+--build-arg VITE_APP_PROD_API_URL=https://oigstage.sentnl.io/api -t oig-frontend:stage .
+```
 
 # 3 Build the DB container
 
@@ -41,6 +48,9 @@ docker build \
 
  
 # 4 Run the frontend container
+
+- For Production use oig-frontend:prod
+- For staging use oig-frontend:stage
 
 ```
 docker run --network=sentnl-net --name oig.sentnl.io --expose 80 \

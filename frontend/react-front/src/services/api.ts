@@ -11,10 +11,15 @@ import type {
 } from './types'
 
 // Define a service using a base URL and expected endpoints.
+//const BASE_URL =
+//  import.meta.env.MODE === 'development'
+//    ? 'http://localhost:3000/api'
+//    : 'https://wax.sengine.co/api'
+
 const BASE_URL =
-  import.meta.env.MODE === 'development'
-    ? 'http://localhost:3000/api'
-    : 'https://wax.sengine.co/api'
+  process.env.NODE_ENV === 'development'
+    ? import.meta.env.VITE_APP_DEV_API_URL
+    : import.meta.env.VITE_APP_PROD_API_URL
 export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
