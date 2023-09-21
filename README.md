@@ -31,7 +31,7 @@ docker build -f Dockerfile.alpine \
 
 ## ENV Variables
 
-|ENV & ARG                 |Value                          |Description                                   |
+|ENV & ARG                 |Value                                  |Description                           |
 |--------------------------|---------------------------------------|--------------------------------------|
 |**PGPASSWORD**            |`postgresqlpassword`                   | PostgreSQL password                  |
 |**DB_DATABASE**           |`waxram`                               | Database Name for RAM data           |

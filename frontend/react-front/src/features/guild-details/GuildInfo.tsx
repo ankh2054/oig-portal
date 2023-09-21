@@ -67,7 +67,7 @@ const GuildInfo = ({ producer, result, reliability, missingBlocks }: Props) => {
         />
         <Score title="Tech score" value={String(parseInt(result.score))} />
         {reliability && <Score title="reliability" value={`${reliability}%`} />}
-        {missingBlocks && (
+        {missingBlocks !== null && missingBlocks !== undefined && (
           <Score title="Missing Blocks" value={missingBlocks.toString()} />
         )}
       </div>
