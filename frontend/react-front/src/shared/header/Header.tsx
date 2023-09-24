@@ -175,8 +175,11 @@ const Header = (props: TransactionProps) => {
             className="hidden w-full items-center justify-between uppercase md:order-1 md:flex md:w-auto"
             id="navbar-sticky"
           >
-            <ul className="flex flex-col md:flex-row md:space-x-8">
+            <ul className="mr-4 flex flex-col md:flex-row md:space-x-8">
               <NavItem title="Home" url="/" />
+            </ul>
+            <ul className="flex flex-col md:flex-row md:space-x-8">
+              <NavItem title="Empty-Blocks" url="/empty-blocks" />
             </ul>
           </div>
         </div>

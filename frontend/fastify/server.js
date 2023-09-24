@@ -13,6 +13,7 @@ const PYTHON_FASTAPI = process.env.PYTHON_FASTAPI
 const TESTNET_MISSINGBLOCK_URL = process.env.TESTNET_MISSINGBLOCKURL
 const MAINNET_MISSINGBLOCK_URL = process.env.MAINNET_MISSINGBLOCKURL
 
+
 const fastify = require('fastify')({
   ignoreTrailingSlash: true,
   logger: true // Used to check how much requests come through from the React frontend
@@ -267,6 +268,35 @@ fastify.get('/api/missing-blocks', async (req, reply) => {
     // Send the data received from the external URL back to the client
     //reply.send(response.data);
     reply.send(processedResponse);
+  } catch (error) {
+    console.error('Error calling external URL:', error);
+    
+    // Handle the error based on your needs (e.g., sending a custom error response)
+    reply.status(500).send({
+      success: false,
+      error: {
+        kind: "external_api",
+        message: "Failed to fetch data from external source.",
+      },
+    });
+  }
+});
+
+
+// Empty Blocks
+fastify.get('/api/empty-blocks', async (req, reply) => {
+  let testName
+  const startDate = req.query.startDate;
+  const endDate = req.query.endDate;
+
+
+  // Construct the external URL with query parameters
+  const externalURL = `${MAINNET_MISSINGBLOCK_URL}/empty-blocks?startDate=${startDate}&endDate=${endDate}`;
+
+  try {
+    // Make a GET request using axios
+    const response = await axios.get(externalURL);
+    reply.send(response.data);
   } catch (error) {
     console.error('Error calling external URL:', error);
     

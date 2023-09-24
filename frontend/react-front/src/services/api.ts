@@ -8,6 +8,7 @@ import type {
   MissingBlocksResponse,
   AvgResultsResponse,
   TelegramDatesResponse,
+  EmptyBlocksResponse,
 } from './types'
 
 // Define a service using a base URL and expected endpoints.
@@ -36,6 +37,17 @@ export const api = createApi({
         const { ownerName, startDate, endDate } = arg
         return {
           url: `/monthlyaverageresults/${ownerName}?startDate=${startDate}&endDate=${endDate}`,
+        }
+      },
+    }),
+    getEmptyBlocksResults: builder.query<
+      EmptyBlocksResponse,
+      { startDate: string; endDate: string }
+    >({
+      query: (arg) => {
+        const { startDate, endDate } = arg
+        return {
+          url: `/empty-blocks?startDate=${startDate}&endDate=${endDate}`,
         }
       },
     }),
@@ -92,6 +104,7 @@ export const {
   useGetResultsQuery,
   useLazyGetMissingBlocksResultsQuery,
   useGetAvgResultsQuery,
+  useGetEmptyBlocksResultsQuery,
   useLazyReScanQuery,
   useGetTelegramdatesQuery,
 } = api

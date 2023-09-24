@@ -133,3 +133,10 @@ export type MissingBlocksResponse = {
   totalExpectedBlocks?: number
   data: Array<Block>
 }
+
+export type EmptyBlocksResponse = {
+  ownerName: string
+  block_number: number
+  date: Date
+  empty_block: boolean
+}
