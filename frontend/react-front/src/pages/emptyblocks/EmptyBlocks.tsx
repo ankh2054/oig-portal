@@ -2,13 +2,11 @@ import React from 'react'
 import { useGetEmptyBlocksResultsQuery } from '../../services/api'
 
 const EmptyBlocks = () => {
-    const { data, error, isLoading } = useGetEmptyBlocksResultsQuery({
+    const { data, isLoading } = useGetEmptyBlocksResultsQuery({
       startDate: '2023-08-23T08:13:34.922',
       endDate: '2023-09-25T21:14:43.389',
     })
-    console.log(data);
     if (isLoading) return <div>Loading...</div>
-    if (error) return <div>Error: {error}</div>
   
     return (
       <table>
