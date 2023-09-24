@@ -8,7 +8,7 @@ const EmptyBlocks = () => {
     })
     console.log(data);
     if (isLoading) return <div>Loading...</div>
-    if (error) return <div>Error: {error.message}</div>
+    if (error) return <div>Error: {error}</div>
   
     return (
       <table>
