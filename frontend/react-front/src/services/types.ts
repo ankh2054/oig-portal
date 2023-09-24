@@ -123,6 +123,7 @@ export type Block = {
   round_missed: boolean
   blocks_missed: boolean
   missed_block_count: number
+  total_empty: number
 }
 export type MissingBlocksResponse = {
   ownerName: string
@@ -139,4 +140,6 @@ export type EmptyBlocksResponse = {
   block_number: number
   date: Date
   empty_block: boolean
+  total_empty: number
+  data: Array<Block>
 }
