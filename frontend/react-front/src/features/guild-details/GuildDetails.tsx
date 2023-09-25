@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
+import { CURRENT_DATE, DATE_LAST_30_DAYS } from '../../consts'
 import {
   useGetAvgResultsQuery,
   useGetLatestResultsQuery,
@@ -13,7 +14,6 @@ import type { Producer, MissingBlocksResponse } from '../../services/types'
 import Breadcrumb from '../../shared/breadcrumb/Breadcrumb'
 import type { ChartDataPoint } from '../../types/ChartDataPoint'
 import type { ScoreDataPoint } from '../../types/ScoreDataPoint'
-import { dayjs } from '../../utils/dates'
 import {
   buildChartData,
   buildMissedBlockData,
@@ -29,19 +29,15 @@ import ScoreChart from './ScoreChart'
 import Services from './Services'
 import Telegramdates from './Telegramdates'
 
-import 'react-datepicker/dist/react-datepicker.css'
 const GuildDetails = () => {
-  const currentDate = dayjs()
-  const dateLast30Days = currentDate.subtract(30, 'day')
-
   const params = useParams<{ guildId: string }>()
   const guildId = params.guildId!
   const [cpuChartData, setCpuChartData] = useState<ChartDataPoint>([])
   const [scoreChartData, setScoreChartData] = useState<ScoreDataPoint>([])
   const [missingBlocks, setMissingBlocks] = useState<MissingBlocksResponse>()
   const [dateRange, setDateRange] = useState<[Date, Date]>([
-    dateLast30Days.toDate(),
-    currentDate.toDate(),
+    DATE_LAST_30_DAYS.toDate(),
+    CURRENT_DATE.toDate(),
   ])
 
   const { data: producersData, isSuccess } = useGetProducersQuery()
