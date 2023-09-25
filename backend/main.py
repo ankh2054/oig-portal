@@ -29,7 +29,8 @@ def process_queue():
 def restart_worker():
     global worker
     task_queue.put(None)
-    worker.join()
+    if worker is not threading.current_thread():
+        worker.join()
     worker = threading.Thread(target=process_queue)
     worker.start()
 
