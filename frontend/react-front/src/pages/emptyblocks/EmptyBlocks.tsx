@@ -23,12 +23,11 @@ const EmptyBlocks = () => {
 
   return (
     <>
-      <div className="-z-1 absolute left-0 right-0 z-0 -mt-14 h-72 border-t border-white border-opacity-20 bg-secondary"></div>
       <Breadcrumb
         className="z-10"
         items={[{ label: 'Empty blocks', url: 'empty-blocks' }]}
       />
-      <div className="z-10 mt-14 w-full">
+      <div className="z-10 w-full">
         <div className="grid grid-flow-row grid-cols-1 gap-x-6  gap-y-6 md:grid-cols-3 md:gap-y-0">
           <div className="row-start-1 row-end-4">
             <div className="flex flex-col items-center gap-y-1 rounded-sm border border-lightGray bg-white p-4">
