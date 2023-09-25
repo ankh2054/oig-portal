@@ -10,34 +10,33 @@ import {
   Legend,
 } from 'recharts'
 
-const MissingBlocksChart = ({ data }: { data: Array<{}> }) => {
+const EmptyBlocksChart = ({ data }: { data: Array<{}> }) => {
   return (
-    <div className="small-chart">
+    <div className="large-chart">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data} syncId="misssedBlockGraph">
+        <AreaChart data={data} syncId="EmptyBlocksChart">
           <linearGradient id="roundMissedColor" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="#FF6E6E" stopOpacity={0.8} />
             <stop offset="95%" stopColor="#FFC1C1" stopOpacity={0} />
           </linearGradient>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />
-          <YAxis label={{ angle: -90, position: 'insideLeft', value: 'M.B' }} />
+          <YAxis
+            label={{
+              angle: -90,
+              position: 'insideLeft',
+              value: 'Amount missed',
+            }}
+          />
           <Tooltip />
           <Area
             type="monotone"
-            dataKey="Missed block count"
+            dataKey="Empty blocks"
             stroke="#5F2BA1"
             strokeWidth={2}
             fillOpacity={1}
             fill="url(#colorTime)"
-            label="Missed block count"
-          />
-          <Area
-            type="monotone"
-            dataKey="Missed round"
-            stroke="#E34B31"
-            strokeWidth={2}
-            fillOpacity={0}
+            label="Empty blocks"
           />
           <Legend />
         </AreaChart>
@@ -46,4 +45,4 @@ const MissingBlocksChart = ({ data }: { data: Array<{}> }) => {
   )
 }
 
-export default MissingBlocksChart
+export default EmptyBlocksChart

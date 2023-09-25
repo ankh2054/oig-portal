@@ -1,0 +1,36 @@
+/*
+.chart {
+  height: 300px;
+}
+
+.small-chart {
+  height: 300px;
+}
+
+@media (min-width: 768px) {
+  .chart {
+    height: 336px;
+  }
+
+  .small-chart {
+    height: 140px;
+  }
+}
+*/
+
+.small-chart,
+.chart {
+  height: 300px;
+}
+
+.large-chart {
+  height: 336px;
+}
+
+@media (min-width: 768px) {
+  .small-chart,
+  .chart,
+  .large-chart {
+    height: 600px;
+  }
+}

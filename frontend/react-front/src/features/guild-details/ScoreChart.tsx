@@ -10,7 +10,6 @@ import {
   Legend,
   Line,
 } from 'recharts'
-import './styles.css'
 
 const ScoreChart = ({ data }: { data: Array<{}> }) => {
   return (

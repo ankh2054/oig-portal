@@ -177,8 +177,6 @@ const Header = (props: TransactionProps) => {
           >
             <ul className="mr-4 flex flex-col md:flex-row md:space-x-8">
               <NavItem title="Home" url="/" />
-            </ul>
-            <ul className="flex flex-col md:flex-row md:space-x-8">
               <NavItem title="Empty-Blocks" url="/empty-blocks" />
             </ul>
           </div>

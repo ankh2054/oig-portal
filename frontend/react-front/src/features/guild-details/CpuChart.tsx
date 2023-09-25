@@ -10,7 +10,6 @@ import {
   Legend,
   Line,
 } from 'recharts'
-import './styles.css'
 
 const CpuChart = ({ data }: { data: Array<{}> }) => {
   return (
