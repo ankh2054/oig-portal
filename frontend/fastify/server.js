@@ -58,8 +58,8 @@ fastify.register(require('@fastify/static'), {
 
   const getProducerLogoHandler = async (authorizer) => {
     try {
-      const publicKey = await db.getProducerLogo(authorizer);
-      return publicKey;
+      const logo = await db.getProducerLogo(authorizer);
+      return logo;
     } catch (error) {
       console.error(`An error occurred: ${error}`);
       throw error;
@@ -283,12 +283,11 @@ fastify.get('/api/missing-blocks', async (req, reply) => {
 });
 
 
+
 // Empty Blocks
 fastify.get('/api/empty-blocks', async (req, reply) => {
-  let testName
   const startDate = req.query.startDate;
   const endDate = req.query.endDate;
-
 
   // Construct the external URL with query parameters
   const externalURL = `${MAINNET_MISSINGBLOCK_URL}/empty-blocks?startDate=${startDate}&endDate=${endDate}`;
@@ -296,7 +295,15 @@ fastify.get('/api/empty-blocks', async (req, reply) => {
   try {
     // Make a GET request using axios
     const response = await axios.get(externalURL);
-    reply.send(response.data);
+    const data = response.data.data; // Access the nested data array
+
+    // Use Promise.all with map to wait for all asynchronous calls to complete
+    const updatedData = await Promise.all(data.map(async (item) => {
+      const logoData = await getProducerLogoHandler(item.owner_name);
+      return { ...item, logo: logoData.logo_svg };
+    }));
+
+    reply.send(updatedData);
   } catch (error) {
     console.error('Error calling external URL:', error);
     
@@ -310,7 +317,6 @@ fastify.get('/api/empty-blocks', async (req, reply) => {
     });
   }
 });
-
 
 // PG Routes//
 fastify.get('/api/producers', db.getProducers)
