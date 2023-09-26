@@ -147,14 +147,15 @@ export type EmptyBlockInfo = {
   empty_block: boolean
 }
 
-export type OwnerData = {
+export type Owner = {
   empty_blocks: EmptyBlockInfo[]
   owner_name: string
+  logo: string
   total_empty: number
 }
 
 export type EmptyBlocksResponse = {
-  data: OwnerData[]
+  data: Owner[]
   endDate: string
   startDate: string
 }

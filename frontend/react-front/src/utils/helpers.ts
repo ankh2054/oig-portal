@@ -1,9 +1,8 @@
 import type {
   Block,
-  EmptyBlock,
-  EmptyBlocksResponse,
   LatestResultsResponse,
   ResultsResponse,
+  Owner,
 } from '../services/types'
 import type { ChartDataPoint } from '../types/ChartDataPoint'
 import type { EmptyBlocksDatePoint } from '../types/EmptyBlocksDatePoint'
@@ -11,7 +10,6 @@ import type { MissedBlocktDataPoint } from '../types/MissedBlocktDataPoint'
 import type { ScoreDataPoint } from '../types/ScoreDataPoint'
 
 import { fullDate } from './dates'
-import { OwnerData } from '../services/types'
 
 export const buildChartData = (
   results: ResultsResponse,
@@ -95,16 +93,11 @@ export const buildMissedBlockData = (
   })
 }
 
-export const buildEmptyBlocksData = (
-  data: OwnerData[]
-): EmptyBlocksDatePoint => {
+export const buildEmptyBlocksData = (data: Owner[]): EmptyBlocksDatePoint => {
   const groupedData: { [date: string]: number } = {}
   for (const ownerData of data) {
     for (const emptyBlock of ownerData.empty_blocks) {
-      // Extract the date portion without hours, minutes, and seconds
       const dateParts = emptyBlock.date.split(' ')[0]
-
-      // Increment the count for this date
       if (groupedData[dateParts]) {
         groupedData[dateParts]++
       } else {
