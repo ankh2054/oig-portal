@@ -263,7 +263,6 @@ fastify.get('/api/missing-blocks', async (req, reply) => {
     // Make a GET request using axios
     const response = await axios.get(externalURL);
     const processedResponse = insertDummyDataIfEmpty(response.data);
-    console.log( processedResponse)
 
     // Send the data received from the external URL back to the client
     //reply.send(response.data);
@@ -302,7 +301,6 @@ fastify.get('/api/empty-blocks', async (req, reply) => {
       const logoData = await getProducerLogoHandler(item.owner_name);
       return { ...item, logo: logoData.logo_svg };
     }));
-
     reply.send(updatedData);
   } catch (error) {
     console.error('Error calling external URL:', error);

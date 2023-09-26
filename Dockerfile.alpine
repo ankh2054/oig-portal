@@ -35,7 +35,8 @@ RUN mv fastify/DEFAULTS.env fastify/.env
 # Install nodejs modules
 WORKDIR /app/react
 RUN npm ci --silent && \
-    npx browserslist@latest --update-db && \
+    npx update-browserslist-db@latest && \
+    #npx browserslist@latest --update-db && \
     npm run builddocker
 
 WORKDIR /app/fastify
