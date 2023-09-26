@@ -2,8 +2,10 @@ import type {
   Block,
   LatestResultsResponse,
   ResultsResponse,
+  Owner,
 } from '../services/types'
 import type { ChartDataPoint } from '../types/ChartDataPoint'
+import type { EmptyBlocksDatePoint } from '../types/EmptyBlocksDatePoint'
 import type { MissedBlocktDataPoint } from '../types/MissedBlocktDataPoint'
 import type { ScoreDataPoint } from '../types/ScoreDataPoint'
 
@@ -89,4 +91,31 @@ export const buildMissedBlockData = (
       date: fullDate(item.date),
     }
   })
+}
+
+export const buildEmptyBlocksData = (data: Owner[]): EmptyBlocksDatePoint => {
+  const groupedData: { [date: string]: number } = {}
+  for (const ownerData of data) {
+    for (const emptyBlock of ownerData.empty_blocks) {
+      const dateParts = emptyBlock.date.split(' ')[0]
+      if (groupedData[dateParts]) {
+        groupedData[dateParts]++
+      } else {
+        groupedData[dateParts] = 1
+      }
+    }
+  }
+
+  const result: EmptyBlocksDatePoint = Object.keys(groupedData).map((date) => ({
+    'Empty blocks': groupedData[date],
+    date,
+  }))
+
+  result.sort((a, b) => {
+    const dateA = new Date(a.date).getTime()
+    const dateB = new Date(b.date).getTime()
+    return dateA - dateB
+  })
+
+  return result
 }

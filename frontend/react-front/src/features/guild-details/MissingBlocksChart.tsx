@@ -10,8 +10,6 @@ import {
   Legend,
 } from 'recharts'
 
-import './styles.css'
-
 const MissingBlocksChart = ({ data }: { data: Array<{}> }) => {
   return (
     <div className="small-chart">

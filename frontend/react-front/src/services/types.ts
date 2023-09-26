@@ -116,6 +116,12 @@ export type LatestResultsResponse = Array<GuildResult>
 export type ProducersResponse = Array<Producer>
 export type ResultsResponse = Array<GuildResult & { rownum: string }>
 
+export type EmptyBlock = {
+  block_number: string
+  date: string
+  empty_block: boolean
+}
+
 export type Block = {
   owner_name: string
   block_number: number
@@ -135,11 +141,21 @@ export type MissingBlocksResponse = {
   data: Array<Block>
 }
 
-export type EmptyBlocksResponse = {
-  ownerName: string
+export type EmptyBlockInfo = {
   block_number: number
-  date: Date
+  date: string
   empty_block: boolean
+}
+
+export type Owner = {
+  empty_blocks: EmptyBlockInfo[]
+  owner_name: string
+  logo: string
   total_empty: number
-  data: Array<Block>
+}
+
+export type EmptyBlocksResponse = {
+  data: Owner[]
+  endDate: string
+  startDate: string
 }

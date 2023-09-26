@@ -4,6 +4,7 @@ import { RouterProvider } from 'react-router-dom'
 
 import router from './router'
 import { useGetProducersQuery } from './services/api'
+import 'react-datepicker/dist/react-datepicker.css'
 
 const Loader = () => {
   return <></>
