@@ -154,8 +154,4 @@ export type Owner = {
   total_empty: number
 }
 
-export type EmptyBlocksResponse = {
-  data: Owner[]
-  endDate: string
-  startDate: string
-}
+export type EmptyBlocksResponse = Owner[]

@@ -71,25 +71,25 @@ const EmptyBlocks = () => {
           />
         </div>
 
-        {!emptyBlocksResponse?.data && (
+        {!emptyBlocksResponse && (
           <div className="mt-44 text-center text-primary">
             There are no empty blocks within the selected date range.
           </div>
         )}
         <div className="grid grid-flow-row grid-cols-1 gap-x-6  gap-y-6 md:grid-cols-3 md:gap-y-0">
           <div className="row-start-1 row-end-4">
-            {emptyBlocksResponse && emptyBlocksResponse.data && (
+            {emptyBlocksResponse && (
               <div className="flex flex-col items-center gap-y-1 rounded-sm border border-lightGray bg-white p-4">
                 <h3 className="text-2xl">Empty blocks</h3>
-                <Producers items={emptyBlocksResponse.data} />
+                <Producers items={emptyBlocksResponse} />
               </div>
             )}
           </div>
           <div className="flex flex-col gap-y-6 md:col-start-2 md:col-end-4">
-            {emptyBlocksResponse && emptyBlocksResponse.data && (
+            {emptyBlocksResponse && (
               <div className="rounded-sm border border-lightGray bg-white p-4 text-sm ">
                 <EmptyBlocksChart
-                  data={buildEmptyBlocksData(emptyBlocksResponse.data)}
+                  data={buildEmptyBlocksData(emptyBlocksResponse)}
                 />
               </div>
             )}
