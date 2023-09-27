@@ -6,7 +6,7 @@ import { useGetEmptyBlocksResultsQuery } from '../../services/api'
 import Breadcrumb from '../../shared/breadcrumb/Breadcrumb'
 import { buildEmptyBlocksData } from '../../utils/helpers'
 
-import EmptyBlocksChart from './EmptyBlocksChart/EmptyBlocksChart'
+import EmptyBlocksChart from './EmptyBlocksChart'
 import Producers from './Producers'
 
 const EmptyBlocks = () => {
@@ -15,10 +15,13 @@ const EmptyBlocks = () => {
     CURRENT_DATE.toDate(),
   ])
 
+  const startDate = dateRange[0].toISOString()
+  const endDate = dateRange[1].toISOString()
+
   const { data: emptyBlocksResponse, isLoading } =
     useGetEmptyBlocksResultsQuery({
-      endDate: dateRange[1].toISOString(),
-      startDate: dateRange[0].toISOString(),
+      endDate: endDate,
+      startDate: startDate,
     })
   if (isLoading)
     return (
@@ -91,6 +94,15 @@ const EmptyBlocks = () => {
                 <EmptyBlocksChart
                   data={buildEmptyBlocksData(emptyBlocksResponse)}
                 />
+                <div className="mt-8 flex w-full items-center justify-center">
+                  <a
+                    target="_blank"
+                    href={`/api/empty-blocks?startDate=${startDate}&endDate=${endDate}`}
+                    className="mb-2 rounded-lg border border-success px-5 py-2.5 text-center text-sm font-bold text-success hover:bg-success hover:text-white focus:outline-none focus:ring-4 focus:ring-green-300"
+                  >
+                    Get Raw Data
+                  </a>
+                </div>
               </div>
             )}
           </div>
