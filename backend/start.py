@@ -18,6 +18,7 @@ import services.cpu as cpu
 import services.chainjson as chainjson
 import services.telegram as telegram_module
 import services.score as scoring
+import services.p2p as p2p
 import asyncio
 #import utils.requests as requests
 import sys
@@ -201,7 +202,7 @@ def finalresults(cpucheck,singlebp):
         wwwjson = chainjson.compareJSON(producer,'mainnet')
         printOuput(wwwjson,"Does chains json match www json ")
 
-        seed_node = p2p.check_P2P(producer,'p2p_endpoint')
+        seed_node = p2p.verify_block_from_p2p(producer,'p2p_endpoint')
         printOuput(seed_node,"Running a seed node: ")
 
          # Get current UTC timestamp
@@ -342,16 +343,15 @@ if __name__ == "__main__":
     ignorelastcheck = args.ignorelastcheck
     singlebp = args.bp
     main(cpucheck, ignorelastcheck, singlebp)
+    #print(p2p.verify_block_from_p2p('oneinacilian','p2p_endpoint'))
     #print(chainjson.compareJSON('waxhiveguild','mainnet'))
     #telegramDates = print(getTelegramDates())
     #scores = chaininfo.getguildsJSON('mainnet')
     #print(chaininfo.getScore(scores,'sentnlagents'))
     #producers.producer_chain_list()
-
-
     #print(cpu.getcpustats())
     #print(cpu.cpuAverage('eosriobrazil'))
-    #print(history.check_hyperion('eosarabianet','hyperion-v2'))
+    #print(history.check_hyperion('oneinacilian','hyperion-v2'))
     #print(atomic.getAtomicTemplates('https://aa.dapplica.io','kogsofficial'))
     #print(atomic.getAtomicSchema('https://aa.dapplica.io','kogsofficial'))
     #print(atomic.getAtomicassets('https://aa.dapplica.io'))

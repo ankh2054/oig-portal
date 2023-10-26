@@ -1,17 +1,120 @@
+#import utils.eosio as eosio
 import logging
 import socket
 import binascii
-from utils.ds import DataStream
+from ueosio.ds import DataStream 
 from collections import OrderedDict
 import hashlib
-import utils.eosio as eosio
-import utils.core as core
-import db_connect
 
 
 
 
 logger = logging.getLogger(__name__)
+
+hosts = """
+172.16.0.77:9876
+br.eosrio.io:35668
+node-wax-p2p.eosauthority.com:10301
+node-wax.eosauthority.com:10301
+node-waxtest.eosauthority.com:9393
+p2p-node1.neftyblocks.com:9876
+p2p-node1.neftyblocks.com:9876
+p2p-node2.neftyblocks.com:9876
+p2p-node2.neftyblocks.com:9876
+p2p-test.waxdaobp.io:9876
+p2p-testnet-wax.eosarabia.net:9876
+p2p-testnet-wax.eosarabia.net:9876
+p2p-testnet.neftyblocks.com:19876
+p2p-wax.eosarabia.net:9876
+p2p-wax.eosarabia.net:9876
+p2p.oiac.io:9876
+p2p.testnet.wax.detroitledger.tech:1337
+p2p.testnet.waxsweden.org:59676
+p2p.wax-test.bountyblok.io:9874
+p2p.wax-test.liquidstudios.io:9876
+p2p.wax.bountyblok.io:29876
+p2p.wax.detroitledger.tech:1337
+p2p.wax.liquidstudios.io:9876
+p2p.waxdaobp.io:9876
+p2p.waxeastern.cn:9876
+p2p.waxsweden.org:35777
+p2p.waxtest.waxgalaxy.io:9878
+p2p.waxtest.waxgalaxy.io:9878
+p2p1.wax.greeneosio.com:9876
+p2p1.wax.greeneosio.com:9876
+p2p2.wax.greeneosio.com:9876
+p2ptest.oiac.io:19877
+peer-test.hivebp.io:9876
+peer.3dkrender.com:9880
+peer.wax.alohaeos.com:9876
+peer.wax.alohaeos.com:9876
+peer.waxtest.alohaeos.com:9876
+peer.waxtest.alohaeos.com:9876
+peer1-emea.wax.blacklusion.io:4646
+peer1-wax-testnet.eosphere.io:9876
+peer1-wax.eosphere.io:9876
+peer1.hivebp.io:9876
+peer1.testnet.wax.blacklusion.io:5757
+peer1.testnet.wax.pink.gg:16714
+peer1.testnet.wax.tgg.gg:9876
+peer1.wax-test.tacocrypto.io:9999
+peer1.wax.blacklusion.io:4646
+peer1.wax.pink.gg:36715
+peer1.wax.tacocrypto.io:9999
+peer1.wax.tgg.gg:9876
+peer2-wax.eosphere.io:9876
+peer2.hivebp.io:9876
+peer2.testnet.wax.tgg.gg:9876
+peer2.wax.pink.gg:36715
+peer2.wax.tgg.gg:9876
+seed1-wax-mainnet.wecan.dev:14998
+seed1-wax-testnet.wecan.dev:9876
+seed2-wax-mainnet.wecan.dev:14998
+seed2-wax-testnet.wecan.dev:9876
+test.wax.p2p.eosusa.io:19875
+wax-bp.wizardsguild.one:8876
+wax-p2p.eosdac.io:29876
+wax-p2p.eosdac.io:29876
+wax-p2p.fi.eosdac.io:19876
+wax-p2p.uk.eosdac.io:29873
+wax-peer-ca.blokcrafters.io:9876
+wax-peer-ca.blokcrafters.io:9876
+wax-peer-eu.blokcrafters.io:9876
+wax-peer-eu.blokcrafters.io:9876
+wax-seed-testnet.eosiomadrid.io:9876
+wax-seed.eosiomadrid.io:9876
+wax-testnet.cryptolions.io:7987
+wax-testnet.cryptolions.io:7987
+wax-testnet.dapplica.io:9877
+wax-testnet.dapplica.io:9877
+wax-testnet.wizardsguild.one:8080
+wax.cryptolions.io:9876
+wax.cryptolions.io:9876
+wax.dapplica.io:9876
+wax.dapplica.io:9876
+wax.defibox.xyz:9966
+wax.defibox.xyz:9966
+wax.eu.eosamsterdam.net:9101
+wax.greymass.com:35777
+wax.greymass.com:35777
+wax.p2p.eosusa.io:9875
+wax.seed.eosnation.io:9876
+waxp2p.ledgerwise.io:21877
+waxp2p.ledgerwise.io:21877
+waxp2ptestnet.ledgerwise.io:20876
+waxp2ptestnet.ledgerwise.io:20876
+waxtest-p2p.eosdac.io:49876
+waxtest-p2p.eosdac.io:49876
+waxtest-peer-eu.blokcrafters.io:19876
+waxtest-peer-eu.blokcrafters.io:19876
+waxtest-peer-us.blokcrafters.io:19876
+waxtest-peer-us.blokcrafters.io:19876
+waxtest.defibox.xyz:19876
+waxtest.defibox.xyz:19876
+waxtest.eu.eosamsterdam.net:9912
+waxtest.seed.eosnation.io:9876
+waxtest.sentnl.io:9877""".split()
+
 
 
 class HandshakeData:
@@ -33,24 +136,31 @@ class HandshakeData:
         self.generation = generation
 
 
-def send_bin_to_port2(host,port,payload):
-    s = socket.socket()
-    s.settimeout(5)
-    s.connect((host,port))
-    s.send(payload)
-    received=s.recv(4096)
-    s.close()
-    return received
+
 
 def send_bin_to_port(host, port, payloads):
+    logger.info(f'Connecting to {host}:{port}')
     s = socket.socket()
     s.settimeout(10)
-    s.connect((host, port))
+    try:
+        s.connect((host, port))
+        logger.info('Connected successfully')
+    except Exception as e:
+        logger.error(f'Failed to connect: {e}')
+        return None
+
     response = None
     for payload in payloads:
-        s.send(payload)
-        response = s.recv(4096)
+        try:
+            logger.info('Sending payload')
+            s.send(payload)
+            logger.info('Receiving response')
+            response = s.recv(4096)
+        except Exception as e:
+            logger.error(f'Failed to send payload or receive response: {e}')
+            return None
     s.close()
+    logger.info(f'Received: {response}')
     return response
 
 
@@ -181,32 +291,11 @@ def get_headblock():
         return False 
     return curheadblock,curheadblock_id
 
-def get_headblock():
-    # Try get headblock from backup producer
+
+def verify_block_from_p2p(host, port, block):
     try:
-        curheadblock = eosio.headblock('P2Pprimary')
-        curheadblock_id = eosio.headblock_id('P2Pprimary')
-    except:
-        return False 
-    return curheadblock,curheadblock_id
-
-
-
-def verify_block_from_p2p(producer,features):
-    # Retrieve P2P node from DB
-    p2p = db_connect.getQueryNodes(producer,features,'p2p')
-    if p2p == None:
-       return False, 'No seed node configured in JSON'
-    else:
-        # Split host and port
-        hostport = core.split_host_port(p2p[0])
-    # Obtain headblock to test with 
-    try:  
-        head_block_num, head_block_id = eosio.headblock_headblock_id('P2Pprimary')
-    except:
-        return True, 'could not obtain headblock from Sentnl API node'
-    try:
-        raw_response = send_bin_to_port(hostport[0], hostport[1], [send_handshake(),get_net_sync_request_message(head_block_num,head_block_num)])
+        #raw_response = send_bin_to_port(host, port, get_net_sync_request_message(block, block))
+        raw_response = send_bin_to_port(host, port, [send_handshake(),get_net_sync_request_message(block,block)])
         print(raw_response)
     except Exception as e:
          return False, e
@@ -215,16 +304,14 @@ def verify_block_from_p2p(producer,features):
             reason_dict = unpack_go_away_message(block, raw_response)
             reason = reason_dict['reason']
             return False, f'Go away message: {reason}'
-        elif raw_response[4] == 3: # check if the variant id is 3 (time_message)
+        elif raw_response[4] == 3:
             time_message = unpack_time_message(raw_response)
-            return False, f'Received Time message: {time_message}' 
-        elif raw_response[4] == 0: # check if the variant id is 0 (handshake_message)
+            return False, f'Time message: {time_message}' 
+        elif raw_response[4] == 0:
             handshake_message = unpack_handshake_message(raw_response)
             head_block = handshake_message[10]
-            if head_block >= head_block_num:
-                return True, 'ok'
-            else: 
-                return False, f'Node is not in sync, headblock is: {head_block} whereas network is currently at {head_block_num}'
+            print(f'HeadBlock: {head_block}')
+            return handshake_message
         else:
             print('Unpacking signed block')
             block_header = block_header_from_network_bytes(raw_response)
@@ -235,7 +322,7 @@ def verify_block_from_p2p(producer,features):
     except socket.error as e:
         return False, e
     except Exception as e:
-        message = f'Error:  {e}'
+        message = e
         return False, message
 
 
@@ -354,5 +441,26 @@ class DataStreamEx(DataStream):
             ("transactions", transactions)
         ])
 
-
+if __name__ == '__main__':
+    #ds = DataStream()
+    #ds.pack_uint32(9)
+    #ds.pack_uint8(6)
+    #ds.pack_uint32(1)
+    #ds.pack_uint32(1)
+    #print(binascii.hexlify(ds.getvalue()))
+    host = "p2p.oiac.io" #"peer.wax.alohaeos.com:9876" #"peer1.testnet.wax.blacklusion.io:5757" #peer.wax.alohaeos.com"  #"172.16.0.77"   # replace with the actual host
+    port = 9876 #9876  # replace with the actual port
+    block = 269889331  # replace with the actual block number
+    #block_id = "10162f33b9cce316a236742626c257e9e4f98aee9f8ed9188ae12ac8a4c1d919"  # replace with the actual block id
+    result = verify_block_from_p2p(host, port,block)
+    print(result)
+"""    for host in hosts:
+        host, port = host.split(":")
+        port = int(port)
+        try:
+            result = verify_block_from_p2p(host, port, block_num, block_id)
+            print(f'Result for {host}:{port} is {result}')
+        except Exception as e:
+            print(f'Error for {host}:{port} - {str(e)}')
+        print(result)"""
 

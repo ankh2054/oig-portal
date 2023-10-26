@@ -19,11 +19,12 @@ chain = {
 }
 
 nodes = {
-    "hyperionmainnet1": 'http://172.16.0.76:7000',
+    "hyperionmainnet1": 'http://172.16.0.72:7000',
     "hyperionmainnet2": 'http://wax.blokcrafters.io',
-    "hyperiontestnet": 'https://wax-testnet.dapplica.io'
+    "hyperiontestnet": 'https://wax-testnet.dapplica.io',
+    "P2Pprimary": 'http://wax.blokcrafters.io',
+    "P2Pbackup": 'http://wax.blokcrafters.io'
 }
-
 telegram = {
     "session_file": 'anon.session'
 }

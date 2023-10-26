@@ -73,12 +73,20 @@ def producer_chain_list():
         except Exception as err:
                 print(f'Other error occurred: {err}')  
                 continue
+
         try:
             # Get response data in JSON
             response = requests.r.get(url=url+"/"+waxjson)
+            responseTesnet = requests.r.get(waxtestjson)
             json_response = response.json()
+            json_repsonse_testnet = responseTesnet.json()
             # Extract org candidate name
             candidate_name = json_response['org']['candidate_name']
+            # Try and get testnet BP name
+            try:
+                 owner_name_testnet = json_response['producer_account_name']
+            except:
+                owner_name_testnet = guild
             try:
                 country_code = json_response['org']['location']['country']
             except:
@@ -105,6 +113,6 @@ def producer_chain_list():
         except:
             active = True
             print("Guild not in DB setting active to True")
-        thistuple = (guild ,candidate_name, url, url + '/'+waxjson, waxtestjson, url + '/chains.json', logo_256, top21, country_code, active, Activekey)
+        thistuple = (guild ,owner_name_testnet,candidate_name, url, url + '/'+waxjson, waxtestjson, url + '/chains.json', logo_256, top21, country_code, active, Activekey)
         producer_final.append(thistuple)
     return producer_final

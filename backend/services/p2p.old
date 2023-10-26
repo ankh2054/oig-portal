@@ -1,3 +1,4 @@
+#import utils.eosio as eosio
 import logging
 import socket
 import binascii
@@ -7,9 +8,6 @@ import hashlib
 import utils.eosio as eosio
 import utils.core as core
 import db_connect
-
-
-
 
 logger = logging.getLogger(__name__)
 
@@ -33,67 +31,40 @@ class HandshakeData:
         self.generation = generation
 
 
-def send_bin_to_port2(host,port,payload):
+def send_bin_to_port(host,port,payload):
     s = socket.socket()
-    s.settimeout(5)
+    s.settimeout(10)
+    #host, port = host_port_str.split(":")
+    #port = int(port)  # convert port from string to integer
     s.connect((host,port))
     s.send(payload)
     received=s.recv(4096)
     s.close()
     return received
 
-def send_bin_to_port(host, port, payloads):
-    s = socket.socket()
-    s.settimeout(10)
-    s.connect((host, port))
-    response = None
-    for payload in payloads:
-        s.send(payload)
-        response = s.recv(4096)
-    s.close()
-    return response
 
-
-def send_handshake():
+def get_info():
     ds = DataStream()
     handshake_data = HandshakeData(
         1206,  # network_version
-        "1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4",  # chain_id
+        "0000000000000000000000000000000000000000000000000000000000000000",  # chain_id
         "0585cab37823404b8c82d6fcc66c4faf20b0f81b2483b2b0f186dd47a1230fdc",  # node_id
         "EOS6kcLA1M7MMnz1fg4ysiXDtwAFGeRANkw2NUGLEvyFXZGK4wrg5",  # key
-        1574986199433946000,  # time in seconds
+        int("1574986199433946000") // 1000000000,  # time in seconds
         "0000000000000000000000000000000000000000000000000000000000000000",  # token
         "SIG_K1_111111111111111111111111111111111111111111111111111111111111111116uk5ne",  # sig
         "eosdac-p2p-client:9876 - a6f45b4",  # p2p_address
-        270651670,  # last_irreversible_block_num
-        "1021d116b04246bf3a344caf9c4f103e35c78f75173ea1675d1e3b0e602c0c1f",  # last_irreversible_block_id
-        270652006,  # head_num
-        "1021d266bebd27bd61f8d794bdabe633d6f11a35c030dde748b0489ab395f625",  # head_id
+        0,  # last_irreversible_block_num
+        "0000000000000000000000000000000000000000000000000000000000000000",  # last_irreversible_block_id
+        0,  # head_num
+        "0000000000000000000000000000000000000000000000000000000000000000",  # head_id
         "linux",  # os
         "Ghostbusters",  # agent
         1  # generation
     )
-    # Pack the handshake data
+    # Pack data into binary for sending to P2P node
     ds.pack_handshake_message(handshake_data)
-    # Convert the packed data to a byte array
-    byte_array = bytearray(ds.getvalue())
-    # Calculate the length of the packed data in bytes
-    message_length = len(byte_array) + 5 # accounts for size of the message length field itself (4 bytes) and the message type field (1 byte)
-   # Now you can use message_length when packing the message size
-    ds = DataStream()  # create a new DataStream
-    ds.pack_uint32(message_length)  # pack the message length
-    ds.pack_uint8(0)  # pack the message type
-    ds.write(byte_array)  # append the handshake_data to DataStream object ds
-    
-    #print(f'Packed data: {ds.getvalue()}')
-    #print(f'Handshake_data length {message_length}')
-
-    byte_array = ds.getvalue()
-    message_length = len(byte_array)
-    #print(f'Message length {message_length}')
-    
     return ds.getvalue()
-
 
 def get_net_sync_request_message(start_block, end_block):
     ds = DataStream()
@@ -101,51 +72,7 @@ def get_net_sync_request_message(start_block, end_block):
     ds.pack_uint8(6)  # variant id from https://github.com/AntelopeIO/leap/blob/19f78f9b9a06f55a987e7d4c72f281b2772665ac/plugins/net_plugin/include/eosio/net_plugin/protocol.hpp#L135
     ds.pack_uint32(start_block)
     ds.pack_uint32(end_block)
-    #print(ds.getvalue())
-    byte_array = bytearray(ds.getvalue())
-    message_length = len(byte_array) - 4
-    #print(f'Message length {message_length}')
     return ds.getvalue()
-
-def unpack_transaction(block_num, raw):
-    ds = DataStreamEx(raw)
-    l = ds.unpack_uint32()
-    w = ds.unpack_uint8()
-    sb = ds.unpack_transaction()
-
-
-def unpack_go_away_message(block_num, raw):
-    ds = DataStreamEx(raw)
-    l = ds.unpack_uint32()
-    w = ds.unpack_uint8()
-    sb = ds.unpack_go_away_message()
-    return sb
-
-def unpack_handshake_message(raw):
-    ds = DataStream(raw)
-    l = ds.unpack_uint32()
-    w = ds.unpack_uint8()
-    sb = ds.unpack_handshake_message()
-    return sb
-
-def unpack_time_message(raw):
-    ds = DataStreamEx(raw)
-    l = ds.unpack_uint32()
-    w = ds.unpack_uint8()
-    sb = ds.unpack_time_message()
-    return sb
-
-def block_header_from_network_bytes(raw):
-    ds = DataStreamEx(raw)
-    l = ds.unpack_uint32()
-    w = ds.unpack_uint8()
-    sb = ds.unpack_signed_block()
-    
-    ds = DataStreamEx()
-    ds.pack_block_header(sb['signed_block_header']['block_header'])
-    
-    q = ds.getvalue()
-    return q
 
 def block_id_from_network_bytes(block_num, raw):
     ds = DataStreamEx(raw)
@@ -181,16 +108,6 @@ def get_headblock():
         return False 
     return curheadblock,curheadblock_id
 
-def get_headblock():
-    # Try get headblock from backup producer
-    try:
-        curheadblock = eosio.headblock('P2Pprimary')
-        curheadblock_id = eosio.headblock_id('P2Pprimary')
-    except:
-        return False 
-    return curheadblock,curheadblock_id
-
-
 
 def verify_block_from_p2p(producer,features):
     # Retrieve P2P node from DB
@@ -204,40 +121,29 @@ def verify_block_from_p2p(producer,features):
     try:  
         head_block_num, head_block_id = eosio.headblock_headblock_id('P2Pprimary')
     except:
-        return True, 'could not obtain headblock from Sentnl API node'
+        return True, 'could not obtain headblock from P2P node'
+    # TRy connecting to guild P2P node
     try:
-        raw_response = send_bin_to_port(hostport[0], hostport[1], [send_handshake(),get_net_sync_request_message(head_block_num,head_block_num)])
-        print(raw_response)
+        raw_response = send_bin_to_port(hostport[0], hostport[1], get_net_sync_request_message(head_block_num,head_block_num))
     except Exception as e:
-         return False, e
+        return False, e
+    # Unpack headblock and compare
     try:
-        if raw_response[4] == 2:  # check if the variant id is 2 (go_away_reason)
-            reason_dict = unpack_go_away_message(block, raw_response)
-            reason = reason_dict['reason']
-            return False, f'Go away message: {reason}'
-        elif raw_response[4] == 3: # check if the variant id is 3 (time_message)
-            time_message = unpack_time_message(raw_response)
-            return False, f'Received Time message: {time_message}' 
-        elif raw_response[4] == 0: # check if the variant id is 0 (handshake_message)
-            handshake_message = unpack_handshake_message(raw_response)
-            head_block = handshake_message[10]
-            if head_block >= head_block_num:
-                return True, 'ok'
-            else: 
-                return False, f'Node is not in sync, headblock is: {head_block} whereas network is currently at {head_block_num}'
-        else:
-            print('Unpacking signed block')
-            block_header = block_header_from_network_bytes(raw_response)
-            print(block_header)
+        res_block_id = block_id_from_network_bytes(head_block_num, raw_response)
+        #print(f'Headblockid  {head_block_id} VS res_block_id: {res_block_id}')
+        if res_block_id == head_block_id:
             return True, 'ok'
     except socket.timeout as e:
         return False, e
     except socket.error as e:
         return False, e
     except Exception as e:
-        message = f'Error:  {e}'
+        message = "P2P node node too busy to accept my request"
         return False, message
 
+def get_p2p_info(host,port):
+   raw_response = send_bin_to_port(host, port, get_info())
+   print(f'Raw response: {raw_response}')
 
 
 class DataStreamEx(DataStream):
@@ -301,40 +207,6 @@ class DataStreamEx(DataStream):
             ("header_extensions", header_extensions)
         ])
     
-    def unpack_time_message(self):
-        org = self.unpack_int64()
-        rec = self.unpack_int64()
-        xmt = self.unpack_int64()
-        dst = self.unpack_int64()
-
-        return OrderedDict([
-            ("org", org),
-            ("rec", rec),
-            ("xmt", xmt),
-            ("dst", dst)
-        ])
-
-    def unpack_go_away_message(self):
-        reasons = [
-            'no reason',
-            'self connect',
-            'duplicate',
-            'wrong chain',
-            'wrong version',
-            'chain is forked',
-            'unlinkable block received',
-            'bad transaction',
-            'invalid block',
-            'authentication failure',
-            'some other failure',
-            'some other non-fatal condition'
-        ]
-        reason_code = self.unpack_uint8()
-        return OrderedDict([
-            ("reason", reasons[reason_code] if reason_code < len(reasons) else "unknown reason"),
-            ("node_id", self.unpack_sha256())
-        ])
-
     def unpack_signed_block_header(self):
         block_header       = self.unpack_block_header()
         producer_signature = self.unpack_signature()
@@ -354,5 +226,18 @@ class DataStreamEx(DataStream):
             ("transactions", transactions)
         ])
 
-
-
+""" if __name__ == '__main__':
+    #ds = DataStream()
+    #ds.pack_uint32(9)
+    #ds.pack_uint8(6)
+    #ds.pack_uint32(1)
+    #ds.pack_uint32(1)
+    #print(binascii.hexlify(ds.getvalue()))
+    host = "172.16.0.77"  # replace with the actual host
+    port = 9876  # replace with the actual port
+    #block_num = 269889331  # replace with the actual block number
+    #block_id = "101600ef4e145765111db400007d416a28fed0abdb19087effcd845a75ed41b8"  # replace with the actual block id
+    result = verify_block_from_p2p(host, port)
+    print(result)
+    #print(get_p2p_info(host, port))
+ """

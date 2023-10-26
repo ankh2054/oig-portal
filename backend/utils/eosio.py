@@ -9,9 +9,11 @@ import utils.decorators as decorators
 import config.backendconfig as cfg
 
 
-# Hyperion Endpoints
+# Node Endpoints
 HyperionNodeMainnet1 = cfg.nodes["hyperionmainnet1"]
 HyperionNodeMainnet2 = cfg.nodes["hyperionmainnet2"] 
+P2Pprimary = cfg.nodes["P2Pprimary"] 
+P2Pbackup = cfg.nodes["P2Pbackup"] 
 HyperionNodeTesnet = cfg.nodes["hyperiontestnet"] #'https://testnet.waxsweden.org'
 bad_node_list = [ 'http://wax.eu.eosamsterdam.net','https://api.wax.greeneosio.com' ]
 
@@ -54,9 +56,12 @@ class Api_Calls:
 
 
 
-def chainType(chain,api_url=''):
+def nodeType(chain,api_url=''):
     if chain == 'testnet':
         URL = HyperionNodeTesnet + api_url
+        net = True
+    elif chain == 'P2Pprimary':
+        URL = P2Pprimary  + api_url
         net = True
     else:
         URL = HyperionNodeMainnet1 + api_url
@@ -71,15 +76,18 @@ class getJSON():
         self.api_url = api_url
 
    
-
     ### Internal callable class functions ###
 
-     # Get random node for testnet or mainnet
+     # Get random node for testnet or mainnet. 
+     # Set P2P node
     def getRandomNode(self,err):
             if self.chain == 'testnet':
                 self.url = getrandomNode(TestNodes) + self.api_url 
             elif self.chain == 'mainnet':
                 self.url = getrandomNode(MainNodes) + self.api_url 
+            # If P2P testing if it fails try  Backup P2P node. Used to obtain headblock and headblock_id
+            elif self.chain == 'P2Pprimary':
+                self.url = P2Pbackup + self.api_url 
             # if testing single guild we don't want to try a random node, hence url = url
             else: 
                 self.url = self.url
@@ -165,9 +173,9 @@ class getJSON():
 # Obtain a reliable list of working hyperion nodes for V1 and V2 checks
 def getFullnodes(testnet=False):
     if testnet:
-        results = chainType('testnet')
+        results = nodeType('testnet')
     else:
-        results = chainType('mainnet')
+        results = nodeType('mainnet')
     print(core.bcolors.OKYELLOW,f"{'='*100}\nObtaining a reliable list of working Hyperion {results['chain']} nodes ",core.bcolors.ENDC)
     nodes = db_connect.getFullnodes(results['net'])
     if not nodes:
@@ -216,7 +224,6 @@ def getrandomNode(nodelist):
 def hyperionindexedBlocks(host):
     try:
         url = host + str(Api_Calls('v2', 'health'))
-        print(url)
         response = s.get(url, verify=False, timeout=15)
         jsonres = response.json()
         health_info = jsonres.get('health')
@@ -265,9 +272,21 @@ def hyperionindexedBlocks(host):
 def headblock(chain):
     testType = 'get Headblock'
     api_url = str(Api_Calls('v1', 'get_info'))
-    URL = chainType(chain,api_url)['URL']
+    URL = nodeType(chain,api_url)['URL']
     reqJSON = getJSON(testType,chain,api_url)
     return reqJSON.reqGet(URL,'head_block_num')
+
+def headblock_headblock_id(chain):
+    testType = 'get Headblock ID'
+    api_url = str(Api_Calls('v1', 'get_info'))
+    URL = nodeType(chain,api_url)['URL']
+    reqJSON = getJSON(testType,chain,api_url)
+    results = reqJSON.reqGetSimple(URL)
+    head_block_num = results.get('head_block_num')
+    head_block_id = results.get('head_block_id')
+    return head_block_num, head_block_id
+    
+
 
 # Only used for testnet
 def getblockTestnet(block):
@@ -282,7 +301,7 @@ def getblockTestnet(block):
 def getEOStable(table_info,chain='mainnet'):
     testType = 'Get table'
     api_url = str(Api_Calls('v1', 'get_table_rows'))
-    URL = chainType(chain,api_url)['URL'] 
+    URL = nodeType(chain,api_url)['URL'] 
     reqJSON = getJSON(testType,chain,api_url)
     return reqJSON.reqPost(URL,table_info,'rows',1)
 
@@ -291,7 +310,7 @@ def producerSCHED(chain='mainnet'):
     testType = 'get Producer Schedule'
     # Build URL from Api_call class
     api_url = str(Api_Calls('v1', 'get_block_header_state'))
-    URL = chainType(chain,api_url)['URL'] 
+    URL = nodeType(chain,api_url)['URL'] 
     reqJSON = getJSON(testType,chain,api_url)
     producers =  reqJSON.reqPost(URL,{"block_num_or_id": headblock("mainnet") } ,('active_schedule','producers'),2)
     top21_producer_list = []
@@ -305,10 +324,16 @@ def randomTransaction(backtrack,chain):
     testType = 'get Random transaction'
     api_url = str(Api_Calls('v1', 'get_block'))
     curheadblock = headblock(chain)
-    URL = chainType(chain,api_url)['URL'] 
+    URL = nodeType(chain,api_url)['URL'] 
     testblock = curheadblock-backtrack
     reqJSON = getJSON(testType,chain,api_url)
-    transactions =  reqJSON.reqPost(URL,{"block_num_or_id": testblock} ,'transactions',1)
+    transactions = None
+    while transactions is None:
+        try:
+            transactions = reqJSON.reqPost(URL,{"block_num_or_id": testblock} ,'transactions',1)
+        except Exception as e:
+            print(f"Error: {e}. Retrying...")
+    #transactions =  reqJSON.reqPost(URL,{"block_num_or_id": testblock} ,'transactions',1)
     # Extract all transaction IDs
     trxlist = []
     for trx in transactions:
@@ -371,7 +396,6 @@ def get_testnetproducer_cpustats(producer):
     blockproducer = "nobody"
     transactions = []
     amount = 0 
-    print(producer)
     while producer != blockproducer or len(transactions) == 0:
         try:
             currentblock = getblockTestnet(current_headblock)
