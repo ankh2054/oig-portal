@@ -44,8 +44,9 @@ def check_api(producer,checktype):
                 else:
                     return False, str(headers)
             except Exception as err:
+                error = f'Timeout error connecting to: {api}'
                 print(f'Other error occurred: {err}')
-                return False, str(err)
+                return False,  error
     else:
         return False, response.reason
 
@@ -114,7 +115,7 @@ def check_https(producer,checktype):
         return False, error
     except Exception as err:
         print(f'Other error occurred: {err}')  # Python 3.6
-        error = curlreq+'\n'+str(err)
+        error = curlreq+'\n'+f'Timeout error connecting to: {api}'
         return False, error
     else:
         # Check if HTPS API contains WAX chain ID - verifies it's alive

@@ -207,7 +207,6 @@ def verify_block_from_p2p(producer,features):
         return True, 'could not obtain headblock from Sentnl API node'
     try:
         raw_response = send_bin_to_port(hostport[0], hostport[1], [send_handshake(),get_net_sync_request_message(head_block_num,head_block_num)])
-        print(raw_response)
     except Exception as e:
          return False, e
     try:
@@ -231,11 +230,11 @@ def verify_block_from_p2p(producer,features):
             print(block_header)
             return True, 'ok'
     except socket.timeout as e:
-        return False, e
+        return False, f'Timeout when trying to connect to P2P node: {e}'
     except socket.error as e:
-        return False, e
+        return False, f'P2P node responding incorrectly: {e}'
     except Exception as e:
-        message = f'Error:  {e}'
+        message = f'P2P node responding incorrectly:  {e}'
         return False, message
 
 

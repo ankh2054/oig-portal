@@ -43,7 +43,7 @@ def check_hyperion(producer,feature,fulltrx,partialtest=False,testnet=False):
             trx_id = response['trx_id']
             msg = f"Not enough data to count as running Full Hyperion. Hyperion is missing transaction: {trx_id}. HTML Response {response}"
         except Exception as err:
-            return False, f"Some other error occurred: {err}"
+            return False, f"Timeout error connecting to: {api}"
         if not check_history_v1(producer,feature):
             print('full history check failing')
             return False, 'Not running History V1'
@@ -66,7 +66,7 @@ def check_hyperion(producer,feature,fulltrx,partialtest=False,testnet=False):
             #last_action_date = dateutil.parser.parse(
                     #jsonres['actions'][0]['@timestamp']).replace(tzinfo=None)
         except Exception as err:
-                msg = f'Other error occurred: {err}'
+                msg = f'Timeout error connecting to: {api}'
                 return False, msg
         diff_secs = (datetime.utcnow() -
                             last_action_date).total_seconds()
@@ -104,7 +104,7 @@ def check_history_v1(producer,feature):
             try:
                 error = curlreq+'\nError: '+str(jsonres.get('error').get('what'))
             except:
-                error = "something else weird has happened"
+                error = f'Timeout error connecting to: {api}'
             return False, error
         elif response.status_code == 404:
             error = curlreq+'\nError: Not a full node'
@@ -113,9 +113,9 @@ def check_history_v1(producer,feature):
             error = curlreq+' '+str(http_err)
             return False, error
     except Exception as err:
-        print(f'Other error occurred: {err}')  # Python 3.6
+        msg = f'Timeout error connecting to: {api}'
          # also return err
-        error = curlreq+'\n'+str(err)
+        error = curlreq+'\n'+msg
         return False, error
     jsonres = response.json()
     try:
@@ -124,7 +124,7 @@ def check_history_v1(producer,feature):
     except Exception as err:
         return False, err
     if len(actions) == 0:
-            return False, 'No actions returned'
+            return False, f'No actions returned for our request to {api}'
     else:
         return True, 'ok'
 '''       

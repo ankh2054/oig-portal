@@ -26,7 +26,7 @@ import sys
 
 
 #Get random transactions
-fourtwenty = 420 * 86400
+fourtwenty = 420 * 86400 
 mainnetfulltrx = eosio.get_random_trx(fourtwenty,'mainnet')
 testnetfulltrx = eosio.get_random_trx(fourtwenty,'testnet')
 print(core.bcolors.OKYELLOW,f"{'='*100}\nRandom Mainnet TRX: ",mainnetfulltrx,core.bcolors.ENDC)
