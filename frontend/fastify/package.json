@@ -18,7 +18,7 @@
     "@fastify/jwt": "^6.7.1",
     "@fastify/static": "^6.10.1",
     "@greymass/eosio": "^0.6.11",
-    "axios": "^1.4.0",
+    "axios": "^1.6.0",
     "dotenv": "^8.2.0",
     "fastify": "^4.15.0",
     "got": "^12.6.0",
