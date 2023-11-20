@@ -15,7 +15,7 @@
   "dependencies": {
     "@fastify/compress": "^6.2.1",
     "@fastify/cors": "^8.2.1",
-    "@fastify/jwt": "^6.7.1",
+    "@fastify/jwt": "^7.2.3",
     "@fastify/static": "^6.10.1",
     "@greymass/eosio": "^0.6.11",
     "axios": "^1.4.0",
