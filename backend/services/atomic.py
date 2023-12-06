@@ -1,6 +1,7 @@
 import utils.requests as requests
 import utils.eosio as eosio
 import db_connect
+import services.Messages as messages
 
 def check_atomic_assets(producer,feature):
     info = str(eosio.Api_Calls('', 'health')) 
@@ -10,7 +11,7 @@ def check_atomic_assets(producer,feature):
         api = format(api.rstrip('/')) 
     # If there is no v1_history or hyperion node in DB return False
     except:
-        return False, 'No ' + feature + ' in JSON'
+        return False, messages.NOT_IN_JSON(feature)
     URL = api+info
     reqJSON = requests.getJSON()
     response = reqJSON.getRequest(URL,trydo='return')
@@ -27,8 +28,7 @@ def check_atomic_assets(producer,feature):
             reader = services['postgres']['readers']
             last_indexed_block = reader[0]['block_num']
             if abs(int(last_indexed_block) - int(head_block)) > 100:
-                msg = 'Atomic API last_indexed_block is behind head_block'
-                return(False,msg)
+                return False, messages.ATOMIC(False,collection=None, template=None, schema=None, asset=None)
             else:
                 pass
             services = dict(postgres=postgres, redis=redis, chain=chain)
@@ -46,14 +46,14 @@ def check_atomic_assets(producer,feature):
                     if not AtomicCollection or not AtomicTemplate[0] or not Atomicshema[0] or not AtomicAsset[0]:
                     # At least one variable is not True
                         if not AtomicCollection:
-                            return False,f'Could not find collection kogsofficial, output {AtomicCollection}'
+                            return False,message.ATOMIC_ASSETS('collection',collection,AtomicCollection)
                         if not AtomicTemplate[0]:
-                            return False,f'Could not find template {AtomicTemplate[1]}, output {AtomicTemplate[0]}'
+                            return False,messages.ATOMIC_ASSETS('template', AtomicTemplate[1], AtomicTemplate[0])
                         if not Atomicshema[0]:
-                            return False,f'Could not find schema {Atomicshema[1]}, output {AtomicTemplate[0]}'
+                            return False, messages.ATOMIC_ASSETS('schema', Atomicshema[1], AtomicTemplate[0])
                         if not AtomicAsset[0]:
-                            return False, f'Could not find asset {AtomicAsset[1]}, output {AtomicAsset[0]}'
-                    return True,'All Atomic services are working'
+                            return False, messages.ATOMIC_ASSETS('asset', AtomicAsset[1], AtomicAsset[0])
+                    return True,messages.ATOMIC(True,collection,AtomicTemplate[1],Atomicshema[1],AtomicAsset[1])
         except:
             return False, str(services)
     else:

@@ -1,6 +1,7 @@
 import utils.requests as requests
 import utils.eosio as eosio
 import db_connect
+import services.Messages as messages
 
 
 def producerlist(chain):
@@ -65,13 +66,13 @@ def producer_chain_list():
                         pass
                 waxjson = waxjson.lstrip('/')
         except requests.JSONDecodeError:
-                print('JSON parsing error')
+                print(messages.NOT_JSON(False))
                 waxjson = ""
         except requests.HTTPError as http_err:
-                print(f'HTTP error occurred: {http_err}')
+                print(messages.GENERAL_ERROR(http_err))
                 continue
         except Exception as err:
-                print(f'Other error occurred: {err}')  
+                print(messages.GENERAL_ERROR(err))  
                 continue
 
         try:
@@ -96,13 +97,13 @@ def producer_chain_list():
             except: 
                 logo_256 = None
         except requests.JSONDecodeError:
-            print('JSON parsing error')
+            print(messages.NOT_JSON(False))
             continue
         except requests.HTTPError as http_err:
-            print(f'HTTP error occurred: {http_err}')
+            print(messages.GENERAL_ERROR(http_err))
             continue  
         except Exception as err:
-            print(f'Other error occurred: {err}')  
+            print(messages.GENERAL_ERROR(err))  
             continue
         # is producer currently in top21
         top21 = guild in top21producers

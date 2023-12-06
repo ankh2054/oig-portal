@@ -72,11 +72,13 @@ def check_http2(domain_name,port,checktype):
         tls = conn.version()
 
         #HTTP2 check
+
         if  checktype == 'http2chk':
+            curlCommand = "curl -sI https://{HOST}:{PORT} -o/dev/null -w '%{http_version}'"
             if pp == "h2":
                 return True, 'ok'
             else:
-                command = "curl -sI https://{HOST}:{PORT} -o/dev/null -w '%{http_version}'"
+                command = curlCommand
                 error = command.format(HOST=HOST, PORT=PORT, http_version='{http_version}\n')+"\nError: HTTP version 1.1 only"
                 return False , error     
             conn.shutdown()
@@ -86,7 +88,7 @@ def check_http2(domain_name,port,checktype):
             return tls, 'ok'
     
     except Exception as e:
-        command = "curl -sI https://{HOST}:{PORT} -o/dev/null -w '%{http_version}'"
+        command = curlCommand
         error = command.format(HOST=HOST, PORT=PORT, http_version='{http_version}\n')+'\n'+str(e)
         return False, error
 
@@ -119,7 +121,6 @@ def check_tls(domain_name,port):
            except ssl.SSLError as sslErr:
                 conn.shutdown(socket.SHUT_RDWR)
                 conn.close()
-                print(sslErr)
-    return False, 'tls_dowgrade i does not equal 5'
+    return False, f'tls_downgrade i does not equal 5'
 
 

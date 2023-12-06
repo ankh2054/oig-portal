@@ -4,7 +4,7 @@ import jsondiff
 import db_connect
 import utils.requests as requests
 import utils.eosio as eosio
-
+import services.Messages as messages
 
 """Compare website json file to whats been uploaded to chain"""
 def getchainsJSON(producer,chain):
@@ -31,12 +31,11 @@ def compareJSON(producer,chain):
         wwwjson = getwwwJSON(producer)
         diff = jsondiff.diff(json.loads(chainjson), wwwjson)
     except:
-        return False, f'JSON file not posted to chain or incorrect format'
+        return False, messages.CHECK_CHAINJSON(False, json=True)
     if not diff:
-        return True, 'ok'
+        return True,  messages.CHECK_CHAINJSON(True)
     else:
-        print("Mismatches:", diff)
-        return False, f'JSON file on website does not match chain version: {diff}'
+        return False, messages.CHECK_CHAINJSON(False, diff=diff)
     
 
 

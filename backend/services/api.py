@@ -2,6 +2,7 @@ import utils.core as core
 import utils.requests as requests
 import utils.eosio as eosio
 import db_connect
+import services.Messages as messages
 
 
 def check_api(producer,checktype):
@@ -12,7 +13,7 @@ def check_api(producer,checktype):
     # If there is no API or Full node in DB return False
     #if None in api:
     if api == None:
-        return False, 'No API node available in JSON'
+        return False, messages.NOT_IN_JSON('API')
     else:
         info = str(eosio.Api_Calls('v1', 'get_info'))
     URL = api[0]+info
@@ -25,28 +26,26 @@ def check_api(producer,checktype):
             try:
                 jsonres = response.json()
             except Exception as err:
-                error = 'not providing JSON: '+str(err)
-                return False, error
+                return False, messages.NOT_JSON(False,err)
             chainid = jsonres.get('chain_id')
             if chainid == requests.mainnet_id:
                 #resptime = round(responsetimes,2)
                 #print('Response time: ', resptime)
-                return True, 'ok'
+                return True, messages.CHECK_API(True)
             else:
-                error = curlreq+'\nError: has the wrong chain ID or HTTP is not working'
+                error = curlreq+'\n'+messages.CHECK_API(True)
                 return False, error
         # Checks for Access-Control-Allow-Origin = *
         elif checktype == "corschk":
             try:
                 headers = response.headers['Access-Control-Allow-Origin']
                 if headers == "*":
-                    return True, 'ok'
+                    return True, messages.CORS
                 else:
                     return False, str(headers)
             except Exception as err:
-                error = f'Timeout error connecting to: {api}'
                 print(f'Other error occurred: {err}')
-                return False,  error
+                return False,  messages.TIMEOUT_ERROR(api)
     else:
         return False, response.reason
 
@@ -75,10 +74,8 @@ def api_security(producer,features,sectype):
             # If the response was successful, no Exception will be raised
             response.raise_for_status()
         except requests.HTTPError as http_err:
-            #print(f'HTTP error occurred: {http_err}')
             message = True
         except Exception as err:
-            #print(f'Other error occurred: {err}')
             message = True
         # If no error is returned and valid json is returned then API is running
         else:
@@ -100,7 +97,7 @@ def check_https(producer,checktype):
     api = db_connect.getQueryNodes(producer,'chain-api','https')
     # If there is no API or Full HTTPS node in DB return False
     if api == None:
-        return False, 'No API node available in JSON'
+        return False, messages.NOT_IN_JSON
      # If the URL contains Hyperion then change URL request string
     else:
         info = str(eosio.Api_Calls('v1', 'get_info'))
@@ -115,7 +112,7 @@ def check_https(producer,checktype):
         return False, error
     except Exception as err:
         print(f'Other error occurred: {err}')  # Python 3.6
-        error = curlreq+'\n'+f'Timeout error connecting to: {api}'
+        error = curlreq+'\n'+messages.TIMEOUT_ERROR(api)
         return False, error
     else:
         # Check if HTPS API contains WAX chain ID - verifies it's alive
@@ -124,11 +121,11 @@ def check_https(producer,checktype):
                 jsonres = response.json()
                 chainid = jsonres.get('chain_id')
             except:
-                return False, 'none JSON response received'
+                return False, messages.NOT_JSON(False,err=None)
             if chainid == requests.mainnet_id:
                 return True, 'ok'
             else:
-                error = curlreq+'\nError:Wrong chain ID or HTTPS not working'
+                error = curlreq+'\n'+messages.CHECK_API(False)
                 return False, error
         elif checktype == "http2chk":
             httpsendpoint = api[0]

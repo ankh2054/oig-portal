@@ -3,6 +3,8 @@ import db_connect
 import utils.requests as requests
 import utils.eosio as eosio
 import statistics
+import services.Messages as messages
+
 
 def getcpustats(chain):
     print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting CPU Results for {chain} ",core.bcolors.ENDC)
@@ -62,7 +64,7 @@ def cpuresults(producer,producercpu,producertestcpu):
         stat = round((sum(cpuTest) / len(cpuTest))/1000,2)
         return stat
     else:
-        print(f'Producer not found in either mainnet or testnet data setting to default of 1.0')
+        print(messages.CPU)
         return int(1.0)
 
 

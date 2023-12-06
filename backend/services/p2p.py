@@ -7,6 +7,7 @@ import hashlib
 import utils.eosio as eosio
 import utils.core as core
 import db_connect
+import services.Messages as messages
 
 
 
@@ -196,7 +197,7 @@ def verify_block_from_p2p(producer,features):
     # Retrieve P2P node from DB
     p2p = db_connect.getQueryNodes(producer,features,'p2p')
     if p2p == None:
-       return False, 'No seed node configured in JSON'
+       return False, messages.NOT_IN_JSON('seed')
     else:
         # Split host and port
         hostport = core.split_host_port(p2p[0])
@@ -221,21 +222,18 @@ def verify_block_from_p2p(producer,features):
             handshake_message = unpack_handshake_message(raw_response)
             head_block = handshake_message[10]
             if head_block >= head_block_num:
-                return True, 'ok'
+                return True, messages.CHECK_P2P(True)
             else: 
-                return False, f'Node is not in sync, headblock is: {head_block} whereas network is currently at {head_block_num}'
+                return False, messages.CHECK_P2P(False,head_block,head_block_num)
         else:
-            print('Unpacking signed block')
             block_header = block_header_from_network_bytes(raw_response)
-            print(block_header)
-            return True, 'ok'
+            return True, messages.CHECK_P2P(True)
     except socket.timeout as e:
-        return False, f'Timeout when trying to connect to P2P node: {e}'
+        return False, messages.TIMEOUT_ERROR(p2p)
     except socket.error as e:
-        return False, f'P2P node responding incorrectly: {e}'
+        return False, messages.NOT_RESPONDING_CORRECTLY(p2p)
     except Exception as e:
-        message = f'P2P node responding incorrectly:  {e}'
-        return False, message
+        return False, messages.NOT_RESPONDING_CORRECTLY(p2p)
 
 
 

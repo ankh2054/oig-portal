@@ -1,6 +1,7 @@
 import utils.requests as requests
 import utils.eosio as eosio
 import utils.core as core
+import services.Messages as messages
 
 def delphioracle_actors():
     print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting Delphi Oracle Data ",core.bcolors.ENDC)
@@ -30,6 +31,6 @@ def delphioracle_actors():
 def delphiresults(producer,oracledata):
      producersoracle = oracledata
      if producer in producersoracle:
-        return True, 'ok'
+        return True, messages.CHECK_ORACLE_FEED(True)
      else:
-        return False ,'No actions associated with your BP name in Delphioracle Or less than 3 feeds'
+        return False, messages.CHECK_ORACLE_FEED(False)

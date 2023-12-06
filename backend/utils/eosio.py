@@ -7,6 +7,7 @@ import db_connect
 import utils.core as core
 import utils.decorators as decorators
 import config.backendconfig as cfg
+import services.Messages as messages
 
 
 # Node Endpoints
@@ -236,18 +237,18 @@ def hyperionindexedBlocks(host):
         return False, f'{response.reason} error code: {response.status_code}'
     except ValueError:
         # Handling JSON decoding errors
-        return False, 'Invalid JSON response'
+        return False, messages.NOT_JSON(False)
     except Exception as err:
         return False, err
     try:
         service_data = health_info[2]['service_data']
     except:
-        return False, 'Hyperion last indexed does not match total indexed with range of 10'
+        return False, messages.HYPERION_TOTAL_INDEXED_MISMATCH
     try:
         last_indexed = int(service_data['last_indexed_block'])
         total_indexed = int(service_data['total_indexed_blocks'])
     except:
-        return False, 'Hyperion last indexed does not match total indexed with range of 10'
+        return False, messages.HYPERION_TOTAL_INDEXED_MISMATCH
     try:
         first_indexed_block = int(service_data['first_indexed_block'])
         print(f' First indexed: {first_indexed_block}')
@@ -255,18 +256,18 @@ def hyperionindexedBlocks(host):
         print(f' Missing blocks: {missing_blocks}')
         #if last_indexed-first_indexed_block in range(last_indexed-10, total_indexed+1):
         if missing_blocks > 5:
-            return False, f'Hyperion last indexed does not match total indexed, missing blocks {missing_blocks}'
+            return False, messages.HYPERION_MISSING_BLOCKS(False, missing_blocks)
         else:
-            return True, f'Hyperion Total blocks matches last indexed, missing blocks {missing_blocks}' 
+            return True, messages.HYPERION_MISSING_BLOCKS(True, missing_blocks)
     except:
         # We pass since not all hyperions will have this.
        pass
     
     #Check if total index is between total_index-10 and last_index+1, as they wont always exactly match.
     if last_indexed in range(last_indexed-10, total_indexed+1):
-        return True, 'Hyperion Total blocks matches last indexed'
+        return True, messages.HYPERION_MISSING_BLOCKS(True)
     else:
-        return False, 'Hyperion last indexed does not match total indexed with range of 10'
+        return False, messages.HYPERION_TOTAL_INDEXED_MISMATCH
 
 
 def headblock(chain):
@@ -337,14 +338,19 @@ def randomTransaction(backtrack,chain):
     # Extract all transaction IDs
     trxlist = []
     for trx in transactions:
+        print(trx)
+        trx_id = False  # Reset trx_id at the start of each iteration
         try:
-            trx = trx['trx']['id']
+            account = trx['trx']['transaction']['actions'][0]['account']
+            print(f'ACCOUNT: {account}')
+            if account not in ['m.federation', 'alien.worlds', 'farmersworld']:
+                trx_id = trx['trx']['id']
+            else:
+                print(f"{trx['trx']['id']} excluded as contained Alien Worlds, Farmer Worlds or M.Federation")
         except:
-            # If not trx ix found set to False
-            trx = False
-        # Only add transaction to list if not false
-        if trx != False:
-            trxlist.append(trx)
+            pass  # If an exception occurs, trx_id remains False
+        if trx_id:
+            trxlist.append(trx_id)
     return trxlist
 
 # Get random TRX from chain
