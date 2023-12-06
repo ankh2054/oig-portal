@@ -338,11 +338,9 @@ def randomTransaction(backtrack,chain):
     # Extract all transaction IDs
     trxlist = []
     for trx in transactions:
-        print(trx)
         trx_id = False  # Reset trx_id at the start of each iteration
         try:
             account = trx['trx']['transaction']['actions'][0]['account']
-            print(f'ACCOUNT: {account}')
             if account not in ['m.federation', 'alien.worlds', 'farmersworld']:
                 trx_id = trx['trx']['id']
             else:
