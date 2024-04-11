@@ -26,10 +26,12 @@ import sys
 
 
 #Get random transactions
-fourtwenty = 420 * 86400 
+fourtwenty = 42 * 86400 
 mainnetfulltrx = eosio.get_random_trx(fourtwenty,'mainnet')
+mainnetfulltrxRecent = eosio.get_random_trx(0,'mainnet')
 testnetfulltrx = eosio.get_random_trx(fourtwenty,'testnet')
 print(core.bcolors.OKYELLOW,f"{'='*100}\nRandom Mainnet TRX: ",mainnetfulltrx,core.bcolors.ENDC)
+print(core.bcolors.OKYELLOW,f"{'='*100}\nRandom Recent Mainnet TRX: ",mainnetfulltrxRecent,core.bcolors.ENDC)
 print(core.bcolors.OKYELLOW,f"{'='*100}\nRandom Testnet TRX: ",testnetfulltrx,core.bcolors.ENDC)
 
 def lastCheck(now,ignorelastcheck,hours):
@@ -299,7 +301,7 @@ def main(cpucheck, ignorelastcheck, singlebp):
         print(core.bcolors.OKYELLOW,f"{'='*100}\nCPU is being checked ",core.bcolors.ENDC)
     else:
         print(core.bcolors.OKYELLOW,f"{'='*100}\nCPU is not being checked ",core.bcolors.ENDC)
-    """if only single BP is checked we do not process below functions to update DB
+    """if only single BP is requested we do not process below functions to update DB
     this allows for uvicorn to run and BPs to force check from oig portal without interfering with main
     process which checks all BPs"""
     if not singlebp:
@@ -351,7 +353,8 @@ if __name__ == "__main__":
     #producers.producer_chain_list()
     #print(cpu.getcpustats())
     #print(cpu.cpuAverage('eosriobrazil'))
-    #print(history.check_hyperion('oneinacilian','hyperion-v2'))
+    #print(history.check_hyperion('sentnlagents','hyperion-v2',testnetfulltrx,testnet=False,partialtest=False))
+    #print(chainjson.compareJSON('dapplica','mainnet'))
     #print(atomic.getAtomicTemplates('https://aa.dapplica.io','kogsofficial'))
     #print(atomic.getAtomicSchema('https://aa.dapplica.io','kogsofficial'))
     #print(atomic.getAtomicassets('https://aa.dapplica.io'))

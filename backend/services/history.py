@@ -54,13 +54,13 @@ def check_hyperion(producer,feature,fulltrx,partialtest=False,testnet=False):
     ## Perform normal hyperion tests for mainnet and testnet
     else:
     ### Check hyperion last indexed action
-        url = str(eosio.Api_Calls('v2-history', 'get_actions?limit=1')) #'/v2/history/get_actions?limit=1'
+        url = str(eosio.Api_Calls('v2', 'health')) #'/v2/history/get_actions?limit=1'
         reqJSON = requests.getJSON()
         response = reqJSON.getRequest(api+url,trydo='return')
         try:
             jsonres = response.json()
             last_action_date = dateutil.parser.parse(
-                    jsonres['actions'][0]['timestamp']).replace(tzinfo=None)
+                    jsonres['last_indexed_block_time']).replace(tzinfo=None)
             # Old hyperion prior to 3.3.9
             #last_action_date = dateutil.parser.parse(
                     #jsonres['actions'][0]['@timestamp']).replace(tzinfo=None)
@@ -73,6 +73,9 @@ def check_hyperion(producer,feature,fulltrx,partialtest=False,testnet=False):
         elif not check_history_v1(producer,feature):
             print('full history check failing')
             return False, messages.HISTORY_V1(False)
+        elif():
+            #Query a recent transaction
+            pass
         else:
             return True, messages.FORMAT_MESSAGES(messages.HYPERION_HEALTHY,messages.HYPERION_LAST_ACTION(diff_secs))
             return True, messages.HYPERION_HEALTHY
