@@ -28,8 +28,6 @@ def getwwwJSON(producer):
 def compareJSON(producer,chain):
     try:
         chainjson = getchainsJSON(producer,chain)
-        print(json.loads(chainjson))
-        print(wwwjson)
         wwwjson = getwwwJSON(producer)
         diff = jsondiff.diff(json.loads(chainjson), wwwjson)
     except:
