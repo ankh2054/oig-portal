@@ -30,9 +30,11 @@ fourtwenty = 42 * 86400
 mainnetfulltrx = eosio.get_random_trx(fourtwenty,'mainnet')
 mainnetfulltrxRecent = eosio.get_random_trx(0,'mainnet')
 testnetfulltrx = eosio.get_random_trx(fourtwenty,'testnet')
+testnetfulltrxRecent = eosio.get_random_trx(0,'testnet')
 print(core.bcolors.OKYELLOW,f"{'='*100}\nRandom Mainnet TRX: ",mainnetfulltrx,core.bcolors.ENDC)
 print(core.bcolors.OKYELLOW,f"{'='*100}\nRandom Recent Mainnet TRX: ",mainnetfulltrxRecent,core.bcolors.ENDC)
 print(core.bcolors.OKYELLOW,f"{'='*100}\nRandom Testnet TRX: ",testnetfulltrx,core.bcolors.ENDC)
+print(core.bcolors.OKYELLOW,f"{'='*100}\nRandom Recent Testnet TRX: ",testnetfulltrxRecent,core.bcolors.ENDC)
 
 def lastCheck(now,ignorelastcheck,hours):
     lastcheck = db_connect.getLastcheck() #2021-11-19 07:25:24.11084+00
@@ -181,19 +183,19 @@ def finalresults(cpucheck,singlebp):
         printOuput(full_history,"Running a v1 History node: ")
 
         # v2 Hyperion mainnet check
-        hyperion_v2 = history.check_hyperion(producer,'hyperion-v2',mainnetfulltrx)
+        hyperion_v2 = history.check_hyperion(producer,'hyperion-v2',mainnetfulltrxRecent,mainnetfulltrx)
         printOuput(hyperion_v2,"Running a v2 Hyperion node: ")
 
         # v2 Hyperion mainnet Full/Partial check
-        hyperion_v2_full = history.check_hyperion(producer,'hyperion-v2',mainnetfulltrx,partialtest=True)
+        hyperion_v2_full = history.check_hyperion(producer,'hyperion-v2',mainnetfulltrxRecent,mainnetfulltrx,partialtest=True)
         printOuput( hyperion_v2_full,"Running a v2 Hyperion Full node: ")
 
         # v2 Hyperion testnet check
-        hyperion_v2_testnet = history.check_hyperion(producer,'hyperion-v2',testnetfulltrx,testnet=True)
+        hyperion_v2_testnet = history.check_hyperion(producer,'hyperion-v2',testnetfulltrxRecent,testnetfulltrx,testnet=True)
         printOuput(hyperion_v2_testnet,"Running a v2 Hyperion testnet node: ")
 
         # v2 Hyperion testnet Full/Partial check
-        hyperion_v2_testnet_full = history.check_hyperion(producer,'hyperion-v2',testnetfulltrx,testnet=True,partialtest=True)
+        hyperion_v2_testnet_full = history.check_hyperion(producer,'hyperion-v2',testnetfulltrxRecent,testnetfulltrx,testnet=True,partialtest=True)
         printOuput(hyperion_v2_testnet_full,"Running a v2 Hyperion Full testnet node: ")
 
         # Atomic Assets API
