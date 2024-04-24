@@ -9,11 +9,10 @@ from datetime import datetime
 import requests as requests2
 import services.Messages as messages
 
-def check_recent_transaction(trx):
+def check_recent_transaction(api,trx):
      payload = dict(id=trx[0])
      try:
             response = eosio.get_stuff(api,payload,'trx')
-            #print(response['executed'])
             trxExecuted = response['executed']
             trx_id = response['trx_id']
             #msg = f"Not enough data to count as running Full Hyperion. Hyperion is missing transaction: {trx_id}. HTML Response {response}"
@@ -72,6 +71,24 @@ def check_hyperion(producer,feature,recentfulltrx,fulltrx,partialtest=False,test
         url = str(eosio.Api_Calls('v2-history', 'get_actions?limit=1')) #'/v2/history/get_actions?limit=1'
         reqJSON = requests.getJSON()
         response = reqJSON.getRequest(api+url,trydo='return')
+
+        urlHealth = str(eosio.Api_Calls('v2', 'health')) #'/v2/health
+        reqJSONHealth = requests.getJSON()
+        responseHealth = reqJSONHealth.getRequest(api+urlHealth,trydo='return')
+
+        try:
+            jsonresHealth = responseHealth.json()
+            # Ensure 'last_indexed_block_time' is in jsonresHealth before accessing it
+            if 'last_indexed_block_time' in jsonresHealth:
+                last_action_date_health = dateutil.parser.parse(
+                jsonresHealth['last_indexed_block_time']).replace(tzinfo=None)
+            else:
+                # Handle the case where 'last_indexed_block_time' is not in the response
+                print("No 'last_indexed_block_time' in response.")
+        except Exception as e:
+            # Log the exception if needed
+            print(f"Failed to parse JSON or access 'last_indexed_block_time': {e}")
+            # Continue with the rest of the code even if the above fails
         try:
             jsonres = response.json()
             last_action_date = dateutil.parser.parse(
@@ -80,19 +97,33 @@ def check_hyperion(producer,feature,recentfulltrx,fulltrx,partialtest=False,test
             #last_action_date = dateutil.parser.parse(
                     #jsonres['actions'][0]['@timestamp']).replace(tzinfo=None)
         except Exception as err:
-                return False, messages.TIMEOUT_ERROR(api)
-        diff_secs = (datetime.utcnow() -
-                            last_action_date).total_seconds()
+                return False, f"Failed to parse JSON or access 'last_action_date': {err}"
+
+        # Calculate the time difference between now and last_action_date
+        diff_secs = (datetime.utcnow() - last_action_date).total_seconds()
+
+        # Check the time difference for last_action_date
         if diff_secs > 600:
-                    return False, messages.HYPERION_LAST_ACTION(diff_secs)
-        elif not check_history_v1(producer,feature):
+            check_passed = False
+            return False, messages.HYPERION_LAST_ACTION(diff_secs)
+
+        # If last_action_date_health is available, calculate its time difference and perform the check
+        if 'last_action_date_health' in locals() and last_action_date_health is not None:
+            diff_secs_health = (datetime.utcnow() - last_action_date_health).total_seconds()
+            if diff_secs_health > 600:
+                check_passed = False
+                return False, messages.HYPERION_LAST_ACTION(diff_secs_health)
+
+        if not check_history_v1(producer,feature):
             print('full history check failing')
             return False, messages.HISTORY_V1(False)
-        #elif not check_recent_transaction(recentfulltrx)[0]:
-        #     return check_recent_transaction(recentfulltrx)
+
+        result = check_recent_transaction(api, recentfulltrx)
+        if not result[0]:
+            return result
         else:
             return True, messages.FORMAT_MESSAGES(messages.HYPERION_HEALTHY,messages.HYPERION_LAST_ACTION(diff_secs))
-            return True, messages.HYPERION_HEALTHY
+            #return True, messages.HYPERION_HEALTHY
 
 
 def check_history_v1(producer,feature):
@@ -100,7 +131,6 @@ def check_history_v1(producer,feature):
      # Query nodes in DB and try and obtain API node
     try:
         api = db_connect.getQueryNodes(producer,feature,'api')[0]
-        print('Hyperion node: ',api)
     # If there is no v1_history or hyperion node in DB return False
     except:
         return False, 'No ' + feature + ' in JSON'

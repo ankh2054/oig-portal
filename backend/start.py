@@ -28,12 +28,12 @@ import sys
 #Get random transactions
 fourtwenty = 42 * 86400 
 mainnetfulltrx = eosio.get_random_trx(fourtwenty,'mainnet')
-mainnetfulltrxRecent = eosio.get_random_trx(0,'mainnet')
-testnetfulltrx = eosio.get_random_trx(fourtwenty,'testnet')
-testnetfulltrxRecent = eosio.get_random_trx(0,'testnet')
 print(core.bcolors.OKYELLOW,f"{'='*100}\nRandom Mainnet TRX: ",mainnetfulltrx,core.bcolors.ENDC)
+mainnetfulltrxRecent = eosio.get_random_trx(0,'mainnet')
 print(core.bcolors.OKYELLOW,f"{'='*100}\nRandom Recent Mainnet TRX: ",mainnetfulltrxRecent,core.bcolors.ENDC)
+testnetfulltrx = eosio.get_random_trx(fourtwenty,'testnet')
 print(core.bcolors.OKYELLOW,f"{'='*100}\nRandom Testnet TRX: ",testnetfulltrx,core.bcolors.ENDC)
+testnetfulltrxRecent = eosio.get_random_trx(0,'testnet')
 print(core.bcolors.OKYELLOW,f"{'='*100}\nRandom Recent Testnet TRX: ",testnetfulltrxRecent,core.bcolors.ENDC)
 
 def lastCheck(now,ignorelastcheck,hours):
@@ -335,7 +335,11 @@ def main(cpucheck, ignorelastcheck, singlebp):
             pass
     # Get all results and save to DB
     results = finalresults(cpucheck,singlebp) # Set True to check CPU , False to ignore
-    db_connect.resultsInsert(results)
+    truncated_results = []
+    for record in results:
+        truncated_record = tuple((str(field)[:1000] if isinstance(field, str) else field) for field in record)
+        truncated_results.append(truncated_record)
+    db_connect.resultsInsert(truncated_results)
 
 if __name__ == "__main__":
     my_parser = argparse.ArgumentParser()
@@ -355,7 +359,7 @@ if __name__ == "__main__":
     #producers.producer_chain_list()
     #print(cpu.getcpustats())
     #print(cpu.cpuAverage('eosriobrazil'))
-    #print(history.check_hyperion('sentnlagents','hyperion-v2',testnetfulltrx,testnet=False,partialtest=False))
+    #print(history.check_hyperion('sentnlagents','hyperion-v2',testnetfulltrxRecent,testnetfulltrx,testnet=True,partialtest=False))
     #print(chainjson.compareJSON('dapplica','mainnet'))
     #print(atomic.getAtomicTemplates('https://aa.dapplica.io','kogsofficial'))
     #print(atomic.getAtomicSchema('https://aa.dapplica.io','kogsofficial'))

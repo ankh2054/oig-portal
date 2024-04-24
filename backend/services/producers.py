@@ -2,6 +2,7 @@ import utils.requests as requests
 import utils.eosio as eosio
 import db_connect
 import services.Messages as messages
+from fuzzywuzzy import process
 
 
 def producerlist(chain):
@@ -20,8 +21,13 @@ def producerlist(chain):
 
 def get_testnetJSON(producer):
     producers = producerlist('testnet')
+    # Extract only the 'owner' values from the producers list
+    producer_names = [p['owner'] for p in producers]
+    # Find the closest match for the given producer name
+    closest_match, _ = process.extractOne(producer, producer_names)
+    # Find the URL for the closest match
     for guild in producers:
-        if guild['owner'] == producer:
+        if guild['owner'] == closest_match:
             return guild['url']
 
 ## Get list of producers and produce tuple
@@ -32,8 +38,8 @@ def producer_chain_list():
     producer_final = []
     for i in producers:
         guild = i['owner']
-        print(f'Currently processing Guild:{guild}')
         url = i['url']
+        print(f'Currently processing Guild:{guild} with website {url}')
         urlchains = url.rstrip('/')+'/chains.json'
         # Access active key associated with guild
         getAccountURL = eosio.HyperionNodeMainnet1 + str(eosio.Api_Calls('v2', f'state/get_account?account={guild}'))
@@ -49,24 +55,40 @@ def producer_chain_list():
                     print(f'Looking for testnet chains json on mainnet URL')
                     waxtestjson = json_response['chains'][requests.testnet_id]
                     waxtestjson = waxtestjson.lstrip('/')
-                    waxtestjson = url + '/'+waxtestjson
+                    waxtestjson = url + '/' + waxtestjson
+                    # Attempt to verify the existence of the file
+                    response = requests.r.get(url=waxtestjson, timeout=requests.defaulttimeout)
+                    try:
+                        # Try to parse the response as JSON to ensure it's a valid JSON file
+                        response.json()
+                    except ValueError:
+                        # If parsing fails, raise an exception indicating the response is not a valid JSON
+                        raise Exception("Response is not a valid JSON file")
+                    if response.status_code != 200:
+                        raise Exception("Mainnet URL not found")
                 except:
                     print(f'Looking for testnet chains json on testnet URL')
                     try:
                         guildtesturl = get_testnetJSON(guild)
-                        guildtesturl = guildtesturl.rstrip('/')
-                        response = requests.r.get(url=guildtesturl + '/chains.json', timeout=requests.defaulttimeout)
-                        json_response = response.json()
-                        waxtestjson = json_response['chains'][requests.testnet_id]
-                        waxtestjson = waxtestjson.lstrip('/')
-                        waxtestjson = guildtesturl + '/'+waxtestjson
+                        if guildtesturl:  # Ensure guildtesturl is not None or empty
+                            guildtesturl = guildtesturl.rstrip('/')
+                            response = requests.r.get(url=guildtesturl + '/chains.json', timeout=requests.defaulttimeout)
+                            if response.status_code == 200:
+                                json_response = response.json()
+                                waxtestjson = json_response['chains'][requests.testnet_id]
+                                waxtestjson = waxtestjson.lstrip('/')
+                                waxtestjson = guildtesturl + '/' + waxtestjson
+                                print(waxtestjson)
+                            else:
+                                raise Exception("Testnet URL not found")
+                        else:
+                            raise Exception("Guild test URL is empty")
                     except Exception as err:
-                        print(f'Could not find testnet JSON for {guild}')
+                        print(f'Could not find testnet JSON for {guild}: {err}')
                         waxtestjson = ""
-                        pass
                 waxjson = waxjson.lstrip('/')
-        except requests.JSONDecodeError:
-                print(messages.NOT_JSON(False))
+        except requests.JSONDecodeError as e:
+                print(f"{messages.NOT_JSON(False)} Error: {str(e)}")
                 waxjson = ""
         except requests.HTTPError as http_err:
                 print(messages.GENERAL_ERROR(http_err))
@@ -78,14 +100,14 @@ def producer_chain_list():
         try:
             # Get response data in JSON
             response = requests.r.get(url=url+"/"+waxjson)
-            responseTesnet = requests.r.get(waxtestjson)
             json_response = response.json()
-            json_repsonse_testnet = responseTesnet.json()
             # Extract org candidate name
             candidate_name = json_response['org']['candidate_name']
             # Try and get testnet BP name
             try:
-                 owner_name_testnet = json_response['producer_account_name']
+                 responseTesnet = requests.r.get(waxtestjson)
+                 json_repsonse_testnet = responseTesnet.json()
+                 owner_name_testnet = json_repsonse_testnet['producer_account_name']
             except:
                 owner_name_testnet = guild
             try:
@@ -96,14 +118,14 @@ def producer_chain_list():
                 logo_256 = json_response['org']['branding']['logo_256']
             except: 
                 logo_256 = None
-        except requests.JSONDecodeError:
-            print(messages.NOT_JSON(False))
+        except requests.JSONDecodeError as e:
+            print(f"{messages.NOT_JSON(False)} Error: {str(e)}")
             continue
         except requests.HTTPError as http_err:
-            print(messages.GENERAL_ERROR(http_err))
+            print(f"{messages.GENERAL_ERROR(http_err)} Error: {http_err}")
             continue  
         except Exception as err:
-            print(messages.GENERAL_ERROR(err))  
+            print(f"{messages.GENERAL_ERROR(err)} Error: {err}")
             continue
         # is producer currently in top21
         top21 = guild in top21producers
