@@ -12,7 +12,7 @@ import hashlib
 logger = logging.getLogger(__name__)
 
 hosts = """
-172.16.0.77:9876
+
 br.eosrio.io:35668
 node-wax-p2p.eosauthority.com:10301
 node-wax.eosauthority.com:10301

@@ -52,10 +52,11 @@ def split_host_port(string):
     
 
 ## Settings for check_http2 and tls_check
-socket.setdefaulttimeout(5)
+
 headers = {"user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"}
 
 def check_http2(domain_name,port,checktype):
+    socket.setdefaulttimeout(5)
     try:
         HOST = urlparse(domain_name).hostname
         PORT = int(port)
@@ -94,6 +95,7 @@ def check_http2(domain_name,port,checktype):
 
 
 def check_tls(domain_name,port):
+    socket.setdefaulttimeout(5)
     tls = ""
     tlsver = [ssl.TLSVersion.SSLv3,ssl.TLSVersion.TLSv1,ssl.TLSVersion.TLSv1_1,ssl.TLSVersion.TLSv1_2,ssl.TLSVersion.TLSv1_3,ssl.TLSVersion.TLSv1_3]
     i = 0

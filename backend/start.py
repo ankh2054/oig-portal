@@ -12,13 +12,13 @@ import services.nodes as nodes
 import services.api as api
 import services.chaininfo as chaininfo
 import services.history as history
-import services.p2p as p2p
+import services.p2pnew as p2p
 import services.delphi as delphi
 import services.cpu as cpu
 import services.chainjson as chainjson
 import services.telegram as telegram_module
 import services.score as scoring
-import services.p2p as p2p
+import services.p2pnew as p2p
 import asyncio
 #import utils.requests as requests
 import sys
@@ -351,7 +351,7 @@ if __name__ == "__main__":
     ignorelastcheck = args.ignorelastcheck
     singlebp = args.bp
     main(cpucheck, ignorelastcheck, singlebp)
-    #print(p2p.verify_block_from_p2p('oneinacilian','p2p_endpoint'))
+    #print(p2p.verify_block_from_p2p('sentnlagents','p2p_endpoint'))
     #print(chainjson.compareJSON('waxhiveguild','mainnet'))
     #telegramDates = print(getTelegramDates())
     #scores = chaininfo.getguildsJSON('mainnet')

@@ -54,6 +54,34 @@ def send_bin_to_port(host, port, payloads):
     s.close()
     return response
 
+def send_bin_to_port_test(host, port, payloads):
+    s = socket.socket()
+    s.settimeout(10)
+    try:
+        s.connect((host, port))
+        print(f"Connected to {host}:{port}")
+    except Exception as e:
+        print(f"Failed to connect to {host}:{port} - {e}")
+        return None
+
+    response = None
+    for index, payload in enumerate(payloads):
+        try:
+            print(f"Sending payload {index+1}/{len(payloads)}")
+            s.send(payload)
+            print(f"Payload {index+1} sent, waiting for response...")
+            response = s.recv(4096)
+            print(f"Received response for payload {index+1}: {response}")
+        except socket.timeout as e:
+            print(f"Timeout occurred while waiting for response to payload {index+1}: {e}")
+            break
+        except Exception as e:
+            print(f"Error during sending/receiving for payload {index+1}: {e}")
+            break
+
+    s.close()
+    print("Socket closed.")
+    return response
 
 def send_handshake():
     ds = DataStream()
@@ -208,9 +236,12 @@ def verify_block_from_p2p(producer,features):
         return True, 'could not obtain headblock from Sentnl API node'
     try:
         raw_response = send_bin_to_port(hostport[0], hostport[1], [send_handshake(),get_net_sync_request_message(head_block_num,head_block_num)])
+        print(f'Raw Repsonse: {raw_response}')
     except Exception as e:
          return False, e
     try:
+        # The vairant ids
+        #https://github.com/AntelopeIO/leap/blob/19f78f9b9a06f55a987e7d4c72f281b2772665ac/plugins/net_plugin/include/eosio/net_plugin/protocol.hpp#L135
         if raw_response[4] == 2:  # check if the variant id is 2 (go_away_reason)
             reason_dict = unpack_go_away_message(block, raw_response)
             reason = reason_dict['reason']
