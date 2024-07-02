@@ -3,24 +3,25 @@ import db_connect
 
 
 # Iterate over all different types of possible URLs and features
-def node_types(type, node, owner_name,net):
+def node_types(type, node, owner_name, net, full_status):
     # Set node type
     node_type = type
     # List of all possible types
-    nodetypes = ['ssl_endpoint','api_endpoint','p2p_endpoint','features']
-    # List to to pass back to tuple, contains owner_name, node_type, net (mainnet or testnet)
+    nodetypes = ['ssl_endpoint', 'api_endpoint', 'p2p_endpoint', 'features']
+    # List to pass back to tuple, contains owner_name, node_type, net (mainnet or testnet), and full status
     finallist = [owner_name, node_type, net]
     for nodes in nodetypes:
         # If fields in JSON are empty strings pass NULL to DB
         if node.get(nodes) == "":
             nodeurl = None
-        # Else pass in node URL or featurelist
-        else:         
+        else:  # Else pass in node URL or featurelist
             nodeurl = node.get(nodes)
         # If the node type is features and it's not a list, convert it to a list
         if nodes == 'features' and not isinstance(nodeurl, list):
             nodeurl = [nodeurl]
         finallist.append(nodeurl)
+    # Append full status to the final list
+    finallist.append(full_status)
     # Turn list into tuple 
     thistuple = tuple(finallist)
     return thistuple
@@ -59,26 +60,21 @@ def node_list(testnet=False):
                     continue
                 # Get all node types
                 node_type = node.get('node_type')
+                full_status = node.get('full', False)  # Extract full status
                 if "query" in node_type:
-                    # Iterate over all types of possible URLs and features for each type of node
-                    thistuple = node_types("query", node, owner_name,net)
+                    thistuple = node_types("query", node, owner_name, net, full_status)  # Pass full_status to node_types
                     node_list.append(thistuple)
-                # Get seed nodes
                 if "seed" in node_type:
-                    thistuple = node_types("seed", node, owner_name,net)
+                    thistuple = node_types("seed", node, owner_name, net, full_status)
                     changetuple = list(thistuple)
-                    # P2P endpoints don't have features list in JSON BP standard
-                    # We therefor need to Update last item (feature) in list 
-                    # We update this to p2p_endpoint, so we can ensure duplicates are not added to DB
-                    changetuple[-1] = ['p2p_endpoint']
-                    # Change list back to tuple
+                    changetuple[-2] = ['p2p_endpoint']
                     thistuple = tuple(changetuple)
                     node_list.append(thistuple)
                 if "full" in node_type:
-                    thistuple = node_types("full", node, owner_name,net)
+                    thistuple = node_types("full", node, owner_name, net, full_status)
                     node_list.append(thistuple)
                 if "history" in node_type:
-                    thistuple = node_types("history", node, owner_name,net)
+                    thistuple = node_types("history", node, owner_name, net, full_status)
                     node_list.append(thistuple)
         else:
             continue

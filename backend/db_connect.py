@@ -190,9 +190,13 @@ def TelegramdatesInsert(records):
 
 def nodesInsert(records):
     db = MyDB()
-    query = """ INSERT INTO oig.nodes (owner_name, node_type, net, https_node_url, http_node_url, p2p_url, features) 
-                VALUES (%s,%s,%s,%s,%s,%s,%s)
-                ON CONFLICT (owner_name,node_type,http_node_url,features) DO UPDATE SET http_node_url = EXCLUDED.http_node_url, https_node_url = EXCLUDED.https_node_url, p2p_url = EXCLUDED.p2p_url 
+    query = """ INSERT INTO oig.nodes (owner_name, node_type, net, https_node_url, http_node_url, p2p_url, features, historyfull) 
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                ON CONFLICT (owner_name,node_type,http_node_url,features) DO UPDATE SET 
+                    http_node_url = EXCLUDED.http_node_url, 
+                    https_node_url = EXCLUDED.https_node_url, 
+                    p2p_url = EXCLUDED.p2p_url,
+                    historyfull = EXCLUDED.historyfull;  
             """
     db.dbInsertMany(records, query)
 
@@ -292,7 +296,7 @@ def getQueryNodes(producer,feature,type,testnet=False):
             """
         else:
             pg_select = """ 
-            SELECT COALESCE(https_node_url,http_node_url) FROM oig.nodes WHERE owner_name = %s AND features @> ARRAY[%s]::text[] AND net = %s;    
+            SELECT COALESCE(https_node_url, http_node_url), historyfull FROM oig.nodes WHERE owner_name = %s AND features @> ARRAY[%s]::text[] AND net = %s;    
             """
         # SELECT * FROM oig.nodes WHERE features @> ARRAY['chain-api']::text[];
      

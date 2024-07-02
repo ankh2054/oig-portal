@@ -33,7 +33,8 @@ CREATE TABLE oig.nodes (
 	http_node_url VARCHAR ( 50 ) ,
     https_node_url VARCHAR ( 50 ) ,
     p2p_url VARCHAR ( 50 ) ,
-    features TEXT []
+    features TEXT [],
+    historyfull BOOLEAN
 );
 
 /* Unique index to cover two culumns*/

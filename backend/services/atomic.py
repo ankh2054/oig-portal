@@ -3,7 +3,10 @@ import utils.eosio as eosio
 import db_connect
 import services.Messages as messages
 
-def check_atomic_assets(producer,feature):
+
+#producer,'atomic-assets-api'
+#def check_atomic_assets(producer,feature):
+def check_atomic_assets(producer,feature):#
     info = str(eosio.Api_Calls('', 'health')) 
     # Query nodes in DB and try and obtain API node
     try:
@@ -54,8 +57,9 @@ def check_atomic_assets(producer,feature):
                         if not AtomicAsset[0]:
                             return False, messages.ATOMIC_ASSETS('asset', AtomicAsset[1], AtomicAsset[0])
                     return True,messages.ATOMIC(True,collection,AtomicTemplate[1],Atomicshema[1],AtomicAsset[1])
-        except:
-            return False, str(services)
+        except Exception as e:
+            print(f'Error connecting to node message: {e}')
+            return False,(f'Error message: {e}')
     else:
         return False, str(services)
 

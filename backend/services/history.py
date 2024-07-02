@@ -25,10 +25,12 @@ def check_recent_transaction(api,trx):
 
 
 def check_hyperion(producer,feature,recentfulltrx,fulltrx,partialtest=False,testnet=False):
-
+    
     ### Check Hyperion exists in DB 
     try:
-        api = db_connect.getQueryNodes(producer,feature,'api',testnet)[0]
+        node_details = db_connect.getQueryNodes(producer,feature,'api',testnet)
+        historyfull = node_details[1]
+        api = node_details[0]
     # If there is no v1_history or hyperion node in DB return False
     except:
         return False, messages.NOT_IN_JSON(feature)
@@ -47,6 +49,8 @@ def check_hyperion(producer,feature,recentfulltrx,fulltrx,partialtest=False,test
         chain = 'mainnet'
     # Test for full or partial
     if partialtest:
+        if not historyfull:
+            return False, "Node not set to full in JSON"
         #Create payload for request to hyperion
         payload = dict(id=fulltrx[0])
         try:

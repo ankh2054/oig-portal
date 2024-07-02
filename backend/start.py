@@ -321,6 +321,7 @@ def main(cpucheck, ignorelastcheck, singlebp):
         # Add nodes to DB
         print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of mainnet nodes from JSON files ",core.bcolors.ENDC)
         mainnet_nodes = nodes.node_list()
+        print(mainnet_nodes)
         db_connect.nodesInsert(mainnet_nodes)
         print(core.bcolors.OKYELLOW,f"{'='*100}\nGetting list of testnet nodes from JSON files ",core.bcolors.ENDC)
         testnet_nodes = nodes.node_list(testnet=True) # Tesnet = True so collect testnet nodes from json files
@@ -359,7 +360,7 @@ if __name__ == "__main__":
     #producers.producer_chain_list()
     #print(cpu.getcpustats())
     #print(cpu.cpuAverage('eosriobrazil'))
-    #print(history.check_hyperion('sentnlagents','hyperion-v2',testnetfulltrxRecent,testnetfulltrx,testnet=True,partialtest=False))
+    #print(history.check_hyperion('sentnlagents','hyperion-v2',mainnetfulltrxRecent,mainnetfulltrx,testnet=False,partialtest=True))
     #print(chainjson.compareJSON('dapplica','mainnet'))
     #print(atomic.getAtomicTemplates('https://aa.dapplica.io','kogsofficial'))
     #print(atomic.getAtomicSchema('https://aa.dapplica.io','kogsofficial'))
@@ -368,6 +369,8 @@ if __name__ == "__main__":
     #print(chainjson.getwwwJSON('sentnlagents'))
     #print(chainjson.compareJSON('sentnlagents','mainnet'))
     #print(api.check_https('sentnlagents','tlschk'))
+    #python3 -m services.atomic("greeneosiobp","atomic-assets-api")   
+    #python3 -m services.history.check_hyperion('sentnlagents','hyperion-v2','29f9f0c9a40a8508b2433822593ac6cb274299b8e2e32409ea0517d7842241da', '9437457b450b2c47e47fca67c19ca12e111fa01ee9aeac373826ac414d3329dc',testnet=False,partialtest=True))  
 
         
 
