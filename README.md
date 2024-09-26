@@ -6,7 +6,6 @@ WAX OIG portal
 `docker network create sentnl-net`
 
 # 2 Build the website  container
-`docker build -f Dockerfile.alpine -t oig-frontend:prod .`
 
 ### Build Production Frontend
 ```

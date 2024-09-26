@@ -87,7 +87,7 @@ const GuildCard = ({
             icon={<IconHyperionV1 />}
             name="History V1"
             status={data.full_history}
-            message={data.full_history_error.split('<br>')}
+            message={data.full_history_error.split('<br>').join('\n')}
           />
           <ServiceState
             icon={<IconHyperionV2 />}
