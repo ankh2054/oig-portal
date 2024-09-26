@@ -236,19 +236,35 @@ LIMIT $2 OFFSET $3
 }
 
 
-const getTruncatedPaginatedResultsBACKUP = (request, reply) => {
-  const { owner } = request.params;
-  const { index, limit } = request.query;
-  const start = index ? +index + 1 : 1;
-  const end = limit ? +limit + 1 : 10;
+const getNodesByType = (nodeType) => {
+  return new Promise((resolve, reject) => {
+    let query = '';
+    let features = '';
 
-  client.query(`SELECT * FROM ( SELECT ROW_NUMBER() OVER ( ORDER BY date_check DESC ) AS RowNum, * FROM (select distinct on (date_trunc('day', date_check)) * from oig.results where owner_name = $1 order by date_trunc('day', date_check), date_check DESC) AS DistinctSet ) AS RowConstrainedResult WHERE RowNum >= $2 AND RowNum <= $3 ORDER BY RowNum`, [owner, start, end], (error, results) => {
-    if (error) {
-      throw error
+    switch (nodeType) {
+      case 'hyperion':
+        query = "SELECT owner_name, https_node_url, historyfull FROM oig.nodes WHERE 'hyperion-v2' = ANY(features)";
+        break;
+      case 'atomic':
+        query = "SELECT owner_name, https_node_url FROM oig.nodes WHERE 'atomic-assets-api' = ANY(features)";
+        break;
+      case 'p2p':
+        query = "SELECT owner_name, p2p_url FROM oig.nodes WHERE 'p2p_endpoint' = ANY(features)";
+        break;
+      default:
+        reject(new Error('Invalid node type'));
+        return;
     }
-    reply.status(200).send(results.rows);
-  })
-}
+
+    client.query(query, (error, results) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results.rows);
+      }
+    });
+  });
+};
 
 
 // Get results for Particular Producer based on Month
@@ -279,4 +295,4 @@ DELETE FROM oig.producer WHERE metasnapshot_date != timestamp '1980-01-01 00:00:
 
 
 
-module.exports = {   getLatestResults, getProducers,  getResults, getResultsbyOwner, getUpdatesbyOwner, getPaginatedResultsByOwner, getTruncatedPaginatedResults, getAverageMonthlyResult, getProducerPublicKey,getTelegramDates,getProducerLogo,fetchOwnerNameTestnet };
+module.exports = {   getLatestResults, getProducers,  getResults, getResultsbyOwner, getUpdatesbyOwner, getPaginatedResultsByOwner, getTruncatedPaginatedResults, getAverageMonthlyResult, getProducerPublicKey,getTelegramDates,getProducerLogo,fetchOwnerNameTestnet,getNodesByType };

@@ -328,6 +328,25 @@ fastify.get('/api/truncatedPaginatedResults/:owner', db.getTruncatedPaginatedRes
 // Get Telegram dates
 fastify.get('/api/dates', db.getTelegramDates)
 
+fastify.get('/api/nodes/:nodeType', async (request, reply) => {
+  try {
+    const { nodeType } = request.params;
+    const nodes = await db.getNodesByType(nodeType);
+    reply.send(nodes);
+  } catch (error) {
+    console.error('Error fetching nodes:', error);
+    reply.status(500).send({
+      success: false,
+      error: {
+        kind: "server_error",
+        message: "Failed to fetch nodes data.",
+      },
+    });
+  }
+});
+
+
+
 
 fastify.setNotFoundHandler((req, res) => {
   if (req.raw.url && req.raw.url.startsWith("/api")) {
