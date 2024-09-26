@@ -239,17 +239,16 @@ LIMIT $2 OFFSET $3
 const getNodesByType = (nodeType) => {
   return new Promise((resolve, reject) => {
     let query = '';
-    let features = '';
 
     switch (nodeType) {
       case 'hyperion':
-        query = "SELECT owner_name, https_node_url, historyfull FROM oig.nodes WHERE 'hyperion-v2' = ANY(features)";
+        query = "SELECT owner_name, https_node_url, historyfull, net FROM oig.nodes WHERE 'hyperion-v2' = ANY(features)";
         break;
       case 'atomic':
-        query = "SELECT owner_name, https_node_url FROM oig.nodes WHERE 'atomic-assets-api' = ANY(features)";
+        query = "SELECT owner_name, https_node_url, net FROM oig.nodes WHERE 'atomic-assets-api' = ANY(features)";
         break;
       case 'p2p':
-        query = "SELECT owner_name, p2p_url FROM oig.nodes WHERE 'p2p_endpoint' = ANY(features)";
+        query = "SELECT owner_name, p2p_url, net FROM oig.nodes WHERE 'p2p_endpoint' = ANY(features)";
         break;
       default:
         reject(new Error('Invalid node type'));
@@ -260,12 +259,15 @@ const getNodesByType = (nodeType) => {
       if (error) {
         reject(error);
       } else {
-        resolve(results.rows);
+        const processedResults = results.rows.map(row => ({
+          ...row,
+          network: row.net === 'mainnet' ? 'mainnet' : 'testnet'
+        }));
+        resolve(processedResults);
       }
     });
   });
 };
-
 
 // Get results for Particular Producer based on Month
 const getUpdatesbyOwner = (request, reply) => {

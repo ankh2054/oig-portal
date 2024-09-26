@@ -51,6 +51,10 @@ docker build -f Dockerfile.alpine \
 - For Production use oig-frontend:prod
 - For staging use oig-frontend:stage
 
+
+```
+
+
 ```
 docker run --network=sentnl-net --name oig.sentnl.io --expose 80 \
 -d -e "VIRTUAL_HOST=oig.sentnl.io" \
@@ -68,6 +72,8 @@ docker run --network=sentnl-net --name oig.sentnl.io --expose 80 \
 -e "MISSINGBLOCKS_TEST=https://misst.sentnl.io" \
 oig-frontend:prod
 ```
+
+
 
 
 # 5 Run the DB container 
