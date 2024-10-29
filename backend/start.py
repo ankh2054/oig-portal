@@ -360,7 +360,7 @@ if __name__ == "__main__":
     #producers.producer_chain_list()
     #print(cpu.getcpustats())
     #print(cpu.cpuAverage('eosriobrazil'))
-    #print(history.check_hyperion('sentnlagents','hyperion-v2',mainnetfulltrxRecent,mainnetfulltrx,testnet=False,partialtest=True))
+    #print(history.check_hyperion('sentnlagents','hyperion-v2','39b6f3190f3da5415546a58bcd4033a1ad329b517a3e1b6d63d32a206d46fed5','39b6f3190f3da5415546a58bcd4033a1ad329b517a3e1b6d63d32a206d46fed5',testnet=False,partialtest=True))
     #print(chainjson.compareJSON('dapplica','mainnet'))
     #print(atomic.getAtomicTemplates('https://aa.dapplica.io','kogsofficial'))
     #print(atomic.getAtomicSchema('https://aa.dapplica.io','kogsofficial'))

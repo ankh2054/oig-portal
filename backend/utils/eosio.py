@@ -240,10 +240,24 @@ def hyperionindexedBlocks(host):
         return False, messages.NOT_JSON(False)
     except Exception as err:
         return False, err
+
+
+    # Find Elasticsearch service
+    es_service = None
+    for service in health_info:
+        if service.get('service') == 'Elasticsearch':
+            es_service = service
+            break
+    
+    print(f"ES Service found: {es_service}")
+
     try:
-        service_data = health_info[2]['service_data']
+        service_data = es_service['service_data']
+        print(f"Service data: {service_data}")
     except:
+        print("Failed to get service_data")
         return False, messages.HYPERION_TOTAL_INDEXED_MISMATCH
+
     try:
         last_indexed = int(service_data['last_indexed_block'])
         total_indexed = int(service_data['total_indexed_blocks'])
@@ -418,4 +432,3 @@ def get_testnetproducer_cpustats(producer):
             return None
     else:
         return currentblock['transactions'][0]['cpu_usage_us']
-    

@@ -1,4 +1,3 @@
-
 import utils.core as core
 import utils.requests as requests
 import utils.eosio as eosio
@@ -25,74 +24,90 @@ def check_recent_transaction(api,trx):
 
 
 def check_hyperion(producer,feature,recentfulltrx,fulltrx,partialtest=False,testnet=False):
+    print("\n=== Starting check_hyperion ===")
+    print(f"Producer: {producer}")
+    print(f"Feature: {feature}")
+    print(f"Partial test: {partialtest}")
+    print(f"Testnet: {testnet}")
     
     ### Check Hyperion exists in DB 
     try:
         node_details = db_connect.getQueryNodes(producer,feature,'api',testnet)
         historyfull = node_details[1]
         api = node_details[0]
-    # If there is no v1_history or hyperion node in DB return False
-    except:
+        print(f"Node details - API: {api}, History Full: {historyfull}")
+    except Exception as e:
+        print(f"Failed to get node details: {e}")
         return False, messages.NOT_IN_JSON(feature)
 
-    #  Check Hyperion last indexed equals total indexed blocks - this also accounts for all other services being ok
-    # This also takes in account hyperions that don't have all blocks.
+    #  Check Hyperion last indexed equals total indexed blocks
+    print("\n=== Checking hyperion indexed blocks ===")
     hyperionresult = eosio.hyperionindexedBlocks(api)
+    print(f"Hyperion result: {hyperionresult}")
     if hyperionresult[0] == False:
         return False, hyperionresult[1]
-    else:
-        pass  
-    # Set chain type for full and partial checks
+    
     if testnet:
         chain = 'testnet'
     else:
         chain = 'mainnet'
+    print(f"Chain type: {chain}")
+
     # Test for full or partial
     if partialtest:
+        print("\n=== Starting partial test ===")
         if not historyfull:
+            print("Node not set to full in JSON")
             return False, "Node not set to full in JSON"
         #Create payload for request to hyperion
         payload = dict(id=fulltrx[0])
+        print(f"Checking transaction: {fulltrx[0]}")
         try:
             response = eosio.get_stuff(api,payload,'trx')
-            #print(response['executed'])
+            print(f"Transaction response: {response}")
             trxExecuted = response['executed']
             trx_id = response['trx_id']
-            #msg = f"Not enough data to count as running Full Hyperion. Hyperion is missing transaction: {trx_id}. HTML Response {response}"
         except Exception as err:
+            print(f"Transaction check failed: {err}")
             return False, messages.TIMEOUT_ERROR(api)
+
+        print("\n=== Checking history v1 ===")
         if not check_history_v1(producer,feature):
-            #print('full history check failing')
-            #return False, 'Not running History V1'
+            print("History v1 check failed")
             return False, messages.HISTORY_V1(False)
+
         if trxExecuted:
-            return True,  messages.FULL_HYPERION(True)
+            print("Transaction executed successfully")
+            return True, messages.FULL_HYPERION(True)
         else:
+            print(f"Transaction not executed. ID: {trx_id}")
             return False, messages.FULL_HYPERION(False,trx_id,response)
-    ## Perform normal hyperion tests for mainnet and testnet
+    
+    ## Normal hyperion tests
     else:
-    ### Check hyperion last indexed action
-        url = str(eosio.Api_Calls('v2-history', 'get_actions?limit=1')) #'/v2/history/get_actions?limit=1'
+        print("\n=== Starting normal hyperion tests ===")
+        url = str(eosio.Api_Calls('v2-history', 'get_actions?limit=1'))
+        print(f"Checking actions URL: {api+url}")
         reqJSON = requests.getJSON()
         response = reqJSON.getRequest(api+url,trydo='return')
 
-        urlHealth = str(eosio.Api_Calls('v2', 'health')) #'/v2/health
+        urlHealth = str(eosio.Api_Calls('v2', 'health'))
+        print(f"Checking health URL: {api+urlHealth}")
         reqJSONHealth = requests.getJSON()
         responseHealth = reqJSONHealth.getRequest(api+urlHealth,trydo='return')
 
         try:
             jsonresHealth = responseHealth.json()
-            # Ensure 'last_indexed_block_time' is in jsonresHealth before accessing it
+            print(f"Health response: {jsonresHealth}")
             if 'last_indexed_block_time' in jsonresHealth:
                 last_action_date_health = dateutil.parser.parse(
                 jsonresHealth['last_indexed_block_time']).replace(tzinfo=None)
+                print(f"Last action date health: {last_action_date_health}")
             else:
-                # Handle the case where 'last_indexed_block_time' is not in the response
-                print("No 'last_indexed_block_time' in response.")
+                print("No 'last_indexed_block_time' in response")
         except Exception as e:
-            # Log the exception if needed
-            print(f"Failed to parse JSON or access 'last_indexed_block_time': {e}")
-            # Continue with the rest of the code even if the above fails
+            print(f"Failed to parse health response: {e}")
+
         try:
             jsonres = response.json()
             last_action_date = dateutil.parser.parse(
