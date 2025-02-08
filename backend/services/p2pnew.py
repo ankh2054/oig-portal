@@ -24,7 +24,10 @@ def verify_block_from_p2p(producer,features):
         if p2p_head_block >= head_block_num:
             return True, messages.CHECK_P2P(True)
         else: 
-            return False, messages.CHECK_P2P(False,head_block,head_block_num)
+            try:    
+                return False, messages.CHECK_P2P(False,head_block,head_block_num)
+            except:
+                return False, messages.CHECK_P2P(False,'11111111',head_block_num)
     else:
         return False, message
 
